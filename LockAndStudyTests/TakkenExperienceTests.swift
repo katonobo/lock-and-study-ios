@@ -47,7 +47,7 @@ final class TakkenExperienceTests: XCTestCase {
     let feedback = TakkenFeedbackPlanner()
     XCTAssertEqual(feedback.plan(wrongAttemptCount: 1), .relearn6)
     XCTAssertEqual(feedback.plan(wrongAttemptCount: 2), .relearn12)
-    XCTAssertEqual(feedback.waitSeconds(for: .relearn12), 12)
+    XCTAssertEqual(feedback.waitSeconds(for: .relearn12), 15)
   }
 
   func testListAndDetailViewModelsExposeCategoriesAndAnswerHistory() async throws {
@@ -131,7 +131,9 @@ final class TakkenExperienceTests: XCTestCase {
     .init(
       submissionID: "takken-\(suffix)", experienceID: .takken, packID: manifest.id,
       moduleType: .takken, itemID: .init(rawValue: question.id), prompt: question.prompt,
-      choices: question.choices.enumerated().map { .init(id: $0.offset, text: $0.element) },
+      choices: question.choices.enumerated().map {
+        StudyChoice(id: $0.offset, text: $0.element.text)
+      },
       selectedChoiceID: correct ? question.correctIndex : (question.correctIndex + 1) % question.choices.count,
       correctChoiceID: question.correctIndex, shortExplanation: question.shortExplanation ?? question.explanation,
       longExplanation: question.longExplanation ?? question.explanation, sourceNote: question.sourceNote,

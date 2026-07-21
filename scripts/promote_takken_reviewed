@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""Move an already human-reviewed v2 candidate into ContentSource/Reviewed, never Release."""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+from content_checks import ROOT, validate_takken_v2
+
+
+def main() -> int:
+    if len(sys.argv) != 2:
+        print("usage: ./scripts/promote_takken_reviewed ContentSource/Drafts/<file>.json")
+        return 2
+    source = (ROOT / sys.argv[1]).resolve()
+    drafts = (ROOT / "ContentSource/Drafts").resolve()
+    if source.parent != drafts or source.suffix != ".json":
+        print("source must be a JSON file directly under ContentSource/Drafts")
+        return 2
+    items = json.loads(source.read_text(encoding="utf-8"))
+    manifest = {
+        "schemaVersion": 2,
+        "contentQualityProfile": "takken-v2",
+        "choiceOrderStrategy": "seeded_shuffle",
+        "qualification": {"examYear": 2026, "lawBasisDate": "2026-04-01"},
+    }
+    errors = validate_takken_v2(items, manifest)
+    if errors:
+        print("Takken v2 review gate failed:")
+        for error in errors:
+            print(f"- {error}")
+        return 1
+    target_name = source.name.replace("_draft_", "_reviewed_").replace("_candidates", "_reviewed")
+    target = ROOT / "ContentSource/Reviewed" / target_name
+    if target.exists():
+        print(f"refusing to overwrite: {target.relative_to(ROOT)}")
+        return 1
+    source.rename(target)
+    print(f"Promoted to review staging only: {target.relative_to(ROOT)}")
+    print("Release Resources were not changed.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

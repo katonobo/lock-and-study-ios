@@ -323,6 +323,13 @@ final class AppModel: ObservableObject {
         return .expired
       }
       let answeredAt = Date()
+      if let requiredUntil = bundle.reviewRequiredUntilByQuestionID?[question.id.rawValue],
+        requiredUntil > answeredAt
+      {
+        let seconds = max(1, Int(ceil(requiredUntil.timeIntervalSince(answeredAt))))
+        return .failed("解説をあと\(seconds)秒確認してから、再挑戦してください。")
+      }
+      let attemptNumber = (bundle.attemptCountsByQuestionID?[question.id.rawValue] ?? 0) + 1
       let itemProgress = try await dependencies.learning.progress(
         for: .init(packID: bundle.challenge.packID, itemID: question.id))
       let record = answerRecord(
@@ -331,18 +338,34 @@ final class AppModel: ObservableObject {
         feedback: feedback,
         bundle: bundle,
         answeredAt: answeredAt,
-        priorProgress: itemProgress
+        priorProgress: itemProgress,
+        attemptNumber: attemptNumber
       )
       _ = try await dependencies.learning.recordUnique(record)
+      var attempts = bundle.attemptCountsByQuestionID ?? [:]
+      attempts[question.id.rawValue] = attemptNumber
+      bundle.attemptCountsByQuestionID = attempts
+      var reviewRequired = bundle.reviewRequiredUntilByQuestionID ?? [:]
+      var lastSelections = bundle.lastSelectedChoiceIDByQuestionID ?? [:]
       if selectedChoiceID == question.correctChoiceID {
         guard Date() < bundle.challenge.expiresAt else {
           try await expireUnlockBundle(&bundle, reason: "challenge-expired-after-answer")
           return .expired
         }
         bundle.completedQuestionIDs.insert(question.id)
-        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
-        unlockChallenge = bundle
+        reviewRequired.removeValue(forKey: question.id.rawValue)
+        lastSelections.removeValue(forKey: question.id.rawValue)
+      } else if case .takken(let value) = question {
+        let stagedSeconds = attemptNumber == 1 ? 10 : (attemptNumber == 2 ? 15 : 20)
+        let minimumSeconds = max(value.minimumReviewSeconds ?? 10, stagedSeconds)
+        reviewRequired[question.id.rawValue] = answeredAt.addingTimeInterval(
+          TimeInterval(minimumSeconds))
+        lastSelections[question.id.rawValue] = selectedChoiceID
       }
+      bundle.reviewRequiredUntilByQuestionID = reviewRequired
+      bundle.lastSelectedChoiceIDByQuestionID = lastSelections
+      try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+      unlockChallenge = bundle
       records = try await dependencies.learning.events()
       return selectedChoiceID == question.correctChoiceID ? .recordedCorrect : .recordedIncorrect
     } catch {
@@ -406,6 +429,8 @@ final class AppModel: ObservableObject {
           } catch {
             if bundle.challenge.experienceID == .vocabulary {
               try? await dependencies.learning.saveVocabularyPendingPreview(nil)
+            } else if bundle.challenge.experienceID == .takken {
+              try? await dependencies.learning.saveTakkenPendingPreview(nil)
             }
             completionWarning = "ロック解除は完了しましたが、次回予習を保存できませんでした。\n\(error.localizedDescription)"
           }
@@ -538,10 +563,11 @@ final class AppModel: ObservableObject {
     feedback: StudyFeedbackPlan,
     bundle: ExperienceUnlockBundleSnapshot,
     answeredAt: Date,
-    priorProgress: ItemProgress
+    priorProgress: ItemProgress,
+    attemptNumber: Int
   ) -> StudyAnswerRecord {
     let submissionID =
-      "unlock::\(bundle.id.uuidString)::\(question.id.rawValue)::\(selectedChoiceID)"
+      "unlock::\(bundle.id.uuidString)::\(question.id.rawValue)::attempt::\(attemptNumber)::choice::\(selectedChoiceID)"
     let role = AnswerLearningRole.classify(mode: .unlock, progress: priorProgress, at: answeredAt)
     let wasNew = priorProgress.answerCount == 0
     let wasDue = priorProgress.dueAt.map { $0 <= answeredAt } ?? false
@@ -556,7 +582,8 @@ final class AppModel: ObservableObject {
         sourceNote: nil, category: value.levelCode, subcategory: nil,
         contentVersion: value.contentVersion, questionVersion: 1, examYear: nil, lawBasisDate: nil,
         answeredAt: answeredAt, mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
-        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue
+        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue,
+        attemptNumber: attemptNumber, wasFirstAttempt: attemptNumber == 1
       )
     case .takken(let value):
       return .init(
@@ -569,7 +596,9 @@ final class AppModel: ObservableObject {
         examYear: value.examYear, lawBasisDate: value.lawBasisDate,
         answeredAt: answeredAt, mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
         difficulty: value.difficulty, questionFormat: value.format, keyPoint: value.keyPoint,
-        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue
+        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue,
+        conceptID: value.resolvedConceptID, variantID: value.resolvedVariantID,
+        attemptNumber: attemptNumber, wasFirstAttempt: attemptNumber == 1
       )
     case .safeFallback(let value):
       return .init(
@@ -580,7 +609,8 @@ final class AppModel: ObservableObject {
         sourceNote: "built-in-safe-fallback", category: "安全な無料問題", subcategory: nil,
         contentVersion: "built-in-v1", questionVersion: 1, examYear: nil, lawBasisDate: nil,
         answeredAt: answeredAt, mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
-        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue
+        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue,
+        attemptNumber: attemptNumber, wasFirstAttempt: attemptNumber == 1
       )
     }
   }
@@ -639,16 +669,35 @@ final class AppModel: ObservableObject {
           sessionID: vocabularySession, feedbackPlan: .immediate,
           learningRole: .newItem, wasNewAtSubmission: true, wasDueAtSubmission: false),
         .init(
-          submissionID: "ui-report-takken", experienceID: .takken,
+          submissionID: "ui-report-takken-wrong", experienceID: .takken,
           packID: "takken2026.v1", moduleType: .takken, itemID: "ui-takken",
-          prompt: "学習レポート用宅建", choices: [.init(id: 0, text: "正しい")],
-          selectedChoiceID: 0, correctChoiceID: 0, shortExplanation: "説明",
+          prompt: "学習レポート用宅建", choices: [
+            .init(id: 0, text: "誤り"), .init(id: 1, text: "正しい"),
+          ],
+          selectedChoiceID: 0, correctChoiceID: 1, shortExplanation: "説明",
+          longExplanation: "説明", sourceNote: nil, category: "宅建業法", subcategory: "免許",
+          contentVersion: "ui", questionVersion: 1, examYear: 2026,
+          lawBasisDate: "2026-04-01", answeredAt: now.addingTimeInterval(-1_900),
+          mode: .practice, sessionID: takkenSession, feedbackPlan: .relearn6,
+          difficulty: "基礎", questionFormat: TakkenQuestionFormat.trueFalse.rawValue,
+          learningRole: .newItem, wasNewAtSubmission: true,
+          wasDueAtSubmission: false, conceptID: "ui-takken-concept", variantID: "base",
+          attemptNumber: 1, wasFirstAttempt: true),
+        .init(
+          submissionID: "ui-report-takken-correct", experienceID: .takken,
+          packID: "takken2026.v1", moduleType: .takken, itemID: "ui-takken",
+          prompt: "学習レポート用宅建", choices: [
+            .init(id: 0, text: "誤り"), .init(id: 1, text: "正しい"),
+          ],
+          selectedChoiceID: 1, correctChoiceID: 1, shortExplanation: "説明",
           longExplanation: "説明", sourceNote: nil, category: "宅建業法", subcategory: "免許",
           contentVersion: "ui", questionVersion: 1, examYear: 2026,
           lawBasisDate: "2026-04-01", answeredAt: now.addingTimeInterval(-1_800),
           mode: .practice, sessionID: takkenSession, feedbackPlan: .immediate,
-          difficulty: "基礎", learningRole: .newItem, wasNewAtSubmission: true,
-          wasDueAtSubmission: false),
+          difficulty: "基礎", questionFormat: TakkenQuestionFormat.trueFalse.rawValue,
+          learningRole: .generalReview, wasNewAtSubmission: false,
+          wasDueAtSubmission: false, conceptID: "ui-takken-concept", variantID: "base",
+          attemptNumber: 2, wasFirstAttempt: false),
       ]
       for fixture in fixtures { _ = try await dependencies.learning.recordUnique(fixture) }
       try await dependencies.learning.record(.init(

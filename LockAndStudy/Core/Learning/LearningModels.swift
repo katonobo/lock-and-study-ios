@@ -83,6 +83,10 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
   let learningRole: AnswerLearningRole?
   let wasNewAtSubmission: Bool?
   let wasDueAtSubmission: Bool?
+  let conceptID: String?
+  let variantID: String?
+  let attemptNumber: Int?
+  let wasFirstAttempt: Bool?
 
   init(
     prompt item: StudyPrompt,
@@ -103,6 +107,10 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
     learningRole = priorProgress.map { .classify(mode: mode, progress: $0, at: answeredAt) }
     wasNewAtSubmission = priorProgress.map { $0.answerCount == 0 }
     wasDueAtSubmission = priorProgress.map { $0.dueAt.map { $0 <= answeredAt } ?? false }
+    conceptID = nil
+    variantID = nil
+    attemptNumber = nil
+    wasFirstAttempt = nil
   }
 
   init(
@@ -134,7 +142,11 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
     tags: [String]? = nil,
     learningRole: AnswerLearningRole? = nil,
     wasNewAtSubmission: Bool? = nil,
-    wasDueAtSubmission: Bool? = nil
+    wasDueAtSubmission: Bool? = nil,
+    conceptID: String? = nil,
+    variantID: String? = nil,
+    attemptNumber: Int? = nil,
+    wasFirstAttempt: Bool? = nil
   ) {
     schemaVersion = 2
     id = UUID()
@@ -168,6 +180,10 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
     self.learningRole = learningRole
     self.wasNewAtSubmission = wasNewAtSubmission
     self.wasDueAtSubmission = wasDueAtSubmission
+    self.conceptID = conceptID
+    self.variantID = variantID
+    self.attemptNumber = attemptNumber
+    self.wasFirstAttempt = wasFirstAttempt
   }
 }
 

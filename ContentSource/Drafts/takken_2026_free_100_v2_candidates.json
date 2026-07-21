@@ -1,0 +1,4862 @@
+[
+  {
+    "id": "tl_gyoho_license_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業を営むには、原則として宅地建物取引業の免許が必要である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅地建物取引業を業として行うには、原則として免許が必要です。",
+    "shortExplanation": "宅地建物取引業を業として行うには、原則として免許が必要です。",
+    "longExplanation": "宅地建物取引業を業として行うには、原則として免許が必要です。",
+    "keyPoint": "宅建業は免許制。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "免許制度",
+      "rule": "宅建業は免許制。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_license_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "自ら所有する建物を一回だけ賃貸する行為は、原則として宅地建物取引業にあたる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "自ら貸主として建物を貸すだけの行為は、原則として宅地建物取引業にはあたりません。",
+    "shortExplanation": "自ら貸主として建物を貸すだけの行為は、原則として宅地建物取引業にはあたりません。",
+    "longExplanation": "自ら貸主として建物を貸すだけの行為は、原則として宅地建物取引業にはあたりません。",
+    "keyPoint": "自ら貸主は原則として宅建業ではない。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "免許制度",
+      "rule": "自ら貸主は原則として宅建業ではない。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_license_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅地の売買の媒介を反復継続して行う場合は、宅地建物取引業にあたり得る。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅地や建物の売買・交換・貸借の媒介を業として行う場合は宅地建物取引業にあたります。",
+    "shortExplanation": "宅地や建物の売買・交換・貸借の媒介を業として行う場合は宅地建物取引業にあたります。",
+    "longExplanation": "宅地や建物の売買・交換・貸借の媒介を業として行う場合は宅地建物取引業にあたります。",
+    "keyPoint": "媒介も宅建業。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "免許制度",
+      "rule": "媒介も宅建業。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_license_004",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "建物の売買を業として行う場合、自己所有物件だけを扱うときでも免許が必要になり得る。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "建物の売買を業として行えば、自己所有物件であっても宅地建物取引業に該当し得ます。",
+    "shortExplanation": "建物の売買を業として行えば、自己所有物件であっても宅地建物取引業に該当し得ます。",
+    "longExplanation": "建物の売買を業として行えば、自己所有物件であっても宅地建物取引業に該当し得ます。",
+    "keyPoint": "売買を業として行うと免許が必要。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_004",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "免許制度",
+      "rule": "売買を業として行うと免許が必要。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_license_005",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "建物の管理だけを業として行う場合は、それだけで当然に宅地建物取引業となる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "建物管理だけを行う場合は、通常それだけで宅地建物取引業にはあたりません。",
+    "shortExplanation": "建物管理だけを行う場合は、通常それだけで宅地建物取引業にはあたりません。",
+    "longExplanation": "建物管理だけを行う場合は、通常それだけで宅地建物取引業にはあたりません。",
+    "keyPoint": "管理業と取引業を区別。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_005",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "免許制度",
+      "rule": "管理業と取引業を区別。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_license_006",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者が2以上の都道府県に事務所を置く場合は、国土交通大臣の免許を受ける。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "事務所が2以上の都道府県にある場合は国土交通大臣免許です。",
+    "shortExplanation": "事務所が2以上の都道府県にある場合は国土交通大臣免許です。",
+    "longExplanation": "事務所が2以上の都道府県にある場合は国土交通大臣免許です。",
+    "keyPoint": "複数都道府県なら大臣免許。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_006",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "免許制度",
+      "rule": "複数都道府県なら大臣免許。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_license_007",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者が1つの都道府県内だけに事務所を置く場合は、その都道府県知事の免許を受ける。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "事務所が1つの都道府県内だけなら、その都道府県知事免許です。",
+    "shortExplanation": "事務所が1つの都道府県内だけなら、その都道府県知事免許です。",
+    "longExplanation": "事務所が1つの都道府県内だけなら、その都道府県知事免許です。",
+    "keyPoint": "同一都道府県内なら知事免許。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_007",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "免許制度",
+      "rule": "同一都道府県内なら知事免許。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_license_019",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "宅建業者が廃業した場合、一定の者が免許権者へ届出をする必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "廃業等があったときは、事由に応じて一定の者が届出を行う必要があります。",
+    "shortExplanation": "廃業等があったときは、事由に応じて一定の者が届出を行う必要があります。",
+    "longExplanation": "廃業等があったときは、事由に応じて一定の者が届出を行う必要があります。",
+    "keyPoint": "廃業等にも届出がある。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_019",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "免許制度",
+      "rule": "廃業等にも届出がある。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_license_020",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "宅建業者が死亡した場合、その免許は当然に相続人へ承継される。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "個人業者が死亡した場合、免許が当然に相続人へ承継されるわけではありません。",
+    "shortExplanation": "個人業者が死亡した場合、免許が当然に相続人へ承継されるわけではありません。",
+    "longExplanation": "個人業者が死亡した場合、免許が当然に相続人へ承継されるわけではありません。",
+    "keyPoint": "免許は当然承継されない。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_020",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "免許制度",
+      "rule": "免許は当然承継されない。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_license_021",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "免許制度",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "免許申請者が一定の欠格事由に該当すると、免許を受けられない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "破産して復権を得ない者など、欠格事由に該当する場合は免許を受けられません。",
+    "shortExplanation": "破産して復権を得ない者など、欠格事由に該当する場合は免許を受けられません。",
+    "longExplanation": "破産して復権を得ない者など、欠格事由に該当する場合は免許を受けられません。",
+    "keyPoint": "欠格事由は免許の入口。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_license_021",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "免許制度",
+      "rule": "欠格事由は免許の入口。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建士になるには、試験合格だけでなく、登録を受ける必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "試験に合格しただけでは宅建士としての業務はできず、登録が必要です。",
+    "shortExplanation": "試験に合格しただけでは宅建士としての業務はできず、登録が必要です。",
+    "longExplanation": "試験に合格しただけでは宅建士としての業務はできず、登録が必要です。",
+    "keyPoint": "合格と登録は別。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "合格と登録は別。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建士証の交付を受けていない者でも、重要事項説明を宅建士として行うことができる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "宅建士として重要事項説明を行うには、宅建士証の交付を受けている必要があります。",
+    "shortExplanation": "宅建士として重要事項説明を行うには、宅建士証の交付を受けている必要があります。",
+    "longExplanation": "宅建士として重要事項説明を行うには、宅建士証の交付を受けている必要があります。",
+    "keyPoint": "宅建士証が必要。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "宅建士証が必要。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建士証の有効期間は5年である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建士証の有効期間は5年です。",
+    "shortExplanation": "宅建士証の有効期間は5年です。",
+    "longExplanation": "宅建士証の有効期間は5年です。",
+    "keyPoint": "宅建士証も5年。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "宅建士証も5年。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_004",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建士登録そのものは、宅建士証と同じく5年ごとに当然失効する。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "5年の有効期間があるのは宅建士証であり、登録そのものが当然に5年で失効するわけではありません。",
+    "shortExplanation": "5年の有効期間があるのは宅建士証であり、登録そのものが当然に5年で失効するわけではありません。",
+    "longExplanation": "5年の有効期間があるのは宅建士証であり、登録そのものが当然に5年で失効するわけではありません。",
+    "keyPoint": "登録と宅建士証を区別。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_004",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "登録と宅建士証を区別。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_005",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建士が重要事項説明をするときは、相手方の請求がなくても宅建士証を提示する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "重要事項説明時には、請求の有無にかかわらず宅建士証を提示する必要があります。",
+    "shortExplanation": "重要事項説明時には、請求の有無にかかわらず宅建士証を提示する必要があります。",
+    "longExplanation": "重要事項説明時には、請求の有無にかかわらず宅建士証を提示する必要があります。",
+    "keyPoint": "35条説明時は宅建士証提示。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_005",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "35条説明時は宅建士証提示。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_006",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建士は、37条書面に記名する重要な役割を持つ。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "37条書面には宅建士の記名が必要です。",
+    "shortExplanation": "37条書面には宅建士の記名が必要です。",
+    "longExplanation": "37条書面には宅建士の記名が必要です。",
+    "keyPoint": "37条書面も宅建士の記名。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_006",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "37条書面も宅建士の記名。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_007",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建士が氏名や住所を変更した場合でも、登録事項の変更手続は不要である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "氏名や住所など登録事項に変更があれば、変更登録の手続が必要です。",
+    "shortExplanation": "氏名や住所など登録事項に変更があれば、変更登録の手続が必要です。",
+    "longExplanation": "氏名や住所など登録事項に変更があれば、変更登録の手続が必要です。",
+    "keyPoint": "登録事項変更は手続。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_007",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "登録事項変更は手続。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_019",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "宅建士証の住所欄は、重要事項説明時に必ず相手へ読み上げなければならない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "重要事項説明時に宅建士証を提示する必要はありますが、住所を読み上げる義務ではありません。",
+    "shortExplanation": "重要事項説明時に宅建士証を提示する必要はありますが、住所を読み上げる義務ではありません。",
+    "longExplanation": "重要事項説明時に宅建士証を提示する必要はありますが、住所を読み上げる義務ではありません。",
+    "keyPoint": "提示と読み上げを区別。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_019",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "提示と読み上げを区別。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_020",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "宅建士は、専任でなければ一切の重要事項説明を行えない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "重要事項説明は宅建士が行いますが、必ず専任宅建士でなければならないわけではありません。",
+    "shortExplanation": "重要事項説明は宅建士が行いますが、必ず専任宅建士でなければならないわけではありません。",
+    "longExplanation": "重要事項説明は宅建士が行いますが、必ず専任宅建士でなければならないわけではありません。",
+    "keyPoint": "宅建士と専任宅建士を区別。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_020",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "宅建士と専任宅建士を区別。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_takkenshi_021",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "宅建士制度",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "専任宅建士は、原則としてその事務所に常勤し、専ら宅建業に従事する者をいう。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "専任宅建士には、常勤性と専従性が求められます。",
+    "shortExplanation": "専任宅建士には、常勤性と専従性が求められます。",
+    "longExplanation": "専任宅建士には、常勤性と専従性が求められます。",
+    "keyPoint": "専任は常勤・専従。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_takkenshi_021",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "宅建士制度",
+      "rule": "専任は常勤・専従。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_eigyo_hoshokin_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "営業保証金",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者は、営業を開始する前に営業保証金を供託し、免許権者へ届け出る必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "営業保証金を供託し、その旨を免許権者に届け出た後でなければ、事業を開始できません。",
+    "shortExplanation": "営業保証金を供託し、その旨を免許権者に届け出た後でなければ、事業を開始できません。",
+    "longExplanation": "営業保証金を供託し、その旨を免許権者に届け出た後でなければ、事業を開始できません。",
+    "keyPoint": "供託＋届出後に営業開始。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_eigyo_hoshokin_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "営業保証金",
+      "rule": "供託＋届出後に営業開始。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_eigyo_hoshokin_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "営業保証金",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "営業保証金は、主たる事務所について1,000万円、その他の事務所1か所につき500万円である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "営業保証金は主たる事務所1,000万円、従たる事務所ごとに500万円です。",
+    "shortExplanation": "営業保証金は主たる事務所1,000万円、従たる事務所ごとに500万円です。",
+    "longExplanation": "営業保証金は主たる事務所1,000万円、従たる事務所ごとに500万円です。",
+    "keyPoint": "本店1000万、支店500万。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_eigyo_hoshokin_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "営業保証金",
+      "rule": "本店1000万、支店500万。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_eigyo_hoshokin_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "営業保証金",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "営業保証金は、すべての事務所について一律100万円である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "営業保証金は一律100万円ではなく、主たる事務所1,000万円、その他の事務所500万円です。",
+    "shortExplanation": "営業保証金は一律100万円ではなく、主たる事務所1,000万円、その他の事務所500万円です。",
+    "longExplanation": "営業保証金は一律100万円ではなく、主たる事務所1,000万円、その他の事務所500万円です。",
+    "keyPoint": "金額の基本を暗記。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_eigyo_hoshokin_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "営業保証金",
+      "rule": "金額の基本を暗記。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_eigyo_hoshokin_004",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "営業保証金",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "営業保証金の供託先は、原則として主たる事務所の最寄りの供託所である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "営業保証金は、主たる事務所の最寄りの供託所に供託します。",
+    "shortExplanation": "営業保証金は、主たる事務所の最寄りの供託所に供託します。",
+    "longExplanation": "営業保証金は、主たる事務所の最寄りの供託所に供託します。",
+    "keyPoint": "供託先は本店最寄り。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_eigyo_hoshokin_004",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "営業保証金",
+      "rule": "供託先は本店最寄り。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_eigyo_hoshokin_005",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "営業保証金",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "営業保証金を供託すれば、免許権者への届出前でも直ちに営業を開始できる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "供託しただけでは足りず、免許権者への届出後に営業を開始できます。",
+    "shortExplanation": "供託しただけでは足りず、免許権者への届出後に営業を開始できます。",
+    "longExplanation": "供託しただけでは足りず、免許権者への届出後に営業を開始できます。",
+    "keyPoint": "供託だけでは営業開始不可。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_eigyo_hoshokin_005",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "営業保証金",
+      "rule": "供託だけでは営業開始不可。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_eigyo_hoshokin_006",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "営業保証金",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "新たに支店を設置して宅建業を行う場合、その支店分の営業保証金を追加で供託する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "従たる事務所を新設する場合、1か所につき500万円の追加供託が必要です。",
+    "shortExplanation": "従たる事務所を新設する場合、1か所につき500万円の追加供託が必要です。",
+    "longExplanation": "従たる事務所を新設する場合、1か所につき500万円の追加供託が必要です。",
+    "keyPoint": "支店新設は500万円追加。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_eigyo_hoshokin_006",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "営業保証金",
+      "rule": "支店新設は500万円追加。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_eigyo_hoshokin_016",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "営業保証金",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "主たる事務所を移転した場合、営業保証金の供託所に関する手続が必要になることがある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "主たる事務所の移転により最寄り供託所が変わる場合、保管替え等の手続が問題になります。",
+    "shortExplanation": "主たる事務所の移転により最寄り供託所が変わる場合、保管替え等の手続が問題になります。",
+    "longExplanation": "主たる事務所の移転により最寄り供託所が変わる場合、保管替え等の手続が問題になります。",
+    "keyPoint": "本店移転は供託所にも注意。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_eigyo_hoshokin_016",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "営業保証金",
+      "rule": "本店移転は供託所にも注意。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_eigyo_hoshokin_017",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "営業保証金",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "営業保証金制度と保証協会制度は、どちらも取引の相手方保護に関係する。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "営業保証金制度も保証協会の弁済業務保証金制度も、取引の相手方保護に関係します。",
+    "shortExplanation": "営業保証金制度も保証協会の弁済業務保証金制度も、取引の相手方保護に関係します。",
+    "longExplanation": "営業保証金制度も保証協会の弁済業務保証金制度も、取引の相手方保護に関係します。",
+    "keyPoint": "営業保証金と保証協会は比較。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_eigyo_hoshokin_017",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "営業保証金",
+      "rule": "営業保証金と保証協会は比較。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_hosho_kyokai_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "保証協会",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者は、保証協会に加入すれば、原則として営業保証金を供託しなくてよい。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "保証協会の社員となった宅建業者は、営業保証金ではなく弁済業務保証金分担金を納付します。",
+    "shortExplanation": "保証協会の社員となった宅建業者は、営業保証金ではなく弁済業務保証金分担金を納付します。",
+    "longExplanation": "保証協会の社員となった宅建業者は、営業保証金ではなく弁済業務保証金分担金を納付します。",
+    "keyPoint": "保証協会加入で営業保証金に代替。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_hosho_kyokai_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "保証協会",
+      "rule": "保証協会加入で営業保証金に代替。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_hosho_kyokai_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "保証協会",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "保証協会の社員となるには、弁済業務保証金分担金を納付する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "保証協会に加入する宅建業者は、弁済業務保証金分担金を納付します。",
+    "shortExplanation": "保証協会に加入する宅建業者は、弁済業務保証金分担金を納付します。",
+    "longExplanation": "保証協会に加入する宅建業者は、弁済業務保証金分担金を納付します。",
+    "keyPoint": "加入時は分担金。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_hosho_kyokai_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "保証協会",
+      "rule": "加入時は分担金。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_hosho_kyokai_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "保証協会",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "弁済業務保証金分担金は、主たる事務所60万円、その他の事務所1か所につき30万円である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "弁済業務保証金分担金は、主たる事務所60万円、その他の事務所ごとに30万円です。",
+    "shortExplanation": "弁済業務保証金分担金は、主たる事務所60万円、その他の事務所ごとに30万円です。",
+    "longExplanation": "弁済業務保証金分担金は、主たる事務所60万円、その他の事務所ごとに30万円です。",
+    "keyPoint": "本店60万、支店30万。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_hosho_kyokai_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "保証協会",
+      "rule": "本店60万、支店30万。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_hosho_kyokai_004",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "保証協会",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "弁済業務保証金分担金は、営業保証金と同じく主たる事務所1,000万円、支店500万円である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "保証協会の分担金は、主たる事務所60万円、支店30万円です。",
+    "shortExplanation": "保証協会の分担金は、主たる事務所60万円、支店30万円です。",
+    "longExplanation": "保証協会の分担金は、主たる事務所60万円、支店30万円です。",
+    "keyPoint": "営業保証金と保証協会分担金を区別。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_hosho_kyokai_004",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "保証協会",
+      "rule": "営業保証金と保証協会分担金を区別。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_hosho_kyokai_005",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "保証協会",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "1つの宅建業者が、同時に2つ以上の保証協会の社員となることはできない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者は、同時に2つ以上の保証協会の社員となることはできません。",
+    "shortExplanation": "宅建業者は、同時に2つ以上の保証協会の社員となることはできません。",
+    "longExplanation": "宅建業者は、同時に2つ以上の保証協会の社員となることはできません。",
+    "keyPoint": "保証協会は一つだけ。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_hosho_kyokai_005",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "保証協会",
+      "rule": "保証協会は一つだけ。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_hosho_kyokai_006",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "保証協会",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "保証協会は、苦情の解決や研修などの業務も行う。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "保証協会は弁済業務だけでなく、苦情解決や研修などの業務も行います。",
+    "shortExplanation": "保証協会は弁済業務だけでなく、苦情解決や研修などの業務も行います。",
+    "longExplanation": "保証協会は弁済業務だけでなく、苦情解決や研修などの業務も行います。",
+    "keyPoint": "保証協会の業務は弁済だけではない。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_hosho_kyokai_006",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "保証協会",
+      "rule": "保証協会の業務は弁済だけではない。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_hosho_kyokai_016",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "保証協会",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "保証協会社員が新たに支店を設置する場合、追加の弁済業務保証金分担金が必要になる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "支店を新設する場合、支店ごとに30万円の分担金が必要です。",
+    "shortExplanation": "支店を新設する場合、支店ごとに30万円の分担金が必要です。",
+    "longExplanation": "支店を新設する場合、支店ごとに30万円の分担金が必要です。",
+    "keyPoint": "支店は30万円追加。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_hosho_kyokai_016",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "保証協会",
+      "rule": "支店は30万円追加。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_hosho_kyokai_017",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "保証協会",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "保証協会の社員になれば、専任宅建士の設置義務もなくなる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "保証協会加入は、専任宅建士の設置義務を免除するものではありません。",
+    "shortExplanation": "保証協会加入は、専任宅建士の設置義務を免除するものではありません。",
+    "longExplanation": "保証協会加入は、専任宅建士の設置義務を免除するものではありません。",
+    "keyPoint": "保証協会と専任宅建士義務は別。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_hosho_kyokai_017",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "保証協会",
+      "rule": "保証協会と専任宅建士義務は別。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_office_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "事務所・案内所・標識・帳簿",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者の事務所には、一定数の専任宅建士を置く必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者の事務所には、業務に従事する者の数に応じて専任宅建士を置く必要があります。",
+    "shortExplanation": "宅建業者の事務所には、業務に従事する者の数に応じて専任宅建士を置く必要があります。",
+    "longExplanation": "宅建業者の事務所には、業務に従事する者の数に応じて専任宅建士を置く必要があります。",
+    "keyPoint": "事務所には専任宅建士。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_office_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "事務所・案内所・標識・帳簿",
+      "rule": "事務所には専任宅建士。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_office_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "事務所・案内所・標識・帳簿",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者の事務所では、業務従事者5人につき1人以上の割合で専任宅建士が必要である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "事務所では、業務従事者5人に1人以上の割合で専任宅建士を置く必要があります。",
+    "shortExplanation": "事務所では、業務従事者5人に1人以上の割合で専任宅建士を置く必要があります。",
+    "longExplanation": "事務所では、業務従事者5人に1人以上の割合で専任宅建士を置く必要があります。",
+    "keyPoint": "5人に1人。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_office_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "事務所・案内所・標識・帳簿",
+      "rule": "5人に1人。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_office_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "事務所・案内所・標識・帳簿",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "契約を締結する案内所等には、専任宅建士を1人以上置く必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "契約締結または申込みを受ける案内所等には、専任宅建士を1人以上置く必要があります。",
+    "shortExplanation": "契約締結または申込みを受ける案内所等には、専任宅建士を1人以上置く必要があります。",
+    "longExplanation": "契約締結または申込みを受ける案内所等には、専任宅建士を1人以上置く必要があります。",
+    "keyPoint": "契約行為ありの案内所は1人以上。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_office_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "事務所・案内所・標識・帳簿",
+      "rule": "契約行為ありの案内所は1人以上。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_office_004",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "事務所・案内所・標識・帳簿",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "契約を締結する案内所でも、事務所ではないため専任宅建士は一切不要である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "契約締結等を行う案内所等には、専任宅建士を1人以上置く必要があります。",
+    "shortExplanation": "契約締結等を行う案内所等には、専任宅建士を1人以上置く必要があります。",
+    "longExplanation": "契約締結等を行う案内所等には、専任宅建士を1人以上置く必要があります。",
+    "keyPoint": "案内所でも契約行為があれば必要。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_office_004",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "事務所・案内所・標識・帳簿",
+      "rule": "案内所でも契約行為があれば必要。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_office_005",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "事務所・案内所・標識・帳簿",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "専任宅建士が法定数に不足した場合、宅建業者は一定期間内に必要な措置をとる必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "専任宅建士が不足した場合は、2週間以内に補充など必要な措置をとる必要があります。",
+    "shortExplanation": "専任宅建士が不足した場合は、2週間以内に補充など必要な措置をとる必要があります。",
+    "longExplanation": "専任宅建士が不足した場合は、2週間以内に補充など必要な措置をとる必要があります。",
+    "keyPoint": "不足時は2週間以内。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_office_005",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "事務所・案内所・標識・帳簿",
+      "rule": "不足時は2週間以内。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_office_006",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "事務所・案内所・標識・帳簿",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者は、事務所や一定の案内所に標識を掲示する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者は、事務所や一定の案内所等に標識を掲示しなければなりません。",
+    "shortExplanation": "宅建業者は、事務所や一定の案内所等に標識を掲示しなければなりません。",
+    "longExplanation": "宅建業者は、事務所や一定の案内所等に標識を掲示しなければなりません。",
+    "keyPoint": "標識は外から分かる表示。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_office_006",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "事務所・案内所・標識・帳簿",
+      "rule": "標識は外から分かる表示。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_office_016",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "事務所・案内所・標識・帳簿",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "宅建業者が自ら売主となる新築住宅に関する帳簿は、通常より長く保存する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "自ら売主となる新築住宅に関する帳簿は、閉鎖後10年間保存する扱いです。",
+    "shortExplanation": "自ら売主となる新築住宅に関する帳簿は、閉鎖後10年間保存する扱いです。",
+    "longExplanation": "自ら売主となる新築住宅に関する帳簿は、閉鎖後10年間保存する扱いです。",
+    "keyPoint": "新築住宅売主の帳簿は10年。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_office_016",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "事務所・案内所・標識・帳簿",
+      "rule": "新築住宅売主の帳簿は10年。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_office_017",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "事務所・案内所・標識・帳簿",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "宅建業者は、誇大広告をしてはならない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者は、著しく事実に相違する表示や実際より著しく優良・有利と誤認させる広告をしてはなりません。",
+    "shortExplanation": "宅建業者は、著しく事実に相違する表示や実際より著しく優良・有利と誤認させる広告をしてはなりません。",
+    "longExplanation": "宅建業者は、著しく事実に相違する表示や実際より著しく優良・有利と誤認させる広告をしてはなりません。",
+    "keyPoint": "誇大広告は禁止。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_office_017",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "事務所・案内所・標識・帳簿",
+      "rule": "誇大広告は禁止。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅地または建物の売買・交換の媒介契約を締結した宅建業者は、遅滞なく媒介契約書を交付する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "売買・交換の媒介契約では、宅建業者は遅滞なく媒介契約書を交付します。",
+    "shortExplanation": "売買・交換の媒介契約では、宅建業者は遅滞なく媒介契約書を交付します。",
+    "longExplanation": "売買・交換の媒介契約では、宅建業者は遅滞なく媒介契約書を交付します。",
+    "keyPoint": "媒介契約書は遅滞なく交付。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "媒介契約書は遅滞なく交付。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "媒介契約書は、売買・交換だけでなく、すべての賃貸借媒介でも必ず宅建業法上の媒介契約書として交付しなければならない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "宅建業法の媒介契約規制は、主に売買・交換の媒介契約について問題になります。",
+    "shortExplanation": "宅建業法の媒介契約規制は、主に売買・交換の媒介契約について問題になります。",
+    "longExplanation": "宅建業法の媒介契約規制は、主に売買・交換の媒介契約について問題になります。",
+    "keyPoint": "媒介契約規制は売買・交換中心。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "媒介契約規制は売買・交換中心。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "専任媒介契約の有効期間は、3か月を超えることができない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "専任媒介契約の有効期間は、3か月を超えることができません。",
+    "shortExplanation": "専任媒介契約の有効期間は、3か月を超えることができません。",
+    "longExplanation": "専任媒介契約の有効期間は、3か月を超えることができません。",
+    "keyPoint": "専任は最長3か月。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "専任は最長3か月。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_004",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "専属専任媒介契約の有効期間も、3か月を超えることはできない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "専属専任媒介契約も専任媒介契約の一種であり、有効期間は3か月以内です。",
+    "shortExplanation": "専属専任媒介契約も専任媒介契約の一種であり、有効期間は3か月以内です。",
+    "longExplanation": "専属専任媒介契約も専任媒介契約の一種であり、有効期間は3か月以内です。",
+    "keyPoint": "専属専任も最長3か月。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_004",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "専属専任も最長3か月。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_005",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "専任媒介契約は、期間満了時に依頼者の申出がなくても自動更新される。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "専任媒介契約の更新は、依頼者の申出による必要があります。自動更新はできません。",
+    "shortExplanation": "専任媒介契約の更新は、依頼者の申出による必要があります。自動更新はできません。",
+    "longExplanation": "専任媒介契約の更新は、依頼者の申出による必要があります。自動更新はできません。",
+    "keyPoint": "専任の自動更新は禁止。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_005",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "専任の自動更新は禁止。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_006",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "専任媒介契約では、宅建業者は依頼者に2週間に1回以上、業務処理状況を報告する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "専任媒介契約では、2週間に1回以上の業務報告が必要です。",
+    "shortExplanation": "専任媒介契約では、2週間に1回以上の業務報告が必要です。",
+    "longExplanation": "専任媒介契約では、2週間に1回以上の業務報告が必要です。",
+    "keyPoint": "専任は2週間に1回以上。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_006",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "専任は2週間に1回以上。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_007",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "専属専任媒介契約では、宅建業者は依頼者に1週間に1回以上、業務処理状況を報告する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "専属専任媒介契約では、1週間に1回以上の業務報告が必要です。",
+    "shortExplanation": "専属専任媒介契約では、1週間に1回以上の業務報告が必要です。",
+    "longExplanation": "専属専任媒介契約では、1週間に1回以上の業務報告が必要です。",
+    "keyPoint": "専属専任は1週間に1回以上。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_007",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "専属専任は1週間に1回以上。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_019",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "媒介契約の有効期間は、依頼者保護のため、専任では上限が設けられている。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "専任媒介契約では依頼者を不当に拘束しないよう、有効期間の上限があります。",
+    "shortExplanation": "専任媒介契約では依頼者を不当に拘束しないよう、有効期間の上限があります。",
+    "longExplanation": "専任媒介契約では依頼者を不当に拘束しないよう、有効期間の上限があります。",
+    "keyPoint": "専任の期間制限は依頼者保護。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_019",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "専任の期間制限は依頼者保護。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_020",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "専任媒介契約の更新は、宅建業者の一方的な意思表示だけで行える。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "専任媒介契約の更新には、依頼者の申出が必要です。",
+    "shortExplanation": "専任媒介契約の更新には、依頼者の申出が必要です。",
+    "longExplanation": "専任媒介契約の更新には、依頼者の申出が必要です。",
+    "keyPoint": "更新は依頼者申出。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_020",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "更新は依頼者申出。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_baikai_021",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "媒介契約",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "媒介契約書の交付は、取引の内容を明確にして紛争を防ぐ役割を持つ。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "媒介契約書は、依頼内容や報酬などを明確にし、紛争予防に役立ちます。",
+    "shortExplanation": "媒介契約書は、依頼内容や報酬などを明確にし、紛争予防に役立ちます。",
+    "longExplanation": "媒介契約書は、依頼内容や報酬などを明確にし、紛争予防に役立ちます。",
+    "keyPoint": "書面化は紛争予防。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_baikai_021",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "媒介契約",
+      "rule": "書面化は紛争予防。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "重要事項説明は、契約が成立する前に行う必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "重要事項説明は、買主・借主などが契約するか判断できるよう、契約成立前に行います。",
+    "shortExplanation": "重要事項説明は、買主・借主などが契約するか判断できるよう、契約成立前に行います。",
+    "longExplanation": "重要事項説明は、買主・借主などが契約するか判断できるよう、契約成立前に行います。",
+    "keyPoint": "35条は契約前。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "35条は契約前。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "重要事項説明は、契約が成立した後に行えば足りる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "重要事項説明は契約成立前に行う必要があります。契約後では遅いです。",
+    "shortExplanation": "重要事項説明は契約成立前に行う必要があります。契約後では遅いです。",
+    "longExplanation": "重要事項説明は契約成立前に行う必要があります。契約後では遅いです。",
+    "keyPoint": "35条は契約前。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "35条は契約前。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "重要事項説明は、宅建士が行う必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "重要事項説明は宅建士が行います。",
+    "shortExplanation": "重要事項説明は宅建士が行います。",
+    "longExplanation": "重要事項説明は宅建士が行います。",
+    "keyPoint": "説明者は宅建士。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "説明者は宅建士。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_004",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "重要事項説明の際、宅建士は宅建士証を提示する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建士は、重要事項説明をするときに宅建士証を提示します。",
+    "shortExplanation": "宅建士は、重要事項説明をするときに宅建士証を提示します。",
+    "longExplanation": "宅建士は、重要事項説明をするときに宅建士証を提示します。",
+    "keyPoint": "35条説明時は士証提示。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_004",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "35条説明時は士証提示。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_005",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "重要事項説明書には、宅建士の記名が必要である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "重要事項説明書には、宅建士の記名が必要です。",
+    "shortExplanation": "重要事項説明書には、宅建士の記名が必要です。",
+    "longExplanation": "重要事項説明書には、宅建士の記名が必要です。",
+    "keyPoint": "35条書面には宅建士記名。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_005",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "35条書面には宅建士記名。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_006",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "重要事項説明は、売買だけでなく貸借でも必要となる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者が媒介などを行う貸借でも、重要事項説明が必要です。",
+    "shortExplanation": "宅建業者が媒介などを行う貸借でも、重要事項説明が必要です。",
+    "longExplanation": "宅建業者が媒介などを行う貸借でも、重要事項説明が必要です。",
+    "keyPoint": "貸借でも35条。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_006",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "貸借でも35条。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_007",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "相手方が宅建業者である場合でも、常に一般消費者と同じ方法で口頭説明まで必要である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "相手方が宅建業者である場合は、重要事項を記載した書面の交付で足りる扱いがあります。",
+    "shortExplanation": "相手方が宅建業者である場合は、重要事項を記載した書面の交付で足りる扱いがあります。",
+    "longExplanation": "相手方が宅建業者である場合は、重要事項を記載した書面の交付で足りる扱いがあります。",
+    "keyPoint": "業者間では説明省略に注意。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_007",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "業者間では説明省略に注意。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_008",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "重要事項説明の対象には、登記された権利の種類や内容が含まれる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "登記された権利の種類や内容は、重要事項として説明対象になります。",
+    "shortExplanation": "登記された権利の種類や内容は、重要事項として説明対象になります。",
+    "longExplanation": "登記された権利の種類や内容は、重要事項として説明対象になります。",
+    "keyPoint": "登記された権利は35条。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_008",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "登記された権利は35条。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_009",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "法令上の制限に関する事項は、重要事項説明の対象になり得る。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "都市計画法や建築基準法などの法令上の制限は、重要事項説明の中心です。",
+    "shortExplanation": "都市計画法や建築基準法などの法令上の制限は、重要事項説明の中心です。",
+    "longExplanation": "都市計画法や建築基準法などの法令上の制限は、重要事項説明の中心です。",
+    "keyPoint": "法令上の制限は35条頻出。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_009",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "法令上の制限は35条頻出。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_025",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "耐震診断を受けた建物では、その内容が重要事項説明で問題となることがある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "一定の建物で耐震診断の内容がある場合、重要事項説明の対象になります。",
+    "shortExplanation": "一定の建物で耐震診断の内容がある場合、重要事項説明の対象になります。",
+    "longExplanation": "一定の建物で耐震診断の内容がある場合、重要事項説明の対象になります。",
+    "keyPoint": "耐震診断の内容。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_025",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "耐震診断の内容。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_026",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "重要事項説明は、買主や借主が契約判断をするための情報提供である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "重要事項説明は、契約前に重要情報を知らせ、相手方の判断を助ける制度です。",
+    "shortExplanation": "重要事項説明は、契約前に重要情報を知らせ、相手方の判断を助ける制度です。",
+    "longExplanation": "重要事項説明は、契約前に重要情報を知らせ、相手方の判断を助ける制度です。",
+    "keyPoint": "契約前の判断材料。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_026",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "契約前の判断材料。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_027",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "重要事項説明書と37条書面は、交付時期も役割もまったく同じである。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "重要事項説明書は契約前、37条書面は契約成立後に交付するもので、役割が異なります。",
+    "shortExplanation": "重要事項説明書は契約前、37条書面は契約成立後に交付するもので、役割が異なります。",
+    "longExplanation": "重要事項説明書は契約前、37条書面は契約成立後に交付するもので、役割が異なります。",
+    "keyPoint": "35条と37条を区別。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_027",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "35条と37条を区別。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_028",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "重要事項説明は、取引主任者ではなく、現在は宅地建物取引士が行う。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "現在の資格名称は宅地建物取引士です。重要事項説明は宅建士が行います。",
+    "shortExplanation": "現在の資格名称は宅地建物取引士です。重要事項説明は宅建士が行います。",
+    "longExplanation": "現在の資格名称は宅地建物取引士です。重要事項説明は宅建士が行います。",
+    "keyPoint": "現在は宅地建物取引士。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_028",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "現在は宅地建物取引士。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_35_039",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "重要事項説明（35条）",
+    "difficulty": "応用",
+    "format": "multiple_choice",
+    "prompt": "既存建物の重要事項説明で問題となり得るものはどれですか。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "建物状況調査に関する事項",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "買主の通勤服",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-2",
+        "text": "売主の趣味",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-3",
+        "text": "宅建士の出身校",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "既存建物では、建物状況調査に関する事項が重要事項になります。",
+    "shortExplanation": "既存建物では、建物状況調査に関する事項が重要事項になります。",
+    "longExplanation": "既存建物では、建物状況調査に関する事項が重要事項になります。",
+    "keyPoint": "既存建物は状況調査。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_35_039",
+    "variantID": "base.multiple_choice",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "重要事項説明（35条）",
+      "rule": "既存建物は状況調査。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "37条書面は、契約が成立した後、遅滞なく交付する。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "37条書面は、契約成立後に遅滞なく交付します。",
+    "shortExplanation": "37条書面は、契約成立後に遅滞なく交付します。",
+    "longExplanation": "37条書面は、契約成立後に遅滞なく交付します。",
+    "keyPoint": "37条は契約後。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "37条書面",
+      "rule": "37条は契約後。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "37条書面は、契約が成立する前に重要事項を説明するための書面である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "契約前に説明するのは35条の重要事項説明であり、37条書面は契約成立後の書面です。",
+    "shortExplanation": "契約前に説明するのは35条の重要事項説明であり、37条書面は契約成立後の書面です。",
+    "longExplanation": "契約前に説明するのは35条の重要事項説明であり、37条書面は契約成立後の書面です。",
+    "keyPoint": "35条と37条を区別。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "37条書面",
+      "rule": "35条と37条を区別。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "37条書面には、宅建士の記名が必要である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "37条書面には、宅建士の記名が必要です。",
+    "shortExplanation": "37条書面には、宅建士の記名が必要です。",
+    "longExplanation": "37条書面には、宅建士の記名が必要です。",
+    "keyPoint": "37条書面には宅建士記名。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "37条書面",
+      "rule": "37条書面には宅建士記名。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_004",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "37条書面は、宅建士が必ず口頭で説明しなければならない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "37条書面には宅建士の記名が必要ですが、35条のような宅建士による口頭説明義務とは区別されます。",
+    "shortExplanation": "37条書面には宅建士の記名が必要ですが、35条のような宅建士による口頭説明義務とは区別されます。",
+    "longExplanation": "37条書面には宅建士の記名が必要ですが、35条のような宅建士による口頭説明義務とは区別されます。",
+    "keyPoint": "37条は説明義務ではなく書面交付。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_004",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "37条書面",
+      "rule": "37条は説明義務ではなく書面交付。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_005",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "37条書面は、売買・交換・貸借の契約で問題となる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "37条書面は、宅地・建物の売買・交換・貸借の契約成立後に交付する書面です。",
+    "shortExplanation": "37条書面は、宅地・建物の売買・交換・貸借の契約成立後に交付する書面です。",
+    "longExplanation": "37条書面は、宅地・建物の売買・交換・貸借の契約成立後に交付する書面です。",
+    "keyPoint": "売買・交換・貸借で37条。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_005",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "37条書面",
+      "rule": "売買・交換・貸借で37条。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_006",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者が売買の媒介をした場合、37条書面を契約の各当事者に交付する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者が媒介した場合は、契約の各当事者に37条書面を交付します。",
+    "shortExplanation": "宅建業者が媒介した場合は、契約の各当事者に37条書面を交付します。",
+    "longExplanation": "宅建業者が媒介した場合は、契約の各当事者に37条書面を交付します。",
+    "keyPoint": "媒介では双方に交付。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_006",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "37条書面",
+      "rule": "媒介では双方に交付。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_007",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者が自ら売主となる場合、買主に37条書面を交付する必要がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者が自ら契約当事者となる場合も、相手方に37条書面を交付します。",
+    "shortExplanation": "宅建業者が自ら契約当事者となる場合も、相手方に37条書面を交付します。",
+    "longExplanation": "宅建業者が自ら契約当事者となる場合も、相手方に37条書面を交付します。",
+    "keyPoint": "自ら売主でも37条。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_007",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "37条書面",
+      "rule": "自ら売主でも37条。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_019",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "37条書面は、契約内容を明確にして後日の紛争を防ぐ役割を持つ。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "37条書面は、成立した契約内容を明確にするための書面です。",
+    "shortExplanation": "37条書面は、成立した契約内容を明確にするための書面です。",
+    "longExplanation": "37条書面は、成立した契約内容を明確にするための書面です。",
+    "keyPoint": "37条は契約内容の確認。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_019",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "37条書面",
+      "rule": "37条は契約内容の確認。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_020",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "37条書面の交付は、口約束の契約なら不要である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "契約が成立していれば、口頭契約であっても37条書面の交付義務が問題になります。",
+    "shortExplanation": "契約が成立していれば、口頭契約であっても37条書面の交付義務が問題になります。",
+    "longExplanation": "契約が成立していれば、口頭契約であっても37条書面の交付義務が問題になります。",
+    "keyPoint": "契約形式に注意。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_020",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "37条書面",
+      "rule": "契約形式に注意。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_37_030",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "37条書面",
+    "difficulty": "応用",
+    "format": "multiple_choice",
+    "prompt": "37条書面の電子提供について正しいものはどれですか。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "一定条件のもとで認められる",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "一切認められない",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-2",
+        "text": "宅建士証が不要になる",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-3",
+        "text": "契約自体が無効になる",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "一定の条件を満たせば、37条書面を電磁的方法で提供できます。",
+    "shortExplanation": "一定の条件を満たせば、37条書面を電磁的方法で提供できます。",
+    "longExplanation": "一定の条件を満たせば、37条書面を電磁的方法で提供できます。",
+    "keyPoint": "電子提供は条件付き。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_37_030",
+    "variantID": "base.multiple_choice",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "37条書面",
+      "rule": "電子提供は条件付き。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "8種制限は、宅建業者が自ら売主となり、買主が宅建業者でない場合に問題となる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "8種制限は、宅建業者売主・買主非宅建業者の場面で適用されます。",
+    "shortExplanation": "8種制限は、宅建業者売主・買主非宅建業者の場面で適用されます。",
+    "longExplanation": "8種制限は、宅建業者売主・買主非宅建業者の場面で適用されます。",
+    "keyPoint": "業者売主×非業者買主。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "8種制限",
+      "rule": "業者売主×非業者買主。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "8種制限は、宅建業者同士の売買にも当然にすべて適用される。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "8種制限は、買主が宅建業者でない場合を保護する規制です。業者間取引には原則として適用されません。",
+    "shortExplanation": "8種制限は、買主が宅建業者でない場合を保護する規制です。業者間取引には原則として適用されません。",
+    "longExplanation": "8種制限は、買主が宅建業者でない場合を保護する規制です。業者間取引には原則として適用されません。",
+    "keyPoint": "業者間には原則適用なし。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "8種制限",
+      "rule": "業者間には原則適用なし。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "8種制限は、宅建業者が媒介だけをする場合にも常に適用される。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "8種制限は、宅建業者が自ら売主となる場合の規制です。媒介だけの場合とは区別します。",
+    "shortExplanation": "8種制限は、宅建業者が自ら売主となる場合の規制です。媒介だけの場合とは区別します。",
+    "longExplanation": "8種制限は、宅建業者が自ら売主となる場合の規制です。媒介だけの場合とは区別します。",
+    "keyPoint": "自ら売主が条件。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "8種制限",
+      "rule": "自ら売主が条件。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_004",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者が自ら売主となる場合、原則として自己の所有に属しない宅地建物を売る契約は制限される。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者売主には、自己の所有に属しない物件の売買契約を制限する規定があります。",
+    "shortExplanation": "宅建業者売主には、自己の所有に属しない物件の売買契約を制限する規定があります。",
+    "longExplanation": "宅建業者売主には、自己の所有に属しない物件の売買契約を制限する規定があります。",
+    "keyPoint": "他人物売買の制限。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_004",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "8種制限",
+      "rule": "他人物売買の制限。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_005",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者売主は、買主が非宅建業者でも、手付の額を代金の50％まで自由に受け取れる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "宅建業者売主が受け取れる手付は、代金の20％を超えることができません。",
+    "shortExplanation": "宅建業者売主が受け取れる手付は、代金の20％を超えることができません。",
+    "longExplanation": "宅建業者売主が受け取れる手付は、代金の20％を超えることができません。",
+    "keyPoint": "手付は20％まで。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_005",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "8種制限",
+      "rule": "手付は20％まで。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_006",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者売主が非宅建業者から受け取る手付は、代金の20％を超えてはならない。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者売主が受け取る手付は、代金額の20％が上限です。",
+    "shortExplanation": "宅建業者売主が受け取る手付は、代金額の20％が上限です。",
+    "longExplanation": "宅建業者売主が受け取る手付は、代金額の20％が上限です。",
+    "keyPoint": "手付上限20％。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_006",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "8種制限",
+      "rule": "手付上限20％。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_007",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者売主が受け取る手付は、原則として解約手付とみなされる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者売主が受け取る手付は、原則として解約手付とされます。",
+    "shortExplanation": "宅建業者売主が受け取る手付は、原則として解約手付とされます。",
+    "longExplanation": "宅建業者売主が受け取る手付は、原則として解約手付とされます。",
+    "keyPoint": "手付は解約手付。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_007",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "8種制限",
+      "rule": "手付は解約手付。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_008",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "買主が手付解除をする場合、手付を放棄して解除できるのが基本である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "買主は、相手方が履行に着手するまで、手付を放棄して解除できます。",
+    "shortExplanation": "買主は、相手方が履行に着手するまで、手付を放棄して解除できます。",
+    "longExplanation": "買主は、相手方が履行に着手するまで、手付を放棄して解除できます。",
+    "keyPoint": "買主は手付放棄。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_008",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "8種制限",
+      "rule": "買主は手付放棄。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_022",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "手付金等の保全措置を講じない場合、買主は保全措置が講じられるまで支払いを拒めることがある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "保全措置が必要な場合、措置が講じられるまでは買主が支払いを拒めることがあります。",
+    "shortExplanation": "保全措置が必要な場合、措置が講じられるまでは買主が支払いを拒めることがあります。",
+    "longExplanation": "保全措置が必要な場合、措置が講じられるまでは買主が支払いを拒めることがあります。",
+    "keyPoint": "保全なしなら支払拒絶。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_022",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "8種制限",
+      "rule": "保全なしなら支払拒絶。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_023",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "8種制限は、消費者である買主を保護するための強行的な規制として働く。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "8種制限は、宅建業者売主と非宅建業者買主の情報・交渉力の差を踏まえた保護規定です。",
+    "shortExplanation": "8種制限は、宅建業者売主と非宅建業者買主の情報・交渉力の差を踏まえた保護規定です。",
+    "longExplanation": "8種制限は、宅建業者売主と非宅建業者買主の情報・交渉力の差を踏まえた保護規定です。",
+    "keyPoint": "8種制限は買主保護。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_023",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "8種制限",
+      "rule": "8種制限は買主保護。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_024",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "宅建業者売主が受け取る手付は、どのような名称でも20％の上限規制と無関係である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "名称にかかわらず、手付として受け取る金銭は20％上限が問題になります。",
+    "shortExplanation": "名称にかかわらず、手付として受け取る金銭は20％上限が問題になります。",
+    "longExplanation": "名称にかかわらず、手付として受け取る金銭は20％上限が問題になります。",
+    "keyPoint": "名称より実質。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_024",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "8種制限",
+      "rule": "名称より実質。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_8shu_034",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "8種制限",
+    "difficulty": "応用",
+    "format": "multiple_choice",
+    "prompt": "クーリング・オフが問題となりやすい場所として近いものはどれですか。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "宅建業者の本店",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "宅建業者の支店",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-2",
+        "text": "事務所等ではない喫茶店",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-3",
+        "text": "買主が申し出た自宅",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 2,
+    "explanation": "事務所等ではない場所で申込みをした場合、クーリング・オフが問題となることがあります。",
+    "shortExplanation": "事務所等ではない場所で申込みをした場合、クーリング・オフが問題となることがあります。",
+    "longExplanation": "事務所等ではない場所で申込みをした場合、クーリング・オフが問題となることがあります。",
+    "keyPoint": "事務所等以外の場所。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_8shu_034",
+    "variantID": "base.multiple_choice",
+    "correctChoiceID": "choice-2",
+    "preview": {
+      "title": "8種制限",
+      "rule": "事務所等以外の場所。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_fee_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "報酬規制",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者が受け取れる報酬には、宅建業法上の上限がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者の報酬には、国土交通大臣が定める上限があります。",
+    "shortExplanation": "宅建業者の報酬には、国土交通大臣が定める上限があります。",
+    "longExplanation": "宅建業者の報酬には、国土交通大臣が定める上限があります。",
+    "keyPoint": "報酬は上限規制。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_fee_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "報酬規制",
+      "rule": "報酬は上限規制。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_fee_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "報酬規制",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者は、依頼者が同意すれば報酬上限を超えて自由に受け取れる。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 1,
+    "explanation": "依頼者の同意があっても、法定上限を超える報酬を受け取ることはできません。",
+    "shortExplanation": "依頼者の同意があっても、法定上限を超える報酬を受け取ることはできません。",
+    "longExplanation": "依頼者の同意があっても、法定上限を超える報酬を受け取ることはできません。",
+    "keyPoint": "同意があっても上限超え不可。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_fee_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-1",
+    "preview": {
+      "title": "報酬規制",
+      "rule": "同意があっても上限超え不可。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_fee_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "報酬規制",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "売買の媒介報酬では、売買代金の額に応じて上限額を計算する。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "売買媒介の報酬上限は、取引価格の区分に応じて計算します。",
+    "shortExplanation": "売買媒介の報酬上限は、取引価格の区分に応じて計算します。",
+    "longExplanation": "売買媒介の報酬上限は、取引価格の区分に応じて計算します。",
+    "keyPoint": "売買報酬は価格区分。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_fee_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "報酬規制",
+      "rule": "売買報酬は価格区分。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_fee_010",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "報酬規制",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "居住用建物の貸借媒介では、依頼者一方から受けられる報酬は原則として借賃の2分の1月分以内である。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "居住用建物の貸借媒介では、依頼者一方から受ける報酬は原則として借賃の2分の1月分以内です。",
+    "shortExplanation": "居住用建物の貸借媒介では、依頼者一方から受ける報酬は原則として借賃の2分の1月分以内です。",
+    "longExplanation": "居住用建物の貸借媒介では、依頼者一方から受ける報酬は原則として借賃の2分の1月分以内です。",
+    "keyPoint": "居住用貸借は片方1/2月分が原則。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_fee_010",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "報酬規制",
+      "rule": "居住用貸借は片方1/2月分が原則。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_fee_014",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "報酬規制",
+    "difficulty": "応用",
+    "format": "multiple_choice",
+    "prompt": "売買代金200万円以下の部分に使われる報酬率として正しいものはどれですか。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "3％",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "4％",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-2",
+        "text": "5％",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-3",
+        "text": "10％",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 2,
+    "explanation": "200万円以下の部分には5％の率が使われます。",
+    "shortExplanation": "200万円以下の部分には5％の率が使われます。",
+    "longExplanation": "200万円以下の部分には5％の率が使われます。",
+    "keyPoint": "200万円以下は5％。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_fee_014",
+    "variantID": "base.multiple_choice",
+    "correctChoiceID": "choice-2",
+    "preview": {
+      "title": "報酬規制",
+      "rule": "200万円以下は5％。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_supervision_001",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "監督処分・罰則",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "宅建業者に対する監督処分には、指示処分、業務停止処分、免許取消処分がある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者への主な監督処分には、指示、業務停止、免許取消があります。",
+    "shortExplanation": "宅建業者への主な監督処分には、指示、業務停止、免許取消があります。",
+    "longExplanation": "宅建業者への主な監督処分には、指示、業務停止、免許取消があります。",
+    "keyPoint": "業者処分は指示・業務停止・免許取消。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_supervision_001",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "監督処分・罰則",
+      "rule": "業者処分は指示・業務停止・免許取消。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_supervision_002",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "監督処分・罰則",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "業務停止処分は、最長で1年の範囲で命じられることがある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建業者への業務停止処分は、一定の場合に1年以内の期間で命じられます。",
+    "shortExplanation": "宅建業者への業務停止処分は、一定の場合に1年以内の期間で命じられます。",
+    "longExplanation": "宅建業者への業務停止処分は、一定の場合に1年以内の期間で命じられます。",
+    "keyPoint": "業務停止は最長1年。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_supervision_002",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "監督処分・罰則",
+      "rule": "業務停止は最長1年。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_supervision_003",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "監督処分・罰則",
+    "difficulty": "基礎",
+    "format": "true_false",
+    "prompt": "免許取消処分は、宅建業者に対する最も重い監督処分の一つである。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "免許取消は、宅建業者として営業できなくなる重い処分です。",
+    "shortExplanation": "免許取消は、宅建業者として営業できなくなる重い処分です。",
+    "longExplanation": "免許取消は、宅建業者として営業できなくなる重い処分です。",
+    "keyPoint": "免許取消は重い。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_supervision_003",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "監督処分・罰則",
+      "rule": "免許取消は重い。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_supervision_010",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "監督処分・罰則",
+    "difficulty": "標準",
+    "format": "true_false",
+    "prompt": "宅建士の事務禁止処分は、最長で1年の範囲で命じられることがある。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "正しい",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "誤り",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "宅建士の事務禁止処分は、1年以内の期間で命じられることがあります。",
+    "shortExplanation": "宅建士の事務禁止処分は、1年以内の期間で命じられることがあります。",
+    "longExplanation": "宅建士の事務禁止処分は、1年以内の期間で命じられることがあります。",
+    "keyPoint": "事務禁止は最長1年。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_supervision_010",
+    "variantID": "base.true_false",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "監督処分・罰則",
+      "rule": "事務禁止は最長1年。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  },
+  {
+    "id": "tl_gyoho_supervision_015",
+    "examYear": 2026,
+    "lawBasisDate": "2026-04-01",
+    "category": "宅建業法",
+    "subCategory": "監督処分・罰則",
+    "difficulty": "応用",
+    "format": "multiple_choice",
+    "prompt": "無免許営業について正しいものはどれですか。",
+    "choices": [
+      {
+        "id": "choice-0",
+        "text": "宅建業法上禁止される",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-1",
+        "text": "免許更新後だけ可能",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-2",
+        "text": "広告すれば必ず適法",
+        "rationale": null,
+        "misconceptionCode": null
+      },
+      {
+        "id": "choice-3",
+        "text": "保証協会に入れば免許不要",
+        "rationale": null,
+        "misconceptionCode": null
+      }
+    ],
+    "correctIndex": 0,
+    "explanation": "無免許で宅建業を営むことは禁止されています。",
+    "shortExplanation": "無免許で宅建業を営むことは禁止されています。",
+    "longExplanation": "無免許で宅建業を営むことは禁止されています。",
+    "keyPoint": "無免許営業は禁止。",
+    "sourceNote": "独自作成。公式過去問の丸写しではない。",
+    "reviewStatus": "ai_draft",
+    "version": 1,
+    "isPlaceholder": false,
+    "packId": "takken_gyoho_free_100_2026_v1",
+    "isPremium": false,
+    "conceptID": "concept.tl_gyoho_supervision_015",
+    "variantID": "base.multiple_choice",
+    "correctChoiceID": "choice-0",
+    "preview": {
+      "title": "監督処分・罰則",
+      "rule": "無免許営業は禁止。",
+      "contrast": null,
+      "mnemonic": null
+    },
+    "minimumReviewSeconds": 10,
+    "contrastNote": null,
+    "distractorReviewStatus": "pending",
+    "contentVersion": 2
+  }
+]

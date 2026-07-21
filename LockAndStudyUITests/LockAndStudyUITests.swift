@@ -173,6 +173,118 @@ final class LockAndStudyUITests: XCTestCase {
     XCTAssertEqual(XCTWaiter.wait(for: [hidden], timeout: 6), .completed)
   }
 
+  func testTakkenPreviewAppearsOnHome() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", "-LockAndStudyUITestTakkenPreviewVisible",
+    ])
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.preview.card"].waitForExistence(timeout: 15))
+    XCTAssertTrue(app.staticTexts["次回の予習"].exists)
+  }
+
+  func testTakkenPreviewDisappearsAfterPersisted120SecondDeadline() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", "-LockAndStudyUITestTakkenPreview",
+    ])
+    let card = app.descendants(matching: .any)["takken.preview.card"]
+    XCTAssertTrue(card.waitForExistence(timeout: 15))
+    let hidden = XCTNSPredicateExpectation(
+      predicate: NSPredicate(format: "exists == false"), object: card)
+    XCTAssertEqual(XCTWaiter.wait(for: [hidden], timeout: 6), .completed)
+  }
+
+  func testTakkenWrongAnswerShowsPersistentExplanationCard() {
+    let app = launchTakkenV5("-LockAndStudyUITestTakkenV5TrueFalse")
+    app.buttons["誤答"].tap()
+    XCTAssertTrue(app.staticTexts["不正解"].waitForExistence(timeout: 5))
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.review.selectedAnswer"].exists)
+    XCTAssertTrue(app.staticTexts["なぜ違うか"].exists)
+    XCTAssertTrue(app.staticTexts["正しいルール"].exists)
+  }
+
+  func testTakkenElapsedTimeKeepsExplanationUntilExplicitRetry() {
+    let app = launchTakkenV5("-LockAndStudyUITestTakkenV5TrueFalse")
+    app.buttons["誤答"].tap()
+    let selectedAnswer = app.descendants(matching: .any)["takken.review.selectedAnswer"]
+    XCTAssertTrue(selectedAnswer.waitForExistence(timeout: 5))
+    XCTAssertTrue(app.buttons["takken.review.retry"].waitForExistence(timeout: 13))
+    XCTAssertTrue(selectedAnswer.exists)
+    app.buttons["takken.review.retry"].tap()
+    XCTAssertTrue(app.buttons["誤答"].waitForExistence(timeout: 3))
+    XCTAssertFalse(selectedAnswer.exists)
+  }
+
+  func testTakkenWrongAndCorrectChoicesAreIdentified() {
+    let app = launchTakkenV5("-LockAndStudyUITestTakkenV5TrueFalse")
+    app.buttons["誤答"].tap()
+    XCTAssertTrue(app.buttons["takken.answer.selectedWrong"].waitForExistence(timeout: 5))
+    XCTAssertTrue(app.buttons["takken.answer.correct"].exists)
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.review.correctAnswer"].exists)
+  }
+
+  func testTakkenNumberChoiceCanBeAnswered() {
+    assertTakkenFormatCanBeAnswered(
+      argument: "-LockAndStudyUITestTakkenV5Number", badge: "数値選択")
+  }
+
+  func testTakkenWordingContrastCanBeAnswered() {
+    assertTakkenFormatCanBeAnswered(
+      argument: "-LockAndStudyUITestTakkenV5Wording", badge: "文言比較")
+  }
+
+  func testTakkenMultipleChoiceCanBeAnswered() {
+    let app = launchTakkenV5("-LockAndStudyUITestTakkenV5MultipleChoice")
+    XCTAssertTrue(app.staticTexts["4択"].exists)
+    XCTAssertTrue(app.buttons["誤答2"].exists)
+    app.buttons["正解"].tap()
+    XCTAssertTrue(app.descendants(matching: .any)["takken.review.correct"].waitForExistence(timeout: 5))
+  }
+
+  func testTakkenWrongThenCorrectShowsRelearningCompletion() {
+    let app = launchTakkenV5("-LockAndStudyUITestTakkenV5TrueFalse")
+    app.buttons["誤答"].tap()
+    XCTAssertTrue(app.buttons["takken.review.retry"].waitForExistence(timeout: 13))
+    app.buttons["takken.review.retry"].tap()
+    app.buttons["正解"].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.review.completed"].waitForExistence(timeout: 5))
+  }
+
+  func testTakkenUnlockActionAppearsOnlyAfterFinalCorrectAnswer() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", "-LockAndStudyUITestTakkenV5TrueFalse",
+    ])
+    XCTAssertTrue(app.buttons["takken.start.unlock"].waitForExistence(timeout: 15))
+    app.buttons["takken.start.unlock"].tap()
+    XCTAssertTrue(app.descendants(matching: .any)["unlock.takken"].waitForExistence(timeout: 15))
+    app.buttons["誤答"].tap()
+    XCTAssertFalse(app.buttons["takken.review.unlock"].exists)
+    XCTAssertTrue(app.buttons["takken.review.retry"].waitForExistence(timeout: 13))
+    XCTAssertFalse(app.buttons["takken.review.unlock"].exists)
+    app.buttons["takken.review.retry"].tap()
+    app.buttons["正解"].tap()
+    XCTAssertTrue(app.buttons["takken.review.unlock"].waitForExistence(timeout: 5))
+  }
+
+  func testTakkenQuestionDetailHidesAnswerInitially() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", "-LockAndStudyUITestTakkenV5TrueFalse",
+    ])
+    XCTAssertTrue(app.tabBars.buttons["問題"].waitForExistence(timeout: 15))
+    app.tabBars.buttons["問題"].tap()
+    let prompt = app.staticTexts["UIテスト用の宅建問題です。正しい選択肢を選んでください。"]
+    XCTAssertTrue(prompt.waitForExistence(timeout: 10))
+    prompt.tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.detail.screen"].waitForExistence(timeout: 5))
+    XCTAssertFalse(app.descendants(matching: .any)["takken.detail.correctAnswer"].exists)
+    app.buttons["takken.detail.revealAnswer"].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.detail.correctAnswer"].waitForExistence(timeout: 3))
+  }
+
   func testIPadMaterialLineupLayout() {
     let app = launch()
     XCTAssertTrue(app.buttons["vocabulary.start.practice"].waitForExistence(timeout: 15))
@@ -204,10 +316,20 @@ final class LockAndStudyUITests: XCTestCase {
     XCTAssertTrue(app.descendants(matching: .any)["report.hero"].waitForExistence(timeout: 10))
     XCTAssertTrue(app.descendants(matching: .any)["report.material.takken2026.v1"].exists)
     let newItemMetric = app.descendants(matching: .any).matching(
-      NSPredicate(format: "label CONTAINS %@", "初めて解いた 1問")
+      NSPredicate(format: "label CONTAINS %@", "新規論点 1論点")
     ).firstMatch
     scrollUntilVisible(newItemMetric, app: app)
     XCTAssertTrue(newItemMetric.exists)
+    let initialAccuracy = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label CONTAINS %@", "初回正答率 0%")
+    ).firstMatch
+    scrollUntilVisible(initialAccuracy, app: app)
+    XCTAssertTrue(initialAccuracy.exists)
+    let relearned = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label CONTAINS %@", "学び直し完了 1論点")
+    ).firstMatch
+    scrollUntilVisible(relearned, app: app)
+    XCTAssertTrue(relearned.exists)
     XCTAssertEqual(app.tabBars.count, 1)
   }
 
@@ -279,6 +401,25 @@ final class LockAndStudyUITests: XCTestCase {
       + extraArguments
     app.launch()
     return app
+  }
+
+  private func launchTakkenV5(_ formatArgument: String) -> XCUIApplication {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", formatArgument,
+    ])
+    XCTAssertTrue(app.buttons["takken.start.practice"].waitForExistence(timeout: 15))
+    app.buttons["takken.start.practice"].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.study.session"].waitForExistence(timeout: 10))
+    return app
+  }
+
+  private func assertTakkenFormatCanBeAnswered(argument: String, badge: String) {
+    let app = launchTakkenV5(argument)
+    XCTAssertTrue(app.staticTexts[badge].exists)
+    app.buttons["正解"].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.review.correct"].waitForExistence(timeout: 5))
   }
 
   private func advanceToManagementCode(_ app: XCUIApplication) {

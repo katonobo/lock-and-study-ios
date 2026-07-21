@@ -121,6 +121,14 @@ struct TakkenUnlockQuestionSnapshot: Codable, Equatable, Identifiable, Sendable 
   let sourceNote: String?
   let contentVersion: String
   let questionVersion: Int
+  let conceptID: String?
+  let variantID: String?
+  let minimumReviewSeconds: Int?
+  let contrastNote: String?
+  let wrongChoiceRationales: [Int: String]?
+
+  var resolvedConceptID: String { conceptID ?? id.rawValue }
+  var resolvedVariantID: String { variantID ?? "legacy" }
 }
 
 struct SafeFallbackUnlockQuestionSnapshot: Codable, Equatable, Identifiable, Sendable {
@@ -190,6 +198,9 @@ struct ExperienceUnlockBundleSnapshot: Codable, Equatable, Identifiable, Sendabl
   var completionEventID: UUID
   var createdUnlockSessionID: UUID?
   var abortReason: String?
+  var attemptCountsByQuestionID: [String: Int]? = nil
+  var reviewRequiredUntilByQuestionID: [String: Date]? = nil
+  var lastSelectedChoiceIDByQuestionID: [String: Int]? = nil
 
   var id: UUID { challenge.id }
   var isComplete: Bool { completedQuestionIDs.count >= challenge.questions.count }

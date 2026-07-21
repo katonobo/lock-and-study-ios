@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Create non-release v2 review candidates from the released 100-question v1 set."""
+from __future__ import annotations
+
+import json
+from collections import Counter
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE = ROOT / "LockAndStudy/Resources/Content/Released/takken_2026_free_100_v1.json"
+OUTPUT = ROOT / "ContentSource/Drafts/takken_2026_free_100_v2_candidates.json"
+QUEUE = ROOT / "Docs/TAKKEN_CONTENT_REVIEW_QUEUE.md"
+
+
+def main() -> int:
+    items = json.loads(SOURCE.read_text(encoding="utf-8"))
+    candidates = []
+    for item in items:
+        candidate = dict(item)
+        candidate["conceptID"] = f"concept.{item['id']}"
+        candidate["variantID"] = "base." + item.get("format", "true_false")
+        choices = [
+            {"id": f"choice-{index}", "text": text, "rationale": None,
+             "misconceptionCode": None}
+            for index, text in enumerate(item["choices"])
+        ]
+        candidate["choices"] = choices
+        candidate["correctChoiceID"] = choices[item["correctIndex"]]["id"]
+        candidate["preview"] = {
+            "title": item.get("subCategory") or item["category"],
+            "rule": item.get("keyPoint") or item["shortExplanation"],
+            "contrast": None,
+            "mnemonic": None,
+        }
+        candidate["minimumReviewSeconds"] = 10
+        candidate["contrastNote"] = None
+        candidate["distractorReviewStatus"] = "pending"
+        candidate["reviewStatus"] = "ai_draft"
+        candidate["contentVersion"] = 2
+        candidates.append(candidate)
+    OUTPUT.write_text(
+        json.dumps(candidates, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    formats = Counter(item.get("format", "unknown") for item in candidates)
+    correct_tf = Counter(
+        item["choices"][item["correctIndex"]]["text"]
+        for item in candidates if item.get("format") == "true_false")
+    same_explanations = sum(
+        item.get("shortExplanation") == item.get("longExplanation") for item in candidates)
+    rows = [
+        "# 宅建コンテンツ v2 校閲キュー",
+        "",
+        "> この文書と候補JSONは校閲作業用です。法令内容を自動承認せず、Release Resourcesへコピーしません。",
+        "",
+        "## 現行100問の検出結果",
+        "",
+        f"- 全問題: {len(candidates)}問",
+        f"- ○×: {formats['true_false']}問",
+        f"- 4択: {formats['multiple_choice']}問",
+        f"- ○×正答: 正しい {correct_tf['正しい']} / 誤り {correct_tf['誤り']}",
+        f"- shortExplanation == longExplanation: {same_explanations}問",
+        "",
+        "## 校閲条件",
+        "",
+        "- [ ] conceptIDとvariantIDが論点単位で妥当",
+        "- [ ] 数値選択15%以上、文言比較15%以上、4択・事例25%以上へ派生を追加",
+        "- [ ] ○×の比率と正答偏りを品質基準内へ調整",
+        "- [ ] short/long解説を分け、longへ追加情報を記載",
+        "- [ ] 各誤答へ同一論点内のもっともらしい理由を記載",
+        "- [ ] distractorReviewStatusをcheckedへ更新",
+        "- [ ] 人間の校閲後だけreviewStatusをchecked/reviewed/releaseへ更新",
+        "",
+        "## 問題別キュー",
+        "",
+        "| ID | 論点候補 | 形式 | 小分野 | 解説差分 | 誤答校閲 |",
+        "|---|---|---|---|---|---|",
+    ]
+    for item in candidates:
+        rows.append(
+            f"| {item['id']} | {item['conceptID']} | {item['format']} | "
+            f"{item.get('subCategory') or '未分類'} | 要修正 | 未校閲 |")
+    QUEUE.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    print(f"Created Draft candidate: {OUTPUT.relative_to(ROOT)}")
+    print(f"Created review queue: {QUEUE.relative_to(ROOT)}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

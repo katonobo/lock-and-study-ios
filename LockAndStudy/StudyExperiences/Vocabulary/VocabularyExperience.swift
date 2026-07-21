@@ -249,7 +249,6 @@ final class VocabularyAppModel: ObservableObject {
       answers = try await context.dependencies.learning.answers().filter { $0.experienceID == .vocabulary }
       #if DEBUG
       if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestVocabularyPreview"),
-        try await context.dependencies.learning.loadVocabularyPendingPreview(now: Date()) == nil,
         let item = items.first
       {
         let now = Date()

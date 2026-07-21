@@ -58,6 +58,10 @@ struct TakkenQuestionService: Sendable {
         || question.prompt.localizedCaseInsensitiveContains(search)
         || question.explanation.localizedCaseInsensitiveContains(search)
         || (question.subCategory?.localizedCaseInsensitiveContains(search) ?? false)
+        || (question.keyPoint?.localizedCaseInsensitiveContains(search) ?? false)
+        || (question.contrastNote?.localizedCaseInsensitiveContains(search) ?? false)
+        || (question.preview?.rule.localizedCaseInsensitiveContains(search) ?? false)
+        || question.choices.contains { $0.text.localizedCaseInsensitiveContains(search) }
       return statusMatches
         && (category == nil || question.category == category)
         && (subCategory == nil || question.subCategory == subCategory)
@@ -75,49 +79,10 @@ struct TakkenQuestionService: Sendable {
     count: Int,
     now: Date
   ) -> [TakkenQuestion] {
-    var scoped = questions.filter {
-      (settings.selectedCategories.isEmpty || settings.selectedCategories.contains($0.category))
-        && (settings.selectedDifficulties.isEmpty || settings.selectedDifficulties.contains($0.difficulty))
-    }
-    if settings.last30DaysFocus {
-      let explicit = scoped.filter(\.last30DaysEligible)
-      if !explicit.isEmpty { scoped = explicit }
-    }
-    func value(_ question: TakkenQuestion) -> ItemProgress {
-      progress[CompositeStudyItemID(packID: packID, itemID: .init(rawValue: question.id)).storageKey]
-        ?? .initial(.init(packID: packID, itemID: .init(rawValue: question.id)))
-    }
-    switch mode {
-    case .mistakes:
-      scoped = scoped.filter { value($0).incorrectCount > 0 }.sorted { value($0).incorrectCount > value($1).incorrectCount }
-    case .weakness:
-      scoped = scoped.filter { $0.weaknessEligible && value($0).incorrectCount >= max(1, value($0).correctCount) }.sorted {
-        if $0.importance != $1.importance { return ($0.importance ?? "") > ($1.importance ?? "") }
-        return value($0).incorrectCount > value($1).incorrectCount
-      }
-    case .newItems:
-      scoped = scoped.filter { value($0).answerCount == 0 }
-    case .review:
-      scoped = scoped.filter { value($0).dueAt.map { $0 <= now } ?? false }.sorted {
-        (value($0).dueAt ?? .distantFuture) < (value($1).dueAt ?? .distantFuture)
-      }
-    case .unlock:
-      scoped = scoped.filter(\.unlockEligible)
-      scoped.sort {
-        let leftDue = value($0).dueAt.map { $0 <= now } ?? false
-        let rightDue = value($1).dueAt.map { $0 <= now } ?? false
-        if leftDue != rightDue { return leftDue }
-        if value($0).answerCount != value($1).answerCount { return value($0).answerCount < value($1).answerCount }
-        return $0.id < $1.id
-      }
-    case .practice:
-      scoped.sort {
-        if value($0).answerCount != value($1).answerCount { return value($0).answerCount < value($1).answerCount }
-        if $0.difficulty != $1.difficulty { return $0.difficulty < $1.difficulty }
-        return $0.id < $1.id
-      }
-    }
-    return Array(scoped.prefix(max(0, count)))
+    TakkenQuestionSelectionEngine().select(.init(
+      questions: questions, settings: settings, progress: progress, recentAnswers: [],
+      packID: packID, mode: mode, count: count, sessionID: UUID(), pendingPreview: nil,
+      now: now)).map(\.source)
   }
 }
 
@@ -130,7 +95,7 @@ struct TakkenFeedbackPlanner: Sendable {
     }
   }
   func waitSeconds(for plan: StudyFeedbackPlan) -> Int {
-    switch plan { case .immediate: return 0; case .relearn6: return 6; case .relearn12: return 12; case .guided20: return 20 }
+    switch plan { case .immediate: return 0; case .relearn6: return 10; case .relearn12: return 15; case .guided20: return 20 }
   }
 }
 
@@ -156,7 +121,7 @@ struct TakkenQuestionDetailViewModel: Sendable {
   var answerHistory: [StudyAnswerRecord] {
     answers.filter { $0.itemID.rawValue == question.id }.sorted { $0.answeredAt > $1.answeredAt }
   }
-  var correctChoiceText: String { question.choices[safe: question.correctIndex] ?? "未設定" }
+  var correctChoiceText: String { question.choices[safe: question.correctIndex]?.text ?? "未設定" }
   var explanation: String { question.longExplanation ?? question.explanation }
 }
 

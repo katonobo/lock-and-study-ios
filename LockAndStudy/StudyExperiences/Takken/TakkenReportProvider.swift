@@ -14,12 +14,31 @@ struct TakkenReportProvider: StudyExperienceReportProviding {
       $0.packID == manifest.id && $0.experienceID == .takken
     }
     let answers = allAnswers.filter { period.contains($0.answeredAt) }
-    let newItems = Set(answers.filter { snapshot.effectiveLearningRole(for: $0) == .newItem }.map(\.itemID))
-    let reviewedItems = Set(answers.filter { snapshot.effectiveLearningRole(for: $0) != .newItem }.map(\.itemID))
+    let conceptID: (StudyAnswerRecord) -> String = { $0.conceptID ?? $0.itemID.rawValue }
+    let newConcepts = Set(answers.filter {
+      snapshot.effectiveLearningRole(for: $0) == .newItem
+    }.map(conceptID))
+    let reviewedConcepts = Set(answers.filter {
+      snapshot.effectiveLearningRole(for: $0) != .newItem
+    }.map(conceptID))
+    let firstAttempts = initialAttempts(answers)
+    let concepts = Dictionary(grouping: answers, by: conceptID)
+    let understoodConcepts = concepts.values.filter { values in
+      values.sorted(by: answerOrder).last?.isCorrect == true
+    }.count
+    let relearnedConcepts = Set(Dictionary(grouping: answers, by: {
+      "\($0.sessionID.uuidString)::\(conceptID($0))"
+    }).compactMap { _, values -> String? in
+      let sorted = values.sorted(by: answerOrder)
+      guard let firstWrong = sorted.firstIndex(where: { !$0.isCorrect }),
+        sorted.dropFirst(firstWrong + 1).contains(where: \.isCorrect)
+      else { return nil }
+      return sorted[firstWrong].conceptID ?? sorted[firstWrong].itemID.rawValue
+    })
     let categoryRows = groupedMetrics(answers: answers, key: { $0.category }, prefix: "category")
     let subcategoryRows = groupedMetrics(
       answers: answers, key: { $0.subcategory }, prefix: "subcategory")
-    let weakAreas = Dictionary(grouping: allAnswers, by: \.category)
+    let weakAreas = Dictionary(grouping: answers, by: \.category)
       .compactMap { title, values -> LearningReportWeakArea? in
         guard values.count >= 3 else { return nil }
         return .init(
@@ -36,11 +55,23 @@ struct TakkenReportProvider: StudyExperienceReportProviding {
         id: "takken.accuracy", label: "正答率", value: "\(accuracy(answers))%",
         systemImage: "target"),
       metric("takken.unique", "解いた問題", Set(answers.map(\.itemID)).count, "問", "list.number"),
-      metric("takken.new", "初めて解いた", newItems.count, "問", "sparkles"),
-      metric("takken.review", "復習した", reviewedItems.count, "問", "arrow.clockwise"),
+      metric("takken.concepts", "学んだ論点", concepts.count, "論点", "square.stack.3d.up"),
+      LearningReportMetric(
+        id: "takken.initialAccuracy", label: "初回正答率",
+        value: "\(accuracy(firstAttempts))%", systemImage: "scope"),
+      metric("takken.understood", "最終理解", understoodConcepts, "論点", "checkmark.seal"),
+      metric("takken.relearned", "学び直し完了", relearnedConcepts.count, "論点", "arrow.triangle.2.circlepath"),
+      metric("takken.new", "新規論点", newConcepts.count, "論点", "sparkles"),
+      metric("takken.review", "復習論点", reviewedConcepts.count, "論点", "arrow.clockwise"),
       metric("takken.unlock", "解除学習", answers.filter { $0.mode == .unlock }.count, "問", "lock.open"),
       metric("takken.practice", "通常学習", answers.filter { $0.mode != .unlock }.count, "問", "book"),
     ]
+    let formatMetrics = TakkenQuestionFormat.allCases.map { format in
+      let values = answers.filter { $0.questionFormat == format.rawValue }
+      return LearningReportMetric(
+        id: "takken.format.\(format.rawValue)", label: "\(format.displayName)正答率",
+        value: "\(values.count)問・\(accuracy(values))%", systemImage: "rectangle.3.group")
+    }
     let qualification = manifest.qualification
     let footer = [
       qualification?.examYear.map { "教材年度 \($0)年度" },
@@ -52,7 +83,7 @@ struct TakkenReportProvider: StudyExperienceReportProviding {
       subtitle: "今週の成果",
       systemImage: "building.columns.fill",
       metrics: metrics,
-      currentMetrics: [],
+      currentMetrics: formatMetrics,
       progressRows: [],
       categoryRows: categoryRows,
       subcategoryRows: subcategoryRows,
@@ -87,5 +118,23 @@ struct TakkenReportProvider: StudyExperienceReportProviding {
   private func accuracy(_ answers: [StudyAnswerRecord]) -> Int {
     answers.isEmpty
       ? 0 : Int((Double(answers.filter(\.isCorrect).count) / Double(answers.count) * 100).rounded())
+  }
+
+  private func initialAttempts(_ answers: [StudyAnswerRecord]) -> [StudyAnswerRecord] {
+    let explicit = answers.filter { $0.wasFirstAttempt == true || $0.attemptNumber == 1 }
+    let explicitKeys = Set(explicit.map { "\($0.sessionID.uuidString)::\($0.itemID.rawValue)" })
+    let legacy = Dictionary(grouping: answers.filter {
+      $0.attemptNumber == nil
+        && !explicitKeys.contains("\($0.sessionID.uuidString)::\($0.itemID.rawValue)")
+    }, by: { "\($0.sessionID.uuidString)::\($0.itemID.rawValue)" })
+      .values.compactMap { $0.sorted(by: answerOrder).first }
+    return explicit + legacy
+  }
+
+  private func answerOrder(_ lhs: StudyAnswerRecord, _ rhs: StudyAnswerRecord) -> Bool {
+    if lhs.answeredAt == rhs.answeredAt {
+      return (lhs.attemptNumber ?? 1) < (rhs.attemptNumber ?? 1)
+    }
+    return lhs.answeredAt < rhs.answeredAt
   }
 }

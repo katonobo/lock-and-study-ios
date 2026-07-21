@@ -24,6 +24,10 @@ private struct VocabularyPendingPreviewDocument: Codable {
   let schemaVersion: Int
   var preview: VocabularyPendingPreview?
 }
+private struct TakkenPendingPreviewDocument: Codable {
+  let schemaVersion: Int
+  var preview: TakkenPendingPreview?
+}
 private struct LegacyImportDocument: Codable { let schemaVersion: Int; var importedEventIDs: Set<UUID> }
 private struct ExportDocument: Codable { let schemaVersion: Int; let exportedAt: Date; let progress: [String: ItemProgress]; let events: [LearningEvent]; let answersByMonth: [String: [StudyAnswerRecord]] }
 private enum AnswerWriteStage: String, Codable { case prepared, answerWritten, progressWritten, completed }
@@ -264,6 +268,42 @@ actor LearningDataStore {
     return true
   }
 
+  func saveTakkenPendingPreview(_ preview: TakkenPendingPreview?) throws {
+    try write(
+      TakkenPendingPreviewDocument(schemaVersion: Self.schemaVersion, preview: preview),
+      to: takkenPendingPreviewURL)
+  }
+
+  func loadTakkenPendingPreview(now: Date) throws -> TakkenPendingPreview? {
+    let document: TakkenPendingPreviewDocument
+    do {
+      document = try load(
+        takkenPendingPreviewURL,
+        fallback: .init(schemaVersion: Self.schemaVersion, preview: nil))
+    } catch LearningDataStoreError.corrupted {
+      return nil
+    }
+    guard document.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(document.schemaVersion)
+    }
+    guard let preview = document.preview else { return nil }
+    guard preview.recallExpiresAt > now else {
+      try saveTakkenPendingPreview(nil)
+      return nil
+    }
+    return preview
+  }
+
+  @discardableResult
+  func consumeTakkenPendingPreview(id: UUID, at date: Date) throws -> Bool {
+    guard var preview = try loadTakkenPendingPreview(now: date),
+      preview.id == id, preview.confirmedAt != nil, preview.consumedAt == nil
+    else { return false }
+    preview.consumedAt = date
+    try saveTakkenPendingPreview(preview)
+    return true
+  }
+
   func exportJSON() throws -> URL {
     var byMonth: [String: [StudyAnswerRecord]] = [:]
     let files = try fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)
@@ -312,6 +352,9 @@ actor LearningDataStore {
   private var experienceBundleURL: URL { rootURL.appendingPathComponent("experience-unlock-bundle.v2.json") }
   private var vocabularyPendingPreviewURL: URL {
     rootURL.appendingPathComponent("vocabulary-pending-preview.v1.json")
+  }
+  private var takkenPendingPreviewURL: URL {
+    rootURL.appendingPathComponent("takken-pending-preview.v1.json")
   }
   private var answerTransactionsURL: URL { rootURL.appendingPathComponent("answer-transactions.v1.json") }
   private var legacyImportsURL: URL { rootURL.appendingPathComponent("legacy-imports.v1.json") }

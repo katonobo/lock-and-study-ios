@@ -26,7 +26,9 @@ struct LearningReportShareService: Sendable {
     }
     lines.append(contentsOf: ["", "次週も、短い学習を続けます。"])
     let value = lines.joined(separator: "\n")
-    precondition(LearningReportPrivacyPolicy.validateShareText(value))
+    guard LearningReportPrivacyPolicy.validateShareText(value) else {
+      return "ロックンスタディで学習を続けています。"
+    }
     return value
   }
 }

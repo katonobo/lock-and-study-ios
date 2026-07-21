@@ -96,6 +96,7 @@ struct TakkenFirstRunView: View {
 
 private struct TakkenHomeView: View {
   @EnvironmentObject private var model: TakkenAppModel
+  @Environment(\.scenePhase) private var scenePhase
   var body: some View {
     ScrollView {
       VStack(spacing: 16) {
@@ -115,6 +116,15 @@ private struct TakkenHomeView: View {
           metric("正答率", "\(model.summary.accuracy)%")
           metric("連続", "\(model.summary.streak)日")
         }.studyCard()
+        TimelineView(.periodic(from: .now, by: 1)) { timeline in
+          if let preview = model.pendingPreview,
+            let question = model.visiblePendingPreviewQuestion(at: timeline.date)
+          {
+            TakkenPendingPreviewCard(
+              question: question, payload: question.resolvedPreview, preview: preview,
+              now: timeline.date, scenePhase: scenePhase)
+          }
+        }
         Button("おすすめ演習") { model.start(mode: .practice) }.primaryActionStyle()
           .accessibilityIdentifier("takken.start.practice")
         Button {
@@ -146,6 +156,71 @@ private struct TakkenHomeView: View {
       Text(value).font(.headline).monospacedDigit()
       Text(title).font(.caption).foregroundStyle(.secondary)
     }.frame(maxWidth: .infinity)
+  }
+}
+
+private struct TakkenPendingPreviewCard: View {
+  @EnvironmentObject private var model: TakkenAppModel
+  let question: TakkenQuestion
+  let payload: TakkenPreviewPayload
+  let preview: TakkenPendingPreview
+  let now: Date
+  let scenePhase: ScenePhase
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 9) {
+      HStack(alignment: .firstTextBaseline) {
+        Label("次回の予習", systemImage: "lightbulb.fill").font(.caption.bold())
+        Spacer(minLength: 8)
+        Text(countdownText).font(.caption.monospacedDigit())
+          .foregroundStyle(.secondary)
+          .accessibilityLabel("予習の表示はあと\(remainingSeconds)秒です")
+          .accessibilityIdentifier("takken.preview.remaining")
+      }
+      Text(payload.title).font(.title3.bold())
+      LabeledContent("分野", value: question.category)
+      if let subcategory = question.subCategory {
+        LabeledContent("小分野", value: subcategory)
+      }
+      VStack(alignment: .leading, spacing: 3) {
+        Text("覚えるルール").font(.caption.bold()).foregroundStyle(.secondary)
+        Text(payload.rule)
+      }
+      if let contrast = payload.contrast ?? question.contrastNote {
+        VStack(alignment: .leading, spacing: 3) {
+          Text("混同しやすい違い").font(.caption.bold()).foregroundStyle(.secondary)
+          Text(contrast)
+        }
+      }
+      if let mnemonic = payload.mnemonic {
+        Label(mnemonic, systemImage: "brain.head.profile")
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .fixedSize(horizontal: false, vertical: true)
+    .studyCard()
+    .accessibilityElement(children: .contain)
+    .accessibilityIdentifier("takken.preview.card")
+    .task(id: "\(preview.id.uuidString)-\(scenePhase == .active)") {
+      guard scenePhase == .active, preview.confirmedAt == nil else { return }
+      do {
+        try await Task.sleep(for: .seconds(2))
+        guard !Task.isCancelled else { return }
+        await model.confirmPendingPreviewVisible(seconds: 2)
+      } catch {}
+    }
+    .onChange(of: scenePhase) { phase in
+      if phase != .active {
+        Task { await model.clearPendingPreviewExposureIfUnconfirmed() }
+      }
+    }
+  }
+
+  private var remainingSeconds: Int {
+    max(0, Int(preview.displayRemainingSeconds(at: now).rounded(.down)))
+  }
+  private var countdownText: String {
+    String(format: "あと %d:%02d", remainingSeconds / 60, remainingSeconds % 60)
   }
 }
 
@@ -204,10 +279,15 @@ private struct TakkenQuestionListView: View {
                 statusColor(model.itemProgress(question)))
               VStack(alignment: .leading, spacing: 4) {
                 Text(question.prompt).lineLimit(2)
-                Text(
-                  [question.subCategory, question.difficulty].compactMap { $0 }.joined(
-                    separator: "・")
-                ).font(.caption).foregroundStyle(.secondary)
+                HStack(spacing: 6) {
+                  Text(question.resolvedFormat.displayName)
+                    .font(.caption2.bold()).padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(LockAndStudyTheme.takken.opacity(0.14), in: Capsule())
+                  Text(
+                    [question.subCategory, question.difficulty].compactMap { $0 }.joined(
+                      separator: "・")
+                  ).font(.caption).foregroundStyle(.secondary)
+                }
               }
             }
           }
@@ -230,6 +310,7 @@ private struct TakkenQuestionListView: View {
 private struct TakkenQuestionDetailView: View {
   @EnvironmentObject private var model: TakkenAppModel
   let question: TakkenQuestion
+  @State private var isAnswerVisible = false
   private var viewModel: TakkenQuestionDetailViewModel {
     .init(question: question, answers: model.answers)
   }
@@ -237,18 +318,38 @@ private struct TakkenQuestionDetailView: View {
     List {
       Section("問題") {
         Text(question.prompt).font(.title3.weight(.semibold))
-        Label(question.format?.rawValue ?? "multiple_choice", systemImage: "list.number")
+        Label(question.resolvedFormat.displayName, systemImage: "list.number")
       }
       Section("選択肢") {
         ForEach(Array(question.choices.enumerated()), id: \.offset) { index, choice in
-          Label(
-            choice, systemImage: index == question.correctIndex ? "checkmark.circle.fill" : "circle"
-          ).foregroundStyle(index == question.correctIndex ? .green : .primary)
+          Label(choice.text, systemImage: "circle")
         }
       }
-      Section("解説") {
-        Text(viewModel.explanation)
-        if let key = question.keyPoint { Label(key, systemImage: "key.fill") }
+      if !isAnswerVisible {
+        Section {
+          Button("答えと解説を表示") { isAnswerVisible = true }
+            .accessibilityIdentifier("takken.detail.revealAnswer")
+        }
+      } else {
+        Section("答えと解説") {
+          Label(viewModel.correctChoiceText, systemImage: "checkmark.circle.fill")
+            .foregroundStyle(.green)
+            .accessibilityIdentifier("takken.detail.correctAnswer")
+          if let short = question.shortExplanation { Text(short).font(.headline) }
+          Text(viewModel.explanation)
+          if let contrast = question.contrastNote {
+            LabeledContent("混同しやすい違い", value: contrast)
+          }
+          ForEach(question.choices.filter { $0.id != question.correctChoiceID }) { choice in
+            if let reason = choice.rationale ?? question.wrongChoiceRationales?[choice.id] {
+              VStack(alignment: .leading, spacing: 3) {
+                Text(choice.text).font(.subheadline.bold())
+                Text(reason).font(.subheadline).foregroundStyle(.secondary)
+              }
+            }
+          }
+          if let key = question.keyPoint { Label(key, systemImage: "key.fill") }
+        }
       }
       Section("教材情報") {
         LabeledContent("分野", value: question.category)
@@ -272,6 +373,7 @@ private struct TakkenQuestionDetailView: View {
         }
       }
     }.navigationTitle("問題詳細").navigationBarTitleDisplayMode(.inline)
+      .accessibilityIdentifier("takken.detail.screen")
   }
 }
 
@@ -448,94 +550,94 @@ private struct TakkenStudySessionView: View {
   @Environment(\.scenePhase) private var scenePhase
   let presentation: TakkenSessionPresentation
   @State private var index = 0
-  @State private var selected: Int?
-  @State private var attempt = 0
-  @State private var waitRemaining = 0
+  @State private var machine = TakkenAnswerStateMachine()
   @State private var isSubmitting = false
   @State private var submissionError: String?
+  @State private var inactiveAt: Date?
   private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
   var body: some View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 16) {
-          ProgressView(value: Double(index + 1), total: Double(max(1, presentation.questions.count)))
+          ProgressView(
+            value: Double(index + 1), total: Double(max(1, presentation.questions.count)))
           Text("\(index + 1) / \(presentation.questions.count)")
             .font(.caption).foregroundStyle(.secondary).monospacedDigit()
           if let question = presentation.questions[safe: index] {
-            VStack(alignment: .leading, spacing: 8) {
-              HStack {
-                Text(question.category).font(.caption.bold())
-                Spacer()
-                Text(question.difficulty).font(.caption)
-              }
-              Text(question.prompt).font(.title2.bold())
-            }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
-            ForEach(Array(question.choices.enumerated()), id: \.offset) { choice in
-              Button(choice.element) { submit(choice.offset, question: question) }
-                .secondaryActionStyle().disabled(selected != nil || isSubmitting)
+            questionHeader(
+              category: question.source.category, difficulty: question.source.difficulty,
+              format: question.source.resolvedFormat, prompt: question.source.prompt,
+              lawBasisDate: question.source.lawBasisDate)
+            ForEach(question.presentedChoices) { choice in
+              TakkenAnswerChoiceButton(
+                choice: choice, phase: machine.phase,
+                action: { submit(choice.id, question: question) })
+                .disabled(!isAnswering || isSubmitting)
             }
-            if let selected {
-              let correct = selected == question.correctIndex
-              VStack(alignment: .leading, spacing: 8) {
-                Label(
-                  correct ? "正解" : "学び直し",
-                  systemImage: correct ? "checkmark.circle.fill" : "book.fill"
-                ).font(.headline).foregroundStyle(correct ? .green : .orange)
-                Text(question.longExplanation ?? question.explanation)
-                if let key = question.keyPoint { Label(key, systemImage: "key.fill") }
-                if !correct, waitRemaining > 0 { Text("あと\(waitRemaining)秒").monospacedDigit() }
-                if correct {
-                  Button(index + 1 == presentation.questions.count ? "完了" : "次へ") { advance() }
-                    .primaryActionStyle()
-                }
-              }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
+            if !isAnswering {
+              TakkenAnswerReviewCard(
+                phase: machine.phase,
+                remainingSeconds: machine.remainingSeconds(at: Date()),
+                retry: { _ = machine.retry() },
+                nextTitle: index + 1 == presentation.questions.count ? "完了" : "次へ",
+                nextAction: advance)
             }
           }
         }.frame(maxWidth: 720).padding()
-      }.navigationTitle("宅建演習").navigationBarTitleDisplayMode(.inline).toolbar {
+      }
+      .navigationTitle("宅建演習").navigationBarTitleDisplayMode(.inline).toolbar {
         ToolbarItem(placement: .cancellationAction) { Button("閉じる") { dismiss() } }
       }
-    }.onReceive(timer) { _ in
-      guard scenePhase == .active, waitRemaining > 0 else { return }
-      waitRemaining -= 1
-      if waitRemaining == 0 { selected = nil }
-    }.accessibilityIdentifier("takken.study.session")
-      .alert("回答を保存できませんでした", isPresented: .init(
-        get: { submissionError != nil },
-        set: { if !$0 { submissionError = nil } }
-      )) {
-        Button("閉じる", role: .cancel) {}
-      } message: {
-        Text(submissionError ?? "")
-      }
+    }
+    .onReceive(timer) { now in
+      guard scenePhase == .active else { return }
+      machine.update(at: now)
+    }
+    .onChange(of: scenePhase, perform: handleScenePhase)
+    .accessibilityIdentifier("takken.study.session")
+    .answerSubmissionAlert(message: $submissionError)
   }
-  private func submit(_ choice: Int, question: TakkenQuestion) {
+
+  private var isAnswering: Bool {
+    if case .answering = machine.phase { return true }
+    return false
+  }
+
+  private func submit(_ choiceID: Int, question: TakkenPresentedQuestion) {
+    guard isAnswering else { return }
     isSubmitting = true
+    let date = Date()
     Task {
       let result = await model.recordAnswer(
-        question: question, selectedChoiceID: choice, sessionID: presentation.id, attempt: attempt)
+        question: question, selectedChoiceID: choiceID, sessionID: presentation.id,
+        attempt: machine.wrongAttemptCount)
       switch result {
-      case .recordedCorrect:
-        selected = choice
-      case .recordedIncorrect(let plan):
-        selected = choice
-        attempt += 1
-        waitRemaining = model.waitSeconds(for: plan)
+      case .recordedCorrect, .recordedIncorrect:
+        machine.record(selectedChoiceID: choiceID, question: question, at: date)
       case .failed(let message):
         submissionError = message
       }
       isSubmitting = false
     }
   }
+
   private func advance() {
     if index + 1 < presentation.questions.count {
       index += 1
-      selected = nil
-      attempt = 0
-      waitRemaining = 0
+      machine = .init()
     } else {
       model.session = nil
       dismiss()
+    }
+  }
+
+  private func handleScenePhase(_ phase: ScenePhase) {
+    if phase == .active {
+      if let inactiveAt { machine.delayReview(by: Date().timeIntervalSince(inactiveAt)) }
+      inactiveAt = nil
+    } else if inactiveAt == nil {
+      inactiveAt = Date()
     }
   }
 }
@@ -545,21 +647,35 @@ struct TakkenUnlockChallengeView: View {
   let context: UnlockChallengeViewContext
   @Environment(\.scenePhase) private var scenePhase
   @State private var index: Int
-  @State private var selected: Int?
-  @State private var attempts = 0
-  @State private var waitRemaining = 0
+  @State private var machine = TakkenAnswerStateMachine()
   @State private var isSubmitting = false
   @State private var submissionError: String?
+  @State private var inactiveAt: Date?
   private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
   private let feedbackPlanner = TakkenFeedbackPlanner()
+
   init(bundle: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext) {
     self.bundle = bundle
     self.context = context
-    _index = State(
-      initialValue: bundle.challenge.questions.firstIndex {
-        !bundle.completedQuestionIDs.contains($0.id)
-      } ?? 0)
+    let initialIndex = bundle.challenge.questions.firstIndex {
+      !bundle.completedQuestionIDs.contains($0.id)
+    } ?? 0
+    _index = State(initialValue: initialIndex)
+    if let snapshot = bundle.challenge.questions[safe: initialIndex],
+      case .takken(let question) = snapshot,
+      let selectedChoiceID = bundle.lastSelectedChoiceIDByQuestionID?[question.id.rawValue]
+    {
+      _machine = State(initialValue: .init(
+        restoring: question,
+        selectedChoiceID: selectedChoiceID,
+        wrongAttemptCount: bundle.attemptCountsByQuestionID?[question.id.rawValue] ?? 1,
+        reviewRequiredUntil: bundle.reviewRequiredUntilByQuestionID?[question.id.rawValue],
+        now: Date()))
+    } else {
+      _machine = State(initialValue: .init())
+    }
   }
+
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -570,50 +686,41 @@ struct TakkenUnlockChallengeView: View {
           if let snapshot = bundle.challenge.questions[safe: index],
             case .takken(let question) = snapshot
           {
-            VStack(alignment: .leading, spacing: 8) {
-              HStack {
-                Text(question.category).font(.caption.bold())
-                Spacer()
-                Text(question.difficulty).font(.caption)
-              }
-              Text(question.prompt).font(.title2.bold())
-              if let date = question.lawBasisDate {
-                Text("法令基準日 \(date)").font(.caption).foregroundStyle(.secondary)
-              }
-            }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
+            questionHeader(
+              category: question.category, difficulty: question.difficulty,
+              format: TakkenQuestionFormat(rawValue: question.format) ?? .multipleChoice,
+              prompt: question.prompt, lawBasisDate: question.lawBasisDate)
             ForEach(question.choices) { choice in
-              Button(choice.text) { submit(snapshot, choiceID: choice.id) }.secondaryActionStyle()
-                .disabled(selected != nil || isSubmitting)
+              TakkenAnswerChoiceButton(
+                choice: choice, phase: machine.phase,
+                action: { submit(snapshot, question: question, choiceID: choice.id) })
+                .disabled(!isAnswering || isSubmitting)
             }
-            if let selected {
-              let correct = selected == question.correctChoiceID
-              VStack(alignment: .leading, spacing: 8) {
-                Label(
-                  correct ? "正解" : "学び直し",
-                  systemImage: correct ? "checkmark.circle.fill" : "book.fill"
-                ).font(.headline).foregroundStyle(correct ? .green : .orange)
-                Text(question.longExplanation)
-                if let key = question.keyPoint { Label(key, systemImage: "key.fill") }
-                if !correct, waitRemaining > 0 { Text("あと\(waitRemaining)秒").monospacedDigit() }
-                if correct { Button(isLast ? "解除する" : "次へ") { advance() }.primaryActionStyle() }
-              }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
+            if !isAnswering {
+              TakkenAnswerReviewCard(
+                phase: machine.phase,
+                remainingSeconds: machine.remainingSeconds(at: Date()),
+                retry: { _ = machine.retry() },
+                nextTitle: isLast ? "解除する" : "次へ",
+                nextAction: advance)
             }
           }
         }.frame(maxWidth: 720).padding()
       }.navigationTitle("宅建で解除").navigationBarTitleDisplayMode(.inline)
-    }.interactiveDismissDisabled().onReceive(timer) { _ in
-      guard scenePhase == .active, waitRemaining > 0 else { return }
-      waitRemaining -= 1
-      if waitRemaining == 0 { selected = nil }
-    }.accessibilityIdentifier("unlock.takken")
-      .alert("解除問題", isPresented: .init(
-        get: { submissionError != nil },
-        set: { if !$0 { submissionError = nil } }
-      )) {
-        Button("閉じる", role: .cancel) {}
-      } message: {
-        Text(submissionError ?? "")
-      }
+    }
+    .interactiveDismissDisabled()
+    .onReceive(timer) { now in
+      guard scenePhase == .active else { return }
+      machine.update(at: now)
+    }
+    .onChange(of: scenePhase, perform: handleScenePhase)
+    .accessibilityIdentifier("unlock.takken")
+    .answerSubmissionAlert(message: $submissionError, title: "解除問題")
+  }
+
+  private var isAnswering: Bool {
+    if case .answering = machine.phase { return true }
+    return false
   }
   private var isLast: Bool {
     !bundle.challenge.questions.indices.contains { candidate in
@@ -621,18 +728,20 @@ struct TakkenUnlockChallengeView: View {
         && !bundle.completedQuestionIDs.contains(bundle.challenge.questions[candidate].id)
     }
   }
-  private func submit(_ question: UnlockQuestionSnapshot, choiceID: Int) {
+
+  private func submit(
+    _ snapshot: UnlockQuestionSnapshot, question: TakkenUnlockQuestionSnapshot, choiceID: Int
+  ) {
+    guard isAnswering else { return }
     let correct = choiceID == question.correctChoiceID
-    let plan = feedbackPlanner.plan(wrongAttemptCount: correct ? 0 : attempts + 1)
+    let ordinal = machine.wrongAttemptCount + (correct ? 0 : 1)
+    let plan = feedbackPlanner.plan(wrongAttemptCount: correct ? 0 : ordinal)
+    let date = Date()
     isSubmitting = true
     Task {
-      switch await context.submit(question, choiceID, plan) {
-      case .recordedCorrect:
-        selected = choiceID
-      case .recordedIncorrect:
-        selected = choiceID
-        attempts += 1
-        waitRemaining = feedbackPlanner.waitSeconds(for: plan)
+      switch await context.submit(snapshot, choiceID, plan) {
+      case .recordedCorrect, .recordedIncorrect:
+        machine.record(selectedChoiceID: choiceID, question: question, at: date)
       case .expired:
         submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
       case .failed(let message):
@@ -641,16 +750,193 @@ struct TakkenUnlockChallengeView: View {
       isSubmitting = false
     }
   }
+
   private func advance() {
     if let next = bundle.challenge.questions.indices.first(where: {
       $0 > index && !bundle.completedQuestionIDs.contains(bundle.challenge.questions[$0].id)
     }) {
       index = next
-      selected = nil
-      attempts = 0
-      waitRemaining = 0
+      machine = .init()
     } else {
       Task { await context.complete() }
+    }
+  }
+
+  private func handleScenePhase(_ phase: ScenePhase) {
+    if phase == .active {
+      if let inactiveAt { machine.delayReview(by: Date().timeIntervalSince(inactiveAt)) }
+      inactiveAt = nil
+    } else if inactiveAt == nil {
+      inactiveAt = Date()
+    }
+  }
+}
+
+private struct TakkenAnswerChoiceButton: View {
+  let choice: StudyChoice
+  let phase: TakkenAnswerPhase
+  let action: () -> Void
+
+  var body: some View {
+    Button(action: action) {
+      HStack(spacing: 10) {
+        Image(systemName: icon)
+        Text(choice.text).multilineTextAlignment(.leading)
+        Spacer(minLength: 8)
+        if let statusText { Text(statusText).font(.caption.bold()) }
+      }
+      .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+    }
+    .secondaryActionStyle()
+    .foregroundStyle(color)
+    .accessibilityLabel(accessibilityText)
+    .accessibilityIdentifier(identifier ?? "takken.answer.choice.\(choice.id)")
+  }
+
+  private var reviewIDs: (selected: Int?, correct: Int?) {
+    switch phase {
+    case .reviewingWrong(let value), .readyToRetry(let value):
+      return (value.selectedChoiceID, value.correctChoiceID)
+    case .answeredCorrect(let value):
+      return (value.selectedChoiceID, value.correctChoiceID)
+    case .answering: return (nil, nil)
+    }
+  }
+  private var isSelectedWrong: Bool {
+    reviewIDs.selected == choice.id && reviewIDs.correct != choice.id
+  }
+  private var isCorrect: Bool { reviewIDs.correct == choice.id }
+  private var icon: String {
+    isSelectedWrong ? "xmark.circle.fill" : (isCorrect ? "checkmark.circle.fill" : "circle")
+  }
+  private var color: Color { isSelectedWrong ? .orange : (isCorrect ? .green : .primary) }
+  private var statusText: String? {
+    isSelectedWrong ? "あなたの回答・不正解" : (isCorrect ? "正しい回答" : nil)
+  }
+  private var accessibilityText: String {
+    [choice.text, statusText].compactMap { $0 }.joined(separator: "、")
+  }
+  private var identifier: String? {
+    isSelectedWrong ? "takken.answer.selectedWrong" : (isCorrect ? "takken.answer.correct" : nil)
+  }
+}
+
+private struct TakkenAnswerReviewCard: View {
+  let phase: TakkenAnswerPhase
+  let remainingSeconds: Int
+  let retry: () -> Void
+  let nextTitle: String
+  let nextAction: () -> Void
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      switch phase {
+      case .reviewingWrong(let state):
+        wrongReview(state, canRetry: false)
+      case .readyToRetry(let state):
+        wrongReview(state, canRetry: true)
+      case .answeredCorrect(let state):
+        correctReview(state)
+      case .answering:
+        EmptyView()
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .fixedSize(horizontal: false, vertical: true)
+    .studyCard()
+  }
+
+  @ViewBuilder
+  private func wrongReview(_ state: TakkenWrongReviewState, canRetry: Bool) -> some View {
+    Label("不正解", systemImage: "xmark.circle.fill")
+      .font(.title3.bold()).foregroundStyle(.orange)
+    explanation(state.explanation)
+    if canRetry {
+      Button("もう一度解く", action: retry).primaryActionStyle()
+        .accessibilityIdentifier("takken.review.retry")
+    } else {
+      Text("解説を確認してください　あと\(remainingSeconds)秒")
+        .font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
+        .accessibilityLabel("解説確認中です")
+        .accessibilityIdentifier("takken.review.remaining")
+    }
+  }
+
+  @ViewBuilder
+  private func correctReview(_ state: TakkenCorrectReviewState) -> some View {
+    Label(
+      state.wasRelearned ? "学び直し完了" : "正解",
+      systemImage: "checkmark.circle.fill")
+      .font(.title3.bold()).foregroundStyle(.green)
+      .accessibilityIdentifier(state.wasRelearned ? "takken.review.completed" : "takken.review.correct")
+    if state.wasRelearned {
+      textBlock("正しいルール", state.explanation.rule)
+    } else {
+      textBlock("ポイント", state.explanation.whyWrong)
+      if let key = state.explanation.keyPoint { Label(key, systemImage: "key.fill") }
+    }
+    Button(nextTitle, action: nextAction).primaryActionStyle()
+      .accessibilityIdentifier(nextTitle == "解除する" ? "takken.review.unlock" : "takken.review.next")
+  }
+
+  @ViewBuilder
+  private func explanation(_ value: TakkenExplanationPresentation) -> some View {
+    textBlock("あなたの回答", value.selectedText)
+      .accessibilityIdentifier("takken.review.selectedAnswer")
+    textBlock("正しい回答", value.correctText)
+      .accessibilityIdentifier("takken.review.correctAnswer")
+    textBlock("なぜ違うか", value.whyWrong)
+    textBlock("正しいルール", value.rule)
+    if let contrast = value.contrast { textBlock("混同しやすい違い", contrast) }
+    if let key = value.keyPoint { Label(key, systemImage: "key.fill") }
+    if value.lawBasisDate != nil || value.sourceNote != nil {
+      Text([value.lawBasisDate.map { "法令基準日 \($0)" }, value.sourceNote]
+        .compactMap { $0 }.joined(separator: "・"))
+        .font(.footnote).foregroundStyle(.secondary)
+    }
+  }
+
+  private func textBlock(_ title: String, _ value: String) -> some View {
+    VStack(alignment: .leading, spacing: 3) {
+      Text(title).font(.caption.bold()).foregroundStyle(.secondary)
+      Text(value)
+    }
+  }
+}
+
+private func questionHeader(
+  category: String, difficulty: String, format: TakkenQuestionFormat, prompt: String,
+  lawBasisDate: String?
+) -> some View {
+  VStack(alignment: .leading, spacing: 8) {
+    HStack {
+      Text(category).font(.caption.bold())
+      Text(format.displayName).font(.caption.bold())
+        .padding(.horizontal, 6).padding(.vertical, 2)
+        .background(LockAndStudyTheme.takken.opacity(0.14), in: Capsule())
+      Spacer()
+      Text(difficulty).font(.caption)
+    }
+    Text(prompt).font(.title2.bold())
+    if let lawBasisDate {
+      Text("法令基準日 \(lawBasisDate)").font(.caption).foregroundStyle(.secondary)
+    }
+  }
+  .frame(maxWidth: .infinity, alignment: .leading)
+  .studyCard()
+}
+
+private extension View {
+  func answerSubmissionAlert(
+    message: Binding<String?>, title: String = "回答を保存できませんでした"
+  ) -> some View {
+    alert(title, isPresented: .init(
+      get: { message.wrappedValue != nil },
+      set: { if !$0 { message.wrappedValue = nil } }
+    )) {
+      Button("閉じる", role: .cancel) {}
+    } message: {
+      Text(message.wrappedValue ?? "")
     }
   }
 }

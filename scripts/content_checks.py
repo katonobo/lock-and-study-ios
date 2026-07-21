@@ -6,6 +6,7 @@ import json
 import os
 import plistlib
 import re
+import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,6 +35,113 @@ def catalog():
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _normalized_text(value: str) -> str:
+    return re.sub(r"\s+", "", unicodedata.normalize("NFKC", value or "")).lower()
+
+
+def validate_takken_v2(items: list[dict], manifest: dict) -> list[str]:
+    """Strict gate for future Takken v2 Release candidates; current v1 remains auditable."""
+    errors: list[str] = []
+    formats = {name: 0 for name in (
+        "true_false", "number_choice", "wording_contrast", "multiple_choice", "case_study"
+    )}
+    true_false_correct = {"正しい": 0, "誤り": 0}
+    four_choice_positions: list[int] = []
+    expected_year = (manifest.get("qualification") or {}).get("examYear")
+    expected_basis = (manifest.get("qualification") or {}).get("lawBasisDate")
+    allowed_counts = {
+        "true_false": {2}, "number_choice": {2, 3, 4}, "wording_contrast": {2},
+        "multiple_choice": {4}, "case_study": {4},
+    }
+    allowed_review = {"checked", "reviewed", "release"}
+    unit_pattern = re.compile(r"(?:円|万円|億円|日|週間|か月|ヶ月|月|年|％|%|割|人|件|㎡|平方メートル)")
+
+    for item in items:
+        item_id = item.get("id", "<unknown>")
+        concept_id, variant_id = item.get("conceptID"), item.get("variantID")
+        if not isinstance(concept_id, str) or not concept_id.strip():
+            errors.append(f"{item_id}: v2 conceptID is required")
+        if not isinstance(variant_id, str) or not variant_id.strip():
+            errors.append(f"{item_id}: v2 variantID is required")
+        fmt = item.get("format")
+        if fmt not in formats:
+            errors.append(f"{item_id}: unsupported v2 format {fmt}")
+            continue
+        formats[fmt] += 1
+        choices = item.get("choices")
+        if not isinstance(choices, list) or len(choices) not in allowed_counts[fmt]:
+            errors.append(f"{item_id}: choice count does not match {fmt}")
+            continue
+        if not all(isinstance(choice, dict) for choice in choices):
+            errors.append(f"{item_id}: v2 choices require stable object IDs")
+            continue
+        choice_ids = [choice.get("id") for choice in choices]
+        choice_texts = [_normalized_text(choice.get("text", "")) for choice in choices]
+        if any(not isinstance(choice_id, str) or not choice_id for choice_id in choice_ids):
+            errors.append(f"{item_id}: empty stable choice ID")
+        if len(choice_ids) != len(set(choice_ids)):
+            errors.append(f"{item_id}: duplicate stable choice ID")
+        if any(not text for text in choice_texts) or len(choice_texts) != len(set(choice_texts)):
+            errors.append(f"{item_id}: empty or duplicate choice text")
+        correct_id = item.get("correctChoiceID")
+        if correct_id not in choice_ids:
+            errors.append(f"{item_id}: correctChoiceID does not exist")
+        else:
+            correct_index = choice_ids.index(correct_id)
+            if fmt == "true_false":
+                correct_text = choices[correct_index].get("text")
+                if correct_text in true_false_correct:
+                    true_false_correct[correct_text] += 1
+                else:
+                    errors.append(f"{item_id}: true/false choices must use 正しい/誤り")
+            if fmt in {"multiple_choice", "case_study"}:
+                four_choice_positions.append(correct_index)
+        short = _normalized_text(item.get("shortExplanation", ""))
+        long = _normalized_text(item.get("longExplanation", ""))
+        if not short or not long or short == long:
+            errors.append(f"{item_id}: short and long explanations must differ")
+        elif len(long) < len(short) + 10:
+            errors.append(f"{item_id}: long explanation must add information")
+        if item.get("reviewStatus") not in allowed_review:
+            errors.append(f"{item_id}: v2 reviewStatus is not approved")
+        if item.get("distractorReviewStatus") != "checked":
+            errors.append(f"{item_id}: distractor review is required")
+        wrong_choices = [choice for choice in choices if choice.get("id") != correct_id]
+        if any(not str(choice.get("rationale") or "").strip() for choice in wrong_choices):
+            errors.append(f"{item_id}: every distractor needs a human-reviewed rationale")
+        if item.get("isPlaceholder") is not False or item.get("reviewStatus") == "ai_draft":
+            errors.append(f"{item_id}: placeholder/AI draft cannot enter Release")
+        if item.get("examYear") != expected_year or item.get("lawBasisDate") != expected_basis:
+            errors.append(f"{item_id}: year/law basis differs from manifest")
+        if fmt == "number_choice":
+            units = [set(unit_pattern.findall(choice.get("text", ""))) for choice in choices]
+            nonempty_units = [unit for unit in units if unit]
+            if nonempty_units and any(unit != nonempty_units[0] for unit in nonempty_units):
+                errors.append(f"{item_id}: number-choice units are inconsistent")
+
+    count = len(items)
+    if count:
+        ratio = lambda name: formats[name] / count
+        if ratio("true_false") > 0.50:
+            errors.append("v2 true_false must be at most 50%")
+        if ratio("number_choice") < 0.15:
+            errors.append("v2 number_choice must be at least 15%")
+        if ratio("wording_contrast") < 0.15:
+            errors.append("v2 wording_contrast must be at least 15%")
+        if (formats["multiple_choice"] + formats["case_study"]) / count < 0.25:
+            errors.append("v2 multiple_choice + case_study must be at least 25%")
+    tf_count = sum(true_false_correct.values())
+    if tf_count:
+        true_ratio = true_false_correct["正しい"] / tf_count
+        if not 0.40 <= true_ratio <= 0.60:
+            errors.append("v2 true_false correct-answer ratio must be 40-60%")
+    if four_choice_positions and manifest.get("choiceOrderStrategy") != "seeded_shuffle":
+        position_counts = [four_choice_positions.count(position) for position in range(4)]
+        if min(position_counts) == 0 or max(position_counts) / len(four_choice_positions) > 0.40:
+            errors.append("v2 four-choice answer positions are biased and shuffle is not declared")
+    return errors
 
 
 def validate_content() -> list[str]:
@@ -95,6 +203,10 @@ def validate_content() -> list[str]:
             errors.append(f"invalid Takken correctIndex: {item.get('id')}")
         if item.get("examYear") != 2026 or item.get("lawBasisDate") != "2026-04-01":
             errors.append(f"invalid Takken year/law basis: {item.get('id')}")
+    takken_manifest = by_id.get("takken2026.v1", {})
+    if (takken_manifest.get("contentQualityProfile") == "takken-v2"
+            or takken_manifest.get("schemaVersion", 1) >= 2):
+        errors.extend(validate_takken_v2(takken, takken_manifest))
     return errors
 
 
