@@ -10,6 +10,7 @@
 
 - `StudyExperienceRegistry`: pack IDからExperience factoryを解決
 - `StudyExperienceFactory`: 独自Root、First Run、進捗summary、解除renderer、教材固有の解除完了hookを提供
+- `StudyExperienceReportProviding`: 共通snapshotから教材固有の週次指標だけを生成
 - `UnlockChallengeProviding`: Lock Coreが教材へ解除問題を要求する唯一の境界
 - `VocabularyExperience`: 独自AppModel、Router、Settings、5タブ、`VocabularyItem`による通常学習
 - `TakkenExperience`: 独自AppModel、Router、Settings、5タブ、`TakkenQuestion`による通常学習
@@ -24,6 +25,7 @@
 - Commerce: StoreKit 2、複合entitlement、表示モデル
 - Learning: 教材別queue/SRS/feedback、回答snapshot、解除challenge
 - Persistence: Application Supportのversioned JSON/NDJSON、submission ID、解除completion checkpoint、英単語予習の永続期限と一度だけの消費による再試行耐性
+- Reporting: `LearningDataStore`を表示時に再読込し、Calendarベースの直近7暦日、共通指標、教材別section、共有要約を端末内で生成
 - Migration: 専用App Groupの許可済みclaim/progressだけを取込
 
 3拡張はメインアプリをリンクせず、`Shared/` の最小モデルとApp Groupだけを共有します。Shield Actionは解除せずpending requestを冪等作成します。解除はメインアプリが学習完了後に再ロック予約を先に成功させてから行います。Device Activity callbackが保存済み終了時刻より早い場合は終了時刻へ再予約し、再予約失敗時は直ちにShieldを再適用します。
@@ -37,3 +39,9 @@
 - Migration App Group: 旧アプリが生成する一時claim/progress
 
 Releaseコードは外部通信、広告、分析SDKを持ちません。
+
+## 週次レポート
+
+英単語と宅建の各「記録」タブは、その教材の`NavigationStack`内から共通`LearningReportView`を開きます。グローバルTabViewは使用しません。画面内のスコープ切替だけで「この教材／すべての教材」を切り替え、他教材データがない場合は切替自体を表示しません。
+
+`LearningReportService`は回答、event、進捗、released manifestを`LearningDataStore`とContent Repositoryから毎回取得します。共通層はShield起点の学習チャンス、実回答、実際に作成された解除sessionだけを集計し、`VocabularyReportProvider`と`TakkenReportProvider`が新出・復習、レベル進捗、分野成績などを追加します。サンプルレポートは固定メモリデータだけを使い、保存領域へ書き込みません。

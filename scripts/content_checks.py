@@ -236,6 +236,29 @@ def release_safety() -> list[str]:
         errors.append("Screen Time authorization must use .individual")
     if "scheduleRelock(at: session.endsAt)" not in production:
         errors.append("safe relock-before-unshield implementation missing")
+    root_view = (ROOT / "LockAndStudy/App/RootView.swift").read_text(encoding="utf-8")
+    sample_route = '-LockAndStudyUITestRouteSampleReport'
+    debug_start = root_view.find("#if DEBUG")
+    debug_end = root_view.find("#else", debug_start)
+    route_index = root_view.find(sample_route)
+    if route_index < 0 or debug_start < 0 or debug_end < 0 or not (debug_start < route_index < debug_end):
+        errors.append("sample report UI test route must remain DEBUG-only")
+    share_source = (ROOT / "LockAndStudy/Core/Reporting/LearningReportShareService.swift").read_text(
+        encoding="utf-8"
+    )
+    share_template = share_source.split("struct LearningReportShareService", 1)[-1]
+    for forbidden_key in ("pendingUnlockRequest", "selectionData", "managementCode", "transactionID"):
+        if forbidden_key in share_template:
+            errors.append(f"private key found in report share template: {forbidden_key}")
+    report_ui = "\n".join(
+        path.read_text(encoding="utf-8", errors="ignore")
+        for path in (ROOT / "LockAndStudy/Features/Reports").glob("*.swift")
+    )
+    if "PurchaseView" in report_ui or "permitsAccess" in report_ui:
+        errors.append("weekly report must not be hidden behind a purchase condition")
+    for dead_type in ("PlatformHomeView", "PlatformLibraryView", "PlatformRecordsView"):
+        if dead_type in production:
+            errors.append(f"dead global platform view remains: {dead_type}")
     monitor_source = (ROOT / "LockAndStudyDeviceActivityMonitorExtension/DeviceActivityMonitorExtension.swift").read_text(encoding="utf-8")
     if "RelockRecoveryExecutor().execute" not in monitor_source or "case .rescheduled" not in monitor_source:
         errors.append("extension early-callback guard missing")

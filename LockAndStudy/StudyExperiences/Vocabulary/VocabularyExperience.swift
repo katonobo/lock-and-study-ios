@@ -94,6 +94,7 @@ struct VocabularyUnlockChallengeProvider: UnlockChallengeProviding {
       schemaVersion: 2,
       id: UUID(),
       requestID: request.requestID,
+      origin: request.origin,
       experienceID: .vocabulary,
       packID: packID,
       policyVersion: request.policy.policyVersion,
@@ -118,6 +119,7 @@ struct VocabularyExperience: StudyExperienceFactory {
     supportedPackIDs: ["english3000.v1"]
   )
   let unlockChallengeProvider: any UnlockChallengeProviding = VocabularyUnlockChallengeProvider()
+  let reportProvider: (any StudyExperienceReportProviding)? = VocabularyReportProvider()
 
   func makeRootView(context: StudyExperienceContext) -> AnyView {
     AnyView(VocabularyRootView(context: context))
@@ -325,10 +327,14 @@ final class VocabularyAppModel: ObservableObject {
     selectedChoiceID: Int,
     sessionID: UUID,
     attempt: Int
-  ) async -> StudyFeedbackPlan {
+  ) async -> StudyAnswerSubmissionResult {
     let isCorrect = selectedChoiceID == question.correctChoiceID
     let plan = feedbackPlanner.plan(wrongAttemptCount: isCorrect ? 0 : attempt + 1)
     let item = question.item
+    let answeredAt = Date()
+    let mode = session?.mode ?? .practice
+    let compositeID = CompositeStudyItemID(packID: context.manifest.id, itemID: item.studyItemID)
+    let priorProgress = progress[compositeID.storageKey] ?? .initial(compositeID)
     let record = StudyAnswerRecord(
       submissionID: "vocabulary::\(sessionID.uuidString)::\(item.id)::\(selectedChoiceID)::\(attempt)",
       experienceID: .vocabulary,
@@ -348,22 +354,31 @@ final class VocabularyAppModel: ObservableObject {
       questionVersion: 1,
       examYear: nil,
       lawBasisDate: nil,
-      answeredAt: Date(),
-      mode: session?.mode ?? .practice,
+      answeredAt: answeredAt,
+      mode: mode,
       sessionID: sessionID,
       feedbackPlan: plan,
-      tags: [item.metadata.cefr, item.partOfSpeechJa]
+      tags: [item.metadata.cefr, item.partOfSpeechJa],
+      learningRole: .classify(mode: mode, progress: priorProgress, at: answeredAt),
+      wasNewAtSubmission: priorProgress.answerCount == 0,
+      wasDueAtSubmission: priorProgress.dueAt.map { $0 <= answeredAt } ?? false
     )
     do {
       _ = try await context.dependencies.learning.recordUnique(record)
       progress = try await context.dependencies.learning.allProgress()
       answers = try await context.dependencies.learning.answers().filter { $0.experienceID == .vocabulary }
-    } catch { errorMessage = error.localizedDescription }
-    return plan
+      context.dependencies.learningRevision.bump()
+      return isCorrect ? .recordedCorrect(plan) : .recordedIncorrect(plan)
+    } catch {
+      let message = error.localizedDescription
+      errorMessage = message
+      return .failed(message)
+    }
   }
 
   var weeklyReport: VocabularyWeeklyReport {
-    VocabularyWeeklyReportService().make(answers: answers, progress: progress, now: Date())
+    VocabularyWeeklyReportService().make(
+      answers: answers, progress: progress, packID: context.manifest.id, now: Date())
   }
   var learnedCount: Int { progress.values.filter { $0.id.packID == context.manifest.id && $0.answerCount > 0 }.count }
   var dueCount: Int { progress.values.filter { $0.id.packID == context.manifest.id && ($0.dueAt.map { $0 <= Date() } ?? false) }.count }

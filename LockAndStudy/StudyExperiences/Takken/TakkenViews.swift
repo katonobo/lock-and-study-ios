@@ -321,6 +321,11 @@ private struct TakkenRecordsView: View {
   @EnvironmentObject private var model: TakkenAppModel
   var body: some View {
     List {
+      Section {
+        LearningReportEntryCard(
+          context: model.context,
+          accessibilityID: "report.entry.takken")
+      }
       Section("概要") {
         LabeledContent("回答", value: "\(model.summary.answerCount)問")
         LabeledContent("正答率", value: "\(model.summary.accuracy)%")
@@ -447,6 +452,7 @@ private struct TakkenStudySessionView: View {
   @State private var attempt = 0
   @State private var waitRemaining = 0
   @State private var isSubmitting = false
+  @State private var submissionError: String?
   private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
   var body: some View {
     NavigationStack {
@@ -494,16 +500,29 @@ private struct TakkenStudySessionView: View {
       waitRemaining -= 1
       if waitRemaining == 0 { selected = nil }
     }.accessibilityIdentifier("takken.study.session")
+      .alert("回答を保存できませんでした", isPresented: .init(
+        get: { submissionError != nil },
+        set: { if !$0 { submissionError = nil } }
+      )) {
+        Button("閉じる", role: .cancel) {}
+      } message: {
+        Text(submissionError ?? "")
+      }
   }
   private func submit(_ choice: Int, question: TakkenQuestion) {
     isSubmitting = true
     Task {
-      let plan = await model.recordAnswer(
+      let result = await model.recordAnswer(
         question: question, selectedChoiceID: choice, sessionID: presentation.id, attempt: attempt)
-      selected = choice
-      if choice != question.correctIndex {
+      switch result {
+      case .recordedCorrect:
+        selected = choice
+      case .recordedIncorrect(let plan):
+        selected = choice
         attempt += 1
         waitRemaining = model.waitSeconds(for: plan)
+      case .failed(let message):
+        submissionError = message
       }
       isSubmitting = false
     }

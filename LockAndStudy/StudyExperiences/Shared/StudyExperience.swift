@@ -57,6 +57,7 @@ struct ActiveStudyExperience: Identifiable, Equatable, Sendable {
 struct StudyExperienceContext {
   let manifest: StudyPackManifest
   let dependencies: DependencyContainer
+  let reportProviders: [any StudyExperienceReportProviding]
   let destination: StudyExperienceDestination
   let openMaterialSelection: @MainActor () -> Void
   let beginUnlockStudy: @MainActor () async -> Void
@@ -65,6 +66,7 @@ struct StudyExperienceContext {
 
 struct UnlockChallengeRequest: Sendable {
   let requestID: UUID
+  let origin: UnlockChallengeOrigin
   let policy: LockPolicy
   let manifest: StudyPackManifest
   let entitlement: CommerceEntitlementSnapshot
@@ -161,6 +163,7 @@ struct UnlockChallengeSnapshot: Codable, Equatable, Identifiable, Sendable {
   let schemaVersion: Int
   let id: UUID
   let requestID: UUID
+  let origin: UnlockChallengeOrigin?
   let experienceID: StudyExperienceID
   let packID: StudyPackID
   let policyVersion: Int
@@ -170,6 +173,8 @@ struct UnlockChallengeSnapshot: Codable, Equatable, Identifiable, Sendable {
   let access: UnlockBundleAccessSnapshot
   let createdAt: Date
   let expiresAt: Date
+
+  var resolvedOrigin: UnlockChallengeOrigin { origin ?? .legacyUnknown }
 }
 
 enum UnlockCompletionState: String, Codable, Equatable, Sendable {
@@ -211,6 +216,7 @@ struct UnlockChallengeViewContext {
 protocol StudyExperienceFactory {
   var descriptor: StudyExperienceDescriptor { get }
   var unlockChallengeProvider: any UnlockChallengeProviding { get }
+  var reportProvider: (any StudyExperienceReportProviding)? { get }
   func makeRootView(context: StudyExperienceContext) -> AnyView
   func makeFirstRunView(context: StudyExperienceContext) -> AnyView?
   func makeProgressSummary(context: StudyExperienceContext) async throws -> StudyExperienceSummary
@@ -221,6 +227,7 @@ protocol StudyExperienceFactory {
 }
 
 extension StudyExperienceFactory {
+  var reportProvider: (any StudyExperienceReportProviding)? { nil }
   func handleUnlockCompletion(_ context: UnlockCompletionContext) async throws {}
 }
 
@@ -238,6 +245,9 @@ struct StudyExperienceRegistry {
   }
   var descriptors: [StudyExperienceDescriptor] {
     factories.values.map(\.descriptor).sorted { $0.title < $1.title }
+  }
+  var reportProviders: [any StudyExperienceReportProviding] {
+    factories.values.compactMap(\.reportProvider)
   }
   static func standard() -> StudyExperienceRegistry {
     .init(factories: [VocabularyExperience(), TakkenExperience(), SafeFallbackExperience()])

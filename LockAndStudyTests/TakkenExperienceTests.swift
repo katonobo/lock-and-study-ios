@@ -85,7 +85,7 @@ final class TakkenExperienceTests: XCTestCase {
     let challenge = try await TakkenUnlockChallengeProvider(bundle: .main).makeUnlockChallenge(
       packID: manifest.id,
       request: .init(
-        requestID: UUID(), policy: policy, manifest: manifest, entitlement: .empty,
+        requestID: UUID(), origin: .manual, policy: policy, manifest: manifest, entitlement: .empty,
         progress: [:], learning: temporaryLearningStore(), now: now)
     )
     XCTAssertEqual(challenge.experienceID, .takken)
@@ -103,7 +103,7 @@ final class TakkenExperienceTests: XCTestCase {
     let fallback = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(
       packID: manifest.id,
       request: .init(
-        requestID: UUID(), policy: .initial(now: now), manifest: manifest,
+        requestID: UUID(), origin: .manual, policy: .initial(now: now), manifest: manifest,
         entitlement: .empty, progress: [:], learning: temporaryLearningStore(), now: now)
     )
     XCTAssertEqual(fallback.experienceID, .safeFallback)

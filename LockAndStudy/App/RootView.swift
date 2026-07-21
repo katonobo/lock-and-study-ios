@@ -31,6 +31,10 @@ struct RootView: View {
           if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestRoutePurchase") {
             NavigationStack { PurchaseView() }
           } else if ProcessInfo.processInfo.arguments.contains(
+            "-LockAndStudyUITestRouteSampleReport")
+          {
+            NavigationStack { LearningReportSampleView() }
+          } else if ProcessInfo.processInfo.arguments.contains(
             "-LockAndStudyUITestRouteEnglishDetail")
           {
             routedPackDetail("english3000.v1")

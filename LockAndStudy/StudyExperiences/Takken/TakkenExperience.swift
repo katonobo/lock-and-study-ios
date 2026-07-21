@@ -73,6 +73,7 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
       schemaVersion: 2,
       id: UUID(),
       requestID: request.requestID,
+      origin: request.origin,
       experienceID: .takken,
       packID: packID,
       policyVersion: request.policy.policyVersion,
@@ -97,6 +98,7 @@ struct TakkenExperience: StudyExperienceFactory {
     supportedPackIDs: ["takken2026.v1"]
   )
   let unlockChallengeProvider: any UnlockChallengeProviding = TakkenUnlockChallengeProvider()
+  let reportProvider: (any StudyExperienceReportProviding)? = TakkenReportProvider()
 
   func makeRootView(context: StudyExperienceContext) -> AnyView { AnyView(TakkenRootView(context: context)) }
   func makeFirstRunView(context: StudyExperienceContext) -> AnyView? { AnyView(TakkenFirstRunView(context: context)) }
@@ -183,9 +185,14 @@ final class TakkenAppModel: ObservableObject {
     Task { try? await context.dependencies.learning.record(.init(kind: .studyStarted, packID: context.manifest.id, sessionID: sessionID)) }
   }
 
-  func recordAnswer(question: TakkenQuestion, selectedChoiceID: Int, sessionID: UUID, attempt: Int) async -> StudyFeedbackPlan {
+  func recordAnswer(question: TakkenQuestion, selectedChoiceID: Int, sessionID: UUID, attempt: Int) async -> StudyAnswerSubmissionResult {
     let correct = selectedChoiceID == question.correctIndex
     let plan = feedbackPlanner.plan(wrongAttemptCount: correct ? 0 : attempt + 1)
+    let answeredAt = Date()
+    let mode = session?.mode ?? .practice
+    let compositeID = CompositeStudyItemID(
+      packID: context.manifest.id, itemID: .init(rawValue: question.id))
+    let priorProgress = progress[compositeID.storageKey] ?? .initial(compositeID)
     let record = StudyAnswerRecord(
       submissionID: "takken::\(sessionID.uuidString)::\(question.id)::\(selectedChoiceID)::\(attempt)",
       experienceID: .takken,
@@ -205,21 +212,29 @@ final class TakkenAppModel: ObservableObject {
       questionVersion: question.version ?? 1,
       examYear: question.examYear,
       lawBasisDate: question.lawBasisDate,
-      answeredAt: Date(),
-      mode: session?.mode ?? .practice,
+      answeredAt: answeredAt,
+      mode: mode,
       sessionID: sessionID,
       feedbackPlan: plan,
       difficulty: question.difficulty,
       questionFormat: question.format?.rawValue,
       keyPoint: question.keyPoint,
-      tags: question.tags
+      tags: question.tags,
+      learningRole: .classify(mode: mode, progress: priorProgress, at: answeredAt),
+      wasNewAtSubmission: priorProgress.answerCount == 0,
+      wasDueAtSubmission: priorProgress.dueAt.map { $0 <= answeredAt } ?? false
     )
     do {
       _ = try await context.dependencies.learning.recordUnique(record)
       progress = try await context.dependencies.learning.allProgress()
       answers = try await context.dependencies.learning.answers().filter { $0.experienceID == .takken }
-    } catch { errorMessage = error.localizedDescription }
-    return plan
+      context.dependencies.learningRevision.bump()
+      return correct ? .recordedCorrect(plan) : .recordedIncorrect(plan)
+    } catch {
+      let message = error.localizedDescription
+      errorMessage = message
+      return .failed(message)
+    }
   }
 
   func itemProgress(_ question: TakkenQuestion) -> ItemProgress {

@@ -8,9 +8,9 @@
 
 Shieldからアプリを直接起動できないため、主ボタンはrequestを保存してShieldを閉じます。通知許可時は案内通知、拒否時は手動でアプリを開く導線を表示します。弱化変更は管理コード、またはコード未設定時の24時間待機と二度目確認で保護します。緊急解除は購入状態に関係なくrolling 24時間に1回、15分です。管理コードはiOS設定からのFamily Controls取消やアプリ削除を防ぐものではありません。
 
-データは端末内だけに保存し、広告、分析、追跡、外部送信はありません。
+学習レポートは、端末内の回答と学習eventから直近7暦日を端末内で都度集計します。無料教材だけの利用者も確認でき、共有は利用者が「家族に共有」を押した場合だけです。Screen Timeの対象アプリ名やtoken、管理コード、緊急解除理由、個別の問題文はレポートへ含めません。データは端末内だけに保存し、広告、分析、追跡、外部送信はありません。
 
-審査手順：初回画面で説明を進め、Screen Timeを許可（拒否しても完了可能）、無料英単語または無料宅建を選択します。設定でmockではない実対象を選び基本ロックを開始します。対象アプリのShield主ボタンを押し、本アプリを手動または通知から開き、無料問題に回答すると設定時間だけ解除されます。購入画面ではSandbox商品4件、復元、Passと個別購入の表示を確認できます。
+審査手順：初回画面で「学習レポートの例」を確認できます。説明を進め、無料英単語または無料宅建を選択し、Screen Timeを許可して実対象を1件以上選ぶと基本ロックを開始します。対象アプリのShield主ボタンを押し、本アプリを手動または通知から開き、無料問題に回答すると設定時間だけ解除されます。各教材の「記録」タブ先頭から無料の週次レポートと家族共有を確認できます。購入画面ではSandbox商品4件、復元、Passと個別購入の表示を確認できます。
 
 ## English
 
@@ -20,6 +20,6 @@ Core locking, target limits, the management code, the 24-hour cooldown, and emer
 
 Because a Shield extension cannot directly launch the app, its primary action stores an idempotent request and closes the Shield. An optional notification guides the user; if notifications are denied, the user opens the app manually. Weaker settings require the management code, or a 24-hour wait plus a second confirmation when no code is set. Emergency access is independent of purchases and permits 15 minutes once in a rolling 24-hour window. The management code cannot prevent revoking Family Controls in iOS Settings or deleting the app.
 
-All data stays on device. There are no ads, analytics, tracking, or external data transmission.
+The weekly report is generated on device from local answers and learning events for the latest seven calendar days. It is available to free users. Sharing starts only after the user taps the family-share button, and excludes Screen Time app names or tokens, the management code, emergency reasons, and individual question text. All data stays on device. There are no ads, analytics, tracking, or external data transmission.
 
-Review steps: complete onboarding (Screen Time may also be skipped), choose either free pack, authorize Screen Time, select an app, and enable the core lock. Open the selected app, press the Shield primary button, then open Lock and Study manually or from the optional notification. Answer the free learning item to unlock for the configured duration. The purchase screen exposes four Sandbox products, restore, and the combined Pass/owned-pack state.
+Review steps: the first onboarding page opens a fixed sample report. Continue onboarding, choose either free pack, authorize Screen Time, select at least one target, and start the core lock. Open the selected app, press the Shield primary button, then open Lock and Study manually or from the optional notification. Answer the free learning item to unlock for the configured duration. The first card in each pack's Records tab opens the free weekly report and family sharing. The purchase screen exposes four Sandbox products, restore, and the combined Pass/owned-pack state.

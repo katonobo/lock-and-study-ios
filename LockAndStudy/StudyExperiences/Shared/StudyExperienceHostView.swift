@@ -31,6 +31,7 @@ struct StudyExperienceHostView: View {
     .init(
       manifest: baseContext.manifest,
       dependencies: baseContext.dependencies,
+      reportProviders: baseContext.reportProviders,
       destination: baseContext.destination,
       openMaterialSelection: baseContext.openMaterialSelection,
       beginUnlockStudy: baseContext.beginUnlockStudy,

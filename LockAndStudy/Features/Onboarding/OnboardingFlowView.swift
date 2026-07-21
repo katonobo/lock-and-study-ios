@@ -52,6 +52,8 @@ struct OnboardingFlowView: View {
         icon: "lock.open.trianglebadge.exclamationmark", title: "SNSを開くたび、\n学びが進む。",
         body: "SNSやゲームを開く前に、選んだ教材を1問。毎日のスマホ習慣を、そのまま学習のきっかけにします。")
       Button("はじめる") { step += 1 }.primaryActionStyle().accessibilityIdentifier("onboarding.start")
+      NavigationLink("学習レポートの例を見る") { LearningReportSampleView() }
+        .accessibilityIdentifier("onboarding.sampleReport")
       NavigationLink("このアプリのしくみと管理について") { PlatformManagementInfoView() }
     case 1:
       page(

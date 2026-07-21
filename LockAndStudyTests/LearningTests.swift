@@ -147,7 +147,8 @@ final class LearningTests: XCTestCase {
       correctChoiceID: 0, explanation: "短くても続けます。"
     ))
     let challenge = UnlockChallengeSnapshot(
-      schemaVersion: 2, id: UUID(), requestID: UUID(), experienceID: .safeFallback,
+      schemaVersion: 2, id: UUID(), requestID: UUID(), origin: .legacyUnknown,
+      experienceID: .safeFallback,
       packID: "english3000.v1", policyVersion: 1, pace: .balanced10,
       reviewLoad: .standard, questions: [question],
       access: .init(packID: "english3000.v1", reason: .freeSample, verifiedAt: nil),

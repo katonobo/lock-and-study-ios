@@ -264,11 +264,17 @@ struct VocabularyWeeklyReport: Equatable, Sendable {
 }
 
 struct VocabularyWeeklyReportService: Sendable {
-  func make(answers: [StudyAnswerRecord], progress: [String: ItemProgress], now: Date, calendar: Calendar = .current) -> VocabularyWeeklyReport {
+  func make(
+    answers: [StudyAnswerRecord],
+    progress: [String: ItemProgress],
+    packID: StudyPackID,
+    now: Date,
+    calendar: Calendar = .current
+  ) -> VocabularyWeeklyReport {
     let start = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: now)) ?? .distantPast
     let scoped = answers.filter { $0.experienceID == .vocabulary && $0.answeredAt >= start }
-    let learned = progress.values.filter { $0.id.packID == "english3000.v1" && $0.answerCount > 0 }.count
-    let due = progress.values.filter { $0.id.packID == "english3000.v1" && ($0.dueAt.map { $0 <= now } ?? false) }.count
+    let learned = progress.values.filter { $0.id.packID == packID && $0.answerCount > 0 }.count
+    let due = progress.values.filter { $0.id.packID == packID && ($0.dueAt.map { $0 <= now } ?? false) }.count
     let days = Set(scoped.map { calendar.startOfDay(for: $0.answeredAt) })
     var streak = 0
     for offset in 0..<365 {

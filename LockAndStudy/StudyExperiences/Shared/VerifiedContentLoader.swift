@@ -63,6 +63,7 @@ struct SafeFallbackUnlockChallengeProvider: UnlockChallengeProviding {
       schemaVersion: 2,
       id: UUID(),
       requestID: request.requestID,
+      origin: request.origin,
       experienceID: .safeFallback,
       packID: packID,
       policyVersion: request.policy.policyVersion,

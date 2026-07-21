@@ -185,6 +185,89 @@ final class LockAndStudyUITests: XCTestCase {
     XCTAssertTrue(app.buttons["materialSelection.option.takken2026.v1"].exists)
   }
 
+  func testVocabularyRecordsOpenFreeWeeklyReportWithCoreSections() {
+    let app = launch(extraArguments: ["-LockAndStudyUITestReportData"])
+    openWeeklyReport(app, entryID: "report.entry.vocabulary")
+    XCTAssertTrue(app.descendants(matching: .any)["report.hero"].waitForExistence(timeout: 10))
+    XCTAssertTrue(app.descendants(matching: .any)["report.chart"].exists)
+    XCTAssertTrue(app.descendants(matching: .any)["report.learningSummary"].exists)
+    XCTAssertTrue(
+      app.descendants(matching: .any)["report.material.english3000.v1"].exists)
+    XCTAssertEqual(app.tabBars.count, 1)
+  }
+
+  func testTakkenRecordsOpenFreeWeeklyReportWithMaterialMetrics() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", "-LockAndStudyUITestReportData",
+    ])
+    openWeeklyReport(app, entryID: "report.entry.takken")
+    XCTAssertTrue(app.descendants(matching: .any)["report.hero"].waitForExistence(timeout: 10))
+    XCTAssertTrue(app.descendants(matching: .any)["report.material.takken2026.v1"].exists)
+    let newItemMetric = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label CONTAINS %@", "初めて解いた 1問")
+    ).firstMatch
+    scrollUntilVisible(newItemMetric, app: app)
+    XCTAssertTrue(newItemMetric.exists)
+    XCTAssertEqual(app.tabBars.count, 1)
+  }
+
+  func testWeeklyReportCanSwitchBetweenCurrentAndAllMaterials() {
+    let app = launch(extraArguments: ["-LockAndStudyUITestReportData"])
+    openWeeklyReport(app, entryID: "report.entry.vocabulary")
+    let scope = app.segmentedControls["report.scope"]
+    XCTAssertTrue(scope.waitForExistence(timeout: 10))
+    XCTAssertTrue(scope.buttons["この教材"].isSelected)
+    scope.buttons["すべての教材"].tap()
+    XCTAssertTrue(scope.buttons["すべての教材"].isSelected)
+    scrollUntilVisible(app.descendants(matching: .any)["report.material.takken2026.v1"], app: app)
+    XCTAssertTrue(app.descendants(matching: .any)["report.material.takken2026.v1"].exists)
+  }
+
+  func testWeeklyReportShareAndPrivacyExplanationAreReachable() {
+    let app = launch(extraArguments: ["-LockAndStudyUITestReportData"])
+    openWeeklyReport(app, entryID: "report.entry.vocabulary")
+    scrollUntilVisible(app.buttons["report.share"], app: app)
+    XCTAssertTrue(app.buttons["report.share"].exists)
+    scrollUntilVisible(app.descendants(matching: .any)["report.privacy"], app: app)
+    XCTAssertTrue(app.descendants(matching: .any)["report.privacy"].exists)
+  }
+
+  func testOnboardingCanOpenSampleReportWithoutCompletingSetup() {
+    let app = launch(skipOnboarding: false)
+    XCTAssertTrue(app.buttons["onboarding.sampleReport"].waitForExistence(timeout: 10))
+    app.buttons["onboarding.sampleReport"].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["report.sample.screen"].waitForExistence(timeout: 10))
+    XCTAssertTrue(app.descendants(matching: .any)["report.sample.badge"].exists)
+    XCTAssertFalse(app.tabBars.firstMatch.exists)
+  }
+
+  func testDebugSampleRouteUsesSharedReportComponents() {
+    let app = launch(route: "-LockAndStudyUITestRouteSampleReport")
+    XCTAssertTrue(
+      app.descendants(matching: .any)["report.sample.screen"].waitForExistence(timeout: 10))
+    XCTAssertTrue(app.descendants(matching: .any)["report.sample.badge"].exists)
+    XCTAssertTrue(app.descendants(matching: .any)["report.hero"].exists)
+    XCTAssertTrue(app.descendants(matching: .any)["report.chart"].exists)
+  }
+
+  func testWeeklyReportSupportsMaximumDynamicTypeAndCombinedMetricLabels() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestReportData",
+      "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL",
+    ])
+    openWeeklyReport(app, entryID: "report.entry.vocabulary")
+    XCTAssertTrue(app.descendants(matching: .any)["report.hero"].waitForExistence(timeout: 10))
+    let opportunityMetric = app.descendants(matching: .any).matching(
+      NSPredicate(format: "label CONTAINS %@", "使う前の学習チャンス 1回")
+    ).firstMatch
+    scrollUntilVisible(opportunityMetric, app: app)
+    XCTAssertTrue(opportunityMetric.exists)
+    let chart = app.descendants(matching: .any)["report.chart"]
+    scrollUntilVisible(chart, app: app)
+    XCTAssertTrue(chart.exists)
+  }
+
   private func launch(
     skipOnboarding: Bool = true, route: String? = nil, extraArguments: [String] = []
   ) -> XCUIApplication {
@@ -214,5 +297,18 @@ final class LockAndStudyUITests: XCTestCase {
 
     app.buttons["onboarding.next.5"].tap()
     XCTAssertTrue(app.secureTextFields["onboarding.managementCode"].waitForExistence(timeout: 5))
+  }
+
+  private func openWeeklyReport(_ app: XCUIApplication, entryID: String) {
+    XCTAssertTrue(app.tabBars.buttons["記録"].waitForExistence(timeout: 15))
+    app.tabBars.buttons["記録"].tap()
+    XCTAssertTrue(app.buttons[entryID].waitForExistence(timeout: 10))
+    app.buttons[entryID].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["report.weekly.screen"].waitForExistence(timeout: 10))
+  }
+
+  private func scrollUntilVisible(_ element: XCUIElement, app: XCUIApplication) {
+    for _ in 0..<8 where !element.isHittable { app.swipeUp() }
   }
 }

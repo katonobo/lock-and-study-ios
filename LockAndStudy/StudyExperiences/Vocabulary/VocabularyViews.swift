@@ -330,6 +330,11 @@ private struct VocabularyRecordsView: View {
   @EnvironmentObject private var model: VocabularyAppModel
   var body: some View {
     List {
+      Section {
+        LearningReportEntryCard(
+          context: model.context,
+          accessibilityID: "report.entry.vocabulary")
+      }
       Section("今週") {
         LabeledContent("回答", value: "\(model.weeklyReport.answers)問")
         LabeledContent("正答率", value: "\(model.weeklyReport.accuracy)%")
@@ -465,6 +470,7 @@ private struct VocabularyStudySessionView: View {
   @State private var waitRemaining = 0
   @State private var plan = StudyFeedbackPlan.immediate
   @State private var isSubmitting = false
+  @State private var submissionError: String?
   private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
   private let speech = SpeechService()
 
@@ -514,6 +520,14 @@ private struct VocabularyStudySessionView: View {
       if waitRemaining == 0 { selected = nil }
     }
     .accessibilityIdentifier("vocabulary.study.session")
+    .alert("回答を保存できませんでした", isPresented: .init(
+      get: { submissionError != nil },
+      set: { if !$0 { submissionError = nil } }
+    )) {
+      Button("閉じる", role: .cancel) {}
+    } message: {
+      Text(submissionError ?? "")
+    }
   }
 
   @ViewBuilder private func feedback(question: VocabularyQuestion, selected: Int) -> some View {
@@ -539,13 +553,20 @@ private struct VocabularyStudySessionView: View {
   private func submit(_ choiceID: Int, question: VocabularyQuestion) {
     isSubmitting = true
     Task {
-      plan = await model.recordAnswer(
+      let result = await model.recordAnswer(
         question: question, selectedChoiceID: choiceID, sessionID: presentation.id,
         attempt: attempts)
-      selected = choiceID
-      if choiceID != question.correctChoiceID {
+      switch result {
+      case .recordedCorrect(let recordedPlan):
+        plan = recordedPlan
+        selected = choiceID
+      case .recordedIncorrect(let recordedPlan):
+        plan = recordedPlan
+        selected = choiceID
         attempts += 1
         waitRemaining = model.waitSeconds(for: plan)
+      case .failed(let message):
+        submissionError = message
       }
       isSubmitting = false
     }

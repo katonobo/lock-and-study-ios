@@ -1,7 +1,13 @@
 import Foundation
 
 enum LearningEventKind: String, Codable, Sendable {
-  case studyStarted, answerSubmitted, unlockChallengeStarted, unlockSuccess, emergencyUnlock, packPurchased, passStatusChanged, contentMigrated
+  case studyStarted, answerSubmitted, unlockChallengeStarted, unlockChallengeCompleted, unlockSuccess, emergencyUnlock, packPurchased, passStatusChanged, contentMigrated
+}
+
+enum UnlockChallengeOrigin: String, Codable, Sendable {
+  case shield
+  case manual
+  case legacyUnknown
 }
 
 struct LearningEvent: Codable, Identifiable, Equatable, Sendable {
@@ -12,9 +18,36 @@ struct LearningEvent: Codable, Identifiable, Equatable, Sendable {
   let packID: StudyPackID?
   let sessionID: UUID?
   let detailCode: String?
-  init(id: UUID = UUID(), kind: LearningEventKind, occurredAt: Date = Date(), packID: StudyPackID? = nil, sessionID: UUID? = nil, detailCode: String? = nil) {
-    schemaVersion = 1; self.id = id; self.kind = kind; self.occurredAt = occurredAt; self.packID = packID; self.sessionID = sessionID; self.detailCode = detailCode
+  let unlockOrigin: UnlockChallengeOrigin?
+  init(id: UUID = UUID(), kind: LearningEventKind, occurredAt: Date = Date(), packID: StudyPackID? = nil, sessionID: UUID? = nil, detailCode: String? = nil, unlockOrigin: UnlockChallengeOrigin? = nil) {
+    schemaVersion = 1; self.id = id; self.kind = kind; self.occurredAt = occurredAt; self.packID = packID; self.sessionID = sessionID; self.detailCode = detailCode; self.unlockOrigin = unlockOrigin
   }
+
+  var resolvedUnlockOrigin: UnlockChallengeOrigin { unlockOrigin ?? .legacyUnknown }
+}
+
+enum AnswerLearningRole: String, Codable, Sendable {
+  case newItem
+  case scheduledReview
+  case mistakeReview
+  case weaknessReview
+  case generalReview
+
+  static func classify(mode: StudyMode, progress: ItemProgress, at date: Date) -> AnswerLearningRole {
+    if progress.answerCount == 0 { return .newItem }
+    if progress.dueAt.map({ $0 <= date }) == true { return .scheduledReview }
+    switch mode {
+    case .mistakes: return .mistakeReview
+    case .weakness: return .weaknessReview
+    default: return .generalReview
+    }
+  }
+}
+
+enum StudyAnswerSubmissionResult: Equatable {
+  case recordedCorrect(StudyFeedbackPlan)
+  case recordedIncorrect(StudyFeedbackPlan)
+  case failed(String)
 }
 
 struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
@@ -47,8 +80,19 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
   let questionFormat: String?
   let keyPoint: String?
   let tags: [String]?
+  let learningRole: AnswerLearningRole?
+  let wasNewAtSubmission: Bool?
+  let wasDueAtSubmission: Bool?
 
-  init(prompt item: StudyPrompt, selectedChoiceID: Int, answeredAt: Date, mode: StudyMode, sessionID: UUID, feedbackPlan: StudyFeedbackPlan) {
+  init(
+    prompt item: StudyPrompt,
+    selectedChoiceID: Int,
+    answeredAt: Date,
+    mode: StudyMode,
+    sessionID: UUID,
+    feedbackPlan: StudyFeedbackPlan,
+    priorProgress: ItemProgress? = nil
+  ) {
     schemaVersion = 2; id = UUID(); submissionID = nil; experienceID = .init(rawValue: item.moduleType.rawValue); packID = item.packID; moduleType = item.moduleType; itemID = item.itemID
     prompt = item.prompt; choices = item.choices; self.selectedChoiceID = selectedChoiceID; correctChoiceID = item.correctChoiceID
     shortExplanation = item.shortExplanation; longExplanation = item.longExplanation; sourceNote = item.sourceNote
@@ -56,6 +100,9 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
     examYear = item.examYear; lawBasisDate = item.lawBasisDate; self.answeredAt = answeredAt; self.mode = mode
     self.sessionID = sessionID; isCorrect = selectedChoiceID == item.correctChoiceID; self.feedbackPlan = feedbackPlan
     difficulty = nil; questionFormat = nil; keyPoint = nil; tags = nil
+    learningRole = priorProgress.map { .classify(mode: mode, progress: $0, at: answeredAt) }
+    wasNewAtSubmission = priorProgress.map { $0.answerCount == 0 }
+    wasDueAtSubmission = priorProgress.map { $0.dueAt.map { $0 <= answeredAt } ?? false }
   }
 
   init(
@@ -84,7 +131,10 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
     difficulty: String? = nil,
     questionFormat: String? = nil,
     keyPoint: String? = nil,
-    tags: [String]? = nil
+    tags: [String]? = nil,
+    learningRole: AnswerLearningRole? = nil,
+    wasNewAtSubmission: Bool? = nil,
+    wasDueAtSubmission: Bool? = nil
   ) {
     schemaVersion = 2
     id = UUID()
@@ -115,6 +165,9 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
     self.questionFormat = questionFormat
     self.keyPoint = keyPoint
     self.tags = tags
+    self.learningRole = learningRole
+    self.wasNewAtSubmission = wasNewAtSubmission
+    self.wasDueAtSubmission = wasDueAtSubmission
   }
 }
 

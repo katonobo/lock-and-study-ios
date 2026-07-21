@@ -49,7 +49,7 @@ final class VocabularyExperienceTests: XCTestCase {
     var policy = LockPolicy.initial(now: .distantPast)
     policy.accessPacePreset = .bundled20
     let request = UnlockChallengeRequest(
-      requestID: UUID(), policy: policy, manifest: manifest, entitlement: .empty,
+      requestID: UUID(), origin: .manual, policy: policy, manifest: manifest, entitlement: .empty,
       progress: [:],
       learning: LearningDataStore(
         rootURL: FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)),
@@ -79,7 +79,8 @@ final class VocabularyExperienceTests: XCTestCase {
     var learned = ItemProgress.initial(composite)
     learned.answerCount = 2
     learned.dueAt = now.addingTimeInterval(-1)
-    let report = VocabularyWeeklyReportService().make(answers: answers, progress: [composite.storageKey: learned], now: now)
+    let report = VocabularyWeeklyReportService().make(
+      answers: answers, progress: [composite.storageKey: learned], packID: manifest.id, now: now)
 
     XCTAssertEqual(report.answers, 2)
     XCTAssertEqual(report.correct, 1)
@@ -176,7 +177,7 @@ final class VocabularyExperienceTests: XCTestCase {
     let dependencies = DependencyContainer(learningRootURL: root)
     let manifest = try await releasedManifest("english3000.v1")
     let request = UnlockChallengeRequest(
-      requestID: UUID(), policy: .initial(now: .distantPast), manifest: manifest,
+      requestID: UUID(), origin: .manual, policy: .initial(now: .distantPast), manifest: manifest,
       entitlement: .empty, progress: [:], learning: dependencies.learning,
       now: Date(timeIntervalSince1970: 13_000_000))
     let challenge = try await VocabularyUnlockChallengeProvider(bundle: .main)
@@ -228,7 +229,7 @@ final class VocabularyExperienceTests: XCTestCase {
     policy.accessPacePreset = .bundled20
     policy.reviewLoadPreset = .reviewIntensive
     let request = UnlockChallengeRequest(
-      requestID: UUID(), policy: policy, manifest: manifest, entitlement: .empty,
+      requestID: UUID(), origin: .manual, policy: policy, manifest: manifest, entitlement: .empty,
       progress: [composite.storageKey: due], learning: store, now: now.addingTimeInterval(3))
 
     let first = try await VocabularyUnlockChallengeProvider(bundle: .main)
@@ -240,7 +241,7 @@ final class VocabularyExperienceTests: XCTestCase {
 
     let second = try await VocabularyUnlockChallengeProvider(bundle: .main)
       .makeUnlockChallenge(packID: manifest.id, request: .init(
-        requestID: UUID(), policy: policy, manifest: manifest, entitlement: .empty,
+        requestID: UUID(), origin: .manual, policy: policy, manifest: manifest, entitlement: .empty,
         progress: [:], learning: store, now: now.addingTimeInterval(4)))
     XCTAssertNotEqual(second.questions.first?.id.rawValue, previewItem.id)
   }
@@ -290,7 +291,7 @@ final class VocabularyExperienceTests: XCTestCase {
     let now = Date().addingTimeInterval(-ExperienceUnlockBundleSnapshot.expirationInterval - 1)
     let challenge = try await VocabularyUnlockChallengeProvider(bundle: .main)
       .makeUnlockChallenge(packID: manifest.id, request: .init(
-        requestID: UUID(), policy: .initial(now: now), manifest: manifest,
+        requestID: UUID(), origin: .manual, policy: .initial(now: now), manifest: manifest,
         entitlement: .empty, progress: [:], learning: dependencies.learning, now: now))
     let question = try XCTUnwrap(challenge.questions.first)
     let bundle = ExperienceUnlockBundleSnapshot(
@@ -343,7 +344,7 @@ final class VocabularyExperienceTests: XCTestCase {
     return try await VocabularyUnlockChallengeProvider(bundle: .main).makeUnlockChallenge(
       packID: manifest.id,
       request: .init(
-        requestID: UUID(), policy: .initial(now: now), manifest: manifest,
+        requestID: UUID(), origin: .manual, policy: .initial(now: now), manifest: manifest,
         entitlement: .empty, progress: [:], learning: store, now: now.addingTimeInterval(3)))
   }
 

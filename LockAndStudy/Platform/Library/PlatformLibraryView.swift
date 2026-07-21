@@ -1,33 +1,5 @@
 import SwiftUI
 
-struct PlatformLibraryView: View {
-  @EnvironmentObject private var model: AppModel
-  @EnvironmentObject private var commerce: StoreKitCommerceService
-  var body: some View {
-    List {
-      Section("教材ストア・ライブラリ") {
-        ForEach(model.manifests) { manifest in
-          NavigationLink { PlatformPackDetailView(manifest: manifest) } label: {
-            HStack(spacing: 14) {
-              let descriptor = model.experienceRegistry.factory(for: manifest.id)?.descriptor
-              RoundedRectangle(cornerRadius: 12).fill(manifest.moduleType == .vocabulary ? LockAndStudyTheme.vocabulary.gradient : LockAndStudyTheme.takken.gradient)
-                .frame(width: 54, height: 54).overlay(Image(systemName: descriptor?.systemImage ?? "book.fill").foregroundStyle(.white))
-              VStack(alignment: .leading, spacing: 3) { Text(manifest.title).font(.headline); Text(manifest.subtitle).font(.subheadline).foregroundStyle(.secondary); Text(status(manifest)).font(.caption.bold()).foregroundStyle(manifest.saleReady ? LockAndStudyTheme.teal : .orange) }
-            }.padding(.vertical, 4)
-          }.accessibilityIdentifier("platform.library.pack.\(manifest.id.rawValue)")
-        }
-      }
-      Section { NavigationLink("教材の購入とStudy Pass") { PurchaseView() } } footer: { Text("基本ロック、安全機能、無料教材での解除は購入不要です。") }
-    }.navigationTitle("教材").accessibilityIdentifier("platform.library")
-  }
-  private func status(_ manifest: StudyPackManifest) -> String {
-    if !manifest.saleReady { return "無料\(manifest.sampleDefinition.count)問・全範囲版は準備中" }
-    if commerce.entitlement.ownedPacks.contains(where: { $0.packID == manifest.id }) { return "所有済み" }
-    if manifest.passEligible && commerce.entitlement.activePass?.permitsAccess == true { return "Study Pass対象" }
-    return "無料範囲あり・購入可能"
-  }
-}
-
 struct PlatformPackDetailView: View {
   @EnvironmentObject private var model: AppModel
   @EnvironmentObject private var commerce: StoreKitCommerceService

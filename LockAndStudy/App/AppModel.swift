@@ -4,7 +4,6 @@ import Foundation
 
 @MainActor
 final class AppModel: ObservableObject {
-  @Published var selectedTab: AppTab = .home
   @Published var onboardingCompleted: Bool
   @Published private(set) var manifests: [StudyPackManifest] = []
   @Published var selectedPackID: StudyPackID
@@ -46,9 +45,6 @@ final class AppModel: ObservableObject {
       if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestSelectedTakken") {
         selectedPackID = "takken2026.v1"
       }
-      if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestStartInLibrary") {
-        selectedTab = .library
-      }
     #endif
   }
 
@@ -70,6 +66,11 @@ final class AppModel: ObservableObject {
     isBusy = true
     do {
       manifests = try await dependencies.content.releasedManifests()
+      #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestReportData") {
+          try await seedReportUITestData()
+        }
+      #endif
       if !manifests.contains(where: { $0.id == selectedPackID }), let first = manifests.first {
         selectedPackID = first.id
       }
@@ -108,7 +109,7 @@ final class AppModel: ObservableObject {
           hasSelection: dependencies.lockController.hasSelection,
           unlockUntil: dependencies.lockController.unlockUntil, now: Date())
         {
-          await beginUnlockStudy(requestID: request.id)
+          await beginUnlockStudy(requestID: request.id, origin: .shield)
         }
       }
     } catch { alertMessage = error.localizedDescription }
@@ -212,11 +213,12 @@ final class AppModel: ObservableObject {
     return .init(
       manifest: manifest,
       dependencies: dependencies,
+      reportProviders: experienceRegistry.reportProviders,
       destination: presentation.destination,
       openMaterialSelection: { [weak self] in self?.presentMaterialSelection() },
       beginUnlockStudy: { [weak self] in
         guard let self else { return }
-        await self.beginUnlockStudy(packID: presentation.packID)
+        await self.beginUnlockStudy(packID: presentation.packID, origin: .manual)
       },
       completeFirstRun: {}
     )
@@ -250,7 +252,11 @@ final class AppModel: ObservableObject {
     } catch { alertMessage = error.localizedDescription }
   }
 
-  func beginUnlockStudy(packID: StudyPackID? = nil, requestID: UUID = UUID()) async {
+  func beginUnlockStudy(
+    packID: StudyPackID? = nil,
+    requestID: UUID = UUID(),
+    origin: UnlockChallengeOrigin
+  ) async {
     let requestedPackID = packID ?? selectedPackID
     guard let manifest = manifests.first(where: { $0.id == requestedPackID }) ?? manifests.first
     else { return }
@@ -260,6 +266,7 @@ final class AppModel: ObservableObject {
       let policy = dependencies.policyStore.loadPolicy() ?? .initial(now: now)
       let request = UnlockChallengeRequest(
         requestID: requestID,
+        origin: origin,
         policy: policy,
         manifest: manifest,
         entitlement: dependencies.commerce.entitlement,
@@ -292,7 +299,8 @@ final class AppModel: ObservableObject {
       try await dependencies.learning.saveExperienceUnlockBundle(bundle)
       try await dependencies.learning.record(
         .init(
-          kind: .unlockChallengeStarted, occurredAt: now, packID: manifest.id, sessionID: bundle.id)
+          kind: .unlockChallengeStarted, occurredAt: now, packID: manifest.id,
+          sessionID: bundle.id, unlockOrigin: origin)
       )
       unlockChallenge = bundle
     } catch {
@@ -314,11 +322,16 @@ final class AppModel: ObservableObject {
         try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-submission")
         return .expired
       }
+      let answeredAt = Date()
+      let itemProgress = try await dependencies.learning.progress(
+        for: .init(packID: bundle.challenge.packID, itemID: question.id))
       let record = answerRecord(
         for: question,
         selectedChoiceID: selectedChoiceID,
         feedback: feedback,
-        bundle: bundle
+        bundle: bundle,
+        answeredAt: answeredAt,
+        priorProgress: itemProgress
       )
       _ = try await dependencies.learning.recordUnique(record)
       if selectedChoiceID == question.correctChoiceID {
@@ -364,12 +377,15 @@ final class AppModel: ObservableObject {
         try await dependencies.learning.saveExperienceUnlockBundle(bundle)
       }
       if bundle.completionState == .sessionCreated {
+        let completionKind: LearningEventKind =
+          bundle.createdUnlockSessionID == nil ? .unlockChallengeCompleted : .unlockSuccess
         try await dependencies.learning.record(
           .init(
             id: bundle.completionEventID,
-            kind: .unlockSuccess,
+            kind: completionKind,
             packID: bundle.challenge.packID,
-            sessionID: bundle.id
+            sessionID: bundle.id,
+            unlockOrigin: bundle.challenge.resolvedOrigin
           ))
         bundle.completionState = .eventRecorded
         try await dependencies.learning.saveExperienceUnlockBundle(bundle)
@@ -420,10 +436,12 @@ final class AppModel: ObservableObject {
     item: StudyPrompt, selectedChoiceID: Int, mode: StudyMode, sessionID: UUID,
     feedback: StudyFeedbackPlan
   ) async {
-    let answer = StudyAnswerRecord(
-      prompt: item, selectedChoiceID: selectedChoiceID, answeredAt: Date(), mode: mode,
-      sessionID: sessionID, feedbackPlan: feedback)
     do {
+      let answeredAt = Date()
+      let priorProgress = try await dependencies.learning.progress(for: item.id)
+      let answer = StudyAnswerRecord(
+        prompt: item, selectedChoiceID: selectedChoiceID, answeredAt: answeredAt, mode: mode,
+        sessionID: sessionID, feedbackPlan: feedback, priorProgress: priorProgress)
       try await dependencies.learning.record(answer)
       records = try await dependencies.learning.events()
     } catch { alertMessage = error.localizedDescription }
@@ -449,8 +467,12 @@ final class AppModel: ObservableObject {
             kind: .earnedByStudy, duration: bundle.pace.unlockDuration, reasonCode: nil)
           bundle.createdUnlockSessionID = session.id
         }
+        let completionKind: LearningEventKind =
+          bundle.createdUnlockSessionID == nil ? .unlockChallengeCompleted : .unlockSuccess
         try await dependencies.learning.record(
-          .init(kind: .unlockSuccess, packID: presentation.packID, sessionID: presentation.id))
+          .init(
+            kind: completionKind, packID: presentation.packID, sessionID: presentation.id,
+            unlockOrigin: .legacyUnknown))
         try await dependencies.learning.saveUnlockBundle(nil)
       } catch {
         completedStudySessions.remove(presentation.id)
@@ -514,10 +536,15 @@ final class AppModel: ObservableObject {
     for question: UnlockQuestionSnapshot,
     selectedChoiceID: Int,
     feedback: StudyFeedbackPlan,
-    bundle: ExperienceUnlockBundleSnapshot
+    bundle: ExperienceUnlockBundleSnapshot,
+    answeredAt: Date,
+    priorProgress: ItemProgress
   ) -> StudyAnswerRecord {
     let submissionID =
       "unlock::\(bundle.id.uuidString)::\(question.id.rawValue)::\(selectedChoiceID)"
+    let role = AnswerLearningRole.classify(mode: .unlock, progress: priorProgress, at: answeredAt)
+    let wasNew = priorProgress.answerCount == 0
+    let wasDue = priorProgress.dueAt.map { $0 <= answeredAt } ?? false
     switch question {
     case .vocabulary(let value):
       return .init(
@@ -528,7 +555,8 @@ final class AppModel: ObservableObject {
         longExplanation: "\(value.explanation)\n\(value.exampleEnglish)\n\(value.exampleJapanese)",
         sourceNote: nil, category: value.levelCode, subcategory: nil,
         contentVersion: value.contentVersion, questionVersion: 1, examYear: nil, lawBasisDate: nil,
-        answeredAt: Date(), mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback
+        answeredAt: answeredAt, mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
+        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue
       )
     case .takken(let value):
       return .init(
@@ -539,8 +567,9 @@ final class AppModel: ObservableObject {
         sourceNote: value.sourceNote, category: value.category, subcategory: value.subCategory,
         contentVersion: value.contentVersion, questionVersion: value.questionVersion,
         examYear: value.examYear, lawBasisDate: value.lawBasisDate,
-        answeredAt: Date(), mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
-        difficulty: value.difficulty, questionFormat: value.format, keyPoint: value.keyPoint
+        answeredAt: answeredAt, mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
+        difficulty: value.difficulty, questionFormat: value.format, keyPoint: value.keyPoint,
+        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue
       )
     case .safeFallback(let value):
       return .init(
@@ -550,7 +579,8 @@ final class AppModel: ObservableObject {
         shortExplanation: value.explanation, longExplanation: value.explanation,
         sourceNote: "built-in-safe-fallback", category: "安全な無料問題", subcategory: nil,
         contentVersion: "built-in-v1", questionVersion: 1, examYear: nil, lawBasisDate: nil,
-        answeredAt: Date(), mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback
+        answeredAt: answeredAt, mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
+        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue
       )
     }
   }
@@ -591,4 +621,44 @@ final class AppModel: ObservableObject {
       alertMessage = "旧アプリの移行データを読み込めませんでした。\n\(error.localizedDescription)"
     }
   }
+
+  #if DEBUG
+    private func seedReportUITestData() async throws {
+      let now = Date()
+      let vocabularySession = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+      let takkenSession = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!
+      let fixtures: [StudyAnswerRecord] = [
+        .init(
+          submissionID: "ui-report-vocabulary", experienceID: .vocabulary,
+          packID: "english3000.v1", moduleType: .vocabulary, itemID: "ui-word",
+          prompt: "学習レポート用英単語", choices: [.init(id: 0, text: "意味")],
+          selectedChoiceID: 0, correctChoiceID: 0, shortExplanation: "説明",
+          longExplanation: "説明", sourceNote: nil, category: "level0", subcategory: "名詞",
+          contentVersion: "ui", questionVersion: 1, examYear: nil, lawBasisDate: nil,
+          answeredAt: now.addingTimeInterval(-3_600), mode: .unlock,
+          sessionID: vocabularySession, feedbackPlan: .immediate,
+          learningRole: .newItem, wasNewAtSubmission: true, wasDueAtSubmission: false),
+        .init(
+          submissionID: "ui-report-takken", experienceID: .takken,
+          packID: "takken2026.v1", moduleType: .takken, itemID: "ui-takken",
+          prompt: "学習レポート用宅建", choices: [.init(id: 0, text: "正しい")],
+          selectedChoiceID: 0, correctChoiceID: 0, shortExplanation: "説明",
+          longExplanation: "説明", sourceNote: nil, category: "宅建業法", subcategory: "免許",
+          contentVersion: "ui", questionVersion: 1, examYear: 2026,
+          lawBasisDate: "2026-04-01", answeredAt: now.addingTimeInterval(-1_800),
+          mode: .practice, sessionID: takkenSession, feedbackPlan: .immediate,
+          difficulty: "基礎", learningRole: .newItem, wasNewAtSubmission: true,
+          wasDueAtSubmission: false),
+      ]
+      for fixture in fixtures { _ = try await dependencies.learning.recordUnique(fixture) }
+      try await dependencies.learning.record(.init(
+        id: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!,
+        kind: .unlockChallengeStarted, occurredAt: now.addingTimeInterval(-3_700),
+        packID: "english3000.v1", sessionID: vocabularySession, unlockOrigin: .shield))
+      try await dependencies.learning.record(.init(
+        id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
+        kind: .unlockSuccess, occurredAt: now.addingTimeInterval(-3_500),
+        packID: "english3000.v1", sessionID: vocabularySession, unlockOrigin: .shield))
+    }
+  #endif
 }

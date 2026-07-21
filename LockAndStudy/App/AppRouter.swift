@@ -1,7 +1,5 @@
 import Foundation
 
-enum AppTab: Hashable { case home, library, records, settings }
-
 struct StudySessionPresentation: Identifiable, Equatable {
   let id: UUID
   let packID: StudyPackID
@@ -10,4 +8,3 @@ struct StudySessionPresentation: Identifiable, Equatable {
   let prompts: [StudyPrompt]
   let bundleID: UUID?
 }
-
