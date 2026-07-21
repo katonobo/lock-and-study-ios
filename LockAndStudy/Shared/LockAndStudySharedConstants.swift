@@ -55,6 +55,42 @@ struct SharedUnlockSession: Codable, Equatable {
   let endsAt: Date
 }
 
+enum RelockCallbackAction: Equatable {
+  case relockNow
+  case reschedule(Date)
+}
+
+enum RelockCallbackOutcome: Equatable {
+  case rescheduled(Date)
+  case relockNow(afterScheduleFailure: Bool)
+}
+
+struct RelockRecoveryPlanner {
+  var clockTolerance: TimeInterval = 3
+  func action(now: Date, endsAt: Date?) -> RelockCallbackAction {
+    guard let endsAt else { return .relockNow }
+    return endsAt.timeIntervalSince(now) > clockTolerance ? .reschedule(endsAt) : .relockNow
+  }
+}
+
+struct RelockRecoveryExecutor {
+  var planner = RelockRecoveryPlanner()
+
+  func execute(now: Date, endsAt: Date?, schedule: (Date) throws -> Void) -> RelockCallbackOutcome {
+    switch planner.action(now: now, endsAt: endsAt) {
+    case .relockNow:
+      return .relockNow(afterScheduleFailure: false)
+    case .reschedule(let endsAt):
+      do {
+        try schedule(endsAt)
+        return .rescheduled(endsAt)
+      } catch {
+        return .relockNow(afterScheduleFailure: true)
+      }
+    }
+  }
+}
+
 enum SharedJSON {
   static func encoder() -> JSONEncoder {
     let encoder = JSONEncoder()
@@ -68,4 +104,3 @@ enum SharedJSON {
     return decoder
   }
 }
-

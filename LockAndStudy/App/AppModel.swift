@@ -9,11 +9,14 @@ final class AppModel: ObservableObject {
   @Published private(set) var manifests: [StudyPackManifest] = []
   @Published var selectedPackID: StudyPackID
   @Published var studySession: StudySessionPresentation?
+  @Published var activeExperience: ActiveStudyExperience?
+  @Published var unlockChallenge: ExperienceUnlockBundleSnapshot?
   @Published private(set) var records: [LearningEvent] = []
   @Published var alertMessage: String?
   @Published var isBusy = false
 
   let dependencies: DependencyContainer
+  let experienceRegistry: StudyExperienceRegistry
   private var completedStudySessions: Set<UUID> = []
 
   init(dependencies: DependencyContainer? = nil) {
@@ -24,11 +27,13 @@ final class AppModel: ObservableObject {
     }
     #endif
     self.dependencies = dependencies ?? DependencyContainer()
+    experienceRegistry = .standard()
     if ProcessInfo.processInfo.arguments.contains("-ResetOnboarding") { defaults.removeObject(forKey: LockAndStudySharedConstants.Key.onboardingCompleted) }
     if ProcessInfo.processInfo.arguments.contains("-SkipOnboarding") { defaults.set(true, forKey: LockAndStudySharedConstants.Key.onboardingCompleted) }
     onboardingCompleted = defaults.bool(forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
     selectedPackID = .init(rawValue: defaults.string(forKey: LockAndStudySharedConstants.Key.selectedPackID) ?? "english3000.v1")
     #if DEBUG
+    if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestSelectedTakken") { selectedPackID = "takken2026.v1" }
     if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestStartInLibrary") { selectedTab = .library }
     #endif
   }
@@ -43,7 +48,17 @@ final class AppModel: ObservableObject {
       await dependencies.lockController.refreshLockState()
       records = (try? await dependencies.learning.events()) ?? []
       if onboardingCompleted {
-        if let restored = try? await dependencies.learning.loadUnlockBundle(now: Date()), let manifest = manifests.first(where: { $0.id == restored.access.packID }) {
+        if let experienceBundle = try await dependencies.learning.loadExperienceUnlockBundle() {
+          if experienceBundle.isAnswering(at: Date()) {
+            unlockChallenge = experienceBundle
+          } else if experienceBundle.isComplete && experienceBundle.completionState != .completed && experienceBundle.completionState != .aborted {
+            await completeUnlockChallenge()
+          } else if experienceBundle.completionState == .completed || experienceBundle.completionState == .aborted {
+            try await dependencies.learning.saveExperienceUnlockBundle(nil)
+          } else if experienceBundle.challenge.expiresAt <= Date() {
+            try await dependencies.learning.saveExperienceUnlockBundle(nil)
+          }
+        } else if let restored = try? await dependencies.learning.loadUnlockBundle(now: Date()), let manifest = manifests.first(where: { $0.id == restored.access.packID }) {
           studySession = .init(id: restored.id, packID: manifest.id, packTitle: manifest.title, mode: .unlock, prompts: restored.prompts, bundleID: restored.id)
         } else if let request = PendingUnlockRequestCoordinator().consumeIfEligible(
           isLockEnabled: dependencies.lockController.isLockEnabled, isAuthorized: dependencies.lockController.isAuthorized,
@@ -64,11 +79,48 @@ final class AppModel: ObservableObject {
     policy.accessPacePreset = pace; policy.reviewLoadPreset = review; policy.updatedAt = Date()
     dependencies.policyStore.savePolicy(policy)
     onboardingCompleted = true
+    openExperience(packID: selectedPack, requiresFirstRun: true)
   }
 
   func choosePack(_ id: StudyPackID) {
     selectedPackID = id
     LockAndStudySharedConstants.defaults.set(id.rawValue, forKey: LockAndStudySharedConstants.Key.selectedPackID)
+  }
+
+  func openExperience(
+    packID: StudyPackID,
+    destination: StudyExperienceDestination = .home,
+    requiresFirstRun: Bool = false
+  ) {
+    guard let factory = experienceRegistry.factory(for: packID) else {
+      alertMessage = "この教材の学習体験を読み込めません。"
+      return
+    }
+    activeExperience = .init(
+      experienceID: factory.descriptor.id,
+      packID: packID,
+      destination: destination,
+      requiresFirstRun: requiresFirstRun
+    )
+  }
+
+  func closeExperience() { activeExperience = nil }
+
+  func experienceContext(for presentation: ActiveStudyExperience) -> StudyExperienceContext? {
+    guard let manifest = manifests.first(where: { $0.id == presentation.packID }) else { return nil }
+    return .init(
+      manifest: manifest,
+      dependencies: dependencies,
+      destination: presentation.destination,
+      closeExperience: { [weak self] in self?.activeExperience = nil },
+      openPlatformSettings: { [weak self] in self?.activeExperience = nil; self?.selectedTab = .settings },
+      beginUnlockStudy: { [weak self] in
+        guard let self else { return }
+        self.activeExperience = nil
+        await self.beginUnlockStudy(packID: presentation.packID)
+      },
+      completeFirstRun: {}
+    )
   }
 
   func beginPractice(packID: StudyPackID, mode: StudyMode = .practice) async {
@@ -88,22 +140,117 @@ final class AppModel: ObservableObject {
     } catch { alertMessage = error.localizedDescription }
   }
 
-  func beginUnlockStudy(requestID: UUID = UUID()) async {
-    guard let manifest = manifests.first(where: { $0.id == selectedPackID }) ?? manifests.first else { return }
+  func beginUnlockStudy(packID: StudyPackID? = nil, requestID: UUID = UUID()) async {
+    let requestedPackID = packID ?? selectedPackID
+    guard let manifest = manifests.first(where: { $0.id == requestedPackID }) ?? manifests.first else { return }
     do {
-      let prompts = try await dependencies.content.prompts(for: manifest.id)
       let progress = try await dependencies.learning.allProgress()
       let now = Date()
-      let due = Set(progress.values.filter { $0.dueAt.map { $0 <= now } ?? false }.map { $0.id.itemID })
       let policy = dependencies.policyStore.loadPolicy() ?? .initial(now: now)
-      let bundle = try UnlockBundlePlanner().make(requestID: requestID, policy: policy, manifest: manifest, prompts: prompts,
-                                                  entitlement: dependencies.commerce.entitlement, progress: progress, dueItemIDs: due, now: now)
-      try await dependencies.learning.saveUnlockBundle(bundle)
-      try? await dependencies.learning.record(.init(kind: .unlockChallengeStarted, occurredAt: now, packID: manifest.id, sessionID: bundle.id))
-      studySession = .init(id: bundle.id, packID: manifest.id, packTitle: manifest.title, mode: .unlock, prompts: bundle.prompts, bundleID: bundle.id)
+      let request = UnlockChallengeRequest(
+        requestID: requestID,
+        policy: policy,
+        manifest: manifest,
+        entitlement: dependencies.commerce.entitlement,
+        progress: progress,
+        now: now
+      )
+      let challenge: UnlockChallengeSnapshot
+      if let factory = experienceRegistry.factory(for: manifest.id) {
+        do { challenge = try await factory.unlockChallengeProvider.makeUnlockChallenge(packID: manifest.id, request: request) }
+        catch { challenge = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(packID: manifest.id, request: request) }
+      } else {
+        challenge = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(packID: manifest.id, request: request)
+      }
+      let bundle = ExperienceUnlockBundleSnapshot(
+        schemaVersion: 2,
+        challenge: challenge,
+        completedQuestionIDs: [],
+        completionState: .answering,
+        completionEventID: UUID(),
+        createdUnlockSessionID: nil,
+        abortReason: nil
+      )
+      try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+      try await dependencies.learning.record(.init(kind: .unlockChallengeStarted, occurredAt: now, packID: manifest.id, sessionID: bundle.id))
+      unlockChallenge = bundle
     } catch {
       alertMessage = "解除学習を準備できませんでした。無料教材を確認して再試行してください。\n\(error.localizedDescription)"
     }
+  }
+
+  func submitUnlockAnswer(
+    question: UnlockQuestionSnapshot,
+    selectedChoiceID: Int,
+    feedback: StudyFeedbackPlan
+  ) async -> Bool {
+    guard var bundle = try? await dependencies.learning.loadExperienceUnlockBundle(),
+          bundle.completionState == .answering,
+          bundle.challenge.questions.contains(where: { $0.id == question.id }) else { return false }
+    let record = answerRecord(
+      for: question,
+      selectedChoiceID: selectedChoiceID,
+      feedback: feedback,
+      bundle: bundle
+    )
+    do {
+      _ = try await dependencies.learning.recordUnique(record)
+      if selectedChoiceID == question.correctChoiceID {
+        bundle.completedQuestionIDs.insert(question.id)
+        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+        unlockChallenge = bundle
+      }
+      records = try await dependencies.learning.events()
+      return selectedChoiceID == question.correctChoiceID
+    } catch {
+      alertMessage = error.localizedDescription
+      return false
+    }
+  }
+
+  func completeUnlockChallenge() async {
+    guard var bundle = try? await dependencies.learning.loadExperienceUnlockBundle(), bundle.isComplete else { return }
+    do {
+      if bundle.completionState == .answering {
+        if dependencies.lockController.isLockEnabled {
+          let session = try await dependencies.lockController.beginUnlockSession(
+            kind: .earnedByStudy,
+            duration: bundle.challenge.pace.unlockDuration,
+            reasonCode: "bundle:\(bundle.id.uuidString)"
+          )
+          bundle.createdUnlockSessionID = session.id
+        }
+        bundle.completionState = .sessionCreated
+        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+      }
+      if bundle.completionState == .sessionCreated {
+        try await dependencies.learning.record(.init(
+          id: bundle.completionEventID,
+          kind: .unlockSuccess,
+          packID: bundle.challenge.packID,
+          sessionID: bundle.id
+        ))
+        bundle.completionState = .eventRecorded
+        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+      }
+      if bundle.completionState == .eventRecorded {
+        bundle.completionState = .completed
+        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+        try await dependencies.learning.saveExperienceUnlockBundle(nil)
+      }
+      unlockChallenge = nil
+      records = try await dependencies.learning.events()
+    } catch { alertMessage = error.localizedDescription }
+  }
+
+  func unlockViewContext(for bundle: ExperienceUnlockBundleSnapshot) -> UnlockChallengeViewContext {
+    .init(
+      bundle: bundle,
+      submit: { [weak self] question, choiceID, feedback in
+        await self?.submitUnlockAnswer(question: question, selectedChoiceID: choiceID, feedback: feedback) ?? false
+      },
+      complete: { [weak self] in await self?.completeUnlockChallenge() }
+    )
   }
 
   func recordAnswer(item: StudyPrompt, selectedChoiceID: Int, mode: StudyMode, sessionID: UUID, feedback: StudyFeedbackPlan) async {
@@ -146,15 +293,71 @@ final class AppModel: ObservableObject {
     } catch { alertMessage = error.localizedDescription; return false }
   }
 
-  func exportLearningData() async -> URL? { try? await dependencies.learning.exportJSON() }
-  func deleteLearningHistory() async { try? await dependencies.learning.deleteLearningHistory(); records = [] }
+  func exportLearningData() async -> URL? {
+    do { return try await dependencies.learning.exportJSON() }
+    catch { alertMessage = error.localizedDescription; return nil }
+  }
+  func deleteLearningHistory() async {
+    do { try await dependencies.learning.deleteLearningHistory(); records = [] }
+    catch { alertMessage = error.localizedDescription }
+  }
 
   func abortActiveUnlock(reason: String) async {
+    if var experienceBundle = try? await dependencies.learning.loadExperienceUnlockBundle() {
+      experienceBundle.abortReason = reason
+      experienceBundle.completionState = .aborted
+      try? await dependencies.learning.saveExperienceUnlockBundle(experienceBundle)
+    }
+    unlockChallenge = nil
     if var bundle = try? await dependencies.learning.loadUnlockBundle(now: Date()) {
       bundle.abortReason = reason
       try? await dependencies.learning.saveUnlockBundle(bundle)
     }
     if studySession?.mode == .unlock { studySession = nil }
+  }
+
+  private func answerRecord(
+    for question: UnlockQuestionSnapshot,
+    selectedChoiceID: Int,
+    feedback: StudyFeedbackPlan,
+    bundle: ExperienceUnlockBundleSnapshot
+  ) -> StudyAnswerRecord {
+    let submissionID = "unlock::\(bundle.id.uuidString)::\(question.id.rawValue)::\(selectedChoiceID)"
+    switch question {
+    case .vocabulary(let value):
+      return .init(
+        submissionID: submissionID, experienceID: .vocabulary, packID: bundle.challenge.packID,
+        moduleType: .vocabulary, itemID: value.id, prompt: value.prompt, choices: value.choices,
+        selectedChoiceID: selectedChoiceID, correctChoiceID: value.correctChoiceID,
+        shortExplanation: value.explanation,
+        longExplanation: "\(value.explanation)\n\(value.exampleEnglish)\n\(value.exampleJapanese)",
+        sourceNote: nil, category: value.levelCode, subcategory: nil,
+        contentVersion: value.contentVersion, questionVersion: 1, examYear: nil, lawBasisDate: nil,
+        answeredAt: Date(), mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback
+      )
+    case .takken(let value):
+      return .init(
+        submissionID: submissionID, experienceID: .takken, packID: bundle.challenge.packID,
+        moduleType: .takken, itemID: value.id, prompt: value.prompt, choices: value.choices,
+        selectedChoiceID: selectedChoiceID, correctChoiceID: value.correctChoiceID,
+        shortExplanation: value.shortExplanation, longExplanation: value.longExplanation,
+        sourceNote: value.sourceNote, category: value.category, subcategory: value.subCategory,
+        contentVersion: value.contentVersion, questionVersion: value.questionVersion,
+        examYear: value.examYear, lawBasisDate: value.lawBasisDate,
+        answeredAt: Date(), mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
+        difficulty: value.difficulty, questionFormat: value.format, keyPoint: value.keyPoint
+      )
+    case .safeFallback(let value):
+      return .init(
+        submissionID: submissionID, experienceID: .safeFallback, packID: bundle.challenge.packID,
+        moduleType: .vocabulary, itemID: value.id, prompt: value.prompt, choices: value.choices,
+        selectedChoiceID: selectedChoiceID, correctChoiceID: value.correctChoiceID,
+        shortExplanation: value.explanation, longExplanation: value.explanation,
+        sourceNote: "built-in-safe-fallback", category: "安全な無料問題", subcategory: nil,
+        contentVersion: "built-in-v1", questionVersion: 1, examYear: nil, lawBasisDate: nil,
+        answeredAt: Date(), mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback
+      )
+    }
   }
 
   func importLegacyData() async {

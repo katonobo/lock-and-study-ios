@@ -25,11 +25,18 @@ final class DeviceActivityMonitorExtension: DeviceActivityMonitor {
       record("\(source)_lock_disabled", defaults: defaults)
       return
     }
-    if let data = defaults.data(forKey: LockAndStudySharedConstants.Key.unlockSession),
-       let session = try? SharedJSON.decoder().decode(SharedUnlockSession.self, from: data),
-       session.endsAt > Date() {
-      record("\(source)_early_callback", defaults: defaults)
+    let session = defaults.data(forKey: LockAndStudySharedConstants.Key.unlockSession)
+      .flatMap { try? SharedJSON.decoder().decode(SharedUnlockSession.self, from: $0) }
+    let recovery = RelockRecoveryExecutor().execute(now: Date(), endsAt: session?.endsAt) { endsAt in
+      try scheduleRelock(at: endsAt)
+    }
+    let scheduleFailed: Bool
+    switch recovery {
+    case .rescheduled:
+      record("\(source)_early_callback_rescheduled", defaults: defaults)
       return
+    case .relockNow(let afterScheduleFailure):
+      scheduleFailed = afterScheduleFailure
     }
     guard let selectionData = defaults.data(forKey: LockAndStudySharedConstants.Key.selectionData),
           let selection = try? JSONDecoder().decode(FamilyActivitySelection.self, from: selectionData),
@@ -42,7 +49,7 @@ final class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     store.shield.webDomains = selection.webDomainTokens.isEmpty ? nil : selection.webDomainTokens
     defaults.removeObject(forKey: LockAndStudySharedConstants.Key.unlockSession)
     defaults.removeObject(forKey: LockAndStudySharedConstants.Key.unlockUntil)
-    record("\(source)_applied", defaults: defaults)
+    record(scheduleFailed ? "\(source)_reschedule_failed_failsafe_applied" : "\(source)_applied", defaults: defaults)
     DeviceActivityCenter().stopMonitoring([relockName])
   }
 
@@ -50,5 +57,14 @@ final class DeviceActivityMonitorExtension: DeviceActivityMonitor {
     defaults.set(Date(), forKey: LockAndStudySharedConstants.Key.lastRelockAt)
     defaults.set(result, forKey: LockAndStudySharedConstants.Key.lastRelockResult)
   }
-}
 
+  private func scheduleRelock(at date: Date) throws {
+    let center = DeviceActivityCenter()
+    center.stopMonitoring([relockName])
+    let calendar = Calendar.current
+    var start = calendar.dateComponents([.era, .year, .month, .day, .hour, .minute, .second], from: date)
+    var end = calendar.dateComponents([.era, .year, .month, .day, .hour, .minute, .second], from: date.addingTimeInterval(900))
+    start.calendar = calendar; start.timeZone = .current; end.calendar = calendar; end.timeZone = .current
+    try center.startMonitoring(relockName, during: .init(intervalStart: start, intervalEnd: end, repeats: false))
+  }
+}

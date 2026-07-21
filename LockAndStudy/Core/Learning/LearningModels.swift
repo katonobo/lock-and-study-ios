@@ -12,14 +12,16 @@ struct LearningEvent: Codable, Identifiable, Equatable, Sendable {
   let packID: StudyPackID?
   let sessionID: UUID?
   let detailCode: String?
-  init(kind: LearningEventKind, occurredAt: Date = Date(), packID: StudyPackID? = nil, sessionID: UUID? = nil, detailCode: String? = nil) {
-    schemaVersion = 1; id = UUID(); self.kind = kind; self.occurredAt = occurredAt; self.packID = packID; self.sessionID = sessionID; self.detailCode = detailCode
+  init(id: UUID = UUID(), kind: LearningEventKind, occurredAt: Date = Date(), packID: StudyPackID? = nil, sessionID: UUID? = nil, detailCode: String? = nil) {
+    schemaVersion = 1; self.id = id; self.kind = kind; self.occurredAt = occurredAt; self.packID = packID; self.sessionID = sessionID; self.detailCode = detailCode
   }
 }
 
 struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
   let schemaVersion: Int
   let id: UUID
+  let submissionID: String?
+  let experienceID: StudyExperienceID?
   let packID: StudyPackID
   let moduleType: StudyModuleType
   let itemID: StudyItemID
@@ -41,14 +43,78 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
   let sessionID: UUID
   let isCorrect: Bool
   let feedbackPlan: StudyFeedbackPlan
+  let difficulty: String?
+  let questionFormat: String?
+  let keyPoint: String?
+  let tags: [String]?
 
   init(prompt item: StudyPrompt, selectedChoiceID: Int, answeredAt: Date, mode: StudyMode, sessionID: UUID, feedbackPlan: StudyFeedbackPlan) {
-    schemaVersion = 1; id = UUID(); packID = item.packID; moduleType = item.moduleType; itemID = item.itemID
+    schemaVersion = 2; id = UUID(); submissionID = nil; experienceID = .init(rawValue: item.moduleType.rawValue); packID = item.packID; moduleType = item.moduleType; itemID = item.itemID
     prompt = item.prompt; choices = item.choices; self.selectedChoiceID = selectedChoiceID; correctChoiceID = item.correctChoiceID
     shortExplanation = item.shortExplanation; longExplanation = item.longExplanation; sourceNote = item.sourceNote
     category = item.category; subcategory = item.subcategory; contentVersion = item.contentVersion; questionVersion = item.questionVersion
     examYear = item.examYear; lawBasisDate = item.lawBasisDate; self.answeredAt = answeredAt; self.mode = mode
     self.sessionID = sessionID; isCorrect = selectedChoiceID == item.correctChoiceID; self.feedbackPlan = feedbackPlan
+    difficulty = nil; questionFormat = nil; keyPoint = nil; tags = nil
+  }
+
+  init(
+    submissionID: String,
+    experienceID: StudyExperienceID,
+    packID: StudyPackID,
+    moduleType: StudyModuleType,
+    itemID: StudyItemID,
+    prompt: String,
+    choices: [StudyChoice],
+    selectedChoiceID: Int,
+    correctChoiceID: Int,
+    shortExplanation: String,
+    longExplanation: String,
+    sourceNote: String?,
+    category: String,
+    subcategory: String?,
+    contentVersion: String,
+    questionVersion: Int,
+    examYear: Int?,
+    lawBasisDate: String?,
+    answeredAt: Date,
+    mode: StudyMode,
+    sessionID: UUID,
+    feedbackPlan: StudyFeedbackPlan,
+    difficulty: String? = nil,
+    questionFormat: String? = nil,
+    keyPoint: String? = nil,
+    tags: [String]? = nil
+  ) {
+    schemaVersion = 2
+    id = UUID()
+    self.submissionID = submissionID
+    self.experienceID = experienceID
+    self.packID = packID
+    self.moduleType = moduleType
+    self.itemID = itemID
+    self.prompt = prompt
+    self.choices = choices
+    self.selectedChoiceID = selectedChoiceID
+    self.correctChoiceID = correctChoiceID
+    self.shortExplanation = shortExplanation
+    self.longExplanation = longExplanation
+    self.sourceNote = sourceNote
+    self.category = category
+    self.subcategory = subcategory
+    self.contentVersion = contentVersion
+    self.questionVersion = questionVersion
+    self.examYear = examYear
+    self.lawBasisDate = lawBasisDate
+    self.answeredAt = answeredAt
+    self.mode = mode
+    self.sessionID = sessionID
+    isCorrect = selectedChoiceID == correctChoiceID
+    self.feedbackPlan = feedbackPlan
+    self.difficulty = difficulty
+    self.questionFormat = questionFormat
+    self.keyPoint = keyPoint
+    self.tags = tags
   }
 }
 

@@ -1,5 +1,6 @@
 import FamilyControls
 import SwiftUI
+import UIKit
 
 struct OnboardingFlowView: View {
   @EnvironmentObject private var model: AppModel
@@ -8,109 +9,144 @@ struct OnboardingFlowView: View {
   @State private var selectedPack: StudyPackID = "english3000.v1"
   @State private var pace = AccessPacePreset.balanced10
   @State private var review = ReviewLoadPreset.standard
-  @State private var selection = FamilyActivitySelection()
-  @State private var showPicker = false
   @State private var managementCode = ""
+  @State private var managementCodeConfirmation = ""
   @State private var managementCodeMessage: String?
+  @State private var showPicker = false
+  @State private var selection = FamilyActivitySelection()
 
   var body: some View {
-    VStack(spacing: 20) {
-      ProgressView(value: Double(step + 1), total: 9).tint(LockAndStudyTheme.brand).padding(.horizontal)
-      ScrollView { content.frame(maxWidth: 660).padding(24) }
-      HStack {
-        if step > 0 { Button("戻る") { step -= 1 }.buttonStyle(.bordered) }
-        Spacer()
-        if step != 3 && step != 4 && step != 7 && step < 8 {
-          Button("次へ") { step += 1 }.buttonStyle(.borderedProminent).tint(LockAndStudyTheme.brand)
+    NavigationStack {
+      VStack(spacing: 18) {
+        ProgressView(value: Double(step + 1), total: 9)
+          .tint(LockAndStudyTheme.teal)
+          .accessibilityLabel("初期設定 \(step + 1) / 9")
+        ScrollView {
+          VStack(spacing: 20) { content }
+            .frame(maxWidth: 640)
+            .padding(.vertical, 12)
         }
-      }.padding()
-    }
-    .familyActivityPicker(isPresented: $showPicker, selection: $selection)
-    .onChange(of: showPicker) { visible in
-      if !visible, !selection.lockAndStudyIsEmpty { try? lock.saveSelection(selection) }
+      }
+      .padding()
+      .background(Color(.systemGroupedBackground).ignoresSafeArea())
+      .navigationTitle(step == 0 ? "ロックンスタディ" : "初期設定")
+      .navigationBarTitleDisplayMode(.inline)
+      .familyActivityPicker(isPresented: $showPicker, selection: $selection)
+      .onChange(of: selection) { value in
+        guard !value.lockAndStudyIsEmpty else { return }
+        do { try lock.saveSelection(value) } catch { model.alertMessage = error.localizedDescription }
+      }
     }
   }
 
   @ViewBuilder private var content: some View {
     switch step {
     case 0:
-      VStack(spacing: 20) {
-        Image(systemName: "lock.open.rotation").font(.system(size: 64)).foregroundStyle(LockAndStudyTheme.brand)
-        Text("ロックンスタディ").font(.largeTitle.bold())
-        Text("開きたい気持ちを、短い学びに変える。\nロック機能と安全機能は無料です。").font(.title3).multilineTextAlignment(.center)
-      }.accessibilityElement(children: .combine)
+      page(icon: "lock.open.trianglebadge.exclamationmark", title: "SNSを開くたび、\n学びが進む。", body: "SNSやゲームを開く前に、選んだ教材を1問。毎日のスマホ習慣を、そのまま学習のきっかけにします。")
+      Button("はじめる") { step += 1 }.primaryActionStyle().accessibilityIdentifier("onboarding.start")
+      NavigationLink("このアプリのしくみと管理について") { PlatformManagementInfoView() }
     case 1:
-      OnboardingPage(title: "最初の学習目標", systemImage: "target") {
-        packChoice("英単語3,000語", subtitle: "無料250語", id: "english3000.v1", color: .indigo)
-        packChoice("宅建2026", subtitle: "品質確認済みの無料100問", id: "takken2026.v1", color: .orange)
+      page(icon: "books.vertical.fill", title: "最初の教材を選ぶ", body: "ロック解除に使う教材を選びます。どちらも無料範囲から始められ、教材固有の設定はこの初期設定の後に行います。")
+      VStack(spacing: 12) {
+        ForEach(model.manifests) { manifest in
+          let descriptor = model.experienceRegistry.factory(for: manifest.id)?.descriptor
+          Button { selectedPack = manifest.id } label: {
+            HStack(spacing: 12) {
+              Image(systemName: selectedPack == manifest.id ? "checkmark.circle.fill" : "circle").font(.title3).foregroundStyle(selectedPack == manifest.id ? LockAndStudyTheme.teal : .secondary)
+              Image(systemName: descriptor?.systemImage ?? "book.fill").foregroundStyle(manifest.moduleType == .vocabulary ? LockAndStudyTheme.vocabulary : LockAndStudyTheme.takken)
+              VStack(alignment: .leading) { Text(manifest.title).font(.headline); Text(manifest.subtitle).font(.subheadline).foregroundStyle(.secondary) }
+              Spacer()
+            }.frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
+          }.buttonStyle(.plain).studyCard()
+        }
       }
+      nextButton()
     case 2:
-      OnboardingPage(title: "ロックとプライバシー", systemImage: "hand.raised.fill") {
-        Text("AppleのScreen Time機能を使い、この端末で選んだアプリ・カテゴリ・Webサイトを一時的に制限します。選択内容や利用データを外部へ送信しません。許可しなくても通常学習は利用できます。")
-        Label("遠隔監視や法人端末管理は行いません", systemImage: "person.crop.circle.badge.checkmark")
-      }
+      page(icon: "lock.shield.fill", title: "選んだ対象だけを制限", body: "AppleのScreen Timeの仕組みを使い、あなたが選んだアプリ・カテゴリ・Webサイトを一時的に制限します。選択内容、管理コード、学習履歴は外部へ送信しません。")
+      VStack(alignment: .leading, spacing: 10) {
+        Label("個人利用のScreen Time認可を使用", systemImage: "person.crop.circle.badge.checkmark")
+        Label("遠隔監視や法人端末管理は行いません", systemImage: "network.slash")
+        Label("無料教材だけでも解除できます", systemImage: "checkmark.shield.fill")
+      }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
+      nextButton()
     case 3:
-      OnboardingPage(title: "Screen Timeの許可", systemImage: "hourglass") {
-        Text("次のボタンを押すとAppleの許可画面が表示されます。")
-        Button("Appleの許可画面へ進む") { Task { try? await lock.requestAuthorization(); step += 1 } }
-          .buttonStyle(.borderedProminent).controlSize(.large).accessibilityIdentifier("onboarding.authorization")
-        Button("今は設定せず学習を使う") { step += 1 }.buttonStyle(.bordered)
-      }
+      page(icon: "hand.raised.fill", title: "Screen Timeを許可", body: "次へ進むとAppleの許可画面が表示されます。許可しなくても通常学習を使え、設定からあとで有効にできます。")
+      Button("Appleの許可画面へ進む") { Task { do { try await lock.requestAuthorization() } catch { model.alertMessage = error.localizedDescription }; step += 1 } }
+        .primaryActionStyle().accessibilityIdentifier("onboarding.authorization")
+      Button("許可せずに続ける") { step += 1 }.secondaryActionStyle().accessibilityIdentifier("onboarding.authorization.skip")
     case 4:
-      OnboardingPage(title: "ロック対象", systemImage: "apps.iphone") {
-        if lock.isAuthorized {
-          Button("アプリ・カテゴリ・Webサイトを選ぶ") { showPicker = true }.buttonStyle(.borderedProminent)
-        } else { Text("Screen Timeを許可していないため、この設定は後から行えます。") }
-        #if targetEnvironment(simulator)
-        Button("シミュレータ用の対象を設定") { lock.markMockSelectionCompleted(); step += 1 }.buttonStyle(.bordered)
-        #endif
-        Button("後で設定する") { step += 1 }.buttonStyle(.bordered)
-        if lock.hasSelection { Button("この対象で次へ") { step += 1 }.buttonStyle(.borderedProminent) }
+      page(icon: "apps.iphone", title: "ロック対象を選ぶ", body: "SNS、ゲーム、カテゴリ、Webサイトから、学習のきっかけにしたい対象を選びます。空に戻す操作は、ロック終了と同じ保護対象です。")
+      if lock.isAuthorized {
+        if lock.isMockMode {
+          Button(lock.hasSelection ? "対象を選択済み" : "シミュレータ用の対象を設定") { lock.markMockSelectionCompleted() }.primaryActionStyle().accessibilityIdentifier("onboarding.mockSelection")
+        } else {
+          Button("アプリ・カテゴリ・Webサイトを選ぶ") { showPicker = true }.primaryActionStyle()
+        }
+        Button("この対象で次へ") { step += 1 }.primaryActionStyle().disabled(!lock.hasSelection)
+        Button("あとで設定する") { step += 1 }.secondaryActionStyle()
+      } else {
+        VStack(alignment: .leading, spacing: 8) { Label("ロック対象はあとから設定できます", systemImage: "gearshape"); Label("通常学習はこのまま始められます", systemImage: "book.fill") }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
+        nextButton()
       }
     case 5:
-      OnboardingPage(title: "解除ペース", systemImage: "timer") {
+      page(icon: "slider.horizontal.3", title: "解除ペースと復習量", body: "使える時間を長くするほど、先に解く問題数も増えます。期限が来た復習だけを設定量まで追加し、不足分を水増ししません。")
+      VStack(alignment: .leading, spacing: 12) {
         Picker("解除ペース", selection: $pace) { ForEach(AccessPacePreset.allCases) { Text($0.title + ($0.isRecommended ? "（推奨）" : "")).tag($0) } }.pickerStyle(.inline)
+        Text("1回の復習量").font(.headline)
         Picker("復習量", selection: $review) { ForEach(ReviewLoadPreset.allCases) { Text($0.title).tag($0) } }.pickerStyle(.segmented)
-        Text("期限が来た復習だけを追加します。不足時の水増しはしません。").font(.footnote).foregroundStyle(.secondary)
-      }
+      }.studyCard()
+      nextButton()
     case 6:
-      OnboardingPage(title: "任意の管理コード", systemImage: "number.square.fill") {
-        Text("弱い設定への変更を6桁コードで保護できます。設定しない場合は24時間の待機と二度目の確認が必要です。")
-        SecureField("6桁", text: $managementCode).keyboardType(.numberPad).textContentType(.oneTimeCode)
-          .padding().background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
+      page(icon: "key.fill", title: "設定変更を管理コードで守る", body: "ロック対象を減らす、解除を長くする、ロックを終了するなどの弱化変更を6桁コードで保護できます。重要な暗証番号の使い回しは避けてください。")
+      VStack(alignment: .leading, spacing: 12) {
+        secureCodeField(title: "管理コードを入力", placeholder: "6桁の数字", text: $managementCode, identifier: "onboarding.managementCode", contentType: .oneTimeCode)
+        secureCodeField(title: "確認のためもう一度入力", placeholder: "同じ6桁の数字", text: $managementCodeConfirmation, identifier: "onboarding.managementCodeConfirmation", contentType: nil)
         if let warning = ManagementCodeStore.codeWarning(managementCode), !managementCode.isEmpty { Text(warning).font(.footnote).foregroundStyle(.orange) }
-        Button("管理コードを設定して次へ") {
+        if !managementCodeConfirmation.isEmpty && managementCode != managementCodeConfirmation { Text("確認入力が一致しません。").font(.footnote).foregroundStyle(.red).accessibilityIdentifier("onboarding.managementCodeMismatch") }
+        if let managementCodeMessage { Text(managementCodeMessage).font(.footnote).foregroundStyle(.red) }
+        Button("管理コードを設定する") {
           do { try model.dependencies.managementCode.setCode(managementCode); step += 1 }
           catch { managementCodeMessage = error.localizedDescription }
-        }.disabled(managementCode.count != 6).buttonStyle(.borderedProminent)
-        Button("設定せず次へ") { step += 1 }.buttonStyle(.bordered)
-        if let managementCodeMessage { Text(managementCodeMessage).foregroundStyle(.red) }
-      }
+        }.primaryActionStyle().disabled(managementCode.count != 6 || managementCode != managementCodeConfirmation).accessibilityIdentifier("onboarding.managementCodeSet")
+        Button("設定せずに続ける") { step += 1 }.secondaryActionStyle()
+      }.studyCard()
     case 7:
-      OnboardingPage(title: "通知", systemImage: "bell.badge.fill") {
-        Text("Shieldからの学習案内と再ロック完了を通知できます。通知を許可しなくても、ロックンスタディを手動で開けば解除学習へ進めます。")
-        Button("Appleの通知許可画面へ進む") { Task { _ = await NotificationService().requestAuthorization(); step += 1 } }.buttonStyle(.borderedProminent)
-        Button("今は許可しない") { step += 1 }.buttonStyle(.bordered)
-      }
+      page(icon: "bell.badge.fill", title: "学習へ戻りやすくする", body: "Shieldから学習へ戻る案内と、再ロックの通知に使います。許可しなくてもロックンスタディを手動で開けば解除学習へ進めます。")
+      Button("Appleの通知許可画面へ進む") { Task { _ = await NotificationService().requestAuthorization(); step += 1 } }.primaryActionStyle()
+      Button("許可せずに続ける") { step += 1 }.secondaryActionStyle()
     default:
-      OnboardingPage(title: "準備できました", systemImage: "checkmark.seal.fill") {
-        Text("購入なしで始められます。無料教材は期限なく、ロック解除にも繰り返し使えます。")
-        Button("はじめる") { model.finishOnboarding(selectedPack: selectedPack, pace: pace, review: review) }
-          .buttonStyle(.borderedProminent).controlSize(.large).accessibilityIdentifier("onboarding.finish")
-      }
+      page(icon: "sparkles", title: "Platformの準備ができました", body: "次に、選んだ教材だけのコース・発音・学習方針を設定します。ロック設定と教材設定は混ぜずに管理できます。")
+      Button("教材の初期設定へ") { model.finishOnboarding(selectedPack: selectedPack, pace: pace, review: review) }
+        .primaryActionStyle().accessibilityIdentifier("onboarding.finish")
     }
   }
 
-  private func packChoice(_ title: String, subtitle: String, id: StudyPackID, color: Color) -> some View {
-    Button { selectedPack = id } label: {
-      HStack { Circle().fill(color).frame(width: 12, height: 12); VStack(alignment: .leading) { Text(title).font(.headline); Text(subtitle).font(.subheadline).foregroundStyle(.secondary) }; Spacer(); Image(systemName: selectedPack == id ? "checkmark.circle.fill" : "circle") }
-        .padding().background(.quaternary, in: RoundedRectangle(cornerRadius: 16))
-    }.buttonStyle(.plain)
+  private func page(icon: String, title: String, body: String) -> some View {
+    VStack(spacing: 20) {
+      Image(systemName: icon).font(.system(size: 58)).foregroundStyle(LockAndStudyTheme.teal).accessibilityHidden(true)
+      Text(title).font(.largeTitle.bold()).multilineTextAlignment(.center)
+      Text(body).foregroundStyle(.secondary).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
+    }.padding(.vertical, 12)
+  }
+  private func nextButton() -> some View { Button("次へ") { step += 1 }.primaryActionStyle().accessibilityIdentifier("onboarding.next.\(step)") }
+  private func secureCodeField(title: String, placeholder: String, text: Binding<String>, identifier: String, contentType: UITextContentType?) -> some View {
+    VStack(alignment: .leading, spacing: 6) {
+      Text(title).font(.subheadline.weight(.semibold))
+      SecureField(placeholder, text: text).keyboardType(.numberPad).textContentType(contentType).padding(.horizontal, 14).frame(minHeight: 52)
+        .background(Color(.systemBackground), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Color.secondary.opacity(0.25)))
+        .accessibilityIdentifier(identifier)
+    }
   }
 }
 
-private struct OnboardingPage<Content: View>: View {
-  let title: String; let systemImage: String; let content: Content
-  init(title: String, systemImage: String, @ViewBuilder content: () -> Content) { self.title = title; self.systemImage = systemImage; self.content = content() }
-  var body: some View { VStack(alignment: .leading, spacing: 18) { Image(systemName: systemImage).font(.system(size: 42)).foregroundStyle(LockAndStudyTheme.brand); Text(title).font(.largeTitle.bold()); content }.frame(maxWidth: .infinity, alignment: .leading) }
+private struct PlatformManagementInfoView: View {
+  var body: some View {
+    List {
+      Section("しくみ") { Text("選択したアプリやWebサイトにAppleのShieldを表示し、教材固有の問題に正解すると決めた時間だけ一時解除します。再ロック予約に失敗した場合は解除しません。") }
+      Section("管理") { Text("ロック対象の削減、解除時間の増加、管理コード削除などは弱化変更です。管理コード、または24時間待機後の二度目の確認で保護します。") }
+      Section("プライバシー") { Text("教材、回答、選択対象、管理コード、購入権利は端末内とAppleの仕組みで管理します。広告・分析SDKや独自サーバー送信はありません。") }
+      Section("解除不能への備え") { Text("固定無料教材、教材読み込み失敗時の安全な無料fallback問題、rolling 24時間に1回の緊急解除を用意しています。") }
+    }.navigationTitle("しくみと管理")
+  }
 }

@@ -11,7 +11,11 @@ struct ContentAccessDecision: Codable, Equatable, Sendable {
 
 struct ContentAccessService: Sendable {
   func decision(for prompt: StudyPrompt, manifest: StudyPackManifest, entitlement: CommerceEntitlementSnapshot, internalTest: Bool = false) -> ContentAccessDecision {
-    if prompt.isFreeSample { return .init(isAllowed: true, reason: .freeSample) }
+    decision(isFreeSample: prompt.isFreeSample, manifest: manifest, entitlement: entitlement, internalTest: internalTest)
+  }
+
+  func decision(isFreeSample: Bool, manifest: StudyPackManifest, entitlement: CommerceEntitlementSnapshot, internalTest: Bool = false) -> ContentAccessDecision {
+    if isFreeSample { return .init(isAllowed: true, reason: .freeSample) }
     if internalTest { return .init(isAllowed: true, reason: .internalTest) }
     if let owned = entitlement.ownedPacks.first(where: { $0.packID == manifest.id }) {
       switch owned.source {
@@ -26,4 +30,3 @@ struct ContentAccessService: Sendable {
     return .init(isAllowed: false, reason: .unavailable)
   }
 }
-

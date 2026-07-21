@@ -1,17 +1,30 @@
 import Foundation
 
 enum LearningDataStoreError: LocalizedError, Equatable {
-  case unavailable, corrupted(String), unsupportedSchema(Int)
+  case unavailable, corrupted(String), unsupportedSchema(Int), deletionFailed([String])
   var errorDescription: String? {
-    switch self { case .unavailable: return "学習データの保存場所を利用できません。"; case .corrupted: return "破損した学習データをバックアップしました。"; case .unsupportedSchema(let value): return "未対応のデータ形式です (schema \(value))。" }
+    switch self {
+    case .unavailable: return "学習データの保存場所を利用できません。"
+    case .corrupted: return "破損した学習データをバックアップしました。"
+    case .unsupportedSchema(let value): return "未対応のデータ形式です (schema \(value))。"
+    case .deletionFailed(let files): return "学習履歴を完全に削除できませんでした: \(files.joined(separator: ", "))"
+    }
   }
 }
 
-private struct ProgressDocument: Codable { let schemaVersion: Int; var items: [String: ItemProgress] }
+private struct ProgressDocument: Codable {
+  let schemaVersion: Int
+  var items: [String: ItemProgress]
+  var appliedSubmissionIDs: Set<String>?
+}
 private struct EventDocument: Codable { let schemaVersion: Int; var events: [LearningEvent] }
 private struct BundleDocument: Codable { let schemaVersion: Int; var bundle: UnlockLearningBundleSnapshot? }
+private struct ExperienceBundleDocument: Codable { let schemaVersion: Int; var bundle: ExperienceUnlockBundleSnapshot? }
 private struct LegacyImportDocument: Codable { let schemaVersion: Int; var importedEventIDs: Set<UUID> }
 private struct ExportDocument: Codable { let schemaVersion: Int; let exportedAt: Date; let progress: [String: ItemProgress]; let events: [LearningEvent]; let answersByMonth: [String: [StudyAnswerRecord]] }
+private enum AnswerWriteStage: String, Codable { case prepared, answerWritten, progressWritten, completed }
+private struct AnswerTransaction: Codable { var stage: AnswerWriteStage; let eventID: UUID }
+private struct AnswerTransactionDocument: Codable { let schemaVersion: Int; var transactions: [String: AnswerTransaction] }
 
 actor LearningDataStore {
   static let schemaVersion = 1
@@ -36,27 +49,84 @@ actor LearningDataStore {
 
   func allProgress() throws -> [String: ItemProgress] {
     if let progressCache { return progressCache }
-    let doc: ProgressDocument = try load(progressURL, fallback: .init(schemaVersion: Self.schemaVersion, items: [:]))
+    let doc: ProgressDocument = try load(progressURL, fallback: .init(schemaVersion: Self.schemaVersion, items: [:], appliedSubmissionIDs: []))
     guard doc.schemaVersion == Self.schemaVersion else { throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion) }
     progressCache = doc.items; return doc.items
   }
 
   func record(_ answer: StudyAnswerRecord) throws {
-    var progress = try progress(for: .init(packID: answer.packID, itemID: answer.itemID))
-    progress = SRSScheduler().applying(isCorrect: answer.isCorrect, to: progress, at: answer.answeredAt)
-    var all = try allProgress(); all[progress.id.storageKey] = progress
-    try write(ProgressDocument(schemaVersion: Self.schemaVersion, items: all), to: progressURL); progressCache = all
-    let data = try encoder.encode(answer) + Data([0x0A])
-    let url = answersURL.appendingPathComponent("\(month(answer.answeredAt)).ndjson")
-    if fileManager.fileExists(atPath: url.path) {
-      let handle = try FileHandle(forWritingTo: url); defer { try? handle.close() }; try handle.seekToEnd(); try handle.write(contentsOf: data)
-    } else { try data.write(to: url, options: .atomic); protect(url) }
-    try record(.init(kind: .answerSubmitted, occurredAt: answer.answeredAt, packID: answer.packID, sessionID: answer.sessionID, detailCode: answer.isCorrect ? "correct" : "incorrect"))
+    _ = try recordUnique(answer)
+  }
+
+  @discardableResult
+  func recordUnique(_ answer: StudyAnswerRecord) throws -> Bool {
+    let submissionID = answer.submissionID ?? answer.id.uuidString
+    var transactions: AnswerTransactionDocument = try load(
+      answerTransactionsURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, transactions: [:])
+    )
+    guard transactions.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(transactions.schemaVersion)
+    }
+    if transactions.transactions[submissionID]?.stage == .completed { return false }
+    if transactions.transactions[submissionID] == nil {
+      transactions.transactions[submissionID] = .init(stage: .prepared, eventID: UUID())
+      try write(transactions, to: answerTransactionsURL)
+    }
+    guard var transaction = transactions.transactions[submissionID] else { return false }
+
+    if transaction.stage == .prepared {
+      if try !answerExists(submissionID: submissionID, monthKey: month(answer.answeredAt)) {
+        try append(answer)
+      }
+      transaction.stage = .answerWritten
+      transactions.transactions[submissionID] = transaction
+      try write(transactions, to: answerTransactionsURL)
+    }
+
+    if transaction.stage == .answerWritten {
+      var document: ProgressDocument = try load(
+        progressURL,
+        fallback: .init(schemaVersion: Self.schemaVersion, items: [:], appliedSubmissionIDs: [])
+      )
+      var applied = document.appliedSubmissionIDs ?? []
+      if !applied.contains(submissionID) {
+        let composite = CompositeStudyItemID(packID: answer.packID, itemID: answer.itemID)
+        let old = document.items[composite.storageKey] ?? .initial(composite)
+        document.items[composite.storageKey] = SRSScheduler().applying(isCorrect: answer.isCorrect, to: old, at: answer.answeredAt)
+        applied.insert(submissionID)
+        document.appliedSubmissionIDs = applied
+        try write(document, to: progressURL)
+        progressCache = document.items
+      }
+      transaction.stage = .progressWritten
+      transactions.transactions[submissionID] = transaction
+      try write(transactions, to: answerTransactionsURL)
+    }
+
+    if transaction.stage == .progressWritten {
+      try record(.init(
+        id: transaction.eventID,
+        kind: .answerSubmitted,
+        occurredAt: answer.answeredAt,
+        packID: answer.packID,
+        sessionID: answer.sessionID,
+        detailCode: answer.isCorrect ? "correct" : "incorrect"
+      ))
+      transaction.stage = .completed
+      transactions.transactions[submissionID] = transaction
+      if transactions.transactions.count > 20_000 {
+        transactions.transactions = Dictionary(uniqueKeysWithValues: transactions.transactions.suffix(10_000))
+      }
+      try write(transactions, to: answerTransactionsURL)
+    }
+    return true
   }
 
   func record(_ event: LearningEvent) throws {
     var doc: EventDocument = try load(eventsURL, fallback: .init(schemaVersion: Self.schemaVersion, events: []))
     guard doc.schemaVersion == Self.schemaVersion else { throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion) }
+    guard !doc.events.contains(where: { $0.id == event.id }) else { return }
     doc.events.append(event); if doc.events.count > 10_000 { doc.events.removeFirst(doc.events.count - 10_000) }
     try write(doc, to: eventsURL)
   }
@@ -66,6 +136,20 @@ actor LearningDataStore {
     guard let data = try? Data(contentsOf: url), let text = String(data: data, encoding: .utf8) else { return [] }
     do { return try text.split(separator: "\n").map { try decoder.decode(StudyAnswerRecord.self, from: Data($0.utf8)) } }
     catch { let backup = backupCorrupt(url); throw LearningDataStoreError.corrupted(backup.lastPathComponent) }
+  }
+
+  func availableAnswerMonthKeys() throws -> [String] {
+    let files = try fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)
+    return files.filter { $0.pathExtension == "ndjson" }.map { $0.deletingPathExtension().lastPathComponent }.sorted()
+  }
+
+  func answers(from start: Date? = nil, through end: Date? = nil) throws -> [StudyAnswerRecord] {
+    let values = try availableAnswerMonthKeys().flatMap { try answers(monthKey: $0) }
+    return values.filter { answer in
+      if let start, answer.answeredAt < start { return false }
+      if let end, answer.answeredAt > end { return false }
+      return true
+    }.sorted { $0.answeredAt < $1.answeredAt }
   }
 
   func events() throws -> [LearningEvent] {
@@ -111,7 +195,7 @@ actor LearningDataStore {
     }
     guard imported > 0 else { return 0 }
     // The merge operation only takes maxima, so retrying after an interrupted pair of writes is idempotent.
-    try write(ProgressDocument(schemaVersion: Self.schemaVersion, items: progress), to: progressURL)
+    try write(ProgressDocument(schemaVersion: Self.schemaVersion, items: progress, appliedSubmissionIDs: nil), to: progressURL)
     progressCache = progress
     try write(imports, to: legacyImportsURL)
     try record(.init(kind: .contentMigrated, detailCode: "legacy-progress:\(export.exportID.uuidString)"))
@@ -126,9 +210,24 @@ actor LearningDataStore {
     return bundle
   }
 
+  func saveExperienceUnlockBundle(_ bundle: ExperienceUnlockBundleSnapshot?) throws {
+    try write(ExperienceBundleDocument(schemaVersion: Self.schemaVersion, bundle: bundle), to: experienceBundleURL)
+  }
+
+  func loadExperienceUnlockBundle() throws -> ExperienceUnlockBundleSnapshot? {
+    let document: ExperienceBundleDocument = try load(
+      experienceBundleURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, bundle: nil)
+    )
+    guard document.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(document.schemaVersion)
+    }
+    return document.bundle
+  }
+
   func exportJSON() throws -> URL {
     var byMonth: [String: [StudyAnswerRecord]] = [:]
-    let files = (try? fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)) ?? []
+    let files = try fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)
     for file in files where file.pathExtension == "ndjson" { byMonth[file.deletingPathExtension().lastPathComponent] = try answers(monthKey: file.deletingPathExtension().lastPathComponent) }
     let url = rootURL.appendingPathComponent("lockandstudy-learning-export.json")
     try write(ExportDocument(schemaVersion: Self.schemaVersion, exportedAt: Date(), progress: try allProgress(), events: try events(), answersByMonth: byMonth), to: url)
@@ -136,18 +235,63 @@ actor LearningDataStore {
   }
 
   func deleteLearningHistory() throws {
-    for url in [progressURL, eventsURL, bundleURL] { try? fileManager.removeItem(at: url) }
-    let files = (try? fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)) ?? []
-    for file in files { try? fileManager.removeItem(at: file) }
+    var failures: [String] = []
+    let candidates: [URL]
+    do {
+      candidates = try fileManager.contentsOfDirectory(at: rootURL, includingPropertiesForKeys: nil)
+    } catch {
+      throw LearningDataStoreError.deletionFailed(["学習データ一覧を取得できません"])
+    }
+    for url in candidates {
+      do { try fileManager.removeItem(at: url) }
+      catch { failures.append(url.path.replacingOccurrences(of: rootURL.path + "/", with: "")) }
+    }
+    do {
+      try fileManager.createDirectory(at: answersURL, withIntermediateDirectories: true)
+    } catch {
+      failures.append("answers（再作成失敗）")
+    }
+    let remaining: [String]
+    do {
+      remaining = try fileManager.contentsOfDirectory(at: rootURL, includingPropertiesForKeys: nil)
+        .filter { $0 != answersURL }
+        .map(\.lastPathComponent)
+      let answerRemainders = try fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)
+        .map { "answers/\($0.lastPathComponent)" }
+      if !answerRemainders.isEmpty { failures.append(contentsOf: answerRemainders) }
+    } catch {
+      throw LearningDataStoreError.deletionFailed(Array(Set(failures + ["削除後の存在確認に失敗しました"])).sorted())
+    }
     progressCache = nil
+    let unresolved = Array(Set(failures + remaining)).sorted()
+    if !unresolved.isEmpty { throw LearningDataStoreError.deletionFailed(unresolved) }
   }
 
   private var progressURL: URL { rootURL.appendingPathComponent("progress.v1.json") }
   private var eventsURL: URL { rootURL.appendingPathComponent("events.v1.json") }
   private var bundleURL: URL { rootURL.appendingPathComponent("unlock-bundle.v1.json") }
+  private var experienceBundleURL: URL { rootURL.appendingPathComponent("experience-unlock-bundle.v2.json") }
+  private var answerTransactionsURL: URL { rootURL.appendingPathComponent("answer-transactions.v1.json") }
   private var legacyImportsURL: URL { rootURL.appendingPathComponent("legacy-imports.v1.json") }
+  private var exportURL: URL { rootURL.appendingPathComponent("lockandstudy-learning-export.json") }
   private var answersURL: URL { rootURL.appendingPathComponent("answers", isDirectory: true) }
   private func month(_ date: Date) -> String { let c = Calendar(identifier: .gregorian).dateComponents([.year, .month], from: date); return String(format: "%04d-%02d", c.year ?? 0, c.month ?? 0) }
+  private func append(_ answer: StudyAnswerRecord) throws {
+    let data = try encoder.encode(answer) + Data([0x0A])
+    let url = answersURL.appendingPathComponent("\(month(answer.answeredAt)).ndjson")
+    if fileManager.fileExists(atPath: url.path) {
+      let handle = try FileHandle(forWritingTo: url)
+      defer { try? handle.close() }
+      try handle.seekToEnd()
+      try handle.write(contentsOf: data)
+    } else {
+      try data.write(to: url, options: .atomic)
+      protect(url)
+    }
+  }
+  private func answerExists(submissionID: String, monthKey: String) throws -> Bool {
+    try answers(monthKey: monthKey).contains { $0.submissionID == submissionID }
+  }
   private func load<T: Codable>(_ url: URL, fallback: T) throws -> T {
     guard fileManager.fileExists(atPath: url.path) else { return fallback }
     do { return try decoder.decode(T.self, from: Data(contentsOf: url)) }

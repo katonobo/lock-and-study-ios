@@ -48,12 +48,30 @@ enum CommitmentPeriod: String, Codable, CaseIterable, Identifiable, Sendable {
   }
 }
 
+struct LockSelectionTokenSnapshot: Codable, Equatable, Sendable {
+  var applicationTokenDigests: Set<String>
+  var categoryTokenDigests: Set<String>
+  var webDomainTokenDigests: Set<String>
+  static let empty = LockSelectionTokenSnapshot(applicationTokenDigests: [], categoryTokenDigests: [], webDomainTokenDigests: [])
+  func removesAnyToken(comparedWith proposed: LockSelectionTokenSnapshot) -> Bool {
+    !applicationTokenDigests.subtracting(proposed.applicationTokenDigests).isEmpty
+      || !categoryTokenDigests.subtracting(proposed.categoryTokenDigests).isEmpty
+      || !webDomainTokenDigests.subtracting(proposed.webDomainTokenDigests).isEmpty
+  }
+  func addsAnyToken(comparedWith old: LockSelectionTokenSnapshot) -> Bool {
+    !applicationTokenDigests.subtracting(old.applicationTokenDigests).isEmpty
+      || !categoryTokenDigests.subtracting(old.categoryTokenDigests).isEmpty
+      || !webDomainTokenDigests.subtracting(old.webDomainTokenDigests).isEmpty
+  }
+}
+
 struct LockSelectionSummary: Codable, Equatable, Sendable {
   var applicationCount: Int
   var categoryCount: Int
   var webDomainCount: Int
   var digest: String
-  static let empty = LockSelectionSummary(applicationCount: 0, categoryCount: 0, webDomainCount: 0, digest: "empty")
+  var tokenSnapshot: LockSelectionTokenSnapshot? = nil
+  static let empty = LockSelectionSummary(applicationCount: 0, categoryCount: 0, webDomainCount: 0, digest: "empty", tokenSnapshot: .empty)
   var totalCount: Int { applicationCount + categoryCount + webDomainCount }
 }
 
@@ -82,8 +100,14 @@ struct PolicyChangeClassifier: Sendable {
   func classify(from old: LockPolicy, to new: LockPolicy) -> PolicyChangeStrength {
     var stronger = false
     var weaker = false
-    if new.selectionSummary.totalCount > old.selectionSummary.totalCount { stronger = true }
-    if new.selectionSummary.totalCount < old.selectionSummary.totalCount { weaker = true }
+    if let oldTokens = old.selectionSummary.tokenSnapshot, let newTokens = new.selectionSummary.tokenSnapshot {
+      if oldTokens.removesAnyToken(comparedWith: newTokens) { weaker = true }
+      if newTokens.addsAnyToken(comparedWith: oldTokens) { stronger = true }
+    } else {
+      if new.selectionSummary.totalCount > old.selectionSummary.totalCount { stronger = true }
+      if new.selectionSummary.totalCount < old.selectionSummary.totalCount { weaker = true }
+    }
+    if old.selectionSummary.totalCount > 0 && new.selectionSummary.totalCount == 0 { weaker = true }
     if new.selectionSummary.totalCount == old.selectionSummary.totalCount,
        new.selectionSummary.digest != old.selectionSummary.digest { weaker = true }
     if new.accessPacePreset.minutesPerUnit > old.accessPacePreset.minutesPerUnit ||
@@ -128,7 +152,12 @@ struct UnlockSession: Codable, Equatable, Identifiable, Sendable {
 
 struct UnlockSessionCoordinator: Sendable {
   func make(kind: UnlockSessionKind, duration: TimeInterval, reasonCode: String?, policyVersion: Int, existing: UnlockSession?, now: Date) -> UnlockSession {
-    if kind != .earnedByStudy, let existing, existing.isActive(at: now) {
+    if let existing, existing.isActive(at: now), kind == .earnedByStudy,
+       reasonCode != nil, existing.reasonCode == reasonCode {
+      return .init(id: existing.id, kind: kind, startedAt: existing.startedAt,
+                   endsAt: existing.endsAt, reasonCode: reasonCode, policyVersion: policyVersion)
+    }
+    if let existing, existing.isActive(at: now), kind != .earnedByStudy {
       return .init(id: existing.id, kind: kind, startedAt: existing.startedAt,
                    endsAt: max(existing.endsAt, now.addingTimeInterval(duration)), reasonCode: reasonCode,
                    policyVersion: policyVersion)

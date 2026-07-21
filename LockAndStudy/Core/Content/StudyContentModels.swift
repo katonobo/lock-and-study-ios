@@ -94,7 +94,7 @@ struct StudyPrompt: Codable, Identifiable, Equatable, Sendable {
   let exampleText: String?
 }
 
-enum StudyMode: String, Codable, CaseIterable, Sendable { case practice, unlock, mistakes, weakness, newItems }
+enum StudyMode: String, Codable, CaseIterable, Sendable { case practice, unlock, review, mistakes, weakness, newItems }
 enum StudyFeedbackPlan: String, Codable, Sendable { case immediate, relearn6, relearn12, guided20 }
 
 struct StudyProgressSummary: Codable, Equatable, Sendable {
@@ -118,4 +118,3 @@ struct StudyModuleRegistry: Sendable {
   func module(for type: StudyModuleType) -> (any StudyModule)? { modules[type] }
   static let standard = StudyModuleRegistry(modules: [VocabularyStudyModule(), TakkenStudyModule()])
 }
-

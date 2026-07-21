@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import plistlib
 import re
 from pathlib import Path
@@ -10,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RELEASED = ROOT / "LockAndStudy/Resources/Content/Released"
 CATALOG = RELEASED / "study_pack_catalog.json"
+APP_ICON_SET = ROOT / "LockAndStudy/Resources/Assets.xcassets/AppIcon.appiconset"
 
 
 class CheckFailure(RuntimeError):
@@ -170,6 +172,38 @@ def verify_privacy() -> list[str]:
     return errors
 
 
+def verify_app_icon() -> list[str]:
+    errors: list[str] = []
+    contents_path = APP_ICON_SET / "Contents.json"
+    try:
+        contents = load_json(contents_path)
+        image_entry = next(
+            item for item in contents.get("images", [])
+            if item.get("idiom") == "universal" and item.get("platform") == "ios" and item.get("size") == "1024x1024"
+        )
+    except (CheckFailure, StopIteration) as exc:
+        return [f"App Icon catalog is invalid: {exc}"]
+    filename = image_entry.get("filename")
+    if not filename:
+        return ["App Icon 1024x1024 entry has no image filename"]
+    image_path = APP_ICON_SET / filename
+    if not image_path.is_file():
+        return [f"App Icon image is missing: {filename}"]
+    data = image_path.read_bytes()
+    if len(data) < 33 or data[:8] != b"\x89PNG\r\n\x1a\n" or data[12:16] != b"IHDR":
+        return [f"App Icon must be a valid PNG: {filename}"]
+    width = int.from_bytes(data[16:20], "big")
+    height = int.from_bytes(data[20:24], "big")
+    color_type = data[25]
+    if (width, height) != (1024, 1024):
+        errors.append(f"App Icon must be 1024x1024, found {width}x{height}")
+    if color_type in (4, 6) or b"tRNS" in data:
+        errors.append("App Icon must not contain an alpha channel")
+    if os.environ.get("LOCKANDSTUDY_REQUIRE_FINAL_ICON") == "1" and "placeholder" in filename.lower():
+        errors.append("final App Icon required: replace the development placeholder")
+    return errors
+
+
 def check_legacy_identifiers() -> list[str]:
     errors: list[str] = []
     allowed_roots = {"Docs", "LegacyMigrationPatches", "LockAndStudyTests"}
@@ -202,7 +236,8 @@ def release_safety() -> list[str]:
         errors.append("Screen Time authorization must use .individual")
     if "scheduleRelock(at: session.endsAt)" not in production:
         errors.append("safe relock-before-unshield implementation missing")
-    if "session.endsAt > Date()" not in (ROOT / "LockAndStudyDeviceActivityMonitorExtension/DeviceActivityMonitorExtension.swift").read_text(encoding="utf-8"):
+    monitor_source = (ROOT / "LockAndStudyDeviceActivityMonitorExtension/DeviceActivityMonitorExtension.swift").read_text(encoding="utf-8")
+    if "RelockRecoveryExecutor().execute" not in monitor_source or "case .rescheduled" not in monitor_source:
         errors.append("extension early-callback guard missing")
     for path in [CATALOG, ROOT / "project.yml", ROOT / "LockAndStudy/Resources/LockAndStudy.storekit"]:
         if not str(path.relative_to(ROOT)).isascii():
@@ -218,4 +253,3 @@ def report(label: str, errors: list[str]) -> int:
         return 1
     print(f"{label} passed.")
     return 0
-

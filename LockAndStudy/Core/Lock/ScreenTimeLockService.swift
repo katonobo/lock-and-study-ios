@@ -16,6 +16,42 @@ enum LockControllerError: LocalizedError, Equatable {
   }
 }
 
+protocol RelockScheduling {
+  func scheduleRelock(at date: Date) throws
+  func cancelRelock()
+}
+
+enum ActiveLockRefreshAction: Equatable {
+  case disabled
+  case authorizationLost
+  case restoreTemporaryUnlock(Date)
+  case relockNow
+}
+
+struct ActiveLockRefreshPlanner: Sendable {
+  func action(isLockEnabled: Bool, isAuthorized: Bool, session: UnlockSession?, now: Date) -> ActiveLockRefreshAction {
+    guard isLockEnabled else { return .disabled }
+    guard isAuthorized else { return .authorizationLost }
+    guard let session, session.isActive(at: now) else { return .relockNow }
+    return .restoreTemporaryUnlock(session.endsAt)
+  }
+}
+
+final class DeviceActivityRelockScheduler: RelockScheduling {
+  private let center: DeviceActivityCenter
+  init(center: DeviceActivityCenter = DeviceActivityCenter()) { self.center = center }
+  func scheduleRelock(at date: Date) throws {
+    let name = DeviceActivityName(LockAndStudySharedConstants.relockActivityName)
+    center.stopMonitoring([name])
+    let calendar = Calendar.current
+    var start = calendar.dateComponents([.era, .year, .month, .day, .hour, .minute, .second], from: date)
+    var end = calendar.dateComponents([.era, .year, .month, .day, .hour, .minute, .second], from: date.addingTimeInterval(900))
+    start.calendar = calendar; start.timeZone = .current; end.calendar = calendar; end.timeZone = .current
+    try center.startMonitoring(name, during: .init(intervalStart: start, intervalEnd: end, repeats: false))
+  }
+  func cancelRelock() { center.stopMonitoring([.init(LockAndStudySharedConstants.relockActivityName)]) }
+}
+
 @MainActor
 protocol LockControlling: AnyObject {
   var isAuthorized: Bool { get }
@@ -73,7 +109,16 @@ extension FamilyActivitySelection {
   var lockAndStudyIsEmpty: Bool { applicationTokens.isEmpty && categoryTokens.isEmpty && webDomainTokens.isEmpty }
   func lockAndStudySummary(encoded: Data) -> LockSelectionSummary {
     .init(applicationCount: applicationTokens.count, categoryCount: categoryTokens.count,
-          webDomainCount: webDomainTokens.count, digest: LockPolicyStore.digest(encoded))
+          webDomainCount: webDomainTokens.count, digest: LockPolicyStore.digest(encoded),
+          tokenSnapshot: .init(
+            applicationTokenDigests: Set(applicationTokens.compactMap(Self.tokenDigest)),
+            categoryTokenDigests: Set(categoryTokens.compactMap(Self.tokenDigest)),
+            webDomainTokenDigests: Set(webDomainTokens.compactMap(Self.tokenDigest))
+          ))
+  }
+  private static func tokenDigest<T: Encodable>(_ token: T) -> String? {
+    guard let data = try? JSONEncoder().encode(token) else { return nil }
+    return LockPolicyStore.digest(data)
   }
 }
 
@@ -143,7 +188,7 @@ final class RealScreenTimeLockController: LockControlling {
   private let dateProvider: any DateProviding
   private let policyStore: LockPolicyStore
   private let managedStore = ManagedSettingsStore(named: .init(LockAndStudySharedConstants.managedSettingsStoreName))
-  private let activityCenter = DeviceActivityCenter()
+  private let relockScheduler: any RelockScheduling
   private(set) var lastErrorMessage: String?
   var isMockMode: Bool { false }
   var isAuthorized: Bool { AuthorizationCenter.shared.authorizationStatus == .approved }
@@ -152,8 +197,12 @@ final class RealScreenTimeLockController: LockControlling {
   var isLockEnabled: Bool { defaults.bool(forKey: LockAndStudySharedConstants.Key.lockEnabled) }
   var unlockUntil: Date? { policyStore.loadUnlockSession()?.endsAt }
 
-  init(defaults: UserDefaults = LockAndStudySharedConstants.defaults, dateProvider: any DateProviding = SystemDateProvider()) {
-    self.defaults = defaults; self.dateProvider = dateProvider; policyStore = .init(defaults: defaults)
+  init(
+    defaults: UserDefaults = LockAndStudySharedConstants.defaults,
+    dateProvider: any DateProviding = SystemDateProvider(),
+    relockScheduler: any RelockScheduling = DeviceActivityRelockScheduler()
+  ) {
+    self.defaults = defaults; self.dateProvider = dateProvider; self.relockScheduler = relockScheduler; policyStore = .init(defaults: defaults)
   }
   func requestAuthorization() async throws {
     try await AuthorizationCenter.shared.requestAuthorization(for: .individual)
@@ -181,7 +230,7 @@ final class RealScreenTimeLockController: LockControlling {
       clearShield(); defaults.set(false, forKey: LockAndStudySharedConstants.Key.lockEnabled)
       if let session = policyStore.loadUnlockSession() { NotificationService().cancel(sessionID: session.id) }
       policyStore.saveUnlockSession(nil)
-      activityCenter.stopMonitoring([.init(LockAndStudySharedConstants.relockActivityName)])
+      relockScheduler.cancelRelock()
       updatePolicy { $0.lifecycleState = .ended; $0.policyVersion += 1 }
     }
   }
@@ -191,7 +240,7 @@ final class RealScreenTimeLockController: LockControlling {
     let policy = policyStore.loadPolicy() ?? .initial(now: now)
     let session = UnlockSessionCoordinator().make(kind: kind, duration: duration, reasonCode: reasonCode,
                                                    policyVersion: policy.policyVersion, existing: policyStore.loadUnlockSession(), now: now)
-    do { try scheduleRelock(at: session.endsAt) }
+    do { try relockScheduler.scheduleRelock(at: session.endsAt) }
     catch { lastErrorMessage = LockControllerError.scheduleFailed.localizedDescription; throw LockControllerError.scheduleFailed }
     policyStore.saveUnlockSession(session)
     clearShield()
@@ -200,18 +249,41 @@ final class RealScreenTimeLockController: LockControlling {
     return session
   }
   func refreshLockState() async {
-    defaults.set(isAuthorized, forKey: LockAndStudySharedConstants.Key.authorizationApproved)
-    guard isLockEnabled else { return }
-    guard isAuthorized else {
+    let authorized = isAuthorized
+    defaults.set(authorized, forKey: LockAndStudySharedConstants.Key.authorizationApproved)
+    let action = ActiveLockRefreshPlanner().action(
+      isLockEnabled: isLockEnabled,
+      isAuthorized: authorized,
+      session: policyStore.loadUnlockSession(),
+      now: dateProvider.now()
+    )
+    switch action {
+    case .disabled:
+      return
+    case .authorizationLost:
       policyStore.authorizationLost = true
       updatePolicy { $0.lifecycleState = .authorizationLost }
       return
+    case .restoreTemporaryUnlock(let endsAt):
+      policyStore.authorizationLost = false
+      do {
+        try relockScheduler.scheduleRelock(at: endsAt)
+        clearShield()
+        lastErrorMessage = nil
+        updatePolicy { $0.lifecycleState = .temporarilyUnlocked }
+      } catch {
+        policyStore.saveUnlockSession(nil)
+        do { try applyShield(); updatePolicy { $0.lifecycleState = .active } }
+        catch { updatePolicy { $0.lifecycleState = .authorizationLost } }
+        lastErrorMessage = LockControllerError.scheduleFailed.localizedDescription
+      }
+      return
+    case .relockNow:
+      policyStore.authorizationLost = false
+      policyStore.saveUnlockSession(nil)
+      do { try applyShield(); lastErrorMessage = nil; updatePolicy { $0.lifecycleState = .active } }
+      catch { lastErrorMessage = error.localizedDescription }
     }
-    policyStore.authorizationLost = false
-    if let session = policyStore.loadUnlockSession(), session.isActive(at: dateProvider.now()) { clearShield(); return }
-    policyStore.saveUnlockSession(nil)
-    do { try applyShield(); lastErrorMessage = nil; updatePolicy { $0.lifecycleState = .active } }
-    catch { lastErrorMessage = error.localizedDescription }
   }
   private func applyShield() throws {
     guard isAuthorized else { throw LockControllerError.authorizationRequired }
@@ -223,18 +295,8 @@ final class RealScreenTimeLockController: LockControlling {
   private func clearShield() {
     managedStore.shield.applications = nil; managedStore.shield.applicationCategories = nil; managedStore.shield.webDomains = nil
   }
-  private func scheduleRelock(at date: Date) throws {
-    let name = DeviceActivityName(LockAndStudySharedConstants.relockActivityName)
-    activityCenter.stopMonitoring([name])
-    let calendar = Calendar.current
-    var start = calendar.dateComponents([.era, .year, .month, .day, .hour, .minute, .second], from: date)
-    var end = calendar.dateComponents([.era, .year, .month, .day, .hour, .minute, .second], from: date.addingTimeInterval(900))
-    start.calendar = calendar; start.timeZone = .current; end.calendar = calendar; end.timeZone = .current
-    try activityCenter.startMonitoring(name, during: .init(intervalStart: start, intervalEnd: end, repeats: false))
-  }
   private func updatePolicy(_ mutation: (inout LockPolicy) -> Void) {
     var policy = policyStore.loadPolicy() ?? .initial(now: dateProvider.now())
     mutation(&policy); policy.updatedAt = dateProvider.now(); policyStore.savePolicy(policy)
   }
 }
-

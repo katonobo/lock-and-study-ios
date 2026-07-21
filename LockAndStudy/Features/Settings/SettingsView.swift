@@ -95,7 +95,9 @@ struct SettingsView: View {
     let service = PolicyProtectionService(store: model.dependencies.policyStore, managementCode: model.dependencies.managementCode)
     switch service.request(proposed: proposed, selectionData: selectionData, now: Date()) {
     case .applied:
-      if let selectionData, let newSelection = try? JSONDecoder().decode(FamilyActivitySelection.self, from: selectionData) { try? lock.saveSelection(newSelection) }
+      if let selectionData, let newSelection = try? JSONDecoder().decode(FamilyActivitySelection.self, from: selectionData), !newSelection.lockAndStudyIsEmpty {
+        do { try lock.saveSelection(newSelection) } catch { model.alertMessage = error.localizedDescription }
+      }
       if proposed.lifecycleState == .ended { Task { try? await lock.setLockEnabled(false); if resetAfterEnd { await resetAllAfterLockEnds() } } }
     case .managementCodeRequired: protectedChange = .init(proposed: proposed, selectionData: selectionData, resetAfterEnd: resetAfterEnd)
     case .cooldownScheduled(let date): model.alertMessage = "弱い変更は\(date.formatted())以降に、もう一度確認すると適用できます。"
@@ -103,11 +105,20 @@ struct SettingsView: View {
     }
   }
   private func requestSelectionChange() {
-    guard !selection.lockAndStudyIsEmpty, let data = try? JSONEncoder().encode(selection) else { return }
+    guard let data = try? JSONEncoder().encode(selection) else { model.alertMessage = "選択内容を検証できませんでした。"; return }
     var proposed = model.dependencies.policyStore.loadPolicy() ?? .initial(now: Date())
-    proposed.selectionSummary = selection.lockAndStudySummary(encoded: data); proposed.policyVersion += 1; proposed.updatedAt = Date()
-    if !lock.isLockEnabled || proposed.selectionSummary == .empty { try? lock.saveSelection(selection) }
-    else { requestPolicyChange(proposed, selectionData: data) }
+    proposed.selectionSummary = selection.lockAndStudySummary(encoded: data)
+    if selection.lockAndStudyIsEmpty {
+      proposed.lifecycleState = .ended
+      model.alertMessage = "空の選択はロック利用終了として保護されます。管理コード、または24時間待機後の確認が必要です。"
+    }
+    proposed.policyVersion += 1; proposed.updatedAt = Date()
+    if !lock.isLockEnabled {
+      if selection.lockAndStudyIsEmpty { model.alertMessage = "ロック対象は1件以上選んでください。" }
+      else { do { try lock.saveSelection(selection) } catch { model.alertMessage = error.localizedDescription } }
+    } else {
+      requestPolicyChange(proposed, selectionData: data)
+    }
   }
   private func requestEndLock(resetAfterEnd: Bool = false) {
     var proposed = model.dependencies.policyStore.loadPolicy() ?? .initial(now: Date())
@@ -155,7 +166,7 @@ private struct ManagementApprovalView: View {
   private func approve() {
     do {
       guard try model.dependencies.managementCode.verify(code) else { return }
-      if let data = change.selectionData, let selection = try? JSONDecoder().decode(FamilyActivitySelection.self, from: data) { try lock.saveSelection(selection) }
+      if let data = change.selectionData, let selection = try? JSONDecoder().decode(FamilyActivitySelection.self, from: data), !selection.lockAndStudyIsEmpty { try lock.saveSelection(selection) }
       model.dependencies.policyStore.savePolicy(change.proposed)
       if change.proposed.lifecycleState == .ended { Task { try? await lock.setLockEnabled(false); if change.resetAfterEnd { await model.deleteLearningHistory(); try? model.dependencies.managementCode.removeCode() }; dismiss() } }
       else { dismiss() }
@@ -165,14 +176,17 @@ private struct ManagementApprovalView: View {
 
 private struct ManagementCodeSettingsView: View {
   @EnvironmentObject private var model: AppModel
-  @State private var current = ""; @State private var newCode = ""; @State private var message: String?
+  @State private var current = ""; @State private var newCode = ""; @State private var newCodeConfirmation = ""; @State private var message: String?
   @State private var showResetConfirmation = false
   var body: some View {
     Form {
       if model.dependencies.managementCode.hasManagementCode {
         SecureField("現在のコード", text: $current).keyboardType(.numberPad)
         SecureField("新しい6桁", text: $newCode).keyboardType(.numberPad)
-        Button("コードを変更") { do { try model.dependencies.managementCode.changeCode(currentCode: current, newCode: newCode); message = "変更しました" } catch { message = error.localizedDescription } }
+        SecureField("新しい6桁をもう一度", text: $newCodeConfirmation).keyboardType(.numberPad)
+        if !newCodeConfirmation.isEmpty && newCode != newCodeConfirmation { Text("確認入力が一致しません。").foregroundStyle(.red) }
+        Button("コードを変更") { do { guard newCode == newCodeConfirmation else { message = "確認入力が一致しません。"; return }; try model.dependencies.managementCode.changeCode(currentCode: current, newCode: newCode); message = "変更しました" } catch { message = error.localizedDescription } }
+          .disabled(newCode.count != 6 || newCode != newCodeConfirmation)
         Button("現在のコードで削除", role: .destructive) { removeWithCurrentCode() }
         if let pending = model.dependencies.policyStore.loadPendingManagementReset() {
           Text("リセット確認可能：\(pending.availableAt.formatted())").font(.footnote)
@@ -184,8 +198,11 @@ private struct ManagementCodeSettingsView: View {
         Text("コードの削除・忘れた場合のリセットも弱化変更です。現在のコードで承認するか、24時間待機後に二度目の確認が必要です。").font(.footnote)
       } else {
         SecureField("新しい6桁", text: $newCode).keyboardType(.numberPad)
+        SecureField("確認のためもう一度", text: $newCodeConfirmation).keyboardType(.numberPad)
         if let warning = ManagementCodeStore.codeWarning(newCode), !newCode.isEmpty { Text(warning).foregroundStyle(.orange) }
-        Button("管理コードを設定") { do { try model.dependencies.managementCode.setCode(newCode); message = "設定しました" } catch { message = error.localizedDescription } }
+        if !newCodeConfirmation.isEmpty && newCode != newCodeConfirmation { Text("確認入力が一致しません。").foregroundStyle(.red) }
+        Button("管理コードを設定") { do { guard newCode == newCodeConfirmation else { message = "確認入力が一致しません。"; return }; try model.dependencies.managementCode.setCode(newCode); message = "設定しました" } catch { message = error.localizedDescription } }
+          .disabled(newCode.count != 6 || newCode != newCodeConfirmation)
       }
       if let message { Text(message) }
     }

@@ -2,7 +2,7 @@ import Foundation
 
 enum TakkenQuestionFormat: String, Codable, Sendable { case trueFalse = "true_false", multipleChoice = "multiple_choice" }
 
-struct TakkenQuestion: Decodable, Sendable {
+struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
   let id: String
   let examYear: Int?
   let lawBasisDate: String?
@@ -60,10 +60,8 @@ struct TakkenQuestion: Decodable, Sendable {
 struct TakkenStudyModule: StudyModule {
   let moduleType = StudyModuleType.takken
   func loadPrompts(manifest: StudyPackManifest, bundle: Bundle) throws -> [StudyPrompt] {
-    guard let file = manifest.contentFiles.first else { throw ContentRepositoryError.missing(manifest.title) }
-    let path = URL(fileURLWithPath: file.path)
-    guard let url = bundle.url(forResource: path.deletingPathExtension().lastPathComponent, withExtension: path.pathExtension) else { throw ContentRepositoryError.missing(file.path) }
-    return try JSONDecoder().decode([TakkenQuestion].self, from: Data(contentsOf: url)).filter { !$0.retired }.map { item in
+    let questions = try TakkenQuestionRepository(bundle: bundle).load(manifest: manifest)
+    return questions.map { item in
       StudyPrompt(packID: manifest.id, moduleType: .takken, itemID: .init(rawValue: item.id), prompt: item.prompt,
                   choices: item.choices.enumerated().map { .init(id: $0.offset, text: $0.element) }, correctChoiceID: item.correctIndex,
                   shortExplanation: item.shortExplanation ?? item.explanation, longExplanation: item.longExplanation ?? item.explanation,
@@ -80,4 +78,37 @@ struct TakkenStudyModule: StudyModule {
     return issues
   }
   func feedbackPlan(wrongAttemptCount: Int) -> StudyFeedbackPlan { wrongAttemptCount == 0 ? .immediate : (wrongAttemptCount == 1 ? .relearn6 : .relearn12) }
+}
+
+struct TakkenQuestionRepository: Sendable {
+  let loader: VerifiedContentLoader
+  init(bundle: Bundle = .main) { loader = .init(bundle: bundle) }
+
+  func load(manifest: StudyPackManifest) throws -> [TakkenQuestion] {
+    guard !manifest.contentFiles.isEmpty else { throw ContentRepositoryError.missing(manifest.title) }
+    let decoder = JSONDecoder()
+    var all: [TakkenQuestion] = []
+    for descriptor in manifest.contentFiles {
+      let decoded = try decoder.decode([TakkenQuestion].self, from: loader.data(for: descriptor))
+      guard decoded.count == descriptor.itemCount else {
+        throw ContentRepositoryError.invalid("\(descriptor.path) の件数がmanifestと一致しません")
+      }
+      all.append(contentsOf: decoded)
+    }
+    guard Set(all.map(\.id)).count == all.count else {
+      throw ContentRepositoryError.invalid("宅建問題IDが重複しています")
+    }
+    let active = all.filter { !$0.retired }.sorted {
+      if $0.category != $1.category { return $0.category < $1.category }
+      if ($0.subCategory ?? "") != ($1.subCategory ?? "") { return ($0.subCategory ?? "") < ($1.subCategory ?? "") }
+      return $0.id < $1.id
+    }
+    guard active.count == manifest.expectedItemCount else {
+      throw ContentRepositoryError.invalid("宅建の公開合計件数が\(manifest.expectedItemCount)問ではありません")
+    }
+    guard !active.contains(where: { $0.isPlaceholder || !($0.reviewStatus == "checked" || $0.reviewStatus == "reviewed" || $0.reviewStatus == "release") }) else {
+      throw ContentRepositoryError.invalid("未校閲またはplaceholderの宅建問題が含まれています")
+    }
+    return active
+  }
 }
