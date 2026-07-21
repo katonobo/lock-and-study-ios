@@ -1,0 +1,2054 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogVersion": "free-sample-250-v1",
+  "contentVersion": "mvp-3000-ja-v4.0.0",
+  "selectionDate": "2026-07-14",
+  "totalSampleCount": 250,
+  "sampleCountPerLevel": 50,
+  "selectionPrinciples": [
+    "全5レベルで実際の難易度と問題形式を試せる",
+    "各レベルの頻出語・標準語・やや難しい語を混在させる",
+    "名詞・動詞・形容詞などの品詞を分散させる",
+    "内容配慮対象19語を含めない",
+    "同一レベル内で正解語義を重複させない",
+    "実行時に再抽出せず、固定IDとして管理する"
+  ],
+  "levels": [
+    {
+      "levelCode": "L0",
+      "levelName": "基礎A1（小学校復習〜中1導入）",
+      "sampleCount": 50,
+      "questions": [
+        {
+          "id": "EN0001",
+          "headword": "may",
+          "primaryPosJa": "助動詞",
+          "quizMeaningJa": "かもしれない",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 1
+        },
+        {
+          "id": "EN0002",
+          "headword": "one",
+          "primaryPosJa": "数詞",
+          "quizMeaningJa": "一つ",
+          "questionType": "meaningChoice",
+          "levelOrder": 2
+        },
+        {
+          "id": "EN0003",
+          "headword": "first",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "最初の",
+          "questionType": "meaningChoice",
+          "levelOrder": 3
+        },
+        {
+          "id": "EN0004",
+          "headword": "can",
+          "primaryPosJa": "助動詞",
+          "quizMeaningJa": "〜できる",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 4
+        },
+        {
+          "id": "EN0006",
+          "headword": "the",
+          "primaryPosJa": "限定詞",
+          "quizMeaningJa": "その",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 6
+        },
+        {
+          "id": "EN0007",
+          "headword": "be",
+          "primaryPosJa": "be動詞",
+          "quizMeaningJa": "〜である",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 7
+        },
+        {
+          "id": "EN0008",
+          "headword": "and",
+          "primaryPosJa": "接続詞",
+          "quizMeaningJa": "〜と〜",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 8
+        },
+        {
+          "id": "EN0009",
+          "headword": "of",
+          "primaryPosJa": "前置詞",
+          "quizMeaningJa": "〜の",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 9
+        },
+        {
+          "id": "EN0090",
+          "headword": "way",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "道",
+          "questionType": "meaningChoice",
+          "levelOrder": 90
+        },
+        {
+          "id": "EN0097",
+          "headword": "place",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "場所",
+          "questionType": "meaningChoice",
+          "levelOrder": 97
+        },
+        {
+          "id": "EN0098",
+          "headword": "problem",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "問題",
+          "questionType": "meaningChoice",
+          "levelOrder": 98
+        },
+        {
+          "id": "EN0189",
+          "headword": "say",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "言う",
+          "questionType": "meaningChoice",
+          "levelOrder": 189
+        },
+        {
+          "id": "EN0190",
+          "headword": "go",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "行く",
+          "questionType": "meaningChoice",
+          "levelOrder": 190
+        },
+        {
+          "id": "EN0192",
+          "headword": "know",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "知っている",
+          "questionType": "meaningChoice",
+          "levelOrder": 192
+        },
+        {
+          "id": "EN0193",
+          "headword": "get",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を受け取る",
+          "questionType": "meaningChoice",
+          "levelOrder": 193
+        },
+        {
+          "id": "EN0195",
+          "headword": "like",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を好む",
+          "questionType": "meaningChoice",
+          "levelOrder": 195
+        },
+        {
+          "id": "EN0196",
+          "headword": "think",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜と思う",
+          "questionType": "meaningChoice",
+          "levelOrder": 196
+        },
+        {
+          "id": "EN0197",
+          "headword": "make",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を作る",
+          "questionType": "meaningChoice",
+          "levelOrder": 197
+        },
+        {
+          "id": "EN0199",
+          "headword": "time",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "時間",
+          "questionType": "meaningChoice",
+          "levelOrder": 199
+        },
+        {
+          "id": "EN0207",
+          "headword": "good",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "良い",
+          "questionType": "meaningChoice",
+          "levelOrder": 207
+        },
+        {
+          "id": "EN0208",
+          "headword": "people",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "人々",
+          "questionType": "meaningChoice",
+          "levelOrder": 208
+        },
+        {
+          "id": "EN0209",
+          "headword": "year",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "年",
+          "questionType": "meaningChoice",
+          "levelOrder": 209
+        },
+        {
+          "id": "EN0226",
+          "headword": "day",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "日",
+          "questionType": "meaningChoice",
+          "levelOrder": 226
+        },
+        {
+          "id": "EN0227",
+          "headword": "thing",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "もの",
+          "questionType": "meaningChoice",
+          "levelOrder": 227
+        },
+        {
+          "id": "EN0230",
+          "headword": "mean",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を意味する",
+          "questionType": "meaningChoice",
+          "levelOrder": 230
+        },
+        {
+          "id": "EN0251",
+          "headword": "life",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "人生",
+          "questionType": "meaningChoice",
+          "levelOrder": 251
+        },
+        {
+          "id": "EN0263",
+          "headword": "own",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "自分自身の",
+          "questionType": "meaningChoice",
+          "levelOrder": 263
+        },
+        {
+          "id": "EN0293",
+          "headword": "hear",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "聞く",
+          "questionType": "meaningChoice",
+          "levelOrder": 293
+        },
+        {
+          "id": "EN0294",
+          "headword": "always",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "常に",
+          "questionType": "meaningChoice",
+          "levelOrder": 294
+        },
+        {
+          "id": "EN0295",
+          "headword": "big",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "大きい",
+          "questionType": "meaningChoice",
+          "levelOrder": 295
+        },
+        {
+          "id": "EN0297",
+          "headword": "set",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を置く",
+          "questionType": "meaningChoice",
+          "levelOrder": 297
+        },
+        {
+          "id": "EN0298",
+          "headword": "small",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "小さい",
+          "questionType": "meaningChoice",
+          "levelOrder": 298
+        },
+        {
+          "id": "EN0335",
+          "headword": "idea",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "アイデア",
+          "questionType": "meaningChoice",
+          "levelOrder": 335
+        },
+        {
+          "id": "EN0337",
+          "headword": "reason",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "理由",
+          "questionType": "meaningChoice",
+          "levelOrder": 337
+        },
+        {
+          "id": "EN0340",
+          "headword": "give",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を与える",
+          "questionType": "meaningChoice",
+          "levelOrder": 340
+        },
+        {
+          "id": "EN0352",
+          "headword": "really",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "本当に",
+          "questionType": "meaningChoice",
+          "levelOrder": 352
+        },
+        {
+          "id": "EN0371",
+          "headword": "another",
+          "primaryPosJa": "限定詞",
+          "quizMeaningJa": "もう一つの",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 371
+        },
+        {
+          "id": "EN0375",
+          "headword": "live",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "住む",
+          "questionType": "meaningChoice",
+          "levelOrder": 375
+        },
+        {
+          "id": "EN0392",
+          "headword": "question",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "質問",
+          "questionType": "meaningChoice",
+          "levelOrder": 392
+        },
+        {
+          "id": "EN0523",
+          "headword": "usually",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "通常",
+          "questionType": "meaningChoice",
+          "levelOrder": 523
+        },
+        {
+          "id": "EN0530",
+          "headword": "due",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "期限である",
+          "questionType": "meaningChoice",
+          "levelOrder": 530
+        },
+        {
+          "id": "EN0584",
+          "headword": "imagine",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "想像する",
+          "questionType": "meaningChoice",
+          "levelOrder": 584
+        },
+        {
+          "id": "EN0589",
+          "headword": "memory",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "記憶",
+          "questionType": "meaningChoice",
+          "levelOrder": 589
+        },
+        {
+          "id": "EN0648",
+          "headword": "correct",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "正しい",
+          "questionType": "meaningChoice",
+          "levelOrder": 648
+        },
+        {
+          "id": "EN0646",
+          "headword": "warm",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "暖かい",
+          "questionType": "meaningChoice",
+          "levelOrder": 646
+        },
+        {
+          "id": "EN0100",
+          "headword": "school",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "学校",
+          "questionType": "meaningChoice",
+          "levelOrder": 100
+        },
+        {
+          "id": "EN0217",
+          "headword": "work",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "働く",
+          "questionType": "meaningChoice",
+          "levelOrder": 217
+        },
+        {
+          "id": "EN0110",
+          "headword": "family",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "家族",
+          "questionType": "meaningChoice",
+          "levelOrder": 110
+        },
+        {
+          "id": "EN0116",
+          "headword": "friend",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "友達",
+          "questionType": "meaningChoice",
+          "levelOrder": 116
+        },
+        {
+          "id": "EN0266",
+          "headword": "help",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "助ける",
+          "questionType": "meaningChoice",
+          "levelOrder": 266
+        }
+      ]
+    },
+    {
+      "levelCode": "L1",
+      "levelName": "中1相当",
+      "sampleCount": 50,
+      "questions": [
+        {
+          "id": "EN0651",
+          "headword": "tea",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "お茶",
+          "questionType": "meaningChoice",
+          "levelOrder": 1
+        },
+        {
+          "id": "EN0657",
+          "headword": "fruit",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "果物",
+          "questionType": "meaningChoice",
+          "levelOrder": 7
+        },
+        {
+          "id": "EN0659",
+          "headword": "mail",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "郵便",
+          "questionType": "meaningChoice",
+          "levelOrder": 9
+        },
+        {
+          "id": "EN0660",
+          "headword": "wonderful",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "素晴らしい",
+          "questionType": "meaningChoice",
+          "levelOrder": 10
+        },
+        {
+          "id": "EN0662",
+          "headword": "slow",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "ゆっくりした",
+          "questionType": "meaningChoice",
+          "levelOrder": 12
+        },
+        {
+          "id": "EN0665",
+          "headword": "hill",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "丘",
+          "questionType": "meaningChoice",
+          "levelOrder": 15
+        },
+        {
+          "id": "EN0667",
+          "headword": "dry",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "乾いた",
+          "questionType": "meaningChoice",
+          "levelOrder": 17
+        },
+        {
+          "id": "EN0671",
+          "headword": "sky",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "空",
+          "questionType": "meaningChoice",
+          "levelOrder": 21
+        },
+        {
+          "id": "EN0672",
+          "headword": "afraid",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "怖がっている",
+          "questionType": "meaningChoice",
+          "levelOrder": 22
+        },
+        {
+          "id": "EN0673",
+          "headword": "interesting",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "面白い",
+          "questionType": "meaningChoice",
+          "levelOrder": 23
+        },
+        {
+          "id": "EN0676",
+          "headword": "famous",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "有名な",
+          "questionType": "meaningChoice",
+          "levelOrder": 26
+        },
+        {
+          "id": "EN0678",
+          "headword": "cry",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "泣く",
+          "questionType": "meaningChoice",
+          "levelOrder": 28
+        },
+        {
+          "id": "EN0679",
+          "headword": "medicine",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "薬",
+          "questionType": "meaningChoice",
+          "levelOrder": 29
+        },
+        {
+          "id": "EN0680",
+          "headword": "solve",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "解決する",
+          "questionType": "meaningChoice",
+          "levelOrder": 30
+        },
+        {
+          "id": "EN0689",
+          "headword": "repeat",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "繰り返す",
+          "questionType": "meaningChoice",
+          "levelOrder": 39
+        },
+        {
+          "id": "EN0692",
+          "headword": "habit",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "習慣",
+          "questionType": "meaningChoice",
+          "levelOrder": 42
+        },
+        {
+          "id": "EN0695",
+          "headword": "shake",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を振る",
+          "questionType": "meaningChoice",
+          "levelOrder": 45
+        },
+        {
+          "id": "EN0696",
+          "headword": "topic",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "話題",
+          "questionType": "meaningChoice",
+          "levelOrder": 46
+        },
+        {
+          "id": "EN1100",
+          "headword": "include",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "含む",
+          "questionType": "meaningChoice",
+          "levelOrder": 450
+        },
+        {
+          "id": "EN1093",
+          "headword": "company",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "会社",
+          "questionType": "meaningChoice",
+          "levelOrder": 443
+        },
+        {
+          "id": "EN1150",
+          "headword": "value",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "価値",
+          "questionType": "meaningChoice",
+          "levelOrder": 500
+        },
+        {
+          "id": "EN1145",
+          "headword": "suggest",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "提案する",
+          "questionType": "meaningChoice",
+          "levelOrder": 495
+        },
+        {
+          "id": "EN1136",
+          "headword": "expect",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を予想する",
+          "questionType": "meaningChoice",
+          "levelOrder": 486
+        },
+        {
+          "id": "EN1137",
+          "headword": "effect",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "影響",
+          "questionType": "meaningChoice",
+          "levelOrder": 487
+        },
+        {
+          "id": "EN1141",
+          "headword": "send",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "送る",
+          "questionType": "meaningChoice",
+          "levelOrder": 491
+        },
+        {
+          "id": "EN1142",
+          "headword": "allow",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "許可する",
+          "questionType": "meaningChoice",
+          "levelOrder": 492
+        },
+        {
+          "id": "EN1144",
+          "headword": "probably",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "おそらく",
+          "questionType": "meaningChoice",
+          "levelOrder": 494
+        },
+        {
+          "id": "EN1148",
+          "headword": "return",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を返す",
+          "questionType": "meaningChoice",
+          "levelOrder": 498
+        },
+        {
+          "id": "EN0653",
+          "headword": "bottle",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "ボトル",
+          "questionType": "meaningChoice",
+          "levelOrder": 3
+        },
+        {
+          "id": "EN0655",
+          "headword": "fair",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "公平",
+          "questionType": "meaningChoice",
+          "levelOrder": 5
+        },
+        {
+          "id": "EN0661",
+          "headword": "ear",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "耳",
+          "questionType": "meaningChoice",
+          "levelOrder": 11
+        },
+        {
+          "id": "EN0669",
+          "headword": "king",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "王",
+          "questionType": "meaningChoice",
+          "levelOrder": 19
+        },
+        {
+          "id": "EN0675",
+          "headword": "mobile",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "携帯用の",
+          "questionType": "meaningChoice",
+          "levelOrder": 25
+        },
+        {
+          "id": "EN0688",
+          "headword": "hide",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を隠す",
+          "questionType": "meaningChoice",
+          "levelOrder": 38
+        },
+        {
+          "id": "EN0879",
+          "headword": "greet",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を迎える",
+          "questionType": "meaningChoice",
+          "levelOrder": 229
+        },
+        {
+          "id": "EN0878",
+          "headword": "moon",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "月",
+          "questionType": "meaningChoice",
+          "levelOrder": 228
+        },
+        {
+          "id": "EN0877",
+          "headword": "strict",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "厳しい",
+          "questionType": "meaningChoice",
+          "levelOrder": 227
+        },
+        {
+          "id": "EN0996",
+          "headword": "awake",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "目が覚めている",
+          "questionType": "meaningChoice",
+          "levelOrder": 346
+        },
+        {
+          "id": "EN1043",
+          "headword": "while",
+          "primaryPosJa": "接続詞",
+          "quizMeaningJa": "〜の間に",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 393
+        },
+        {
+          "id": "EN1044",
+          "headword": "might",
+          "primaryPosJa": "助動詞",
+          "quizMeaningJa": "かもしれない",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 394
+        },
+        {
+          "id": "EN1046",
+          "headword": "few",
+          "primaryPosJa": "限定詞",
+          "quizMeaningJa": "少数の",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 396
+        },
+        {
+          "id": "EN1108",
+          "headword": "however",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "しかし",
+          "questionType": "meaningChoice",
+          "levelOrder": 458
+        },
+        {
+          "id": "EN1147",
+          "headword": "center",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "センター",
+          "questionType": "meaningChoice",
+          "levelOrder": 497
+        },
+        {
+          "id": "EN1146",
+          "headword": "power",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "電力",
+          "questionType": "meaningChoice",
+          "levelOrder": 496
+        },
+        {
+          "id": "EN0742",
+          "headword": "careful",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "注意深い",
+          "questionType": "meaningChoice",
+          "levelOrder": 92
+        },
+        {
+          "id": "EN1051",
+          "headword": "enough",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "十分に",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 401
+        },
+        {
+          "id": "EN1124",
+          "headword": "possible",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "可能な",
+          "questionType": "meaningChoice",
+          "levelOrder": 474
+        },
+        {
+          "id": "EN1121",
+          "headword": "understand",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "理解する",
+          "questionType": "meaningChoice",
+          "levelOrder": 471
+        },
+        {
+          "id": "EN1075",
+          "headword": "research",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "研究",
+          "questionType": "meaningChoice",
+          "levelOrder": 425
+        },
+        {
+          "id": "EN0932",
+          "headword": "internet",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "インターネット",
+          "questionType": "meaningChoice",
+          "levelOrder": 282
+        }
+      ]
+    },
+    {
+      "levelCode": "L2",
+      "levelName": "中2相当",
+      "sampleCount": 50,
+      "questions": [
+        {
+          "id": "EN1151",
+          "headword": "record",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "記録",
+          "questionType": "meaningChoice",
+          "levelOrder": 1
+        },
+        {
+          "id": "EN1152",
+          "headword": "force",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "無理に〜する",
+          "questionType": "meaningChoice",
+          "levelOrder": 2
+        },
+        {
+          "id": "EN1154",
+          "headword": "develop",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を作り上げる",
+          "questionType": "meaningChoice",
+          "levelOrder": 4
+        },
+        {
+          "id": "EN1159",
+          "headword": "decide",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "決定する",
+          "questionType": "meaningChoice",
+          "levelOrder": 9
+        },
+        {
+          "id": "EN1160",
+          "headword": "education",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "教育",
+          "questionType": "meaningChoice",
+          "levelOrder": 10
+        },
+        {
+          "id": "EN1161",
+          "headword": "clear",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "明確な",
+          "questionType": "meaningChoice",
+          "levelOrder": 11
+        },
+        {
+          "id": "EN1162",
+          "headword": "remain",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "残る",
+          "questionType": "meaningChoice",
+          "levelOrder": 12
+        },
+        {
+          "id": "EN1163",
+          "headword": "reach",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "到達する",
+          "questionType": "meaningChoice",
+          "levelOrder": 13
+        },
+        {
+          "id": "EN1165",
+          "headword": "create",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "作成する",
+          "questionType": "meaningChoice",
+          "levelOrder": 15
+        },
+        {
+          "id": "EN1166",
+          "headword": "sound",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "音",
+          "questionType": "meaningChoice",
+          "levelOrder": 16
+        },
+        {
+          "id": "EN1167",
+          "headword": "nation",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "国全体",
+          "questionType": "meaningChoice",
+          "levelOrder": 17
+        },
+        {
+          "id": "EN1168",
+          "headword": "appear",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "現れる",
+          "questionType": "meaningChoice",
+          "levelOrder": 18
+        },
+        {
+          "id": "EN1170",
+          "headword": "sense",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "感覚",
+          "questionType": "meaningChoice",
+          "levelOrder": 20
+        },
+        {
+          "id": "EN1171",
+          "headword": "perhaps",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "おそらく",
+          "questionType": "meaningChoice",
+          "levelOrder": 21
+        },
+        {
+          "id": "EN1172",
+          "headword": "political",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "政治的",
+          "questionType": "meaningChoice",
+          "levelOrder": 22
+        },
+        {
+          "id": "EN1174",
+          "headword": "produce",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "生産する",
+          "questionType": "meaningChoice",
+          "levelOrder": 24
+        },
+        {
+          "id": "EN1175",
+          "headword": "capital",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "首都",
+          "questionType": "meaningChoice",
+          "levelOrder": 25
+        },
+        {
+          "id": "EN1176",
+          "headword": "human",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "人間の",
+          "questionType": "meaningChoice",
+          "levelOrder": 26
+        },
+        {
+          "id": "EN1181",
+          "headword": "detail",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "詳しく",
+          "questionType": "meaningChoice",
+          "levelOrder": 31
+        },
+        {
+          "id": "EN1184",
+          "headword": "model",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "モデル",
+          "questionType": "meaningChoice",
+          "levelOrder": 34
+        },
+        {
+          "id": "EN1187",
+          "headword": "improve",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を向上させる",
+          "questionType": "meaningChoice",
+          "levelOrder": 37
+        },
+        {
+          "id": "EN1189",
+          "headword": "range",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "範囲",
+          "questionType": "meaningChoice",
+          "levelOrder": 39
+        },
+        {
+          "id": "EN1191",
+          "headword": "likely",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "〜しそうな",
+          "questionType": "meaningChoice",
+          "levelOrder": 41
+        },
+        {
+          "id": "EN1196",
+          "headword": "trade",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "貿易",
+          "questionType": "meaningChoice",
+          "levelOrder": 46
+        },
+        {
+          "id": "EN1198",
+          "headword": "instead",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "代わりに",
+          "questionType": "meaningChoice",
+          "levelOrder": 48
+        },
+        {
+          "id": "EN1203",
+          "headword": "common",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "よくある",
+          "questionType": "meaningChoice",
+          "levelOrder": 53
+        },
+        {
+          "id": "EN1398",
+          "headword": "reveal",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "明らかにする",
+          "questionType": "meaningChoice",
+          "levelOrder": 248
+        },
+        {
+          "id": "EN1400",
+          "headword": "prefer",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "好む",
+          "questionType": "meaningChoice",
+          "levelOrder": 250
+        },
+        {
+          "id": "EN1408",
+          "headword": "easily",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "簡単に",
+          "questionType": "meaningChoice",
+          "levelOrder": 258
+        },
+        {
+          "id": "EN1421",
+          "headword": "exchange",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "交換",
+          "questionType": "meaningChoice",
+          "levelOrder": 271
+        },
+        {
+          "id": "EN1437",
+          "headword": "appropriate",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "適切な",
+          "questionType": "meaningChoice",
+          "levelOrder": 287
+        },
+        {
+          "id": "EN1438",
+          "headword": "attitude",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "態度",
+          "questionType": "meaningChoice",
+          "levelOrder": 288
+        },
+        {
+          "id": "EN1448",
+          "headword": "thought",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "考え",
+          "questionType": "meaningChoice",
+          "levelOrder": 298
+        },
+        {
+          "id": "EN1461",
+          "headword": "contrast",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "対照",
+          "questionType": "meaningChoice",
+          "levelOrder": 311
+        },
+        {
+          "id": "EN1466",
+          "headword": "spread",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "広める",
+          "questionType": "meaningChoice",
+          "levelOrder": 316
+        },
+        {
+          "id": "EN1478",
+          "headword": "negative",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "ネガティブ",
+          "questionType": "meaningChoice",
+          "levelOrder": 328
+        },
+        {
+          "id": "EN1514",
+          "headword": "survive",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "生き残る",
+          "questionType": "meaningChoice",
+          "levelOrder": 364
+        },
+        {
+          "id": "EN1584",
+          "headword": "chemical",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "化学の",
+          "questionType": "meaningChoice",
+          "levelOrder": 434
+        },
+        {
+          "id": "EN1613",
+          "headword": "unlike",
+          "primaryPosJa": "前置詞",
+          "quizMeaningJa": "とは異なり",
+          "questionType": "meaningChoice",
+          "levelOrder": 463
+        },
+        {
+          "id": "EN1620",
+          "headword": "widely",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "広く",
+          "questionType": "meaningChoice",
+          "levelOrder": 470
+        },
+        {
+          "id": "EN1631",
+          "headword": "native",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "母語の",
+          "questionType": "meaningChoice",
+          "levelOrder": 481
+        },
+        {
+          "id": "EN1638",
+          "headword": "plastic",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "プラスチック",
+          "questionType": "meaningChoice",
+          "levelOrder": 488
+        },
+        {
+          "id": "EN1641",
+          "headword": "communicate",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を伝える",
+          "questionType": "meaningChoice",
+          "levelOrder": 491
+        },
+        {
+          "id": "EN1376",
+          "headword": "advice",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "アドバイス",
+          "questionType": "meaningChoice",
+          "levelOrder": 226
+        },
+        {
+          "id": "EN1390",
+          "headword": "useful",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "役に立つ",
+          "questionType": "meaningChoice",
+          "levelOrder": 240
+        },
+        {
+          "id": "EN1572",
+          "headword": "dangerous",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "危険な",
+          "questionType": "meaningChoice",
+          "levelOrder": 422
+        },
+        {
+          "id": "EN1435",
+          "headword": "journey",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "旅",
+          "questionType": "meaningChoice",
+          "levelOrder": 285
+        },
+        {
+          "id": "EN1325",
+          "headword": "behavior",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "行動",
+          "questionType": "meaningChoice",
+          "levelOrder": 175
+        },
+        {
+          "id": "EN1300",
+          "headword": "feature",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "特徴",
+          "questionType": "meaningChoice",
+          "levelOrder": 150
+        },
+        {
+          "id": "EN1442",
+          "headword": "nobody",
+          "primaryPosJa": "代名詞",
+          "quizMeaningJa": "誰も〜ない",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 292
+        }
+      ]
+    },
+    {
+      "levelCode": "L3",
+      "levelName": "中3相当",
+      "sampleCount": 50,
+      "questions": [
+        {
+          "id": "EN1701",
+          "headword": "stair",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "階段",
+          "questionType": "meaningChoice",
+          "levelOrder": 1
+        },
+        {
+          "id": "EN1702",
+          "headword": "wet",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "濡れた",
+          "questionType": "meaningChoice",
+          "levelOrder": 2
+        },
+        {
+          "id": "EN1703",
+          "headword": "stomach",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "おなか",
+          "questionType": "meaningChoice",
+          "levelOrder": 3
+        },
+        {
+          "id": "EN1704",
+          "headword": "treasure",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "宝物",
+          "questionType": "meaningChoice",
+          "levelOrder": 4
+        },
+        {
+          "id": "EN1705",
+          "headword": "string",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "ひも",
+          "questionType": "meaningChoice",
+          "levelOrder": 5
+        },
+        {
+          "id": "EN1706",
+          "headword": "stamp",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "切手",
+          "questionType": "meaningChoice",
+          "levelOrder": 6
+        },
+        {
+          "id": "EN1707",
+          "headword": "quit",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜をやめる",
+          "questionType": "meaningChoice",
+          "levelOrder": 7
+        },
+        {
+          "id": "EN1708",
+          "headword": "anymore",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "もう",
+          "questionType": "meaningChoice",
+          "levelOrder": 8
+        },
+        {
+          "id": "EN1709",
+          "headword": "hero",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "ヒーロー",
+          "questionType": "meaningChoice",
+          "levelOrder": 9
+        },
+        {
+          "id": "EN1710",
+          "headword": "meter",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "メートル",
+          "questionType": "meaningChoice",
+          "levelOrder": 10
+        },
+        {
+          "id": "EN1711",
+          "headword": "printer",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "プリンター",
+          "questionType": "meaningChoice",
+          "levelOrder": 11
+        },
+        {
+          "id": "EN1712",
+          "headword": "fence",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "フェンス",
+          "questionType": "meaningChoice",
+          "levelOrder": 12
+        },
+        {
+          "id": "EN1716",
+          "headword": "pour",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "注ぐ",
+          "questionType": "meaningChoice",
+          "levelOrder": 16
+        },
+        {
+          "id": "EN1717",
+          "headword": "adventure",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "冒険",
+          "questionType": "meaningChoice",
+          "levelOrder": 17
+        },
+        {
+          "id": "EN1718",
+          "headword": "panic",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "パニック",
+          "questionType": "meaningChoice",
+          "levelOrder": 18
+        },
+        {
+          "id": "EN1721",
+          "headword": "annoy",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜をいら立たせる",
+          "questionType": "meaningChoice",
+          "levelOrder": 21
+        },
+        {
+          "id": "EN1726",
+          "headword": "symbol",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "象徴",
+          "questionType": "meaningChoice",
+          "levelOrder": 26
+        },
+        {
+          "id": "EN1728",
+          "headword": "trap",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "わな",
+          "questionType": "meaningChoice",
+          "levelOrder": 28
+        },
+        {
+          "id": "EN1729",
+          "headword": "loose",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "ゆるい",
+          "questionType": "meaningChoice",
+          "levelOrder": 29
+        },
+        {
+          "id": "EN1730",
+          "headword": "wealth",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "富",
+          "questionType": "meaningChoice",
+          "levelOrder": 30
+        },
+        {
+          "id": "EN1732",
+          "headword": "frighten",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "怖がらせる",
+          "questionType": "meaningChoice",
+          "levelOrder": 32
+        },
+        {
+          "id": "EN1734",
+          "headword": "awful",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "ひどい",
+          "questionType": "meaningChoice",
+          "levelOrder": 34
+        },
+        {
+          "id": "EN1735",
+          "headword": "adjust",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "調整する",
+          "questionType": "meaningChoice",
+          "levelOrder": 35
+        },
+        {
+          "id": "EN1739",
+          "headword": "brilliant",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "まばゆい",
+          "questionType": "meaningChoice",
+          "levelOrder": 39
+        },
+        {
+          "id": "EN1740",
+          "headword": "inner",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "内なる",
+          "questionType": "meaningChoice",
+          "levelOrder": 40
+        },
+        {
+          "id": "EN1742",
+          "headword": "confident",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "自信に満ちている",
+          "questionType": "meaningChoice",
+          "levelOrder": 42
+        },
+        {
+          "id": "EN1744",
+          "headword": "smooth",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "滑らかな",
+          "questionType": "meaningChoice",
+          "levelOrder": 44
+        },
+        {
+          "id": "EN1746",
+          "headword": "impress",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜に感銘を与える",
+          "questionType": "meaningChoice",
+          "levelOrder": 46
+        },
+        {
+          "id": "EN1753",
+          "headword": "disturb",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜の邪魔をする",
+          "questionType": "meaningChoice",
+          "levelOrder": 53
+        },
+        {
+          "id": "EN1759",
+          "headword": "lend",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "貸す",
+          "questionType": "meaningChoice",
+          "levelOrder": 59
+        },
+        {
+          "id": "EN1764",
+          "headword": "overseas",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "海外の",
+          "questionType": "meaningChoice",
+          "levelOrder": 64
+        },
+        {
+          "id": "EN1993",
+          "headword": "surname",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "姓",
+          "questionType": "meaningChoice",
+          "levelOrder": 293
+        },
+        {
+          "id": "EN1994",
+          "headword": "sweat",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "汗をかく",
+          "questionType": "meaningChoice",
+          "levelOrder": 294
+        },
+        {
+          "id": "EN1995",
+          "headword": "sweater",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "セーター",
+          "questionType": "meaningChoice",
+          "levelOrder": 295
+        },
+        {
+          "id": "EN1996",
+          "headword": "swimsuit",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "水着",
+          "questionType": "meaningChoice",
+          "levelOrder": 296
+        },
+        {
+          "id": "EN1997",
+          "headword": "symphony",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "交響曲",
+          "questionType": "meaningChoice",
+          "levelOrder": 297
+        },
+        {
+          "id": "EN1998",
+          "headword": "textbook",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "教科書",
+          "questionType": "meaningChoice",
+          "levelOrder": 298
+        },
+        {
+          "id": "EN2005",
+          "headword": "upstairs",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "上の階へ",
+          "questionType": "meaningChoice",
+          "levelOrder": 305
+        },
+        {
+          "id": "EN2062",
+          "headword": "advanced",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "上級の",
+          "questionType": "meaningChoice",
+          "levelOrder": 362
+        },
+        {
+          "id": "EN2070",
+          "headword": "bake",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を焼く",
+          "questionType": "meaningChoice",
+          "levelOrder": 370
+        },
+        {
+          "id": "EN2075",
+          "headword": "boil",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を沸かす",
+          "questionType": "meaningChoice",
+          "levelOrder": 375
+        },
+        {
+          "id": "EN2080",
+          "headword": "cheer",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "声援を送る",
+          "questionType": "meaningChoice",
+          "levelOrder": 380
+        },
+        {
+          "id": "EN2094",
+          "headword": "downtown",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "町の中心部で",
+          "questionType": "meaningChoice",
+          "levelOrder": 394
+        },
+        {
+          "id": "EN2247",
+          "headword": "whether",
+          "primaryPosJa": "接続詞",
+          "quizMeaningJa": "〜かどうか",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 547
+        },
+        {
+          "id": "EN2248",
+          "headword": "term",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "期間",
+          "questionType": "meaningChoice",
+          "levelOrder": 548
+        },
+        {
+          "id": "EN2250",
+          "headword": "sort",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を分類する",
+          "questionType": "meaningChoice",
+          "levelOrder": 550
+        },
+        {
+          "id": "EN2258",
+          "headword": "individual",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "個々の",
+          "questionType": "meaningChoice",
+          "levelOrder": 558
+        },
+        {
+          "id": "EN2260",
+          "headword": "sometimes",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "時々",
+          "questionType": "meaningChoice",
+          "levelOrder": 560
+        },
+        {
+          "id": "EN2349",
+          "headword": "protect",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "保護する",
+          "questionType": "meaningChoice",
+          "levelOrder": 649
+        },
+        {
+          "id": "EN2325",
+          "headword": "determine",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "決定する",
+          "questionType": "meaningChoice",
+          "levelOrder": 625
+        }
+      ]
+    },
+    {
+      "levelCode": "L4",
+      "levelName": "高校基礎",
+      "sampleCount": 50,
+      "questions": [
+        {
+          "id": "EN2351",
+          "headword": "aim",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "目指す",
+          "questionType": "meaningChoice",
+          "levelOrder": 1
+        },
+        {
+          "id": "EN2352",
+          "headword": "document",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "文書",
+          "questionType": "meaningChoice",
+          "levelOrder": 2
+        },
+        {
+          "id": "EN2353",
+          "headword": "application",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "申込書",
+          "questionType": "meaningChoice",
+          "levelOrder": 3
+        },
+        {
+          "id": "EN2354",
+          "headword": "define",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "定義する",
+          "questionType": "meaningChoice",
+          "levelOrder": 4
+        },
+        {
+          "id": "EN2355",
+          "headword": "career",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "キャリア",
+          "questionType": "meaningChoice",
+          "levelOrder": 5
+        },
+        {
+          "id": "EN2356",
+          "headword": "worth",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "価値がある",
+          "questionType": "meaningChoice",
+          "levelOrder": 6
+        },
+        {
+          "id": "EN2359",
+          "headword": "attend",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜に参加する",
+          "questionType": "meaningChoice",
+          "levelOrder": 9
+        },
+        {
+          "id": "EN2361",
+          "headword": "capture",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を捉える",
+          "questionType": "meaningChoice",
+          "levelOrder": 11
+        },
+        {
+          "id": "EN2363",
+          "headword": "collapse",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "崩れる",
+          "questionType": "meaningChoice",
+          "levelOrder": 13
+        },
+        {
+          "id": "EN2364",
+          "headword": "conflict",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "対立",
+          "questionType": "meaningChoice",
+          "levelOrder": 14
+        },
+        {
+          "id": "EN2366",
+          "headword": "crop",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "作物",
+          "questionType": "meaningChoice",
+          "levelOrder": 16
+        },
+        {
+          "id": "EN2368",
+          "headword": "cure",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を治す",
+          "questionType": "meaningChoice",
+          "levelOrder": 18
+        },
+        {
+          "id": "EN2369",
+          "headword": "debt",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "借金",
+          "questionType": "meaningChoice",
+          "levelOrder": 19
+        },
+        {
+          "id": "EN2370",
+          "headword": "disaster",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "災害",
+          "questionType": "meaningChoice",
+          "levelOrder": 20
+        },
+        {
+          "id": "EN2371",
+          "headword": "district",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "地区",
+          "questionType": "meaningChoice",
+          "levelOrder": 21
+        },
+        {
+          "id": "EN2374",
+          "headword": "fuel",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "燃料",
+          "questionType": "meaningChoice",
+          "levelOrder": 24
+        },
+        {
+          "id": "EN2377",
+          "headword": "income",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "収入",
+          "questionType": "meaningChoice",
+          "levelOrder": 27
+        },
+        {
+          "id": "EN2378",
+          "headword": "ingredient",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "材料",
+          "questionType": "meaningChoice",
+          "levelOrder": 28
+        },
+        {
+          "id": "EN2379",
+          "headword": "initial",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "最初の",
+          "questionType": "meaningChoice",
+          "levelOrder": 29
+        },
+        {
+          "id": "EN2380",
+          "headword": "laboratory",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "研究室",
+          "questionType": "meaningChoice",
+          "levelOrder": 30
+        },
+        {
+          "id": "EN2406",
+          "headword": "associate",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を結び付けて考える",
+          "questionType": "meaningChoice",
+          "levelOrder": 56
+        },
+        {
+          "id": "EN2407",
+          "headword": "legal",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "法律の",
+          "questionType": "meaningChoice",
+          "levelOrder": 57
+        },
+        {
+          "id": "EN2410",
+          "headword": "propose",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "提案する",
+          "questionType": "meaningChoice",
+          "levelOrder": 60
+        },
+        {
+          "id": "EN2413",
+          "headword": "unclear",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "不明",
+          "questionType": "meaningChoice",
+          "levelOrder": 63
+        },
+        {
+          "id": "EN2417",
+          "headword": "abandon",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "放棄する",
+          "questionType": "meaningChoice",
+          "levelOrder": 67
+        },
+        {
+          "id": "EN2419",
+          "headword": "abstract",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "抽象的な",
+          "questionType": "meaningChoice",
+          "levelOrder": 69
+        },
+        {
+          "id": "EN2430",
+          "headword": "annual",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "毎年の",
+          "questionType": "meaningChoice",
+          "levelOrder": 80
+        },
+        {
+          "id": "EN2662",
+          "headword": "active",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "活動的",
+          "questionType": "meaningChoice",
+          "levelOrder": 312
+        },
+        {
+          "id": "EN2663",
+          "headword": "maintain",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "維持する",
+          "questionType": "meaningChoice",
+          "levelOrder": 313
+        },
+        {
+          "id": "EN2665",
+          "headword": "phrase",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "フレーズ",
+          "questionType": "meaningChoice",
+          "levelOrder": 315
+        },
+        {
+          "id": "EN2669",
+          "headword": "completely",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "完全に",
+          "questionType": "meaningChoice",
+          "levelOrder": 319
+        },
+        {
+          "id": "EN2673",
+          "headword": "immediately",
+          "primaryPosJa": "副詞",
+          "quizMeaningJa": "すぐに",
+          "questionType": "meaningChoice",
+          "levelOrder": 323
+        },
+        {
+          "id": "EN2674",
+          "headword": "waste",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜を無駄にする",
+          "questionType": "meaningChoice",
+          "levelOrder": 324
+        },
+        {
+          "id": "EN2680",
+          "headword": "connect",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "〜をつなぐ",
+          "questionType": "meaningChoice",
+          "levelOrder": 330
+        },
+        {
+          "id": "EN2681",
+          "headword": "entire",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "全体の",
+          "questionType": "meaningChoice",
+          "levelOrder": 331
+        },
+        {
+          "id": "EN2692",
+          "headword": "academic",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "学業の",
+          "questionType": "meaningChoice",
+          "levelOrder": 342
+        },
+        {
+          "id": "EN2696",
+          "headword": "digital",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "デジタル",
+          "questionType": "meaningChoice",
+          "levelOrder": 346
+        },
+        {
+          "id": "EN2704",
+          "headword": "unite",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "団結する",
+          "questionType": "meaningChoice",
+          "levelOrder": 354
+        },
+        {
+          "id": "EN2717",
+          "headword": "concept",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "概念",
+          "questionType": "meaningChoice",
+          "levelOrder": 367
+        },
+        {
+          "id": "EN2890",
+          "headword": "translate",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "翻訳する",
+          "questionType": "meaningChoice",
+          "levelOrder": 540
+        },
+        {
+          "id": "EN2900",
+          "headword": "expense",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "費用",
+          "questionType": "meaningChoice",
+          "levelOrder": 550
+        },
+        {
+          "id": "EN2914",
+          "headword": "narrow",
+          "primaryPosJa": "形容詞",
+          "quizMeaningJa": "狭い",
+          "questionType": "meaningChoice",
+          "levelOrder": 564
+        },
+        {
+          "id": "EN2922",
+          "headword": "construct",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "構築する",
+          "questionType": "meaningChoice",
+          "levelOrder": 572
+        },
+        {
+          "id": "EN2998",
+          "headword": "destination",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "目的地",
+          "questionType": "meaningChoice",
+          "levelOrder": 648
+        },
+        {
+          "id": "EN3000",
+          "headword": "ecology",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "生態学",
+          "questionType": "meaningChoice",
+          "levelOrder": 650
+        },
+        {
+          "id": "EN2986",
+          "headword": "leadership",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "リーダーシップ",
+          "questionType": "meaningChoice",
+          "levelOrder": 636
+        },
+        {
+          "id": "EN2987",
+          "headword": "session",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "セッション",
+          "questionType": "meaningChoice",
+          "levelOrder": 637
+        },
+        {
+          "id": "EN2988",
+          "headword": "hire",
+          "primaryPosJa": "動詞",
+          "quizMeaningJa": "雇う",
+          "questionType": "meaningChoice",
+          "levelOrder": 638
+        },
+        {
+          "id": "EN2995",
+          "headword": "climate",
+          "primaryPosJa": "名詞",
+          "quizMeaningJa": "気候",
+          "questionType": "meaningChoice",
+          "levelOrder": 645
+        },
+        {
+          "id": "EN2677",
+          "headword": "unless",
+          "primaryPosJa": "接続詞",
+          "quizMeaningJa": "ない限り",
+          "questionType": "contextMeaningChoice",
+          "levelOrder": 327
+        }
+      ]
+    }
+  ],
+  "questionIDSetSHA256": "fbf68cfb9c4f564436fcd4b78c4e7e35e27bd1078113d02f2c4a4bedfede4667"
+}

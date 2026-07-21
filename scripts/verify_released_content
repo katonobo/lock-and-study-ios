@@ -1,0 +1,3 @@
+#!/usr/bin/env python3
+from content_checks import report, validate_content
+raise SystemExit(report("Released content verification", validate_content()))

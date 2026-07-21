@@ -1,0 +1,3 @@
+#!/usr/bin/env python3
+from content_checks import check_unreviewed, report
+raise SystemExit(report("Unreviewed content isolation", check_unreviewed()))

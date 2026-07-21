@@ -1,0 +1,59 @@
+{
+  "appPolicies" : {"eula" : "", "policies" : [{"locale" : "ja_JP", "policyText" : "", "policyURL" : ""}]},
+  "identifier" : "5E4A3C91",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "4980",
+      "familyShareable" : true,
+      "internalID" : "E3000A01",
+      "localizations" : [{"description" : "正式3,000語と英単語の全学習機能を永久利用できます。", "displayName" : "英単語3,000語", "locale" : "ja_JP"}],
+      "productID" : "com.ameneko.lockandstudy.pack.english3000.v1",
+      "referenceName" : "English 3000 v1",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "2980",
+      "familyShareable" : true,
+      "internalID" : "T2026A01",
+      "localizations" : [{"description" : "公開審査を通過した宅建2026教材を永久利用できます。", "displayName" : "宅建2026", "locale" : "ja_JP"}],
+      "productID" : "com.ameneko.lockandstudy.pack.takken2026.v1",
+      "referenceName" : "Takken 2026 v1",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false, "_billingGracePeriodEnabled" : true,
+    "_billingIssuesEnabled" : false, "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false, "_locale" : "ja_JP",
+    "_renewalBillingIssuesEnabled" : false, "_storefront" : "JPN",
+    "_storeKitErrors" : [], "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "LASPASS1", "localizations" : [], "name" : "Study Pass",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [], "codeOffers" : [], "displayPrice" : "980",
+          "familyShareable" : true, "groupNumber" : 1, "internalID" : "PASSM001",
+          "introductoryOffer" : null,
+          "localizations" : [{"description" : "対象教材と継続的な学習サービスを月単位で利用できます。", "displayName" : "Study Pass 月額", "locale" : "ja_JP"}],
+          "productID" : "com.ameneko.lockandstudy.pass.monthly", "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Study Pass Monthly", "subscriptionGroupID" : "LASPASS1",
+          "type" : "RecurringSubscription", "winbackOffers" : []
+        },
+        {
+          "adHocOffers" : [], "codeOffers" : [], "displayPrice" : "7800",
+          "familyShareable" : true, "groupNumber" : 1, "internalID" : "PASSY001",
+          "introductoryOffer" : {"internalID" : "PASSYTRIAL", "numberOfPeriods" : 1, "paymentMode" : "free", "subscriptionPeriod" : "P1W"},
+          "localizations" : [{"description" : "対象教材と継続的な学習サービスを年単位で利用できます。", "displayName" : "Study Pass 年額", "locale" : "ja_JP"}],
+          "productID" : "com.ameneko.lockandstudy.pass.yearly", "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Study Pass Yearly", "subscriptionGroupID" : "LASPASS1",
+          "type" : "RecurringSubscription", "winbackOffers" : []
+        }
+      ]
+    }
+  ],
+  "version" : {"major" : 4, "minor" : 0}
+}
+

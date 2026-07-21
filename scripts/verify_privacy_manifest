@@ -1,0 +1,3 @@
+#!/usr/bin/env python3
+from content_checks import report, verify_privacy
+raise SystemExit(report("Privacy manifest verification", verify_privacy()))

@@ -1,0 +1,183 @@
+name: LockAndStudy
+options:
+  bundleIdPrefix: com.ameneko
+  deploymentTarget:
+    iOS: "16.0"
+  developmentLanguage: ja
+  generateEmptyDirectories: true
+settings:
+  base:
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: BNS246HYZU
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    SWIFT_STRICT_CONCURRENCY: targeted
+    PRIVACY_POLICY_URL: "https://katonobo.com/lockandstudy-privacy-policy/"
+
+targets:
+  LockAndStudy:
+    type: application
+    platform: iOS
+    sources:
+      - path: LockAndStudy
+        excludes:
+          - LockAndStudy.entitlements
+          - Resources/LockAndStudy.storekit
+    entitlements:
+      path: LockAndStudy/LockAndStudy.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.ameneko.lockandstudy
+          - group.com.ameneko.lockandstudy.migration
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ameneko.lockandstudy
+        PRODUCT_NAME: LockAndStudy
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: ロックンスタディ
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.education
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_LockAndStudyPrivacyPolicyURL: "$(PRIVACY_POLICY_URL)"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        STRING_CATALOG_GENERATE_SYMBOLS: YES
+    dependencies:
+      - target: LockAndStudyShieldConfigurationExtension
+        embed: true
+      - target: LockAndStudyShieldActionExtension
+        embed: true
+      - target: LockAndStudyDeviceActivityMonitorExtension
+        embed: true
+
+  LockAndStudyShieldConfigurationExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: LockAndStudyShieldConfigurationExtension
+        excludes: [Info.plist, LockAndStudyShieldConfigurationExtension.entitlements]
+      - path: LockAndStudy/Shared
+    info:
+      path: LockAndStudyShieldConfigurationExtension/Info.plist
+      properties:
+        CFBundleDisplayName: ロックンスタディ Shield
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.ManagedSettingsUI.shield-configuration-service
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).ShieldConfigurationExtension"
+    entitlements:
+      path: LockAndStudyShieldConfigurationExtension/LockAndStudyShieldConfigurationExtension.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.ameneko.lockandstudy
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ameneko.lockandstudy.shieldconfiguration
+        PRODUCT_NAME: LockAndStudyShieldConfigurationExtension
+        SKIP_INSTALL: YES
+
+  LockAndStudyShieldActionExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: LockAndStudyShieldActionExtension
+        excludes: [Info.plist, LockAndStudyShieldActionExtension.entitlements]
+      - path: LockAndStudy/Shared
+    info:
+      path: LockAndStudyShieldActionExtension/Info.plist
+      properties:
+        CFBundleDisplayName: ロックンスタディ Action
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.ManagedSettings.shield-action-service
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).ShieldActionExtension"
+    entitlements:
+      path: LockAndStudyShieldActionExtension/LockAndStudyShieldActionExtension.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.ameneko.lockandstudy
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ameneko.lockandstudy.shieldaction
+        PRODUCT_NAME: LockAndStudyShieldActionExtension
+        SKIP_INSTALL: YES
+
+  LockAndStudyDeviceActivityMonitorExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: LockAndStudyDeviceActivityMonitorExtension
+        excludes: [Info.plist, LockAndStudyDeviceActivityMonitorExtension.entitlements]
+      - path: LockAndStudy/Shared
+    info:
+      path: LockAndStudyDeviceActivityMonitorExtension/Info.plist
+      properties:
+        CFBundleDisplayName: ロックンスタディ Monitor
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.deviceactivity.monitor-extension
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).DeviceActivityMonitorExtension"
+    entitlements:
+      path: LockAndStudyDeviceActivityMonitorExtension/LockAndStudyDeviceActivityMonitorExtension.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.ameneko.lockandstudy
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ameneko.lockandstudy.deviceactivitymonitor
+        PRODUCT_NAME: LockAndStudyDeviceActivityMonitorExtension
+        SKIP_INSTALL: YES
+
+  LockAndStudyTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: LockAndStudyTests
+      - path: LockAndStudy/Resources/LockAndStudy.storekit
+    dependencies:
+      - target: LockAndStudy
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ameneko.lockandstudy.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+  LockAndStudyUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [LockAndStudyUITests]
+    dependencies:
+      - target: LockAndStudy
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ameneko.lockandstudy.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: LockAndStudy
+
+schemes:
+  LockAndStudy:
+    build:
+      targets:
+        LockAndStudy: all
+        LockAndStudyShieldConfigurationExtension: all
+        LockAndStudyShieldActionExtension: all
+        LockAndStudyDeviceActivityMonitorExtension: all
+    run:
+      config: Debug
+      storeKitConfiguration: LockAndStudy/Resources/LockAndStudy.storekit
+    test:
+      config: Debug
+      gatherCoverageData: true
+      storeKitConfiguration: LockAndStudy/Resources/LockAndStudy.storekit
+      targets:
+        - LockAndStudyTests
+        - LockAndStudyUITests
+    archive:
+      config: Release

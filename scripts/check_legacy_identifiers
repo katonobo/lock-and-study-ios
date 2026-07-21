@@ -1,0 +1,3 @@
+#!/usr/bin/env python3
+from content_checks import check_legacy_identifiers, report
+raise SystemExit(report("Legacy identifier validation", check_legacy_identifiers()))

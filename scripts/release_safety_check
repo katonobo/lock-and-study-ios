@@ -1,0 +1,4 @@
+#!/usr/bin/env python3
+from content_checks import check_legacy_identifiers, release_safety, report, validate_content, verify_privacy, verify_storekit
+errors = validate_content() + verify_storekit() + verify_privacy() + check_legacy_identifiers() + release_safety()
+raise SystemExit(report("Release safety check", errors))

@@ -1,0 +1,43 @@
+#!/bin/sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+./scripts/validate_content
+./scripts/verify_released_content
+./scripts/check_unreviewed_content
+./scripts/check_legacy_identifiers
+./scripts/verify_storekit_catalog
+./scripts/verify_privacy_manifest
+./scripts/release_safety_check
+./scripts/release_readiness
+
+xcodegen generate
+
+LOCKANDSTUDY_DERIVED_DATA="${LOCKANDSTUDY_DERIVED_DATA:-.build/VerifyDerivedData}"
+if [ -z "${LOCKANDSTUDY_DESTINATION:-}" ]; then
+  LOCKANDSTUDY_DESTINATION="$(xcrun simctl list devices available -j | python3 -c '
+import json, sys
+data = json.load(sys.stdin)["devices"]
+candidates = []
+for runtime, devices in data.items():
+    if "iOS" not in runtime:
+        continue
+    version = tuple(int(part) for part in runtime.split("iOS-", 1)[-1].replace(".", "-").split("-"))
+    for device in devices:
+        if device.get("isAvailable") and device.get("name", "").startswith("iPhone"):
+            candidates.append((version, device["udid"]))
+if not candidates:
+    raise SystemExit("No available iPhone simulator")
+# StoreKitTest is regressed on Xcode 26.5 with the iOS 26.5 runtime. Prefer the
+# newest pre-26 runtime when installed; the environment variable can override it.
+pre_26 = [candidate for candidate in candidates if candidate[0][0] < 26]
+print("platform=iOS Simulator,id=" + max(pre_26 or candidates)[1])
+')"
+fi
+
+xcodebuild -quiet -project LockAndStudy.xcodeproj -scheme LockAndStudy -configuration Debug -destination 'generic/platform=iOS Simulator' -derivedDataPath "$LOCKANDSTUDY_DERIVED_DATA" CODE_SIGNING_ALLOWED=NO build
+xcodebuild -quiet -project LockAndStudy.xcodeproj -scheme LockAndStudy -configuration Release -destination 'generic/platform=iOS Simulator' -derivedDataPath "$LOCKANDSTUDY_DERIVED_DATA" CODE_SIGNING_ALLOWED=NO build
+xcodebuild -quiet -project LockAndStudy.xcodeproj -scheme LockAndStudy -configuration Debug -destination "$LOCKANDSTUDY_DESTINATION" -derivedDataPath "$LOCKANDSTUDY_DERIVED_DATA" test
+
+echo "Lock and Study verification passed."

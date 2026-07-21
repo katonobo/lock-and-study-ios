@@ -1,0 +1,90 @@
+diff --git a/takkenlock/Core/Services/LockAndStudyLegacyMigrationAdapter.swift b/takkenlock/Core/Services/LockAndStudyLegacyMigrationAdapter.swift
+new file mode 100644
+index 0000000..52b8439
+--- /dev/null
++++ b/takkenlock/Core/Services/LockAndStudyLegacyMigrationAdapter.swift
+@@ -0,0 +1,45 @@
++import CryptoKit
++import StoreKit
++import SwiftUI
++
++struct TakkenLockLegacyMigrationView: View {
++    let progressStore: ProgressStore
++
++    var body: some View {
++        LegacyMigrationView {
++            let writer = try LegacyMigrationWriter()
++            var written = 0
++            for await result in StoreKit.Transaction.currentEntitlements {
++                guard case .verified(let transaction) = result,
++                      transaction.productID == "com.ameneko.takkenlock.premium_lifetime" else { continue }
++                try await writer.appendVerifiedTransaction(
++                    transaction,
++                    sourceBundleID: "com.ameneko.takkenlock",
++                    destinationPackID: "takken2026.v1"
++                )
++                written += 1
++            }
++            let events = progressStore.allQuestionProgress().values.map { value in
++                LegacyProgressEvent(
++                    id: Self.stableID(itemID: value.questionId),
++                    sourceBundleID: "com.ameneko.takkenlock",
++                    sourceContentVersion: "takken-2026-v1",
++                    packID: "takken2026.v1",
++                    itemID: value.questionId,
++                    answeredAt: value.lastAnsweredAt,
++                    correctCount: value.correctCount,
++                    incorrectCount: value.incorrectCount,
++                    dueAt: nil
++                )
++            }
++            try await writer.writeProgress(sourceBundleID: "com.ameneko.takkenlock", events: events)
++            return written + events.count
++        }
++    }
++
++    private static func stableID(itemID: String) -> UUID {
++        let bytes = Array(SHA256.hash(data: Data("com.ameneko.takkenlock|\(itemID)".utf8)))
++        return UUID(uuid: (bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
++                           bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]))
++    }
++}
+diff --git a/takkenlock/Features/Settings/SettingsView.swift b/takkenlock/Features/Settings/SettingsView.swift
+index fabf350..019ad25 100644
+--- a/takkenlock/Features/Settings/SettingsView.swift
++++ b/takkenlock/Features/Settings/SettingsView.swift
+@@ -29,6 +29,7 @@ struct SettingsView: View {
+                     EmergencyUnlockView()
+                     supportSection
+                     resetSection
++                    legacyMigrationSection
+ 
+                     if let message = localError ?? app.lastUserVisibleError ?? app.lockController.lastErrorMessage {
+                         Text(message)
+@@ -86,6 +87,14 @@ struct SettingsView: View {
+         }
+     }
+ 
++    private var legacyMigrationSection: some View {
++        TakkenCard {
++            NavigationLink("ロックンスタディへ移行") {
++                TakkenLockLegacyMigrationView(progressStore: app.progressStore)
++            }
++        }
++    }
++
+     private var screenTimeSection: some View {
+         TakkenCard {
+             Text("Screen Time権限")
+diff --git a/takkenlock/takkenlock.entitlements b/takkenlock/takkenlock.entitlements
+index b3bbb6d..53e54ff 100644
+--- a/takkenlock/takkenlock.entitlements
++++ b/takkenlock/takkenlock.entitlements
+@@ -7,6 +7,7 @@
+ 	<key>com.apple.security.application-groups</key>
+ 	<array>
+ 		<string>group.com.ameneko.takkenlock</string>
++		<string>group.com.ameneko.lockandstudy.migration</string>
+ 	</array>
+ </dict>
+ </plist>
