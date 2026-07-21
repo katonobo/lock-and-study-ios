@@ -58,8 +58,7 @@ struct StudyExperienceContext {
   let manifest: StudyPackManifest
   let dependencies: DependencyContainer
   let destination: StudyExperienceDestination
-  let closeExperience: @MainActor () -> Void
-  let openPlatformSettings: @MainActor () -> Void
+  let openMaterialSelection: @MainActor () -> Void
   let beginUnlockStudy: @MainActor () async -> Void
   let completeFirstRun: @MainActor () -> Void
 }
@@ -200,7 +199,9 @@ protocol StudyExperienceFactory {
   func makeRootView(context: StudyExperienceContext) -> AnyView
   func makeFirstRunView(context: StudyExperienceContext) -> AnyView?
   func makeProgressSummary(context: StudyExperienceContext) async throws -> StudyExperienceSummary
-  func makeUnlockChallengeView(snapshot: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext) -> AnyView
+  func makeUnlockChallengeView(
+    snapshot: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext
+  ) -> AnyView
 }
 
 @MainActor

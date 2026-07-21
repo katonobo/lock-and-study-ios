@@ -37,6 +37,19 @@ enum LockLifecycleState: String, Codable, Sendable {
   case notConfigured, active, temporarilyUnlocked, authorizationLost, exitPending, ended
 }
 
+struct OnboardingLockActivationPlanner: Sendable {
+  func shouldActivate(
+    onboardingCompleted: Bool,
+    isAuthorized: Bool,
+    hasSelection: Bool,
+    isLockEnabled: Bool,
+    lifecycleState: LockLifecycleState
+  ) -> Bool {
+    guard onboardingCompleted, isAuthorized, hasSelection, !isLockEnabled else { return false }
+    return lifecycleState == .notConfigured || lifecycleState == .active
+  }
+}
+
 enum CommitmentPeriod: String, Codable, CaseIterable, Identifiable, Sendable {
   case none, oneDay, sevenDays, thirtyDays
   var id: String { rawValue }

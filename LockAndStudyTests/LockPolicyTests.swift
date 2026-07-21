@@ -125,4 +125,36 @@ final class LockPolicyTests: XCTestCase {
     XCTAssertEqual(first.id, retried.id)
     XCTAssertEqual(first.endsAt, retried.endsAt)
   }
+
+  func testOnboardingLockActivationPlannerRepairsOnlyIntendedActiveStates() {
+    let planner = OnboardingLockActivationPlanner()
+    XCTAssertTrue(planner.shouldActivate(
+      onboardingCompleted: true,
+      isAuthorized: true,
+      hasSelection: true,
+      isLockEnabled: false,
+      lifecycleState: .notConfigured
+    ))
+    XCTAssertTrue(planner.shouldActivate(
+      onboardingCompleted: true,
+      isAuthorized: true,
+      hasSelection: true,
+      isLockEnabled: false,
+      lifecycleState: .active
+    ))
+    XCTAssertFalse(planner.shouldActivate(
+      onboardingCompleted: true,
+      isAuthorized: true,
+      hasSelection: true,
+      isLockEnabled: false,
+      lifecycleState: .ended
+    ))
+    XCTAssertFalse(planner.shouldActivate(
+      onboardingCompleted: true,
+      isAuthorized: false,
+      hasSelection: true,
+      isLockEnabled: false,
+      lifecycleState: .notConfigured
+    ))
+  }
 }

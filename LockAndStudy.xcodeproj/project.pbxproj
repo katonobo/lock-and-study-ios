@@ -30,6 +30,7 @@
 		2FC4D5A708A9EC329C1DEEA1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 863B9A9420F9698C3E2583E6 /* PrivacyInfo.xcprivacy */; };
 		30DF2F07AFBC0BC4795F0E88 /* VocabularyViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A04C894C895389010355F5D /* VocabularyViews.swift */; };
 		36063AC227FB8AE7A235FF04 /* LegacyMigrationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 635D00A3D7BCE4F695F30AD3 /* LegacyMigrationModels.swift */; };
+		366B9DC333B95AF1B71D36BA /* StudyMaterialSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE472B5FA3AADCA9AC1B75D /* StudyMaterialSelectionView.swift */; };
 		39A89E11B563AC51C620B58B /* VocabularyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5027452786CFF6F9D1E5F6A6 /* VocabularyModels.swift */; };
 		3EBB25F544585F8E92288630 /* LockAndStudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */; };
 		3FCB7A6F74EB7441301106C1 /* ScreenTimeLockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD167345A6CDA06B3C5F557 /* ScreenTimeLockService.swift */; };
@@ -211,6 +212,7 @@
 		C6C30B7842E5A9CF6618495D /* vocabulary_free_sample_250_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = vocabulary_free_sample_250_v1.json; sourceTree = "<group>"; };
 		C8A89A96ABEC00BB68023331 /* LearningDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningDataStore.swift; sourceTree = "<group>"; };
 		CC285D65F09CA0653D4AEB4A /* LockAndStudyShieldConfigurationExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockAndStudyShieldConfigurationExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCE472B5FA3AADCA9AC1B75D /* StudyMaterialSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyMaterialSelectionView.swift; sourceTree = "<group>"; };
 		D6009FFC70F6B9E6C861D7E9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		D66ECF0AAA315C757C2D5E10 /* EmergencyUnlockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyUnlockTests.swift; sourceTree = "<group>"; };
 		D6F235FC79B123FC718044A6 /* LearningTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningTests.swift; sourceTree = "<group>"; };
@@ -359,6 +361,7 @@
 			isa = PBXGroup;
 			children = (
 				8374898D949817C23E14BFD0 /* PlatformLibraryView.swift */,
+				CCE472B5FA3AADCA9AC1B75D /* StudyMaterialSelectionView.swift */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -931,6 +934,7 @@
 				E7F9F777603FB78B4B666EE9 /* StudyContentModels.swift in Sources */,
 				5C9075AD51EEEE1F2A566BAC /* StudyExperience.swift in Sources */,
 				BE7DCCB84ACA4215262A51AC /* StudyExperienceHostView.swift in Sources */,
+				366B9DC333B95AF1B71D36BA /* StudyMaterialSelectionView.swift in Sources */,
 				808102F7802EC613002F3EB2 /* StudySessionView.swift in Sources */,
 				2061272C0B5ABE4FADAC9C73 /* TakkenExperience.swift in Sources */,
 				DF1C6B7D75F5A192DB298284 /* TakkenModels.swift in Sources */,

@@ -10,6 +10,7 @@ final class AppModel: ObservableObject {
   @Published var selectedPackID: StudyPackID
   @Published var studySession: StudySessionPresentation?
   @Published var activeExperience: ActiveStudyExperience?
+  @Published var isMaterialSelectionPresented = false
   @Published var unlockChallenge: ExperienceUnlockBundleSnapshot?
   @Published private(set) var records: [LearningEvent] = []
   @Published var alertMessage: String?
@@ -22,19 +23,31 @@ final class AppModel: ObservableObject {
   init(dependencies: DependencyContainer? = nil) {
     let defaults = LockAndStudySharedConstants.defaults
     #if DEBUG
-    if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestResetData") {
-      defaults.removePersistentDomain(forName: LockAndStudySharedConstants.appGroupID)
-    }
+      if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestResetData") {
+        defaults.removePersistentDomain(forName: LockAndStudySharedConstants.appGroupID)
+      }
     #endif
     self.dependencies = dependencies ?? DependencyContainer()
     experienceRegistry = .standard()
-    if ProcessInfo.processInfo.arguments.contains("-ResetOnboarding") { defaults.removeObject(forKey: LockAndStudySharedConstants.Key.onboardingCompleted) }
-    if ProcessInfo.processInfo.arguments.contains("-SkipOnboarding") { defaults.set(true, forKey: LockAndStudySharedConstants.Key.onboardingCompleted) }
+    if ProcessInfo.processInfo.arguments.contains("-ResetOnboarding") {
+      defaults.removeObject(forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
+    }
+    if ProcessInfo.processInfo.arguments.contains("-SkipOnboarding") {
+      defaults.set(true, forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
+      defaults.set(true, forKey: "lockandstudy.experience.vocabulary.first-run.completed")
+      defaults.set(true, forKey: "lockandstudy.experience.takken.first-run.completed")
+    }
     onboardingCompleted = defaults.bool(forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
-    selectedPackID = .init(rawValue: defaults.string(forKey: LockAndStudySharedConstants.Key.selectedPackID) ?? "english3000.v1")
+    selectedPackID = .init(
+      rawValue: defaults.string(forKey: LockAndStudySharedConstants.Key.selectedPackID)
+        ?? "english3000.v1")
     #if DEBUG
-    if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestSelectedTakken") { selectedPackID = "takken2026.v1" }
-    if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestStartInLibrary") { selectedTab = .library }
+      if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestSelectedTakken") {
+        selectedPackID = "takken2026.v1"
+      }
+      if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestStartInLibrary") {
+        selectedTab = .library
+      }
     #endif
   }
 
@@ -42,27 +55,42 @@ final class AppModel: ObservableObject {
     isBusy = true
     do {
       manifests = try await dependencies.content.releasedManifests()
-      if !manifests.contains(where: { $0.id == selectedPackID }), let first = manifests.first { selectedPackID = first.id }
+      if !manifests.contains(where: { $0.id == selectedPackID }), let first = manifests.first {
+        selectedPackID = first.id
+      }
+      await dependencies.lockController.refreshLockState()
+      await recoverLegacyOnboardingLockIfNeeded()
+      if onboardingCompleted { ensureSelectedExperienceOpen() }
       await dependencies.commerce.loadProducts()
       await dependencies.commerce.refreshEntitlements()
-      await dependencies.lockController.refreshLockState()
       records = (try? await dependencies.learning.events()) ?? []
       if onboardingCompleted {
         if let experienceBundle = try await dependencies.learning.loadExperienceUnlockBundle() {
           if experienceBundle.isAnswering(at: Date()) {
             unlockChallenge = experienceBundle
-          } else if experienceBundle.isComplete && experienceBundle.completionState != .completed && experienceBundle.completionState != .aborted {
+          } else if experienceBundle.isComplete && experienceBundle.completionState != .completed
+            && experienceBundle.completionState != .aborted
+          {
             await completeUnlockChallenge()
-          } else if experienceBundle.completionState == .completed || experienceBundle.completionState == .aborted {
+          } else if experienceBundle.completionState == .completed
+            || experienceBundle.completionState == .aborted
+          {
             try await dependencies.learning.saveExperienceUnlockBundle(nil)
           } else if experienceBundle.challenge.expiresAt <= Date() {
             try await dependencies.learning.saveExperienceUnlockBundle(nil)
           }
-        } else if let restored = try? await dependencies.learning.loadUnlockBundle(now: Date()), let manifest = manifests.first(where: { $0.id == restored.access.packID }) {
-          studySession = .init(id: restored.id, packID: manifest.id, packTitle: manifest.title, mode: .unlock, prompts: restored.prompts, bundleID: restored.id)
+        } else if let restored = try? await dependencies.learning.loadUnlockBundle(now: Date()),
+          let manifest = manifests.first(where: { $0.id == restored.access.packID })
+        {
+          studySession = .init(
+            id: restored.id, packID: manifest.id, packTitle: manifest.title, mode: .unlock,
+            prompts: restored.prompts, bundleID: restored.id)
         } else if let request = PendingUnlockRequestCoordinator().consumeIfEligible(
-          isLockEnabled: dependencies.lockController.isLockEnabled, isAuthorized: dependencies.lockController.isAuthorized,
-          hasSelection: dependencies.lockController.hasSelection, unlockUntil: dependencies.lockController.unlockUntil, now: Date()) {
+          isLockEnabled: dependencies.lockController.isLockEnabled,
+          isAuthorized: dependencies.lockController.isAuthorized,
+          hasSelection: dependencies.lockController.hasSelection,
+          unlockUntil: dependencies.lockController.unlockUntil, now: Date())
+        {
           await beginUnlockStudy(requestID: request.id)
         }
       }
@@ -70,21 +98,75 @@ final class AppModel: ObservableObject {
     isBusy = false
   }
 
-  func finishOnboarding(selectedPack: StudyPackID, pace: AccessPacePreset, review: ReviewLoadPreset) {
+  func finishOnboarding(selectedPack: StudyPackID, pace: AccessPacePreset, review: ReviewLoadPreset)
+    async throws
+  {
+    guard dependencies.lockController.isAuthorized else {
+      throw LockControllerError.authorizationRequired
+    }
+    guard dependencies.lockController.hasSelection else {
+      throw LockControllerError.selectionRequired
+    }
+    var policy = dependencies.policyStore.loadPolicy() ?? .initial(now: Date())
+    policy.accessPacePreset = pace
+    policy.reviewLoadPreset = review
+    policy.updatedAt = Date()
+    dependencies.policyStore.savePolicy(policy)
+
+    try await dependencies.lockController.setLockEnabled(true)
+    guard dependencies.lockController.isLockEnabled else { throw LockControllerError.unavailable }
+
     selectedPackID = selectedPack
     let defaults = LockAndStudySharedConstants.defaults
     defaults.set(selectedPack.rawValue, forKey: LockAndStudySharedConstants.Key.selectedPackID)
     defaults.set(true, forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
-    var policy = dependencies.policyStore.loadPolicy() ?? .initial(now: Date())
-    policy.accessPacePreset = pace; policy.reviewLoadPreset = review; policy.updatedAt = Date()
-    dependencies.policyStore.savePolicy(policy)
     onboardingCompleted = true
     openExperience(packID: selectedPack, requiresFirstRun: true)
   }
 
   func choosePack(_ id: StudyPackID) {
     selectedPackID = id
-    LockAndStudySharedConstants.defaults.set(id.rawValue, forKey: LockAndStudySharedConstants.Key.selectedPackID)
+    LockAndStudySharedConstants.defaults.set(
+      id.rawValue, forKey: LockAndStudySharedConstants.Key.selectedPackID)
+  }
+
+  func presentMaterialSelection() {
+    isMaterialSelectionPresented = true
+  }
+
+  func selectStudyMaterial(_ id: StudyPackID) {
+    guard manifests.contains(where: { $0.id == id }) else {
+      alertMessage = "この教材は現在利用できません。"
+      return
+    }
+    choosePack(id)
+    openExperience(packID: id, requiresFirstRun: true)
+    isMaterialSelectionPresented = false
+  }
+
+  func ensureSelectedExperienceOpen() {
+    guard onboardingCompleted,
+      manifests.contains(where: { $0.id == selectedPackID }),
+      activeExperience?.packID != selectedPackID
+    else { return }
+    openExperience(packID: selectedPackID, requiresFirstRun: true)
+  }
+
+  private func recoverLegacyOnboardingLockIfNeeded() async {
+    let lock = dependencies.lockController
+    let lifecycle = dependencies.policyStore.loadPolicy()?.lifecycleState ?? .notConfigured
+    guard OnboardingLockActivationPlanner().shouldActivate(
+      onboardingCompleted: onboardingCompleted,
+      isAuthorized: lock.isAuthorized,
+      hasSelection: lock.hasSelection,
+      isLockEnabled: lock.isLockEnabled,
+      lifecycleState: lifecycle
+    ) else { return }
+    do {
+      try await lock.setLockEnabled(true)
+    } catch {
+      alertMessage = "初期設定のロックを開始できませんでした。設定からScreen Timeの許可と対象を確認してください。\n\(error.localizedDescription)"
+    }
   }
 
   func openExperience(
@@ -107,16 +189,16 @@ final class AppModel: ObservableObject {
   func closeExperience() { activeExperience = nil }
 
   func experienceContext(for presentation: ActiveStudyExperience) -> StudyExperienceContext? {
-    guard let manifest = manifests.first(where: { $0.id == presentation.packID }) else { return nil }
+    guard let manifest = manifests.first(where: { $0.id == presentation.packID }) else {
+      return nil
+    }
     return .init(
       manifest: manifest,
       dependencies: dependencies,
       destination: presentation.destination,
-      closeExperience: { [weak self] in self?.activeExperience = nil },
-      openPlatformSettings: { [weak self] in self?.activeExperience = nil; self?.selectedTab = .settings },
+      openMaterialSelection: { [weak self] in self?.presentMaterialSelection() },
       beginUnlockStudy: { [weak self] in
         guard let self else { return }
-        self.activeExperience = nil
         await self.beginUnlockStudy(packID: presentation.packID)
       },
       completeFirstRun: {}
@@ -127,22 +209,34 @@ final class AppModel: ObservableObject {
     guard let manifest = manifests.first(where: { $0.id == packID }) else { return }
     do {
       let all = try await dependencies.content.prompts(for: packID)
-      let accessible = all.filter { ContentAccessService().decision(for: $0, manifest: manifest, entitlement: dependencies.commerce.entitlement).isAllowed }
-      guard !accessible.isEmpty else { alertMessage = "利用できる無料サンプルがありません。"; return }
+      let accessible = all.filter {
+        ContentAccessService().decision(
+          for: $0, manifest: manifest, entitlement: dependencies.commerce.entitlement
+        ).isAllowed
+      }
+      guard !accessible.isEmpty else {
+        alertMessage = "利用できる無料サンプルがありません。"
+        return
+      }
       let progress = (try? await dependencies.learning.allProgress()) ?? [:]
       let ordered = accessible.sorted {
-        let lhs = progress[$0.id.storageKey]?.answerCount ?? 0, rhs = progress[$1.id.storageKey]?.answerCount ?? 0
+        let lhs = progress[$0.id.storageKey]?.answerCount ?? 0
+        let rhs = progress[$1.id.storageKey]?.answerCount ?? 0
         return lhs == rhs ? $0.itemID.rawValue < $1.itemID.rawValue : lhs < rhs
       }
       let sessionID = UUID()
-      studySession = .init(id: sessionID, packID: packID, packTitle: manifest.title, mode: mode, prompts: Array(ordered.prefix(10)), bundleID: nil)
-      try? await dependencies.learning.record(.init(kind: .studyStarted, packID: packID, sessionID: sessionID))
+      studySession = .init(
+        id: sessionID, packID: packID, packTitle: manifest.title, mode: mode,
+        prompts: Array(ordered.prefix(10)), bundleID: nil)
+      try? await dependencies.learning.record(
+        .init(kind: .studyStarted, packID: packID, sessionID: sessionID))
     } catch { alertMessage = error.localizedDescription }
   }
 
   func beginUnlockStudy(packID: StudyPackID? = nil, requestID: UUID = UUID()) async {
     let requestedPackID = packID ?? selectedPackID
-    guard let manifest = manifests.first(where: { $0.id == requestedPackID }) ?? manifests.first else { return }
+    guard let manifest = manifests.first(where: { $0.id == requestedPackID }) ?? manifests.first
+    else { return }
     do {
       let progress = try await dependencies.learning.allProgress()
       let now = Date()
@@ -157,10 +251,16 @@ final class AppModel: ObservableObject {
       )
       let challenge: UnlockChallengeSnapshot
       if let factory = experienceRegistry.factory(for: manifest.id) {
-        do { challenge = try await factory.unlockChallengeProvider.makeUnlockChallenge(packID: manifest.id, request: request) }
-        catch { challenge = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(packID: manifest.id, request: request) }
+        do {
+          challenge = try await factory.unlockChallengeProvider.makeUnlockChallenge(
+            packID: manifest.id, request: request)
+        } catch {
+          challenge = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(
+            packID: manifest.id, request: request)
+        }
       } else {
-        challenge = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(packID: manifest.id, request: request)
+        challenge = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(
+          packID: manifest.id, request: request)
       }
       let bundle = ExperienceUnlockBundleSnapshot(
         schemaVersion: 2,
@@ -172,7 +272,10 @@ final class AppModel: ObservableObject {
         abortReason: nil
       )
       try await dependencies.learning.saveExperienceUnlockBundle(bundle)
-      try await dependencies.learning.record(.init(kind: .unlockChallengeStarted, occurredAt: now, packID: manifest.id, sessionID: bundle.id))
+      try await dependencies.learning.record(
+        .init(
+          kind: .unlockChallengeStarted, occurredAt: now, packID: manifest.id, sessionID: bundle.id)
+      )
       unlockChallenge = bundle
     } catch {
       alertMessage = "解除学習を準備できませんでした。無料教材を確認して再試行してください。\n\(error.localizedDescription)"
@@ -185,8 +288,9 @@ final class AppModel: ObservableObject {
     feedback: StudyFeedbackPlan
   ) async -> Bool {
     guard var bundle = try? await dependencies.learning.loadExperienceUnlockBundle(),
-          bundle.completionState == .answering,
-          bundle.challenge.questions.contains(where: { $0.id == question.id }) else { return false }
+      bundle.completionState == .answering,
+      bundle.challenge.questions.contains(where: { $0.id == question.id })
+    else { return false }
     let record = answerRecord(
       for: question,
       selectedChoiceID: selectedChoiceID,
@@ -209,7 +313,9 @@ final class AppModel: ObservableObject {
   }
 
   func completeUnlockChallenge() async {
-    guard var bundle = try? await dependencies.learning.loadExperienceUnlockBundle(), bundle.isComplete else { return }
+    guard var bundle = try? await dependencies.learning.loadExperienceUnlockBundle(),
+      bundle.isComplete
+    else { return }
     do {
       if bundle.completionState == .answering {
         if dependencies.lockController.isLockEnabled {
@@ -224,12 +330,13 @@ final class AppModel: ObservableObject {
         try await dependencies.learning.saveExperienceUnlockBundle(bundle)
       }
       if bundle.completionState == .sessionCreated {
-        try await dependencies.learning.record(.init(
-          id: bundle.completionEventID,
-          kind: .unlockSuccess,
-          packID: bundle.challenge.packID,
-          sessionID: bundle.id
-        ))
+        try await dependencies.learning.record(
+          .init(
+            id: bundle.completionEventID,
+            kind: .unlockSuccess,
+            packID: bundle.challenge.packID,
+            sessionID: bundle.id
+          ))
         bundle.completionState = .eventRecorded
         try await dependencies.learning.saveExperienceUnlockBundle(bundle)
       }
@@ -247,20 +354,30 @@ final class AppModel: ObservableObject {
     .init(
       bundle: bundle,
       submit: { [weak self] question, choiceID, feedback in
-        await self?.submitUnlockAnswer(question: question, selectedChoiceID: choiceID, feedback: feedback) ?? false
+        await self?.submitUnlockAnswer(
+          question: question, selectedChoiceID: choiceID, feedback: feedback) ?? false
       },
       complete: { [weak self] in await self?.completeUnlockChallenge() }
     )
   }
 
-  func recordAnswer(item: StudyPrompt, selectedChoiceID: Int, mode: StudyMode, sessionID: UUID, feedback: StudyFeedbackPlan) async {
-    let answer = StudyAnswerRecord(prompt: item, selectedChoiceID: selectedChoiceID, answeredAt: Date(), mode: mode, sessionID: sessionID, feedbackPlan: feedback)
-    do { try await dependencies.learning.record(answer); records = try await dependencies.learning.events() }
-    catch { alertMessage = error.localizedDescription }
+  func recordAnswer(
+    item: StudyPrompt, selectedChoiceID: Int, mode: StudyMode, sessionID: UUID,
+    feedback: StudyFeedbackPlan
+  ) async {
+    let answer = StudyAnswerRecord(
+      prompt: item, selectedChoiceID: selectedChoiceID, answeredAt: Date(), mode: mode,
+      sessionID: sessionID, feedbackPlan: feedback)
+    do {
+      try await dependencies.learning.record(answer)
+      records = try await dependencies.learning.events()
+    } catch { alertMessage = error.localizedDescription }
   }
 
   func markUnlockUnitComplete(itemID: StudyItemID, bundleID: UUID) async {
-    guard var bundle = try? await dependencies.learning.loadUnlockBundle(now: Date()), bundle.id == bundleID else { return }
+    guard var bundle = try? await dependencies.learning.loadUnlockBundle(now: Date()),
+      bundle.id == bundleID
+    else { return }
     if !bundle.completedItemIDs.contains(itemID) { bundle.completedItemIDs.append(itemID) }
     try? await dependencies.learning.saveUnlockBundle(bundle)
   }
@@ -268,38 +385,59 @@ final class AppModel: ObservableObject {
   func completeStudySession(_ presentation: StudySessionPresentation) async {
     guard completedStudySessions.insert(presentation.id).inserted else { return }
     if presentation.mode == .unlock, let bundleID = presentation.bundleID,
-       var bundle = try? await dependencies.learning.loadUnlockBundle(now: Date()), bundle.id == bundleID, bundle.isComplete {
+      var bundle = try? await dependencies.learning.loadUnlockBundle(now: Date()),
+      bundle.id == bundleID, bundle.isComplete
+    {
       do {
         if dependencies.lockController.isLockEnabled {
-          let session = try await dependencies.lockController.beginUnlockSession(kind: .earnedByStudy, duration: bundle.pace.unlockDuration, reasonCode: nil)
+          let session = try await dependencies.lockController.beginUnlockSession(
+            kind: .earnedByStudy, duration: bundle.pace.unlockDuration, reasonCode: nil)
           bundle.createdUnlockSessionID = session.id
         }
-        try await dependencies.learning.record(.init(kind: .unlockSuccess, packID: presentation.packID, sessionID: presentation.id))
+        try await dependencies.learning.record(
+          .init(kind: .unlockSuccess, packID: presentation.packID, sessionID: presentation.id))
         try await dependencies.learning.saveUnlockBundle(nil)
-      } catch { completedStudySessions.remove(presentation.id); alertMessage = error.localizedDescription; return }
+      } catch {
+        completedStudySessions.remove(presentation.id)
+        alertMessage = error.localizedDescription
+        return
+      }
     }
     studySession = nil
   }
 
   func emergencyUnlock(reason: EmergencyUnlockReason) async -> Bool {
-    let now = Date(); let policy = EmergencyUnlockPolicy()
-    guard dependencies.emergencyStore.canUse(at: now, policy: policy) else { alertMessage = "緊急解除は直近24時間に使用済みです。"; return false }
+    let now = Date()
+    let policy = EmergencyUnlockPolicy()
+    guard dependencies.emergencyStore.canUse(at: now, policy: policy) else {
+      alertMessage = "緊急解除は直近24時間に使用済みです。"
+      return false
+    }
     do {
       await abortActiveUnlock(reason: "emergency-unlock")
-      _ = try await dependencies.lockController.beginUnlockSession(kind: .emergency, duration: policy.unlockDuration, reasonCode: reason.rawValue)
+      _ = try await dependencies.lockController.beginUnlockSession(
+        kind: .emergency, duration: policy.unlockDuration, reasonCode: reason.rawValue)
       dependencies.emergencyStore.append(reason: reason, at: now)
-      try? await dependencies.learning.record(.init(kind: .emergencyUnlock, occurredAt: now, detailCode: reason.rawValue))
+      try? await dependencies.learning.record(
+        .init(kind: .emergencyUnlock, occurredAt: now, detailCode: reason.rawValue))
       return true
-    } catch { alertMessage = error.localizedDescription; return false }
+    } catch {
+      alertMessage = error.localizedDescription
+      return false
+    }
   }
 
   func exportLearningData() async -> URL? {
-    do { return try await dependencies.learning.exportJSON() }
-    catch { alertMessage = error.localizedDescription; return nil }
+    do { return try await dependencies.learning.exportJSON() } catch {
+      alertMessage = error.localizedDescription
+      return nil
+    }
   }
   func deleteLearningHistory() async {
-    do { try await dependencies.learning.deleteLearningHistory(); records = [] }
-    catch { alertMessage = error.localizedDescription }
+    do {
+      try await dependencies.learning.deleteLearningHistory()
+      records = []
+    } catch { alertMessage = error.localizedDescription }
   }
 
   func abortActiveUnlock(reason: String) async {
@@ -322,7 +460,8 @@ final class AppModel: ObservableObject {
     feedback: StudyFeedbackPlan,
     bundle: ExperienceUnlockBundleSnapshot
   ) -> StudyAnswerRecord {
-    let submissionID = "unlock::\(bundle.id.uuidString)::\(question.id.rawValue)::\(selectedChoiceID)"
+    let submissionID =
+      "unlock::\(bundle.id.uuidString)::\(question.id.rawValue)::\(selectedChoiceID)"
     switch question {
     case .vocabulary(let value):
       return .init(
