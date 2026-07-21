@@ -7,6 +7,51 @@ struct VocabularyContentMetadata: Codable, Equatable, Sendable {
   let releaseEligible: Bool
 }
 
+struct VocabularyPendingPreview: Codable, Sendable, Equatable, Identifiable {
+  static let displayDuration: TimeInterval = 120
+  static let recallDuration: TimeInterval = 86_400
+
+  let id: UUID
+  let sourceUnlockBundleID: UUID
+  let itemID: String
+  let contentVersion: String
+  let createdAt: Date
+  let recallExpiresAt: Date
+  var confirmedAt: Date?
+  var consumedAt: Date?
+  var foregroundExposureSeconds: TimeInterval
+
+  var displayExpiresAt: Date {
+    createdAt.addingTimeInterval(Self.displayDuration)
+  }
+
+  func displayRemainingSeconds(at date: Date) -> TimeInterval {
+    max(0, displayExpiresAt.timeIntervalSince(date))
+  }
+
+  func isDisplayable(at date: Date) -> Bool {
+    consumedAt == nil && displayRemainingSeconds(at: date) > 0
+  }
+
+  func isUsableForRecall(contentVersion: String, now: Date) -> Bool {
+    self.contentVersion == contentVersion
+      && confirmedAt != nil
+      && consumedAt == nil
+      && recallExpiresAt > now
+  }
+
+  mutating func recordForegroundExposure(seconds: TimeInterval, at date: Date) {
+    guard seconds > 0, confirmedAt == nil, isDisplayable(at: date) else { return }
+    foregroundExposureSeconds += seconds
+    if foregroundExposureSeconds >= 2 { confirmedAt = date }
+  }
+
+  mutating func resetUnconfirmedForegroundExposure() {
+    guard confirmedAt == nil else { return }
+    foregroundExposureSeconds = 0
+  }
+}
+
 struct VocabularyItem: Codable, Equatable, Identifiable, Sendable {
   let id: String
   let levelCode: String
@@ -67,8 +112,8 @@ struct VocabularySettings: Codable, Equatable, Sendable {
           let value = try? SharedJSON.decoder().decode(VocabularySettings.self, from: data) else { return .standard }
     return value
   }
-  func save(defaults: UserDefaults = LockAndStudySharedConstants.defaults) {
-    defaults.set(try? SharedJSON.encoder().encode(self), forKey: Self.key)
+  func save(defaults: UserDefaults = LockAndStudySharedConstants.defaults) throws {
+    defaults.set(try SharedJSON.encoder().encode(self), forKey: Self.key)
   }
 }
 

@@ -164,6 +164,15 @@ final class LockAndStudyUITests: XCTestCase {
     XCTAssertTrue(app.buttons["vocabulary.settings.materialSelection"].exists)
   }
 
+  func testVocabularyPreviewDisappearsWhenPersistedDisplayDeadlinePasses() {
+    let app = launch(extraArguments: ["-LockAndStudyUITestVocabularyPreview"])
+    let card = app.descendants(matching: .any)["vocabulary.nextWordPreviewCard"]
+    XCTAssertTrue(card.waitForExistence(timeout: 15))
+    let hidden = XCTNSPredicateExpectation(
+      predicate: NSPredicate(format: "exists == false"), object: card)
+    XCTAssertEqual(XCTWaiter.wait(for: [hidden], timeout: 6), .completed)
+  }
+
   func testIPadMaterialLineupLayout() {
     let app = launch()
     XCTAssertTrue(app.buttons["vocabulary.start.practice"].waitForExistence(timeout: 15))

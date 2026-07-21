@@ -46,6 +46,7 @@ struct TakkenFirstRunView: View {
   let context: StudyExperienceContext
   @State private var settings = TakkenSettings.load()
   @State private var category = "宅建業法"
+  @State private var errorMessage: String?
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -71,12 +72,24 @@ struct TakkenFirstRunView: View {
           }.studyCard()
           Button("宅建学習を始める") {
             settings.selectedCategories = [category]
-            settings.save()
-            context.completeFirstRun()
+            do {
+              try settings.save()
+              context.completeFirstRun()
+            } catch {
+              errorMessage = "設定を保存できませんでした。\n\(error.localizedDescription)"
+            }
           }
           .primaryActionStyle().accessibilityIdentifier("takken.firstRun.finish")
         }.frame(maxWidth: 640).padding()
       }.navigationTitle("宅建 初期設定").navigationBarTitleDisplayMode(.inline)
+    }
+    .alert("宅建", isPresented: .init(
+      get: { errorMessage != nil },
+      set: { if !$0 { errorMessage = nil } }
+    )) {
+      Button("閉じる", role: .cancel) {}
+    } message: {
+      Text(errorMessage ?? "")
     }
   }
 }
@@ -439,7 +452,9 @@ private struct TakkenStudySessionView: View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 16) {
-          ProgressView(value: Double(index), total: Double(max(1, presentation.questions.count)))
+          ProgressView(value: Double(index + 1), total: Double(max(1, presentation.questions.count)))
+          Text("\(index + 1) / \(presentation.questions.count)")
+            .font(.caption).foregroundStyle(.secondary).monospacedDigit()
           if let question = presentation.questions[safe: index] {
             VStack(alignment: .leading, spacing: 8) {
               HStack {
@@ -515,6 +530,7 @@ struct TakkenUnlockChallengeView: View {
   @State private var attempts = 0
   @State private var waitRemaining = 0
   @State private var isSubmitting = false
+  @State private var submissionError: String?
   private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
   private let feedbackPlanner = TakkenFeedbackPlanner()
   init(bundle: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext) {
@@ -560,7 +576,7 @@ struct TakkenUnlockChallengeView: View {
                 Text(question.longExplanation)
                 if let key = question.keyPoint { Label(key, systemImage: "key.fill") }
                 if !correct, waitRemaining > 0 { Text("あと\(waitRemaining)秒").monospacedDigit() }
-                if correct { Button("次へ") { advance() }.primaryActionStyle() }
+                if correct { Button(isLast ? "解除する" : "次へ") { advance() }.primaryActionStyle() }
               }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
             }
           }
@@ -571,17 +587,37 @@ struct TakkenUnlockChallengeView: View {
       waitRemaining -= 1
       if waitRemaining == 0 { selected = nil }
     }.accessibilityIdentifier("unlock.takken")
+      .alert("解除問題", isPresented: .init(
+        get: { submissionError != nil },
+        set: { if !$0 { submissionError = nil } }
+      )) {
+        Button("閉じる", role: .cancel) {}
+      } message: {
+        Text(submissionError ?? "")
+      }
+  }
+  private var isLast: Bool {
+    !bundle.challenge.questions.indices.contains { candidate in
+      candidate != index
+        && !bundle.completedQuestionIDs.contains(bundle.challenge.questions[candidate].id)
+    }
   }
   private func submit(_ question: UnlockQuestionSnapshot, choiceID: Int) {
     let correct = choiceID == question.correctChoiceID
     let plan = feedbackPlanner.plan(wrongAttemptCount: correct ? 0 : attempts + 1)
     isSubmitting = true
     Task {
-      _ = await context.submit(question, choiceID, plan)
-      selected = choiceID
-      if !correct {
+      switch await context.submit(question, choiceID, plan) {
+      case .recordedCorrect:
+        selected = choiceID
+      case .recordedIncorrect:
+        selected = choiceID
         attempts += 1
         waitRemaining = feedbackPlanner.waitSeconds(for: plan)
+      case .expired:
+        submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
+      case .failed(let message):
+        submissionError = "回答を保存できませんでした。\n\(message)"
       }
       isSubmitting = false
     }

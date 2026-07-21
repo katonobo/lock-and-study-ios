@@ -37,6 +37,19 @@ struct ActiveLockRefreshPlanner: Sendable {
   }
 }
 
+enum SelectionShieldUpdateAction: Equatable {
+  case persistOnly
+  case applyImmediately
+  case deferUntilRelock
+}
+
+struct SelectionShieldUpdatePlanner: Sendable {
+  func action(isLockEnabled: Bool, session: UnlockSession?, now: Date) -> SelectionShieldUpdateAction {
+    guard isLockEnabled else { return .persistOnly }
+    return session?.isActive(at: now) == true ? .deferUntilRelock : .applyImmediately
+  }
+}
+
 final class DeviceActivityRelockScheduler: RelockScheduling {
   private let center: DeviceActivityCenter
   init(center: DeviceActivityCenter = DeviceActivityCenter()) { self.center = center }
@@ -63,7 +76,7 @@ protocol LockControlling: AnyObject {
   var isMockMode: Bool { get }
   func requestAuthorization() async throws
   func loadSelection() -> FamilyActivitySelection?
-  func saveSelection(_ selection: FamilyActivitySelection) throws
+  func saveSelection(_ selection: FamilyActivitySelection) async throws
   func markMockSelectionCompleted()
   func setLockEnabled(_ enabled: Bool) async throws
   func beginUnlockSession(kind: UnlockSessionKind, duration: TimeInterval, reasonCode: String?) async throws -> UnlockSession
@@ -94,7 +107,10 @@ final class LockController: ObservableObject, LockControlling {
   }
   func requestAuthorization() async throws { try await backend.requestAuthorization(); revision += 1 }
   func loadSelection() -> FamilyActivitySelection? { backend.loadSelection() }
-  func saveSelection(_ selection: FamilyActivitySelection) throws { try backend.saveSelection(selection); revision += 1 }
+  func saveSelection(_ selection: FamilyActivitySelection) async throws {
+    try await backend.saveSelection(selection)
+    revision += 1
+  }
   func markMockSelectionCompleted() { backend.markMockSelectionCompleted(); revision += 1 }
   func setLockEnabled(_ enabled: Bool) async throws { try await backend.setLockEnabled(enabled); revision += 1 }
   func beginUnlockSession(kind: UnlockSessionKind, duration: TimeInterval, reasonCode: String?) async throws -> UnlockSession {
@@ -145,7 +161,7 @@ final class MockLockController: LockControlling {
   func loadSelection() -> FamilyActivitySelection? {
     defaults.data(forKey: LockAndStudySharedConstants.Key.selectionData).flatMap { try? JSONDecoder().decode(FamilyActivitySelection.self, from: $0) }
   }
-  func saveSelection(_ selection: FamilyActivitySelection) throws {
+  func saveSelection(_ selection: FamilyActivitySelection) async throws {
     guard !selection.lockAndStudyIsEmpty else { throw LockControllerError.selectionRequired }
     let data = try JSONEncoder().encode(selection)
     defaults.set(data, forKey: LockAndStudySharedConstants.Key.selectionData)
@@ -213,12 +229,39 @@ final class RealScreenTimeLockController: LockControlling {
   func loadSelection() -> FamilyActivitySelection? {
     defaults.data(forKey: LockAndStudySharedConstants.Key.selectionData).flatMap { try? JSONDecoder().decode(FamilyActivitySelection.self, from: $0) }
   }
-  func saveSelection(_ selection: FamilyActivitySelection) throws {
+  func saveSelection(_ selection: FamilyActivitySelection) async throws {
     guard !selection.lockAndStudyIsEmpty else { throw LockControllerError.selectionRequired }
     let data = try JSONEncoder().encode(selection)
-    defaults.set(data, forKey: LockAndStudySharedConstants.Key.selectionData)
-    defaults.set(true, forKey: LockAndStudySharedConstants.Key.selectionCompleted)
-    updatePolicy { $0.selectionSummary = selection.lockAndStudySummary(encoded: data) }
+    let previousData = defaults.data(forKey: LockAndStudySharedConstants.Key.selectionData)
+    let previousCompleted = defaults.bool(forKey: LockAndStudySharedConstants.Key.selectionCompleted)
+    let previousPolicy = policyStore.loadPolicy()
+    do {
+      defaults.set(data, forKey: LockAndStudySharedConstants.Key.selectionData)
+      defaults.set(true, forKey: LockAndStudySharedConstants.Key.selectionCompleted)
+      updatePolicy { $0.selectionSummary = selection.lockAndStudySummary(encoded: data) }
+      let action = SelectionShieldUpdatePlanner().action(
+        isLockEnabled: isLockEnabled,
+        session: policyStore.loadUnlockSession(),
+        now: dateProvider.now()
+      )
+      if action == .applyImmediately { try applyShield() }
+      lastErrorMessage = nil
+    } catch {
+      if let previousData {
+        defaults.set(previousData, forKey: LockAndStudySharedConstants.Key.selectionData)
+      } else {
+        defaults.removeObject(forKey: LockAndStudySharedConstants.Key.selectionData)
+      }
+      defaults.set(previousCompleted, forKey: LockAndStudySharedConstants.Key.selectionCompleted)
+      if let previousPolicy { policyStore.savePolicy(previousPolicy) }
+      if isLockEnabled,
+        policyStore.loadUnlockSession()?.isActive(at: dateProvider.now()) != true
+      {
+        try? applyShield()
+      }
+      lastErrorMessage = error.localizedDescription
+      throw error
+    }
   }
   func markMockSelectionCompleted() {}
   func setLockEnabled(_ enabled: Bool) async throws {

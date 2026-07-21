@@ -19,6 +19,7 @@ final class AppModel: ObservableObject {
   let dependencies: DependencyContainer
   let experienceRegistry: StudyExperienceRegistry
   private var completedStudySessions: Set<UUID> = []
+  private var startTask: Task<Void, Never>?
 
   init(dependencies: DependencyContainer? = nil) {
     let defaults = LockAndStudySharedConstants.defaults
@@ -52,6 +53,20 @@ final class AppModel: ObservableObject {
   }
 
   func start() async {
+    if let startTask {
+      await startTask.value
+      return
+    }
+    let task = Task { @MainActor [weak self] in
+      guard let self else { return }
+      await self.performStart()
+    }
+    startTask = task
+    await task.value
+    startTask = nil
+  }
+
+  private func performStart() async {
     isBusy = true
     do {
       manifests = try await dependencies.content.releasedManifests()
@@ -77,7 +92,9 @@ final class AppModel: ObservableObject {
           {
             try await dependencies.learning.saveExperienceUnlockBundle(nil)
           } else if experienceBundle.challenge.expiresAt <= Date() {
-            try await dependencies.learning.saveExperienceUnlockBundle(nil)
+            var expiredBundle = experienceBundle
+            try await expireUnlockBundle(
+              &expiredBundle, reason: "challenge-expired-during-recovery")
           }
         } else if let restored = try? await dependencies.learning.loadUnlockBundle(now: Date()),
           let manifest = manifests.first(where: { $0.id == restored.access.packID })
@@ -247,6 +264,7 @@ final class AppModel: ObservableObject {
         manifest: manifest,
         entitlement: dependencies.commerce.entitlement,
         progress: progress,
+        learning: dependencies.learning,
         now: now
       )
       let challenge: UnlockChallengeSnapshot
@@ -286,29 +304,36 @@ final class AppModel: ObservableObject {
     question: UnlockQuestionSnapshot,
     selectedChoiceID: Int,
     feedback: StudyFeedbackPlan
-  ) async -> Bool {
-    guard var bundle = try? await dependencies.learning.loadExperienceUnlockBundle(),
-      bundle.completionState == .answering,
-      bundle.challenge.questions.contains(where: { $0.id == question.id })
-    else { return false }
-    let record = answerRecord(
-      for: question,
-      selectedChoiceID: selectedChoiceID,
-      feedback: feedback,
-      bundle: bundle
-    )
+  ) async -> UnlockAnswerSubmissionResult {
     do {
+      guard var bundle = try await dependencies.learning.loadExperienceUnlockBundle(),
+        bundle.completionState == .answering,
+        bundle.challenge.questions.contains(where: { $0.id == question.id })
+      else { return .failed("解除問題の状態を確認できませんでした。もう一度やり直してください。") }
+      guard Date() < bundle.challenge.expiresAt else {
+        try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-submission")
+        return .expired
+      }
+      let record = answerRecord(
+        for: question,
+        selectedChoiceID: selectedChoiceID,
+        feedback: feedback,
+        bundle: bundle
+      )
       _ = try await dependencies.learning.recordUnique(record)
       if selectedChoiceID == question.correctChoiceID {
+        guard Date() < bundle.challenge.expiresAt else {
+          try await expireUnlockBundle(&bundle, reason: "challenge-expired-after-answer")
+          return .expired
+        }
         bundle.completedQuestionIDs.insert(question.id)
         try await dependencies.learning.saveExperienceUnlockBundle(bundle)
         unlockChallenge = bundle
       }
       records = try await dependencies.learning.events()
-      return selectedChoiceID == question.correctChoiceID
+      return selectedChoiceID == question.correctChoiceID ? .recordedCorrect : .recordedIncorrect
     } catch {
-      alertMessage = error.localizedDescription
-      return false
+      return .failed(error.localizedDescription)
     }
   }
 
@@ -316,8 +341,17 @@ final class AppModel: ObservableObject {
     guard var bundle = try? await dependencies.learning.loadExperienceUnlockBundle(),
       bundle.isComplete
     else { return }
+    if Date() >= bundle.challenge.expiresAt {
+      do { try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-unlock") }
+      catch { alertMessage = error.localizedDescription }
+      return
+    }
     do {
       if bundle.completionState == .answering {
+        guard Date() < bundle.challenge.expiresAt else {
+          try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-session")
+          return
+        }
         if dependencies.lockController.isLockEnabled {
           let session = try await dependencies.lockController.beginUnlockSession(
             kind: .earnedByStudy,
@@ -341,9 +375,29 @@ final class AppModel: ObservableObject {
         try await dependencies.learning.saveExperienceUnlockBundle(bundle)
       }
       if bundle.completionState == .eventRecorded {
+        var completionWarning: String?
+        if let manifest = manifests.first(where: { $0.id == bundle.challenge.packID }),
+          let factory = experienceRegistry.factory(for: bundle.challenge.experienceID)
+        {
+          do {
+            try await factory.handleUnlockCompletion(.init(
+              bundle: bundle,
+              manifest: manifest,
+              dependencies: dependencies,
+              now: Date()
+            ))
+            dependencies.learningRevision.bump()
+          } catch {
+            if bundle.challenge.experienceID == .vocabulary {
+              try? await dependencies.learning.saveVocabularyPendingPreview(nil)
+            }
+            completionWarning = "ロック解除は完了しましたが、次回予習を保存できませんでした。\n\(error.localizedDescription)"
+          }
+        }
         bundle.completionState = .completed
         try await dependencies.learning.saveExperienceUnlockBundle(bundle)
         try await dependencies.learning.saveExperienceUnlockBundle(nil)
+        if let completionWarning { alertMessage = completionWarning }
       }
       unlockChallenge = nil
       records = try await dependencies.learning.events()
@@ -355,7 +409,8 @@ final class AppModel: ObservableObject {
       bundle: bundle,
       submit: { [weak self] question, choiceID, feedback in
         await self?.submitUnlockAnswer(
-          question: question, selectedChoiceID: choiceID, feedback: feedback) ?? false
+          question: question, selectedChoiceID: choiceID, feedback: feedback)
+          ?? .failed("解除問題を送信できませんでした。")
       },
       complete: { [weak self] in await self?.completeUnlockChallenge() }
     )
@@ -437,6 +492,7 @@ final class AppModel: ObservableObject {
     do {
       try await dependencies.learning.deleteLearningHistory()
       records = []
+      dependencies.learningRevision.bump()
     } catch { alertMessage = error.localizedDescription }
   }
 
@@ -496,6 +552,19 @@ final class AppModel: ObservableObject {
         contentVersion: "built-in-v1", questionVersion: 1, examYear: nil, lawBasisDate: nil,
         answeredAt: Date(), mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback
       )
+    }
+  }
+
+  private func expireUnlockBundle(
+    _ bundle: inout ExperienceUnlockBundleSnapshot,
+    reason: String
+  ) async throws {
+    bundle.abortReason = reason
+    bundle.completionState = .aborted
+    try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+    unlockChallenge = nil
+    if reason.hasPrefix("challenge-expired") {
+      alertMessage = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
     }
   }
 

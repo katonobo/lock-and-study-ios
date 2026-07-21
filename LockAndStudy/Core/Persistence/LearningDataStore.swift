@@ -20,6 +20,10 @@ private struct ProgressDocument: Codable {
 private struct EventDocument: Codable { let schemaVersion: Int; var events: [LearningEvent] }
 private struct BundleDocument: Codable { let schemaVersion: Int; var bundle: UnlockLearningBundleSnapshot? }
 private struct ExperienceBundleDocument: Codable { let schemaVersion: Int; var bundle: ExperienceUnlockBundleSnapshot? }
+private struct VocabularyPendingPreviewDocument: Codable {
+  let schemaVersion: Int
+  var preview: VocabularyPendingPreview?
+}
 private struct LegacyImportDocument: Codable { let schemaVersion: Int; var importedEventIDs: Set<UUID> }
 private struct ExportDocument: Codable { let schemaVersion: Int; let exportedAt: Date; let progress: [String: ItemProgress]; let events: [LearningEvent]; let answersByMonth: [String: [StudyAnswerRecord]] }
 private enum AnswerWriteStage: String, Codable { case prepared, answerWritten, progressWritten, completed }
@@ -225,6 +229,41 @@ actor LearningDataStore {
     return document.bundle
   }
 
+  func saveVocabularyPendingPreview(_ preview: VocabularyPendingPreview?) throws {
+    try write(
+      VocabularyPendingPreviewDocument(schemaVersion: Self.schemaVersion, preview: preview),
+      to: vocabularyPendingPreviewURL
+    )
+  }
+
+  func loadVocabularyPendingPreview(now: Date) throws -> VocabularyPendingPreview? {
+    let document: VocabularyPendingPreviewDocument = try load(
+      vocabularyPendingPreviewURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, preview: nil)
+    )
+    guard document.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(document.schemaVersion)
+    }
+    guard let preview = document.preview else { return nil }
+    guard preview.recallExpiresAt > now else {
+      try saveVocabularyPendingPreview(nil)
+      return nil
+    }
+    return preview
+  }
+
+  @discardableResult
+  func consumeVocabularyPendingPreview(id: UUID, at date: Date) throws -> Bool {
+    guard var preview = try loadVocabularyPendingPreview(now: date),
+      preview.id == id,
+      preview.confirmedAt != nil,
+      preview.consumedAt == nil
+    else { return false }
+    preview.consumedAt = date
+    try saveVocabularyPendingPreview(preview)
+    return true
+  }
+
   func exportJSON() throws -> URL {
     var byMonth: [String: [StudyAnswerRecord]] = [:]
     let files = try fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)
@@ -271,6 +310,9 @@ actor LearningDataStore {
   private var eventsURL: URL { rootURL.appendingPathComponent("events.v1.json") }
   private var bundleURL: URL { rootURL.appendingPathComponent("unlock-bundle.v1.json") }
   private var experienceBundleURL: URL { rootURL.appendingPathComponent("experience-unlock-bundle.v2.json") }
+  private var vocabularyPendingPreviewURL: URL {
+    rootURL.appendingPathComponent("vocabulary-pending-preview.v1.json")
+  }
   private var answerTransactionsURL: URL { rootURL.appendingPathComponent("answer-transactions.v1.json") }
   private var legacyImportsURL: URL { rootURL.appendingPathComponent("legacy-imports.v1.json") }
   private var exportURL: URL { rootURL.appendingPathComponent("lockandstudy-learning-export.json") }

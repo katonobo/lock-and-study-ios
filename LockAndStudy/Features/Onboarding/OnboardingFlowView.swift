@@ -37,8 +37,9 @@ struct OnboardingFlowView: View {
       .familyActivityPicker(isPresented: $showPicker, selection: $selection)
       .onChange(of: selection) { value in
         guard !value.lockAndStudyIsEmpty else { return }
-        do { try lock.saveSelection(value) } catch {
-          model.alertMessage = error.localizedDescription
+        Task {
+          do { try await lock.saveSelection(value) }
+          catch { model.alertMessage = error.localizedDescription }
         }
       }
     }

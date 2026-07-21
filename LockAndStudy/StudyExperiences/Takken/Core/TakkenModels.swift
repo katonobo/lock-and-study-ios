@@ -28,8 +28,8 @@ struct TakkenSettings: Codable, Equatable, Sendable {
           let value = try? SharedJSON.decoder().decode(TakkenSettings.self, from: data) else { return .standard }
     return value
   }
-  func save(defaults: UserDefaults = LockAndStudySharedConstants.defaults) {
-    defaults.set(try? SharedJSON.encoder().encode(self), forKey: Self.key)
+  func save(defaults: UserDefaults = LockAndStudySharedConstants.defaults) throws {
+    defaults.set(try SharedJSON.encoder().encode(self), forKey: Self.key)
   }
 }
 

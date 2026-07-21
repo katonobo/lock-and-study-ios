@@ -69,7 +69,22 @@ struct UnlockChallengeRequest: Sendable {
   let manifest: StudyPackManifest
   let entitlement: CommerceEntitlementSnapshot
   let progress: [String: ItemProgress]
+  let learning: LearningDataStore
   let now: Date
+}
+
+struct UnlockCompletionContext {
+  let bundle: ExperienceUnlockBundleSnapshot
+  let manifest: StudyPackManifest
+  let dependencies: DependencyContainer
+  let now: Date
+}
+
+enum UnlockAnswerSubmissionResult: Equatable {
+  case recordedCorrect
+  case recordedIncorrect
+  case expired
+  case failed(String)
 }
 
 struct VocabularyUnlockQuestionSnapshot: Codable, Equatable, Identifiable, Sendable {
@@ -188,7 +203,7 @@ protocol UnlockChallengeProviding: Sendable {
 @MainActor
 struct UnlockChallengeViewContext {
   let bundle: ExperienceUnlockBundleSnapshot
-  let submit: @MainActor (UnlockQuestionSnapshot, Int, StudyFeedbackPlan) async -> Bool
+  let submit: @MainActor (UnlockQuestionSnapshot, Int, StudyFeedbackPlan) async -> UnlockAnswerSubmissionResult
   let complete: @MainActor () async -> Void
 }
 
@@ -202,6 +217,11 @@ protocol StudyExperienceFactory {
   func makeUnlockChallengeView(
     snapshot: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext
   ) -> AnyView
+  func handleUnlockCompletion(_ context: UnlockCompletionContext) async throws
+}
+
+extension StudyExperienceFactory {
+  func handleUnlockCompletion(_ context: UnlockCompletionContext) async throws {}
 }
 
 @MainActor

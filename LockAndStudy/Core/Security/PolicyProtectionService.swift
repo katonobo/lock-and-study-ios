@@ -12,16 +12,19 @@ final class PolicyProtectionService {
   private let store: LockPolicyStore
   private let managementCode: ManagementCodeStore
   private let cooldown: ProtectedChangeCooldownPolicy
-  private let defaults: UserDefaults
 
-  init(store: LockPolicyStore = .init(), managementCode: ManagementCodeStore = .init(), cooldown: ProtectedChangeCooldownPolicy = .init(), defaults: UserDefaults = LockAndStudySharedConstants.defaults) {
-    self.store = store; self.managementCode = managementCode; self.cooldown = cooldown; self.defaults = defaults
+  init(store: LockPolicyStore = .init(), managementCode: ManagementCodeStore = .init(), cooldown: ProtectedChangeCooldownPolicy = .init()) {
+    self.store = store; self.managementCode = managementCode; self.cooldown = cooldown
   }
 
   func request(proposed: LockPolicy, selectionData: Data?, now: Date) -> ProtectedMutationResult {
-    guard let current = store.loadPolicy() else { store.savePolicy(proposed); return .applied }
+    guard let current = store.loadPolicy() else {
+      if selectionData == nil { store.savePolicy(proposed) }
+      return .applied
+    }
     guard PolicyChangeClassifier().classify(from: current, to: proposed) == .weaker else {
-      store.savePolicy(proposed); return .applied
+      if selectionData == nil { store.savePolicy(proposed) }
+      return .applied
     }
     if managementCode.hasManagementCode { return .managementCodeRequired }
     let availableAt = cooldown.availableAt(requestedAt: now, commitmentEndsAt: current.commitmentEndsAt)
@@ -31,19 +34,18 @@ final class PolicyProtectionService {
     return .cooldownScheduled(availableAt)
   }
 
-  func approveWithManagementCode(_ code: String, proposed: LockPolicy) -> ProtectedMutationResult {
-    guard (try? managementCode.verify(code)) == true else { return .rejected }
-    store.savePolicy(proposed); store.savePendingChange(nil); return .applied
+  func validatedPending(now: Date, secondConfirmation: Bool) -> PendingPolicyChange? {
+    guard let pending = store.loadPendingChange(), now >= pending.availableAt else { return nil }
+    guard secondConfirmation else { return nil }
+    guard store.loadPolicy()?.policyVersion == pending.originalPolicyVersion else {
+      store.savePendingChange(nil)
+      return nil
+    }
+    return pending
   }
 
-  func confirmPending(now: Date, secondConfirmation: Bool) -> ProtectedMutationResult {
-    guard let pending = store.loadPendingChange(), now >= pending.availableAt else { return .rejected }
-    guard secondConfirmation else { return .confirmationRequired }
-    guard store.loadPolicy()?.policyVersion == pending.originalPolicyVersion else { store.savePendingChange(nil); return .rejected }
-    if let data = pending.pendingSelectionData {
-      defaults.set(data, forKey: LockAndStudySharedConstants.Key.selectionData)
-      defaults.set(true, forKey: LockAndStudySharedConstants.Key.selectionCompleted)
-    }
-    store.savePolicy(pending.proposedPolicy); store.savePendingChange(nil); return .applied
+  func commitPending(_ pending: PendingPolicyChange) {
+    store.savePolicy(pending.proposedPolicy)
+    store.savePendingChange(nil)
   }
 }

@@ -151,18 +151,24 @@ struct SettingsView: View {
       store: model.dependencies.policyStore, managementCode: model.dependencies.managementCode)
     switch service.request(proposed: proposed, selectionData: selectionData, now: Date()) {
     case .applied:
-      if let selectionData,
-        let newSelection = try? JSONDecoder().decode(
-          FamilyActivitySelection.self, from: selectionData), !newSelection.lockAndStudyIsEmpty
-      {
-        do { try lock.saveSelection(newSelection) } catch {
-          model.alertMessage = error.localizedDescription
-        }
-      }
-      if proposed.lifecycleState == .ended {
-        Task {
-          try? await lock.setLockEnabled(false)
-          if resetAfterEnd { await resetAllAfterLockEnds() }
+      Task {
+        do {
+          if let selectionData {
+            let newSelection = try JSONDecoder().decode(
+              FamilyActivitySelection.self, from: selectionData)
+            if !newSelection.lockAndStudyIsEmpty {
+              try await lock.saveSelection(newSelection)
+              model.dependencies.policyStore.savePolicy(proposed)
+            } else if proposed.lifecycleState != .ended {
+              throw LockControllerError.selectionRequired
+            }
+          }
+          if proposed.lifecycleState == .ended {
+            try await lock.setLockEnabled(false)
+            if resetAfterEnd { await resetAllAfterLockEnds() }
+          }
+        } catch {
+          model.alertMessage = "ロック設定を適用できませんでした。以前の対象を維持します。\n\(error.localizedDescription)"
         }
       }
     case .managementCodeRequired:
@@ -190,8 +196,9 @@ struct SettingsView: View {
       if selection.lockAndStudyIsEmpty {
         model.alertMessage = "ロック対象は1件以上選んでください。"
       } else {
-        do { try lock.saveSelection(selection) } catch {
-          model.alertMessage = error.localizedDescription
+        Task {
+          do { try await lock.saveSelection(selection) }
+          catch { model.alertMessage = error.localizedDescription }
         }
       }
     } else {
@@ -208,11 +215,27 @@ struct SettingsView: View {
   private func confirmPending() {
     let service = PolicyProtectionService(
       store: model.dependencies.policyStore, managementCode: model.dependencies.managementCode)
-    let pending = model.dependencies.policyStore.loadPendingChange()
-    if service.confirmPending(now: Date(), secondConfirmation: true) == .applied,
-      pending?.proposedPolicy.lifecycleState == .ended
-    {
-      Task { try? await lock.setLockEnabled(false) }
+    guard let pending = service.validatedPending(now: Date(), secondConfirmation: true) else {
+      model.alertMessage = "待機中の変更を確認できませんでした。"
+      return
+    }
+    Task {
+      do {
+        if let data = pending.pendingSelectionData {
+          let pendingSelection = try JSONDecoder().decode(FamilyActivitySelection.self, from: data)
+          if !pendingSelection.lockAndStudyIsEmpty {
+            try await lock.saveSelection(pendingSelection)
+          } else if pending.proposedPolicy.lifecycleState != .ended {
+            throw LockControllerError.selectionRequired
+          }
+        }
+        service.commitPending(pending)
+        if pending.proposedPolicy.lifecycleState == .ended {
+          try await lock.setLockEnabled(false)
+        }
+      } catch {
+        model.alertMessage = "待機中のロック設定を適用できませんでした。\n\(error.localizedDescription)"
+      }
     }
   }
   private func resetAllAfterLockEnds() async {
@@ -259,28 +282,33 @@ private struct ManagementApprovalView: View {
     }
   }
   private func approve() {
-    do {
-      guard try model.dependencies.managementCode.verify(code) else { return }
-      if let data = change.selectionData,
-        let selection = try? JSONDecoder().decode(FamilyActivitySelection.self, from: data),
-        !selection.lockAndStudyIsEmpty
-      {
-        try lock.saveSelection(selection)
-      }
-      model.dependencies.policyStore.savePolicy(change.proposed)
-      if change.proposed.lifecycleState == .ended {
-        Task {
-          try? await lock.setLockEnabled(false)
+    Task {
+      do {
+        guard try model.dependencies.managementCode.verify(code) else {
+          errorMessage = "管理コードが違います。"
+          return
+        }
+        if let data = change.selectionData {
+          let selection = try JSONDecoder().decode(FamilyActivitySelection.self, from: data)
+          if !selection.lockAndStudyIsEmpty {
+            try await lock.saveSelection(selection)
+          } else if change.proposed.lifecycleState != .ended {
+            throw LockControllerError.selectionRequired
+          }
+        }
+        model.dependencies.policyStore.savePolicy(change.proposed)
+        if change.proposed.lifecycleState == .ended {
+          try await lock.setLockEnabled(false)
           if change.resetAfterEnd {
             await model.deleteLearningHistory()
-            try? model.dependencies.managementCode.removeCode()
+            try model.dependencies.managementCode.removeCode()
           }
-          dismiss()
         }
-      } else {
         dismiss()
+      } catch {
+        errorMessage = error.localizedDescription
       }
-    } catch { errorMessage = error.localizedDescription }
+    }
   }
 }
 

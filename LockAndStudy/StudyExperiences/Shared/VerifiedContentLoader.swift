@@ -103,11 +103,12 @@ private struct SafeFallbackUnlockChallengeView: View {
   @State private var index = 0
   @State private var selected: Int?
   @State private var isSubmitting = false
+  @State private var submissionError: String?
 
   var body: some View {
     NavigationStack {
       VStack(spacing: 20) {
-        ProgressView(value: Double(index), total: Double(max(1, bundle.challenge.questions.count)))
+        ProgressView(value: Double(index + 1), total: Double(max(1, bundle.challenge.questions.count)))
         if let snapshot = bundle.challenge.questions[safe: index],
            case .safeFallback(let question) = snapshot {
           Text(question.prompt).font(.title2.bold()).frame(maxWidth: .infinity, alignment: .leading).studyCard()
@@ -131,13 +132,31 @@ private struct SafeFallbackUnlockChallengeView: View {
       .navigationTitle("解除学習")
       .navigationBarTitleDisplayMode(.inline)
     }
+    .alert("解除問題", isPresented: .init(
+      get: { submissionError != nil },
+      set: { if !$0 { submissionError = nil } }
+    )) {
+      Button("閉じる", role: .cancel) {}
+    } message: {
+      Text(submissionError ?? "")
+    }
   }
 
   private func submit(question: UnlockQuestionSnapshot, choiceID: Int) {
     isSubmitting = true
     Task {
-      _ = await context.submit(question, choiceID, choiceID == question.correctChoiceID ? .immediate : .relearn6)
-      selected = choiceID
+      switch await context.submit(
+        question,
+        choiceID,
+        choiceID == question.correctChoiceID ? .immediate : .relearn6
+      ) {
+      case .recordedCorrect, .recordedIncorrect:
+        selected = choiceID
+      case .expired:
+        submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
+      case .failed(let message):
+        submissionError = "回答を保存できませんでした。\n\(message)"
+      }
       isSubmitting = false
     }
   }

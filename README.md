@@ -28,6 +28,6 @@ open LockAndStudy.xcodeproj
 
 `scripts/verify` は利用可能なiPhone Simulatorを選び、静的検証、Debug/Release build、Unit/UI Testを実行します。Xcode 26.5のStoreKitTest不具合を避けるため、インストール済みなら最新のiOS 26未満を優先します。特定端末を使う場合は `LOCKANDSTUDY_DESTINATION='platform=iOS Simulator,id=...'` を指定します。
 
-開発用App Iconは `AppIcon-Dev-Placeholder.png` です。提出用検証では正式アイコンへ差し替えた上で、`LOCKANDSTUDY_REQUIRE_FINAL_ICON=1 ./scripts/release_readiness` を実行してください。通常のrelease readinessでも、画像の存在、1024×1024、alphaなしを検証します。
+正式App Iconは `AppIcon-Production.png` です。提出前は `LOCKANDSTUDY_REQUIRE_FINAL_ICON=1 ./scripts/release_readiness` を実行してください。画像の存在、1024×1024、alphaなしも検証します。
 
 署名、Family Controls Distribution Entitlement、App Store Connect商品、実機試験などは [OWNER_ACTIONS.md](OWNER_ACTIONS.md) を参照してください。設計資料は [Docs/ARCHITECTURE.md](Docs/ARCHITECTURE.md) から辿れます。

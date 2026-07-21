@@ -106,7 +106,10 @@ final class LockPolicyTests: XCTestCase {
     defer { defaults.removePersistentDomain(forName: suiteName) }
     let first = MockLockController(defaults: defaults)
     let second = MockLockController(defaults: defaults)
-    XCTAssertThrowsError(try first.saveSelection(FamilyActivitySelection())) { error in
+    do {
+      try await first.saveSelection(FamilyActivitySelection())
+      XCTFail("空の選択が保存されました")
+    } catch {
       XCTAssertEqual(error as? LockControllerError, .selectionRequired)
     }
     try await first.requestAuthorization()
@@ -115,6 +118,28 @@ final class LockPolicyTests: XCTestCase {
     XCTAssertTrue(second.isAuthorized)
     XCTAssertTrue(second.hasSelection)
     XCTAssertTrue(second.isLockEnabled)
+  }
+
+  func testSelectionUpdatesApplyImmediatelyExceptDuringTemporaryUnlock() {
+    let now = Date(timeIntervalSince1970: 25_000)
+    let planner = SelectionShieldUpdatePlanner()
+    XCTAssertEqual(
+      planner.action(isLockEnabled: false, session: nil, now: now),
+      .persistOnly)
+    XCTAssertEqual(
+      planner.action(isLockEnabled: true, session: nil, now: now),
+      .applyImmediately)
+    let active = UnlockSession(
+      id: UUID(), kind: .earnedByStudy, startedAt: now,
+      endsAt: now.addingTimeInterval(600), reasonCode: nil, policyVersion: 1)
+    XCTAssertEqual(
+      planner.action(isLockEnabled: true, session: active, now: now),
+      .deferUntilRelock)
+    XCTAssertEqual(
+      planner.action(
+        isLockEnabled: true, session: active,
+        now: active.endsAt),
+      .applyImmediately)
   }
 
   func testEarnedUnlockCompletionRetryReusesSessionForSameBundle() {

@@ -138,8 +138,20 @@ final class TakkenAppModel: ObservableObject {
   private let repository = TakkenQuestionRepository()
   private let service = TakkenQuestionService()
   private let feedbackPlanner = TakkenFeedbackPlanner()
+  private var cancellables: Set<AnyCancellable> = []
 
-  init(context: StudyExperienceContext) { self.context = context; settings = .load() }
+  init(context: StudyExperienceContext) {
+    self.context = context
+    settings = .load()
+    context.dependencies.commerce.$entitlement
+      .dropFirst()
+      .sink { [weak self] _ in Task { @MainActor in await self?.load() } }
+      .store(in: &cancellables)
+    context.dependencies.learningRevision.$value
+      .dropFirst()
+      .sink { [weak self] _ in Task { @MainActor in await self?.load() } }
+      .store(in: &cancellables)
+  }
 
   func load() async {
     isLoading = true
@@ -151,7 +163,10 @@ final class TakkenAppModel: ObservableObject {
     } catch { errorMessage = error.localizedDescription }
   }
 
-  func saveSettings() { settings.save() }
+  func saveSettings() {
+    do { try settings.save() }
+    catch { errorMessage = "設定を保存できませんでした。\n\(error.localizedDescription)" }
+  }
   func start(mode: StudyMode) {
     let queue = service.practiceQuestions(
       questions: questions,

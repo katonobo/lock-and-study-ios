@@ -16,7 +16,7 @@
 - [ ] IAP審査画像と日本語/英語localizationを登録
 - [ ] `https://katonobo.com/lockandstudy-privacy-policy/` に実装一致のPrivacy Policyを公開・確認
 - [ ] App Store用Support URLとsupport mailboxを公開・確認
-- [ ] 最終App Icon一式をAssetsへ追加
+- [x] 最終App Icon一式をAssetsへ追加（`AppIcon-Production.png`）
 - [ ] iPhone/iPadのApp Storeスクリーンショットを作成
 - [ ] 宅建追加200問を最終承認しreviewer/承認日を記録
 - [ ] 宅建AI草稿700問を資格者/専門家が全問校閲

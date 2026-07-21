@@ -84,7 +84,9 @@ final class TakkenExperienceTests: XCTestCase {
     policy.accessPacePreset = .extended30
     let challenge = try await TakkenUnlockChallengeProvider(bundle: .main).makeUnlockChallenge(
       packID: manifest.id,
-      request: .init(requestID: UUID(), policy: policy, manifest: manifest, entitlement: .empty, progress: [:], now: now)
+      request: .init(
+        requestID: UUID(), policy: policy, manifest: manifest, entitlement: .empty,
+        progress: [:], learning: temporaryLearningStore(), now: now)
     )
     XCTAssertEqual(challenge.experienceID, .takken)
     XCTAssertEqual(challenge.questions.count, 3)
@@ -100,7 +102,9 @@ final class TakkenExperienceTests: XCTestCase {
     let now = Date(timeIntervalSince1970: 7_000_000)
     let fallback = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(
       packID: manifest.id,
-      request: .init(requestID: UUID(), policy: .initial(now: now), manifest: manifest, entitlement: .empty, progress: [:], now: now)
+      request: .init(
+        requestID: UUID(), policy: .initial(now: now), manifest: manifest,
+        entitlement: .empty, progress: [:], learning: temporaryLearningStore(), now: now)
     )
     XCTAssertEqual(fallback.experienceID, .safeFallback)
     XCTAssertTrue(fallback.questions.allSatisfy { if case .safeFallback = $0 { return true }; return false })
@@ -116,6 +120,11 @@ final class TakkenExperienceTests: XCTestCase {
   private func releasedManifest() async throws -> StudyPackManifest {
     let manifests = try await ContentRepository(bundle: .main).releasedManifests()
     return try XCTUnwrap(manifests.first { $0.id == "takken2026.v1" })
+  }
+
+  private func temporaryLearningStore() -> LearningDataStore {
+    LearningDataStore(
+      rootURL: FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString))
   }
 
   private func answer(question: TakkenQuestion, manifest: StudyPackManifest, correct: Bool, at date: Date, suffix: String) -> StudyAnswerRecord {

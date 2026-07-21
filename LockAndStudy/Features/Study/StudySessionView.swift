@@ -19,7 +19,9 @@ struct StudySessionView: View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 18) {
-          ProgressView(value: Double(index), total: Double(max(1, presentation.prompts.count))).tint(LockAndStudyTheme.brand)
+          ProgressView(value: Double(index + 1), total: Double(max(1, presentation.prompts.count))).tint(LockAndStudyTheme.brand)
+          Text("\(index + 1) / \(presentation.prompts.count)")
+            .font(.caption).foregroundStyle(.secondary).monospacedDigit()
           if let item = currentPrompt {
             VStack(alignment: .leading, spacing: 12) {
               HStack { Text(item.category).font(.caption.bold()).foregroundStyle(.secondary); Spacer(); Text("\(index + 1) / \(presentation.prompts.count)").font(.caption).monospacedDigit() }
