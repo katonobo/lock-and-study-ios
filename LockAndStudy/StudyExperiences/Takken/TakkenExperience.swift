@@ -20,22 +20,31 @@ final class TakkenRouter: ObservableObject {
 }
 
 struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
-  let repository: TakkenQuestionRepository
-  init(bundle: Bundle = .main) { repository = .init(bundle: bundle) }
-
   func makeUnlockChallenge(
     packID: StudyPackID, request: UnlockChallengeRequest
   ) async throws -> UnlockChallengeSnapshot {
-    var questions = try repository.load(manifest: request.manifest)
-    var settings = TakkenSettings.load()
+    let allQuestions = try await request.content.takkenQuestions(for: packID)
+    let sampleIDs = try await request.content.sampleIDs(for: packID, itemIDs: Set(allQuestions.map(\.id)))
+    let access = ContentAccessService()
+    var questions = allQuestions.filter { question in
+      access.decision(
+        isFreeSample: sampleIDs.contains(question.id),
+        manifest: request.manifest,
+        entitlement: request.entitlement
+      ).isAllowed
+    }
+    var settings = TakkenSettings.load(packID: packID)
     #if DEBUG
     if let fixtures = TakkenUITestFixtures.requestedQuestions() {
       questions = fixtures
       settings.questionCount = fixtures.count
       }
     #endif
-    let recentAnswers = try await request.learning.answers().filter { $0.experienceID == .takken }
-    var pendingPreview = try await request.learning.loadTakkenPendingPreview(now: request.now)
+    let recentAnswers = try await request.learning.answers().filter {
+      $0.experienceID == .takken && $0.packID == packID
+    }
+    var pendingPreview = try await request.learning.loadTakkenPendingPreview(
+      for: packID, now: request.now)
     if let preview = pendingPreview {
       let candidateExists = questions.contains { question in
         question.resolvedConceptID == preview.conceptID
@@ -48,7 +57,7 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
       if !preview.isUsableForRecall(
         contentVersion: request.manifest.contentVersion, now: request.now) || !candidateExists
       {
-        try await request.learning.saveTakkenPendingPreview(nil)
+        try await request.learning.saveTakkenPendingPreview(nil, for: packID)
         pendingPreview = nil
       }
     }
@@ -90,7 +99,8 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
     if let preview = pendingPreview,
       presented.first?.source.resolvedConceptID == preview.conceptID
     {
-      _ = try await request.learning.consumeTakkenPendingPreview(id: preview.id, at: request.now)
+      _ = try await request.learning.consumeTakkenPendingPreview(
+        for: packID, id: preview.id, at: request.now)
     }
 
     let snapshots = presented.map { question in
@@ -139,7 +149,12 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
       reviewLoad: request.policy.reviewLoadPreset,
       questions: snapshots,
       access: .init(
-        packID: packID, reason: .freeSample,
+        packID: packID,
+        reason: access.decision(
+          isFreeSample: presented.first.map { sampleIDs.contains($0.source.id) } ?? true,
+          manifest: request.manifest,
+          entitlement: request.entitlement
+        ).reason,
         verifiedAt: request.entitlement.lastVerifiedAt),
       createdAt: request.now,
       expiresAt: request.now.addingTimeInterval(
@@ -156,7 +171,7 @@ struct TakkenExperience: StudyExperienceFactory {
     subtitle: "品質確認済み教材",
     systemImage: "building.columns.fill",
     tintName: "orange",
-    supportedPackIDs: ["takken2026.v1"]
+    supportedExperienceTypes: [.takkenV1]
   )
   let unlockChallengeProvider: any UnlockChallengeProviding = TakkenUnlockChallengeProvider()
   let reportProvider: (any StudyExperienceReportProviding)? = TakkenReportProvider()
@@ -171,7 +186,7 @@ struct TakkenExperience: StudyExperienceFactory {
     let allProgress = try await context.dependencies.learning.allProgress()
     let progress = allProgress.values.filter { $0.id.packID == context.manifest.id }
     let answers = try await context.dependencies.learning.answers().filter {
-      $0.experienceID == .takken
+      $0.experienceID == .takken && $0.packID == context.manifest.id
     }
     return .init(
       experienceID: .takken,
@@ -193,13 +208,13 @@ struct TakkenExperience: StudyExperienceFactory {
       context.manifest.moduleType == .takken
     else { return }
     if let existing = try await context.dependencies.learning.loadTakkenPendingPreview(
-      now: context.now), existing.sourceUnlockBundleID == context.bundle.id
+      for: context.manifest.id, now: context.now), existing.sourceUnlockBundleID == context.bundle.id
     {
       return
     }
 
-    let questions = try TakkenQuestionRepository().load(manifest: context.manifest)
-    let settings = TakkenSettings.load()
+    let questions = try await context.dependencies.content.takkenQuestions(for: context.manifest.id)
+    let settings = TakkenSettings.load(packID: context.manifest.id)
     let completedConcepts: Set<String> = Set(context.bundle.challenge.questions.compactMap { snapshot in
       guard case .takken(let question) = snapshot else { return nil }
       return question.resolvedConceptID
@@ -215,7 +230,7 @@ struct TakkenExperience: StudyExperienceFactory {
     let pool = newConceptPool.isEmpty ? eligible : newConceptPool
     let progress = try await context.dependencies.learning.allProgress()
     let answers = try await context.dependencies.learning.answers().filter {
-      $0.experienceID == .takken
+      $0.experienceID == .takken && $0.packID == context.manifest.id
     }
     let candidate = TakkenQuestionSelectionEngine().select(.init(
       questions: pool,
@@ -230,11 +245,13 @@ struct TakkenExperience: StudyExperienceFactory {
       now: context.now
     )).first?.source
     guard let candidate else {
-      try await context.dependencies.learning.saveTakkenPendingPreview(nil)
+      try await context.dependencies.learning.saveTakkenPendingPreview(
+        nil, for: context.manifest.id)
       return
     }
     let preview = TakkenPendingPreview(
       id: UUID(),
+      packID: context.manifest.id,
       sourceUnlockBundleID: context.bundle.id,
       conceptID: candidate.resolvedConceptID,
       sourceQuestionID: candidate.id,
@@ -246,7 +263,8 @@ struct TakkenExperience: StudyExperienceFactory {
       consumedAt: nil,
       foregroundExposureSeconds: 0
     )
-    try await context.dependencies.learning.saveTakkenPendingPreview(preview)
+    try await context.dependencies.learning.saveTakkenPendingPreview(
+      preview, for: context.manifest.id)
   }
 }
 
@@ -268,14 +286,13 @@ final class TakkenAppModel: ObservableObject {
   @Published private(set) var isLoading = false
 
   let context: StudyExperienceContext
-  private let repository = TakkenQuestionRepository()
   private let selectionEngine = TakkenQuestionSelectionEngine()
   private let feedbackPlanner = TakkenFeedbackPlanner()
   private var cancellables: Set<AnyCancellable> = []
 
   init(context: StudyExperienceContext) {
     self.context = context
-    settings = .load()
+    settings = .load(packID: context.manifest.id)
     context.dependencies.commerce.$entitlement
       .dropFirst()
       .sink { [weak self] _ in Task { @MainActor in await self?.load() } }
@@ -290,7 +307,19 @@ final class TakkenAppModel: ObservableObject {
     isLoading = true
     defer { isLoading = false }
     do {
-      questions = try repository.load(manifest: context.manifest)
+      let allQuestions = try await context.dependencies.content.takkenQuestions(
+        for: context.manifest.id)
+      let sampleIDs = try await context.dependencies.content.sampleIDs(
+        for: context.manifest.id,
+        itemIDs: Set(allQuestions.map(\.id)))
+      let access = ContentAccessService()
+      questions = allQuestions.filter {
+        access.decision(
+          isFreeSample: sampleIDs.contains($0.id),
+          manifest: context.manifest,
+          entitlement: context.dependencies.commerce.entitlement
+        ).isAllowed
+      }
       #if DEBUG
         if let fixture = TakkenUITestFixtures.requestedQuestion() {
           questions = [fixture]
@@ -299,7 +328,7 @@ final class TakkenAppModel: ObservableObject {
       #endif
       progress = try await context.dependencies.learning.allProgress()
       answers = try await context.dependencies.learning.answers().filter {
-        $0.experienceID == .takken
+        $0.experienceID == .takken && $0.packID == context.manifest.id
       }
       #if DEBUG
       let arguments = ProcessInfo.processInfo.arguments
@@ -311,23 +340,23 @@ final class TakkenAppModel: ObservableObject {
         let elapsed: TimeInterval = arguments.contains("-LockAndStudyUITestTakkenPreview")
           ? 118 : 10
         try await context.dependencies.learning.saveTakkenPendingPreview(.init(
-          id: UUID(), sourceUnlockBundleID: UUID(),
+          id: UUID(), packID: context.manifest.id, sourceUnlockBundleID: UUID(),
           conceptID: question.resolvedConceptID, sourceQuestionID: question.id,
           preferredVariantID: question.resolvedVariantID,
           contentVersion: context.manifest.contentVersion,
           createdAt: now.addingTimeInterval(-elapsed),
           recallExpiresAt: now.addingTimeInterval(TakkenPendingPreview.recallDuration),
           confirmedAt: nil, consumedAt: nil, foregroundExposureSeconds: 0
-        ))
+        ), for: context.manifest.id)
       }
       #endif
       pendingPreview = try await context.dependencies.learning.loadTakkenPendingPreview(
-        now: Date())
+        for: context.manifest.id, now: Date())
     } catch { errorMessage = error.localizedDescription }
   }
 
   func saveSettings() {
-    do { try settings.save() }
+    do { try settings.save(packID: context.manifest.id) }
     catch { errorMessage = "設定を保存できませんでした。\n\(error.localizedDescription)" }
   }
 
@@ -343,7 +372,8 @@ final class TakkenAppModel: ObservableObject {
     else { return }
     preview.recordForegroundExposure(seconds: seconds, at: now)
     do {
-      try await context.dependencies.learning.saveTakkenPendingPreview(preview)
+      try await context.dependencies.learning.saveTakkenPendingPreview(
+        preview, for: context.manifest.id)
       pendingPreview = preview
     } catch { errorMessage = "予習状態を保存できませんでした。\n\(error.localizedDescription)" }
   }
@@ -354,7 +384,8 @@ final class TakkenAppModel: ObservableObject {
     else { return }
     preview.resetUnconfirmedForegroundExposure()
     do {
-      try await context.dependencies.learning.saveTakkenPendingPreview(preview)
+      try await context.dependencies.learning.saveTakkenPendingPreview(
+        preview, for: context.manifest.id)
       pendingPreview = preview
     } catch { errorMessage = "予習状態を保存できませんでした。\n\(error.localizedDescription)" }
   }
@@ -439,7 +470,7 @@ final class TakkenAppModel: ObservableObject {
       _ = try await context.dependencies.learning.recordUnique(record)
       progress = try await context.dependencies.learning.allProgress()
       answers = try await context.dependencies.learning.answers().filter {
-        $0.experienceID == .takken
+        $0.experienceID == .takken && $0.packID == context.manifest.id
       }
       context.dependencies.learningRevision.bump()
       return correct ? .recordedCorrect(plan) : .recordedIncorrect(plan)
@@ -477,7 +508,10 @@ final class TakkenAppModel: ObservableObject {
       .compactMap(\.subCategory))).sorted()
   }
   var summary: TakkenRecordsSummary {
-    TakkenRecordsAnalyzer().summary(answers: answers, now: Date())
+    TakkenRecordsAnalyzer().summary(
+      answers: answers,
+      packID: context.manifest.id,
+      now: Date())
   }
   func waitSeconds(for plan: StudyFeedbackPlan) -> Int {
     feedbackPlanner.waitSeconds(for: plan)

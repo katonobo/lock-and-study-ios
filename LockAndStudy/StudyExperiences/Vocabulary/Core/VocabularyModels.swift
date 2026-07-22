@@ -12,6 +12,7 @@ struct VocabularyPendingPreview: Codable, Sendable, Equatable, Identifiable {
   static let recallDuration: TimeInterval = 86_400
 
   let id: UUID
+  let packID: StudyPackID
   let sourceUnlockBundleID: UUID
   let itemID: String
   let contentVersion: String
@@ -20,6 +21,50 @@ struct VocabularyPendingPreview: Codable, Sendable, Equatable, Identifiable {
   var confirmedAt: Date?
   var consumedAt: Date?
   var foregroundExposureSeconds: TimeInterval
+
+  init(
+    id: UUID,
+    packID: StudyPackID = "english3000.v1",
+    sourceUnlockBundleID: UUID,
+    itemID: String,
+    contentVersion: String,
+    createdAt: Date,
+    recallExpiresAt: Date,
+    confirmedAt: Date?,
+    consumedAt: Date?,
+    foregroundExposureSeconds: TimeInterval
+  ) {
+    self.id = id
+    self.packID = packID
+    self.sourceUnlockBundleID = sourceUnlockBundleID
+    self.itemID = itemID
+    self.contentVersion = contentVersion
+    self.createdAt = createdAt
+    self.recallExpiresAt = recallExpiresAt
+    self.confirmedAt = confirmedAt
+    self.consumedAt = consumedAt
+    self.foregroundExposureSeconds = foregroundExposureSeconds
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case id, packID, sourceUnlockBundleID, itemID, contentVersion, createdAt, recallExpiresAt
+    case confirmedAt, consumedAt, foregroundExposureSeconds
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(UUID.self, forKey: .id)
+    packID = try container.decodeIfPresent(StudyPackID.self, forKey: .packID) ?? "english3000.v1"
+    sourceUnlockBundleID = try container.decode(UUID.self, forKey: .sourceUnlockBundleID)
+    itemID = try container.decode(String.self, forKey: .itemID)
+    contentVersion = try container.decode(String.self, forKey: .contentVersion)
+    createdAt = try container.decode(Date.self, forKey: .createdAt)
+    recallExpiresAt = try container.decode(Date.self, forKey: .recallExpiresAt)
+    confirmedAt = try container.decodeIfPresent(Date.self, forKey: .confirmedAt)
+    consumedAt = try container.decodeIfPresent(Date.self, forKey: .consumedAt)
+    foregroundExposureSeconds =
+      try container.decodeIfPresent(TimeInterval.self, forKey: .foregroundExposureSeconds) ?? 0
+  }
 
   var displayExpiresAt: Date {
     createdAt.addingTimeInterval(Self.displayDuration)
@@ -106,14 +151,42 @@ struct VocabularySettings: Codable, Equatable, Sendable {
     examplesEnabled: true
   )
 
-  private static let key = "lockandstudy.experience.vocabulary.settings.v1"
+  private static let legacyKey = "lockandstudy.experience.vocabulary.settings.v1"
+  private static let legacyPackID: StudyPackID = "english3000.v1"
+  private static func key(_ packID: StudyPackID) -> String {
+    "lockandstudy.pack.\(packID.rawValue).vocabulary.settings.v2"
+  }
+
+  static func load(
+    packID: StudyPackID,
+    defaults: UserDefaults = LockAndStudySharedConstants.defaults
+  ) -> VocabularySettings {
+    if let data = defaults.data(forKey: key(packID)),
+      let value = try? SharedJSON.decoder().decode(VocabularySettings.self, from: data)
+    {
+      return value
+    }
+    if packID == legacyPackID,
+      let legacy = defaults.data(forKey: legacyKey),
+      let value = try? SharedJSON.decoder().decode(VocabularySettings.self, from: legacy)
+    {
+      defaults.set(legacy, forKey: key(packID))
+      return value
+    }
+    return .standard
+  }
+
   static func load(defaults: UserDefaults = LockAndStudySharedConstants.defaults) -> VocabularySettings {
-    guard let data = defaults.data(forKey: key),
-          let value = try? SharedJSON.decoder().decode(VocabularySettings.self, from: data) else { return .standard }
-    return value
+    load(packID: legacyPackID, defaults: defaults)
+  }
+  func save(
+    packID: StudyPackID,
+    defaults: UserDefaults = LockAndStudySharedConstants.defaults
+  ) throws {
+    defaults.set(try SharedJSON.encoder().encode(self), forKey: Self.key(packID))
   }
   func save(defaults: UserDefaults = LockAndStudySharedConstants.defaults) throws {
-    defaults.set(try SharedJSON.encoder().encode(self), forKey: Self.key)
+    try save(packID: Self.legacyPackID, defaults: defaults)
   }
 }
 
@@ -131,7 +204,7 @@ struct VocabularyPackage: Sendable {
 
 struct VocabularyRepository: Sendable {
   let loader: VerifiedContentLoader
-  init(bundle: Bundle = .main) { loader = .init(bundle: bundle) }
+  init(packageRoot: URL) { loader = .init(packageRoot: packageRoot) }
 
   func load(manifest: StudyPackManifest) throws -> VocabularyPackage {
     guard !manifest.contentFiles.isEmpty else { throw ContentRepositoryError.missing(manifest.title) }
@@ -272,7 +345,9 @@ struct VocabularyWeeklyReportService: Sendable {
     calendar: Calendar = .current
   ) -> VocabularyWeeklyReport {
     let start = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: now)) ?? .distantPast
-    let scoped = answers.filter { $0.experienceID == .vocabulary && $0.answeredAt >= start }
+    let scoped = answers.filter {
+      $0.experienceID == .vocabulary && $0.packID == packID && $0.answeredAt >= start
+    }
     let learned = progress.values.filter { $0.id.packID == packID && $0.answerCount > 0 }.count
     let due = progress.values.filter { $0.id.packID == packID && ($0.dueAt.map { $0 <= now } ?? false) }.count
     let days = Set(scoped.map { calendar.startOfDay(for: $0.answeredAt) })

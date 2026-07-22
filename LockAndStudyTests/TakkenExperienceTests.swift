@@ -4,7 +4,9 @@ import XCTest
 final class TakkenExperienceTests: XCTestCase {
   func testQuestionRepositoryMetadataDifficultyAndAnnualReviewContract() async throws {
     let manifest = try await releasedManifest()
-    let questions = try TakkenQuestionRepository(bundle: .main).load(manifest: manifest)
+    let questions = try TakkenQuestionRepository(
+      packageRoot: try XCTUnwrap(Bundle.main.resourceURL)
+    ).load(manifest: manifest)
 
     XCTAssertEqual(questions.count, 100)
     XCTAssertEqual(Set(questions.map(\.category)), ["宅建業法"])
@@ -18,7 +20,9 @@ final class TakkenExperienceTests: XCTestCase {
 
   func testQuestionServiceListFiltersAndQuizSettings() async throws {
     let manifest = try await releasedManifest()
-    let questions = try TakkenQuestionRepository(bundle: .main).load(manifest: manifest)
+    let questions = try TakkenQuestionRepository(
+      packageRoot: try XCTUnwrap(Bundle.main.resourceURL)
+    ).load(manifest: manifest)
     let first = questions[0], second = questions[1]
     let firstID = CompositeStudyItemID(packID: manifest.id, itemID: .init(rawValue: first.id))
     let secondID = CompositeStudyItemID(packID: manifest.id, itemID: .init(rawValue: second.id))
@@ -52,14 +56,17 @@ final class TakkenExperienceTests: XCTestCase {
 
   func testListAndDetailViewModelsExposeCategoriesAndAnswerHistory() async throws {
     let manifest = try await releasedManifest()
-    let questions = try TakkenQuestionRepository(bundle: .main).load(manifest: manifest)
+    let questions = try TakkenQuestionRepository(
+      packageRoot: try XCTUnwrap(Bundle.main.resourceURL)
+    ).load(manifest: manifest)
     let list = TakkenQuestionListViewModel(questions: questions, progress: [:], packID: manifest.id)
     XCTAssertEqual(list.categories, ["宅建業法"])
     XCTAssertGreaterThan(list.subCategories(in: "宅建業法").count, 5)
     let question = questions[0]
     let recent = answer(question: question, manifest: manifest, correct: false, at: Date(timeIntervalSince1970: 7_000), suffix: "recent")
     let old = answer(question: question, manifest: manifest, correct: true, at: Date(timeIntervalSince1970: 6_000), suffix: "old")
-    let detail = TakkenQuestionDetailViewModel(question: question, answers: [old, recent])
+    let detail = TakkenQuestionDetailViewModel(
+      question: question, answers: [old, recent], packID: manifest.id)
     XCTAssertEqual(detail.answerHistory.map(\.submissionID), [recent.submissionID, old.submissionID])
     XCTAssertFalse(detail.correctChoiceText.isEmpty)
     XCTAssertFalse(detail.explanation.isEmpty)
@@ -67,13 +74,16 @@ final class TakkenExperienceTests: XCTestCase {
 
   func testRecordsAndUnlockQuestionSelection() async throws {
     let manifest = try await releasedManifest()
-    let questions = try TakkenQuestionRepository(bundle: .main).load(manifest: manifest)
+    let questions = try TakkenQuestionRepository(
+      packageRoot: try XCTUnwrap(Bundle.main.resourceURL)
+    ).load(manifest: manifest)
     let now = Date(timeIntervalSince1970: 6_000_000)
     let answers = [
       answer(question: questions[0], manifest: manifest, correct: true, at: now, suffix: "1"),
       answer(question: questions[1], manifest: manifest, correct: false, at: now, suffix: "2")
     ]
-    let summary = TakkenRecordsAnalyzer().summary(answers: answers, now: now)
+    let summary = TakkenRecordsAnalyzer().summary(
+      answers: answers, packID: manifest.id, now: now)
     XCTAssertEqual(summary.answerCount, 2)
     XCTAssertEqual(summary.correctCount, 1)
     XCTAssertEqual(summary.wrongCount, 1)
@@ -82,7 +92,7 @@ final class TakkenExperienceTests: XCTestCase {
 
     var policy = LockPolicy.initial(now: .distantPast)
     policy.accessPacePreset = .extended30
-    let challenge = try await TakkenUnlockChallengeProvider(bundle: .main).makeUnlockChallenge(
+    let challenge = try await TakkenUnlockChallengeProvider().makeUnlockChallenge(
       packID: manifest.id,
       request: .init(
         requestID: UUID(), origin: .manual, policy: policy, manifest: manifest, entitlement: .empty,
@@ -118,7 +128,8 @@ final class TakkenExperienceTests: XCTestCase {
   }
 
   private func releasedManifest() async throws -> StudyPackManifest {
-    let manifests = try await ContentRepository(bundle: .main).releasedManifests()
+    let manifests = try await ContentRepository(source: BundledContentSource(bundle: .main))
+      .releasedManifests()
     return try XCTUnwrap(manifests.first { $0.id == "takken2026.v1" })
   }
 

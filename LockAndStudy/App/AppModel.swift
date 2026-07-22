@@ -38,6 +38,8 @@ final class AppModel: ObservableObject {
       defaults.set(true, forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
       defaults.set(true, forKey: "lockandstudy.experience.vocabulary.first-run.completed")
       defaults.set(true, forKey: "lockandstudy.experience.takken.first-run.completed")
+      defaults.set(true, forKey: "lockandstudy.pack.english3000.v1.first-run.completed.v1")
+      defaults.set(true, forKey: "lockandstudy.pack.takken2026.v1.first-run.completed.v1")
     }
     onboardingCompleted = defaults.bool(forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
     selectedPackID = .init(
@@ -52,7 +54,8 @@ final class AppModel: ObservableObject {
         || arguments.contains("-LockAndStudyUITestUnlock3")
       {
         var policy = self.dependencies.policyStore.loadPolicy() ?? .initial(now: Date())
-        policy.accessPacePreset = arguments.contains("-LockAndStudyUITestUnlock3")
+        policy.accessPacePreset =
+          arguments.contains("-LockAndStudyUITestUnlock3")
           ? .extended30 : .bundled20
         self.dependencies.policyStore.savePolicy(policy)
       }
@@ -77,12 +80,15 @@ final class AppModel: ObservableObject {
     isBusy = true
     do {
       manifests = try await dependencies.content.releasedManifests()
+      dependencies.commerce.configure(manifests: manifests)
       #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestReportData") {
           try await seedReportUITestData()
         }
       #endif
-      if !manifests.contains(where: { $0.id == selectedPackID }), let first = manifests.first {
+      if !manifests.contains(where: { $0.id == selectedPackID && availability(for: $0).canOpen }),
+        let first = manifests.first(where: { availability(for: $0).canOpen })
+      {
         selectedPackID = first.id
       }
       await dependencies.lockController.refreshLockState()
@@ -157,6 +163,14 @@ final class AppModel: ObservableObject {
   }
 
   func choosePack(_ id: StudyPackID) {
+    guard let manifest = manifests.first(where: { $0.id == id }),
+      availability(for: manifest).canOpen
+    else {
+      alertMessage =
+        manifests.first(where: { $0.id == id }).map { availability(for: $0).message }
+        ?? "この教材は現在利用できません。"
+      return
+    }
     selectedPackID = id
     LockAndStudySharedConstants.defaults.set(
       id.rawValue, forKey: LockAndStudySharedConstants.Key.selectedPackID)
@@ -167,8 +181,12 @@ final class AppModel: ObservableObject {
   }
 
   func selectStudyMaterial(_ id: StudyPackID) {
-    guard manifests.contains(where: { $0.id == id }) else {
+    guard let manifest = manifests.first(where: { $0.id == id }) else {
       alertMessage = "この教材は現在利用できません。"
+      return
+    }
+    guard availability(for: manifest).canOpen else {
+      alertMessage = availability(for: manifest).message
       return
     }
     choosePack(id)
@@ -178,7 +196,7 @@ final class AppModel: ObservableObject {
 
   func ensureSelectedExperienceOpen() {
     guard onboardingCompleted,
-      manifests.contains(where: { $0.id == selectedPackID }),
+      manifests.contains(where: { $0.id == selectedPackID && availability(for: $0).canOpen }),
       activeExperience?.packID != selectedPackID
     else { return }
     openExperience(packID: selectedPackID, requiresFirstRun: true)
@@ -187,17 +205,20 @@ final class AppModel: ObservableObject {
   private func recoverLegacyOnboardingLockIfNeeded() async {
     let lock = dependencies.lockController
     let lifecycle = dependencies.policyStore.loadPolicy()?.lifecycleState ?? .notConfigured
-    guard OnboardingLockActivationPlanner().shouldActivate(
-      onboardingCompleted: onboardingCompleted,
-      isAuthorized: lock.isAuthorized,
-      hasSelection: lock.hasSelection,
-      isLockEnabled: lock.isLockEnabled,
-      lifecycleState: lifecycle
-    ) else { return }
+    guard
+      OnboardingLockActivationPlanner().shouldActivate(
+        onboardingCompleted: onboardingCompleted,
+        isAuthorized: lock.isAuthorized,
+        hasSelection: lock.hasSelection,
+        isLockEnabled: lock.isLockEnabled,
+        lifecycleState: lifecycle
+      )
+    else { return }
     do {
       try await lock.setLockEnabled(true)
     } catch {
-      alertMessage = "初期設定のロックを開始できませんでした。設定からScreen Timeの許可と対象を確認してください。\n\(error.localizedDescription)"
+      alertMessage =
+        "初期設定のロックを開始できませんでした。設定からScreen Timeの許可と対象を確認してください。\n\(error.localizedDescription)"
     }
   }
 
@@ -206,8 +227,17 @@ final class AppModel: ObservableObject {
     destination: StudyExperienceDestination = .home,
     requiresFirstRun: Bool = false
   ) {
-    guard let factory = experienceRegistry.factory(for: packID) else {
-      alertMessage = "この教材の学習体験を読み込めません。"
+    guard let manifest = manifests.first(where: { $0.id == packID }) else {
+      alertMessage = "この教材は現在利用できません。"
+      return
+    }
+    let resolvedAvailability = availability(for: manifest)
+    guard resolvedAvailability.canOpen else {
+      alertMessage = resolvedAvailability.message
+      return
+    }
+    guard let factory = experienceRegistry.factory(for: manifest) else {
+      alertMessage = "この教材を使うにはアプリの更新が必要です。"
       return
     }
     activeExperience = .init(
@@ -236,6 +266,22 @@ final class AppModel: ObservableObject {
       },
       completeFirstRun: {}
     )
+  }
+
+  func availability(for manifest: StudyPackManifest, now: Date = Date()) -> PackAvailability {
+    PackAvailabilityResolver().resolve(
+      manifest: manifest,
+      appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0",
+      now: now,
+      isOwned: dependencies.commerce.entitlement.ownedPacks.contains { $0.packID == manifest.id },
+      supportsExperience: experienceRegistry.factory(for: manifest) != nil
+        && StudyModuleRegistry.standard.module(for: manifest.moduleType) != nil)
+  }
+
+  func successorManifest(for packID: StudyPackID) -> StudyPackManifest? {
+    manifests.first {
+      $0.supersedesPackID == packID && availability(for: $0).canOpen
+    }
   }
 
   func beginPractice(packID: StudyPackID, mode: StudyMode = .practice) async {
@@ -286,10 +332,11 @@ final class AppModel: ObservableObject {
         entitlement: dependencies.commerce.entitlement,
         progress: progress,
         learning: dependencies.learning,
+        content: dependencies.content,
         now: now
       )
       let challenge: UnlockChallengeSnapshot
-      if let factory = experienceRegistry.factory(for: manifest.id) {
+      if let factory = experienceRegistry.factory(for: manifest) {
         do {
           challenge = try await factory.unlockChallengeProvider.makeUnlockChallenge(
             packID: manifest.id, request: request)
@@ -373,14 +420,22 @@ final class AppModel: ObservableObject {
         bundle.clearReviewState(for: question.id)
         reviewRemaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
         lastSelections = bundle.lastSelectedChoiceIDByQuestionID ?? [:]
-      } else if case .takken(let value) = question {
-        let stagedSeconds = attemptNumber == 1 ? 10 : (attemptNumber == 2 ? 15 : 20)
-        let minimumSeconds = max(value.minimumReviewSeconds ?? 10, stagedSeconds)
-        reviewRemaining[question.id.rawValue] = TimeInterval(minimumSeconds)
+      } else {
+        let minimumSeconds: Int
+        if case .takken(let value) = question {
+          let stagedSeconds = attemptNumber == 1 ? 10 : (attemptNumber == 2 ? 15 : 20)
+          minimumSeconds = max(value.minimumReviewSeconds ?? 10, stagedSeconds)
+        } else {
+          minimumSeconds = feedbackWaitSeconds(feedback)
+        }
+        if minimumSeconds > 0 {
+          reviewRemaining[question.id.rawValue] = TimeInterval(minimumSeconds)
+        }
         lastSelections[question.id.rawValue] = selectedChoiceID
       }
       bundle.reviewRequiredUntilByQuestionID = nil
-      bundle.reviewRemainingActiveSecondsByQuestionID = reviewRemaining.isEmpty
+      bundle.reviewRemainingActiveSecondsByQuestionID =
+        reviewRemaining.isEmpty
         ? nil : reviewRemaining
       var reviewLastActive = bundle.reviewLastActiveAtByQuestionID ?? [:]
       reviewLastActive.removeValue(forKey: question.id.rawValue)
@@ -391,11 +446,7 @@ final class AppModel: ObservableObject {
       records = try await dependencies.learning.events()
       if selectedChoiceID == question.correctChoiceID { return .recordedCorrect }
       let remaining: Int
-      if case .takken = question {
-        remaining = max(0, Int(ceil(reviewRemaining[question.id.rawValue] ?? 0)))
-      } else {
-        remaining = feedbackWaitSeconds(feedback)
-      }
+      remaining = max(0, Int(ceil(reviewRemaining[question.id.rawValue] ?? 0)))
       return .recordedIncorrect(
         remainingActiveSeconds: remaining, attemptNumber: attemptNumber)
     } catch {
@@ -434,8 +485,8 @@ final class AppModel: ObservableObject {
       bundle.isComplete
     else { return }
     if Date() >= bundle.challenge.expiresAt {
-      do { try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-unlock") }
-      catch { alertMessage = error.localizedDescription }
+      do { try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-unlock") } catch
+      { alertMessage = error.localizedDescription }
       return
     }
     do {
@@ -475,18 +526,21 @@ final class AppModel: ObservableObject {
           let factory = experienceRegistry.factory(for: bundle.challenge.experienceID)
         {
           do {
-            try await factory.handleUnlockCompletion(.init(
-              bundle: bundle,
-              manifest: manifest,
-              dependencies: dependencies,
-              now: Date()
-            ))
+            try await factory.handleUnlockCompletion(
+              .init(
+                bundle: bundle,
+                manifest: manifest,
+                dependencies: dependencies,
+                now: Date()
+              ))
             dependencies.learningRevision.bump()
           } catch {
             if bundle.challenge.experienceID == .vocabulary {
-              try? await dependencies.learning.saveVocabularyPendingPreview(nil)
+              try? await dependencies.learning.saveVocabularyPendingPreview(
+                nil, for: bundle.challenge.packID)
             } else if bundle.challenge.experienceID == .takken {
-              try? await dependencies.learning.saveTakkenPendingPreview(nil)
+              try? await dependencies.learning.saveTakkenPendingPreview(
+                nil, for: bundle.challenge.packID)
             }
             completionWarning = "ロック解除は完了しましたが、次回予習を保存できませんでした。\n\(error.localizedDescription)"
           }
@@ -512,6 +566,12 @@ final class AppModel: ObservableObject {
       updateReviewExposure: { [weak self] questionID, isActive in
         await self?.updateUnlockReviewExposure(questionID: questionID, isActive: isActive)
           ?? .failed("解説確認時間を保存できませんでした。")
+      },
+      restart: { [weak self] in
+        guard let self else { return }
+        await self.beginUnlockStudy(
+          packID: bundle.challenge.packID,
+          origin: bundle.challenge.resolvedOrigin)
       },
       complete: { [weak self] in await self?.completeUnlockChallenge() }
     )
@@ -790,7 +850,8 @@ final class AppModel: ObservableObject {
         .init(
           submissionID: "ui-report-takken-wrong", experienceID: .takken,
           packID: "takken2026.v1", moduleType: .takken, itemID: "ui-takken",
-          prompt: "学習レポート用宅建", choices: [
+          prompt: "学習レポート用宅建",
+          choices: [
             .init(id: 0, text: "誤り"), .init(id: 1, text: "正しい"),
           ],
           selectedChoiceID: 0, correctChoiceID: 1, shortExplanation: "説明",
@@ -805,7 +866,8 @@ final class AppModel: ObservableObject {
         .init(
           submissionID: "ui-report-takken-correct", experienceID: .takken,
           packID: "takken2026.v1", moduleType: .takken, itemID: "ui-takken",
-          prompt: "学習レポート用宅建", choices: [
+          prompt: "学習レポート用宅建",
+          choices: [
             .init(id: 0, text: "誤り"), .init(id: 1, text: "正しい"),
           ],
           selectedChoiceID: 1, correctChoiceID: 1, shortExplanation: "説明",
@@ -819,14 +881,16 @@ final class AppModel: ObservableObject {
           attemptNumber: 2, wasFirstAttempt: false),
       ]
       for fixture in fixtures { _ = try await dependencies.learning.recordUnique(fixture) }
-      try await dependencies.learning.record(.init(
-        id: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!,
-        kind: .unlockChallengeStarted, occurredAt: now.addingTimeInterval(-3_700),
-        packID: "english3000.v1", sessionID: vocabularySession, unlockOrigin: .shield))
-      try await dependencies.learning.record(.init(
-        id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
-        kind: .unlockSuccess, occurredAt: now.addingTimeInterval(-3_500),
-        packID: "english3000.v1", sessionID: vocabularySession, unlockOrigin: .shield))
+      try await dependencies.learning.record(
+        .init(
+          id: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!,
+          kind: .unlockChallengeStarted, occurredAt: now.addingTimeInterval(-3_700),
+          packID: "english3000.v1", sessionID: vocabularySession, unlockOrigin: .shield))
+      try await dependencies.learning.record(
+        .init(
+          id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
+          kind: .unlockSuccess, occurredAt: now.addingTimeInterval(-3_500),
+          packID: "english3000.v1", sessionID: vocabularySession, unlockOrigin: .shield))
     }
   #endif
 }

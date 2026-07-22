@@ -247,8 +247,12 @@ struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
 struct TakkenStudyModule: StudyModule {
   let moduleType = StudyModuleType.takken
 
-  func loadPrompts(manifest: StudyPackManifest, bundle: Bundle) throws -> [StudyPrompt] {
-    try TakkenQuestionRepository(bundle: bundle).load(manifest: manifest).map { item in
+  func loadPrompts(manifest: StudyPackManifest, packageRoot: URL) throws -> [StudyPrompt] {
+    let questions = try TakkenQuestionRepository(packageRoot: packageRoot).load(manifest: manifest)
+    let sampleIDs = try ContentSampleResolver(packageRoot: packageRoot).sampleIDs(
+      manifest: manifest,
+      allItemIDs: Set(questions.map(\.id)))
+    return questions.map { item in
       StudyPrompt(
         packID: manifest.id, moduleType: .takken, itemID: .init(rawValue: item.id),
         prompt: item.prompt,
@@ -258,7 +262,8 @@ struct TakkenStudyModule: StudyModule {
         longExplanation: item.longExplanation ?? item.explanation,
         sourceNote: item.sourceNote, category: item.category, subcategory: item.subCategory,
         contentVersion: manifest.contentVersion, questionVersion: item.version ?? 1,
-        examYear: item.examYear, lawBasisDate: item.lawBasisDate, isFreeSample: true,
+        examYear: item.examYear, lawBasisDate: item.lawBasisDate,
+        isFreeSample: sampleIDs.contains(item.id),
         speechText: nil, exampleText: item.keyPoint)
     }
   }
@@ -281,7 +286,7 @@ struct TakkenStudyModule: StudyModule {
 
 struct TakkenQuestionRepository: Sendable {
   let loader: VerifiedContentLoader
-  init(bundle: Bundle = .main) { loader = .init(bundle: bundle) }
+  init(packageRoot: URL) { loader = .init(packageRoot: packageRoot) }
 
   func load(manifest: StudyPackManifest) throws -> [TakkenQuestion] {
     guard !manifest.contentFiles.isEmpty else {

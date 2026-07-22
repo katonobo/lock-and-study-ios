@@ -4,7 +4,8 @@ import XCTest
 final class VocabularyExperienceTests: XCTestCase {
   func testContentValidationFreeSampleAndQuestionGeneration() async throws {
     let manifest = try await releasedManifest("english3000.v1")
-    let package = try VocabularyRepository(bundle: .main).load(manifest: manifest)
+    let package = try VocabularyRepository(packageRoot: try XCTUnwrap(Bundle.main.resourceURL))
+      .load(manifest: manifest)
 
     XCTAssertEqual(package.items.count, 3_000)
     XCTAssertEqual(package.freeSampleIDs.count, 250)
@@ -21,7 +22,9 @@ final class VocabularyExperienceTests: XCTestCase {
 
   func testLearningQueueModesAndFeedbackPlan() async throws {
     let manifest = try await releasedManifest("english3000.v1")
-    let items = Array(try VocabularyRepository(bundle: .main).load(manifest: manifest).items.prefix(4))
+    let items = Array(
+      try VocabularyRepository(packageRoot: try XCTUnwrap(Bundle.main.resourceURL))
+        .load(manifest: manifest).items.prefix(4))
     let now = Date(timeIntervalSince1970: 2_000_000)
     let firstID = CompositeStudyItemID(packID: manifest.id, itemID: items[0].studyItemID)
     let secondID = CompositeStudyItemID(packID: manifest.id, itemID: items[1].studyItemID)
@@ -55,7 +58,7 @@ final class VocabularyExperienceTests: XCTestCase {
         rootURL: FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)),
       now: Date(timeIntervalSince1970: 3_000_000)
     )
-    let challenge = try await VocabularyUnlockChallengeProvider(bundle: .main)
+    let challenge = try await VocabularyUnlockChallengeProvider()
       .makeUnlockChallenge(packID: manifest.id, request: request)
 
     XCTAssertEqual(challenge.experienceID, .vocabulary)
@@ -68,7 +71,9 @@ final class VocabularyExperienceTests: XCTestCase {
 
   func testWeeklyReportUsesOnlyVocabularyAndCurrentWeek() async throws {
     let manifest = try await releasedManifest("english3000.v1")
-    let item = try XCTUnwrap(try VocabularyRepository(bundle: .main).load(manifest: manifest).items.first)
+    let item = try XCTUnwrap(
+      try VocabularyRepository(packageRoot: try XCTUnwrap(Bundle.main.resourceURL))
+        .load(manifest: manifest).items.first)
     let now = Date(timeIntervalSince1970: 4_000_000)
     let answers = [
       answer(item: item, manifest: manifest, correct: true, at: now.addingTimeInterval(-3_600), suffix: "1"),
@@ -94,9 +99,11 @@ final class VocabularyExperienceTests: XCTestCase {
     XCTAssertEqual(VocabularyRouter(destination: .catalog).selectedTab, .words)
     XCTAssertEqual(VocabularyRouter(destination: .learning).selectedTab, .learning)
     let registry = StudyExperienceRegistry.standard()
-    XCTAssertEqual(registry.factory(for: "english3000.v1")?.descriptor.id, .vocabulary)
-    XCTAssertEqual(registry.factory(for: "takken2026.v1")?.descriptor.id, .takken)
-    XCTAssertFalse(registry.factory(for: .vocabulary)?.descriptor.supportedPackIDs.contains("takken2026.v1") ?? true)
+    XCTAssertEqual(registry.factory(for: .vocabularyV1)?.descriptor.id, .vocabulary)
+    XCTAssertEqual(registry.factory(for: .takkenV1)?.descriptor.id, .takken)
+    XCTAssertFalse(
+      registry.factory(for: .vocabulary)?.descriptor.supportedExperienceTypes.contains(.takkenV1)
+        ?? true)
   }
 
   func testVocabularyAndTakkenSettingsAreNamespaced() throws {
@@ -180,7 +187,7 @@ final class VocabularyExperienceTests: XCTestCase {
       requestID: UUID(), origin: .manual, policy: .initial(now: .distantPast), manifest: manifest,
       entitlement: .empty, progress: [:], learning: dependencies.learning,
       now: Date(timeIntervalSince1970: 13_000_000))
-    let challenge = try await VocabularyUnlockChallengeProvider(bundle: .main)
+    let challenge = try await VocabularyUnlockChallengeProvider()
       .makeUnlockChallenge(packID: manifest.id, request: request)
     let bundle = ExperienceUnlockBundleSnapshot(
       schemaVersion: 2, challenge: challenge,
@@ -210,7 +217,8 @@ final class VocabularyExperienceTests: XCTestCase {
     defer { try? originalSettings.save() }
     try VocabularySettings.standard.save()
     let manifest = try await releasedManifest("english3000.v1")
-    let package = try VocabularyRepository(bundle: .main).load(manifest: manifest)
+    let package = try VocabularyRepository(packageRoot: try XCTUnwrap(Bundle.main.resourceURL))
+      .load(manifest: manifest)
     let candidates = package.items.filter {
       $0.levelCode == VocabularyLevel.level0.rawValue && package.freeSampleIDs.contains($0.id)
     }
@@ -232,14 +240,14 @@ final class VocabularyExperienceTests: XCTestCase {
       requestID: UUID(), origin: .manual, policy: policy, manifest: manifest, entitlement: .empty,
       progress: [composite.storageKey: due], learning: store, now: now.addingTimeInterval(3))
 
-    let first = try await VocabularyUnlockChallengeProvider(bundle: .main)
+    let first = try await VocabularyUnlockChallengeProvider()
       .makeUnlockChallenge(packID: manifest.id, request: request)
     XCTAssertEqual(first.questions.first?.id.rawValue, previewItem.id)
     XCTAssertEqual(first.questions.filter { $0.id.rawValue == previewItem.id }.count, 1)
     let consumed = try await store.loadVocabularyPendingPreview(now: request.now)
     XCTAssertNotNil(consumed?.consumedAt)
 
-    let second = try await VocabularyUnlockChallengeProvider(bundle: .main)
+    let second = try await VocabularyUnlockChallengeProvider()
       .makeUnlockChallenge(packID: manifest.id, request: .init(
         requestID: UUID(), origin: .manual, policy: policy, manifest: manifest, entitlement: .empty,
         progress: [:], learning: store, now: now.addingTimeInterval(4)))
@@ -250,7 +258,8 @@ final class VocabularyExperienceTests: XCTestCase {
     let originalSettings = VocabularySettings.load()
     defer { try? originalSettings.save() }
     let manifest = try await releasedManifest("english3000.v1")
-    let package = try VocabularyRepository(bundle: .main).load(manifest: manifest)
+    let package = try VocabularyRepository(packageRoot: try XCTUnwrap(Bundle.main.resourceURL))
+      .load(manifest: manifest)
     let now = Date(timeIntervalSince1970: 15_000_000)
 
     let level0Samples = package.items.filter {
@@ -289,7 +298,7 @@ final class VocabularyExperienceTests: XCTestCase {
     let dependencies = DependencyContainer(learningRootURL: root)
     let manifest = try await releasedManifest("english3000.v1")
     let now = Date().addingTimeInterval(-ExperienceUnlockBundleSnapshot.expirationInterval - 1)
-    let challenge = try await VocabularyUnlockChallengeProvider(bundle: .main)
+    let challenge = try await VocabularyUnlockChallengeProvider()
       .makeUnlockChallenge(packID: manifest.id, request: .init(
         requestID: UUID(), origin: .manual, policy: .initial(now: now), manifest: manifest,
         entitlement: .empty, progress: [:], learning: dependencies.learning, now: now))
@@ -313,7 +322,8 @@ final class VocabularyExperienceTests: XCTestCase {
   }
 
   private func releasedManifest(_ id: StudyPackID) async throws -> StudyPackManifest {
-    let manifests = try await ContentRepository(bundle: .main).releasedManifests()
+    let manifests = try await ContentRepository(source: BundledContentSource(bundle: .main))
+      .releasedManifests()
     return try XCTUnwrap(manifests.first { $0.id == id })
   }
 
@@ -341,7 +351,7 @@ final class VocabularyExperienceTests: XCTestCase {
   ) async throws -> UnlockChallengeSnapshot {
     let store = LearningDataStore(rootURL: temporaryRoot())
     try await store.saveVocabularyPendingPreview(preview)
-    return try await VocabularyUnlockChallengeProvider(bundle: .main).makeUnlockChallenge(
+    return try await VocabularyUnlockChallengeProvider().makeUnlockChallenge(
       packID: manifest.id,
       request: .init(
         requestID: UUID(), origin: .manual, policy: .initial(now: now), manifest: manifest,

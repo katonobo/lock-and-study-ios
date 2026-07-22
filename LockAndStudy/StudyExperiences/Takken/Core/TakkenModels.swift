@@ -22,14 +22,42 @@ struct TakkenSettings: Codable, Equatable, Sendable {
     last30DaysFocus: false,
     questionCount: 10
   )
-  private static let key = "lockandstudy.experience.takken.settings.v1"
+  private static let legacyKey = "lockandstudy.experience.takken.settings.v1"
+  private static let legacyPackID: StudyPackID = "takken2026.v1"
+  private static func key(_ packID: StudyPackID) -> String {
+    "lockandstudy.pack.\(packID.rawValue).takken.settings.v2"
+  }
+
+  static func load(
+    packID: StudyPackID,
+    defaults: UserDefaults = LockAndStudySharedConstants.defaults
+  ) -> TakkenSettings {
+    if let data = defaults.data(forKey: key(packID)),
+      let value = try? SharedJSON.decoder().decode(TakkenSettings.self, from: data)
+    {
+      return value
+    }
+    if packID == legacyPackID,
+      let legacy = defaults.data(forKey: legacyKey),
+      let value = try? SharedJSON.decoder().decode(TakkenSettings.self, from: legacy)
+    {
+      defaults.set(legacy, forKey: key(packID))
+      return value
+    }
+    return .standard
+  }
+
   static func load(defaults: UserDefaults = LockAndStudySharedConstants.defaults) -> TakkenSettings {
-    guard let data = defaults.data(forKey: key),
-          let value = try? SharedJSON.decoder().decode(TakkenSettings.self, from: data) else { return .standard }
-    return value
+    load(packID: legacyPackID, defaults: defaults)
+  }
+  func save(
+    packID: StudyPackID,
+    defaults: UserDefaults = LockAndStudySharedConstants.defaults
+  ) throws {
+    defaults.set(try SharedJSON.encoder().encode(self), forKey: Self.key(packID))
   }
   func save(defaults: UserDefaults = LockAndStudySharedConstants.defaults) throws {
-    defaults.set(try SharedJSON.encoder().encode(self), forKey: Self.key)
+    try save(packID: Self.legacyPackID, defaults: defaults)
   }
 }
 
@@ -118,8 +146,10 @@ struct TakkenQuestionListViewModel: Sendable {
 struct TakkenQuestionDetailViewModel: Sendable {
   let question: TakkenQuestion
   let answers: [StudyAnswerRecord]
+  let packID: StudyPackID
   var answerHistory: [StudyAnswerRecord] {
-    answers.filter { $0.itemID.rawValue == question.id }.sorted { $0.answeredAt > $1.answeredAt }
+    answers.filter { $0.packID == packID && $0.itemID.rawValue == question.id }
+      .sorted { $0.answeredAt > $1.answeredAt }
   }
   var correctChoiceText: String { question.choices[safe: question.correctIndex]?.text ?? "未設定" }
   var explanation: String { question.longExplanation ?? question.explanation }
@@ -144,8 +174,13 @@ struct TakkenRecordsSummary: Equatable, Sendable {
 }
 
 struct TakkenRecordsAnalyzer: Sendable {
-  func summary(answers: [StudyAnswerRecord], now: Date, calendar: Calendar = .current) -> TakkenRecordsSummary {
-    let scoped = answers.filter { $0.experienceID == .takken }
+  func summary(
+    answers: [StudyAnswerRecord],
+    packID: StudyPackID,
+    now: Date,
+    calendar: Calendar = .current
+  ) -> TakkenRecordsSummary {
+    let scoped = answers.filter { $0.experienceID == .takken && $0.packID == packID }
     let grouped = Dictionary(grouping: scoped, by: \.category).mapValues { values in
       (answered: values.count, correct: values.filter(\.isCorrect).count)
     }

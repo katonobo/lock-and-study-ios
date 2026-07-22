@@ -1,7 +1,8 @@
 import Foundation
 
 enum ContentAccessReason: String, Codable, Sendable {
-  case freeSample, ownedNonConsumable, activeStudyPass, familySharing, verifiedLegacyMigration, internalTest, unavailable
+  case freeSample, ownedNonConsumable, activeStudyPass, familySharing, verifiedLegacyMigration,
+    internalTest, unavailable
 }
 
 struct ContentAccessDecision: Codable, Equatable, Sendable {
@@ -10,11 +11,28 @@ struct ContentAccessDecision: Codable, Equatable, Sendable {
 }
 
 struct ContentAccessService: Sendable {
-  func decision(for prompt: StudyPrompt, manifest: StudyPackManifest, entitlement: CommerceEntitlementSnapshot, internalTest: Bool = false) -> ContentAccessDecision {
-    decision(isFreeSample: prompt.isFreeSample, manifest: manifest, entitlement: entitlement, internalTest: internalTest)
+  func decision(
+    for prompt: StudyPrompt,
+    manifest: StudyPackManifest,
+    entitlement: CommerceEntitlementSnapshot,
+    internalTest: Bool = false,
+    now: Date = Date()
+  ) -> ContentAccessDecision {
+    decision(
+      isFreeSample: prompt.isFreeSample,
+      manifest: manifest,
+      entitlement: entitlement,
+      internalTest: internalTest,
+      now: now)
   }
 
-  func decision(isFreeSample: Bool, manifest: StudyPackManifest, entitlement: CommerceEntitlementSnapshot, internalTest: Bool = false) -> ContentAccessDecision {
+  func decision(
+    isFreeSample: Bool,
+    manifest: StudyPackManifest,
+    entitlement: CommerceEntitlementSnapshot,
+    internalTest: Bool = false,
+    now: Date = Date()
+  ) -> ContentAccessDecision {
     if isFreeSample { return .init(isAllowed: true, reason: .freeSample) }
     if internalTest { return .init(isAllowed: true, reason: .internalTest) }
     if let owned = entitlement.ownedPacks.first(where: { $0.packID == manifest.id }) {
@@ -24,8 +42,13 @@ struct ContentAccessService: Sendable {
       case .appStore: return .init(isAllowed: true, reason: .ownedNonConsumable)
       }
     }
-    if manifest.passEligible, entitlement.activePass?.permitsAccess == true {
-      return .init(isAllowed: true, reason: entitlement.activePass?.ownershipType == .familyShared ? .familySharing : .activeStudyPass)
+    if manifest.passEligible, let pass = entitlement.activePass, pass.permitsAccess,
+      pass.expirationDate.map({ $0 > now }) ?? true
+    {
+      return .init(
+        isAllowed: true,
+        reason: entitlement.activePass?.ownershipType == .familyShared
+          ? .familySharing : .activeStudyPass)
     }
     return .init(isAllowed: false, reason: .unavailable)
   }

@@ -5,7 +5,7 @@ import XCTest
 
 final class ContentAndStoreKitTests: XCTestCase {
   func testReleasedContentCountsAndSamples() async throws {
-    let repository = ContentRepository(bundle: Bundle.main)
+    let repository = ContentRepository(source: BundledContentSource(bundle: Bundle.main))
     let manifests = try await repository.releasedManifests()
     XCTAssertEqual(manifests.count, 2)
     let english = try await repository.prompts(for: "english3000.v1")
@@ -22,7 +22,15 @@ final class ContentAndStoreKitTests: XCTestCase {
     let groups = object["subscriptionGroups"] as? [[String: Any]] ?? []
     let subscriptions = groups.flatMap { $0["subscriptions"] as? [[String: Any]] ?? [] }
     let ids = Set((products + subscriptions).compactMap { $0["productID"] as? String })
-    XCTAssertEqual(ids, Set(ProductCatalog.allIDs)); XCTAssertEqual(groups.count, 1)
+    XCTAssertEqual(
+      ids,
+      Set([
+        StoreProductKind.english3000.productID,
+        StoreProductKind.takken2026.productID,
+        StoreProductKind.passMonthly.productID,
+        StoreProductKind.passYearly.productID,
+      ]))
+    XCTAssertEqual(groups.count, 1)
     let yearly = try XCTUnwrap(subscriptions.first { $0["productID"] as? String == StoreProductKind.passYearly.productID })
     XCTAssertNotNil(yearly["introductoryOffer"] as? [String: Any])
     XCTAssertFalse(ids.contains { $0.contains("lifetime") })

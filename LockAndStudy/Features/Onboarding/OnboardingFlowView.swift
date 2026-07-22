@@ -61,7 +61,7 @@ struct OnboardingFlowView: View {
         body: "ロック解除に使う教材を選びます。どちらも無料範囲から始められ、教材固有の設定はこの初期設定の後に行います。")
       VStack(spacing: 12) {
         ForEach(model.manifests) { manifest in
-          let descriptor = model.experienceRegistry.factory(for: manifest.id)?.descriptor
+          let descriptor = model.experienceRegistry.factory(for: manifest)?.descriptor
           Button {
             selectedPack = manifest.id
           } label: {

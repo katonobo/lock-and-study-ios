@@ -16,15 +16,13 @@ struct VocabularyReportProvider: StudyExperienceReportProviding {
     let answers = allAnswers.filter { period.contains($0.answeredAt) }
     let newItems = Set(answers.filter { snapshot.effectiveLearningRole(for: $0) == .newItem }.map(\.itemID))
     let reviewedItems = Set(answers.filter { snapshot.effectiveLearningRole(for: $0) != .newItem }.map(\.itemID))
-    let package = try VocabularyRepository().load(manifest: manifest)
-    let access = ContentAccessService()
-    let available = package.items.filter {
-      access.decision(
-        isFreeSample: package.freeSampleIDs.contains($0.id),
-        manifest: manifest,
-        entitlement: snapshot.entitlement
-      ).isAllowed
-    }
+    let hasFullAccess = ContentAccessService().decision(
+      isFreeSample: false,
+      manifest: manifest,
+      entitlement: snapshot.entitlement
+    ).isAllowed
+    let availableCount = hasFullAccess
+      ? manifest.expectedItemCount : manifest.sampleDefinition.count
     let scopedProgress = snapshot.progress.values.filter { $0.id.packID == manifest.id }
     let learned = scopedProgress.filter { $0.answerCount > 0 }.count
     let due = scopedProgress.filter { $0.dueAt.map { $0 <= now } ?? false }.count
@@ -46,14 +44,14 @@ struct VocabularyReportProvider: StudyExperienceReportProviding {
       metric("vocabulary.weak", "学び直し対象", weak, "語", "arrow.counterclockwise"),
     ]
     let progressRows = VocabularyLevel.allCases.map { level in
-      let values = available.filter { $0.levelCode == level.rawValue }
-      let learnedCount = values.filter { item in
-        (snapshot.progress[
-          CompositeStudyItemID(packID: manifest.id, itemID: item.studyItemID).storageKey
-        ]?.answerCount ?? 0) > 0
-      }.count
+      let learnedCount = Set(
+        allAnswers.filter { $0.category == level.rawValue }.map(\.itemID)
+      ).count
       return LearningReportProgressRow(
-        id: level.rawValue, label: level.title, completed: learnedCount, available: values.count)
+        id: level.rawValue,
+        label: level.title,
+        completed: learnedCount,
+        available: availableCount / max(1, VocabularyLevel.allCases.count))
     }
     return .init(
       packID: manifest.id,

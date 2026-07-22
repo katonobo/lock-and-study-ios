@@ -3,9 +3,9 @@ import Foundation
 import SwiftUI
 
 struct VerifiedContentLoader: Sendable {
-  let bundle: Bundle
+  let packageRoot: URL
 
-  init(bundle: Bundle = .main) { self.bundle = bundle }
+  init(packageRoot: URL) { self.packageRoot = packageRoot }
 
   func data(for descriptor: ContentFileDescriptor) throws -> Data {
     let url = try resourceURL(for: descriptor.path)
@@ -30,11 +30,9 @@ struct VerifiedContentLoader: Sendable {
   }
 
   private func resourceURL(for path: String) throws -> URL {
-    let file = URL(fileURLWithPath: path)
-    guard let url = bundle.url(
-      forResource: file.deletingPathExtension().lastPathComponent,
-      withExtension: file.pathExtension
-    ) else {
+    let location = ContentPackageLocation(kind: .bundled, rootURL: packageRoot)
+    let url = try location.fileURL(for: path)
+    guard FileManager.default.fileExists(atPath: url.path) else {
       throw ContentRepositoryError.missing(path)
     }
     return url
@@ -85,7 +83,7 @@ struct SafeFallbackExperience: StudyExperienceFactory {
     subtitle: "教材を読み込めない場合の解除用",
     systemImage: "lifepreserver.fill",
     tintName: "teal",
-    supportedPackIDs: []
+    supportedExperienceTypes: []
   )
   let unlockChallengeProvider: any UnlockChallengeProviding = SafeFallbackUnlockChallengeProvider()
   func makeRootView(context: StudyExperienceContext) -> AnyView { AnyView(EmptyView()) }
@@ -101,15 +99,42 @@ struct SafeFallbackExperience: StudyExperienceFactory {
 private struct SafeFallbackUnlockChallengeView: View {
   let bundle: ExperienceUnlockBundleSnapshot
   let context: UnlockChallengeViewContext
-  @State private var index = 0
+  @Environment(\.scenePhase) private var scenePhase
+  @State private var index: Int
+  @State private var completedQuestionIDs: Set<StudyItemID>
   @State private var selected: Int?
+  @State private var waitRemaining = 0
+  @State private var isReviewSyncing = false
+  @State private var pendingReviewActiveState: Bool?
   @State private var isSubmitting = false
   @State private var submissionError: String?
+  private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+  init(bundle: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext) {
+    self.bundle = bundle
+    self.context = context
+    let first = bundle.challenge.questions.firstIndex {
+      !bundle.completedQuestionIDs.contains($0.id)
+    } ?? 0
+    _index = State(initialValue: first)
+    _completedQuestionIDs = State(initialValue: bundle.completedQuestionIDs)
+    if let question = bundle.challenge.questions[safe: first] {
+      _selected = State(
+        initialValue: bundle.lastSelectedChoiceIDByQuestionID?[question.id.rawValue])
+      _waitRemaining = State(initialValue: max(
+        0,
+        Int(ceil(
+          bundle.reviewRemainingActiveSecondsByQuestionID?[question.id.rawValue] ?? 0))))
+    }
+  }
 
   var body: some View {
     NavigationStack {
       VStack(spacing: 20) {
-        ProgressView(value: Double(index + 1), total: Double(max(1, bundle.challenge.questions.count)))
+        ProgressView(
+          value: Double(completedQuestionIDs.count),
+          total: Double(max(1, bundle.challenge.questions.count)))
+          .accessibilityIdentifier("safeFallback.unlock.progress")
         if let snapshot = bundle.challenge.questions[safe: index],
            case .safeFallback(let question) = snapshot {
           Text(question.prompt).font(.title2.bold()).frame(maxWidth: .infinity, alignment: .leading).studyCard()
@@ -122,8 +147,15 @@ private struct SafeFallbackUnlockChallengeView: View {
             Text(selected == question.correctChoiceID ? "正解です" : question.explanation)
               .frame(maxWidth: .infinity, alignment: .leading).studyCard()
             if selected == question.correctChoiceID {
-              Button(index + 1 == bundle.challenge.questions.count ? "解除する" : "次へ") { advance() }
+              Button(isLast ? "解除する" : "次へ") { advance() }
                 .primaryActionStyle()
+            } else if waitRemaining > 0 {
+              Text("あと\(waitRemaining)秒、解説を確認してください。")
+                .monospacedDigit()
+            } else {
+              Button("もう一度解く") { self.selected = nil }
+                .primaryActionStyle()
+                .accessibilityIdentifier("safeFallback.unlock.retry")
             }
           }
         }
@@ -133,14 +165,45 @@ private struct SafeFallbackUnlockChallengeView: View {
       .navigationTitle("解除学習")
       .navigationBarTitleDisplayMode(.inline)
     }
+    .interactiveDismissDisabled()
+    .onReceive(timer) { _ in
+      guard scenePhase == .active, isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: true) }
+    }
+    .onChange(of: scenePhase) { phase in
+      guard isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: phase == .active) }
+    }
+    .onAppear {
+      guard scenePhase == .active, isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: true) }
+    }
+    .onDisappear {
+      guard isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: false) }
+    }
     .alert("解除問題", isPresented: .init(
       get: { submissionError != nil },
       set: { if !$0 { submissionError = nil } }
     )) {
+      Button("新しい問題でやり直す") {
+        Task { await context.restart() }
+      }
       Button("閉じる", role: .cancel) {}
     } message: {
       Text(submissionError ?? "")
     }
+  }
+
+  private var isReviewingWrong: Bool {
+    guard let snapshot = bundle.challenge.questions[safe: index], let selected else { return false }
+    return selected != snapshot.correctChoiceID
+  }
+
+  private var isLast: Bool {
+    !bundle.hasLaterUncompletedQuestion(
+      after: index,
+      completedQuestionIDs: completedQuestionIDs)
   }
 
   private func submit(question: UnlockQuestionSnapshot, choiceID: Int) {
@@ -151,8 +214,14 @@ private struct SafeFallbackUnlockChallengeView: View {
         choiceID,
         choiceID == question.correctChoiceID ? .immediate : .relearn6
       ) {
-      case .recordedCorrect, .recordedIncorrect(_, _):
+      case .recordedCorrect:
         selected = choiceID
+        completedQuestionIDs.insert(question.id)
+        waitRemaining = 0
+      case .recordedIncorrect(let remainingActiveSeconds, _):
+        selected = choiceID
+        waitRemaining = remainingActiveSeconds
+        await synchronizeReviewExposure(isActive: scenePhase == .active)
       case .expired:
         submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
       case .failed(let message):
@@ -162,7 +231,40 @@ private struct SafeFallbackUnlockChallengeView: View {
     }
   }
   private func advance() {
-    if index + 1 < bundle.challenge.questions.count { index += 1; selected = nil }
-    else { Task { await context.complete() } }
+    if let next = bundle.nextUncompletedQuestionIndex(
+      after: index,
+      completedQuestionIDs: completedQuestionIDs)
+    {
+      index = next
+      selected = nil
+      waitRemaining = 0
+    } else {
+      Task { await context.complete() }
+    }
+  }
+
+  @MainActor
+  private func synchronizeReviewExposure(isActive: Bool) async {
+    if isReviewSyncing {
+      pendingReviewActiveState = isActive
+      return
+    }
+    guard let question = bundle.challenge.questions[safe: index] else { return }
+    isReviewSyncing = true
+    var desiredActiveState = isActive
+    repeat {
+      pendingReviewActiveState = nil
+      switch await context.updateReviewExposure(question.id, desiredActiveState) {
+      case .updated(let remainingActiveSeconds):
+        waitRemaining = remainingActiveSeconds
+      case .expired:
+        submissionError = "有効時間が終了しました。教材画面へ戻って新しい解除問題を開始してください。"
+      case .failed(let message):
+        submissionError = "解説確認時間を保存できませんでした。もう一度お試しください。\n\(message)"
+      }
+      guard let pending = pendingReviewActiveState else { break }
+      desiredActiveState = pending
+    } while true
+    isReviewSyncing = false
   }
 }

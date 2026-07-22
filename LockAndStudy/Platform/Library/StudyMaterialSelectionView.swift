@@ -36,7 +36,8 @@ struct StudyMaterialSelectionView: View {
   }
 
   private func materialCard(_ manifest: StudyPackManifest) -> some View {
-    let descriptor = model.experienceRegistry.factory(for: manifest.id)?.descriptor
+    let descriptor = model.experienceRegistry.factory(for: manifest)?.descriptor
+    let availability = model.availability(for: manifest)
     let isCurrent = model.selectedPackID == manifest.id
     let tint =
       manifest.moduleType == .vocabulary ? LockAndStudyTheme.vocabulary : LockAndStudyTheme.takken
@@ -58,12 +59,17 @@ struct StudyMaterialSelectionView: View {
             Text(manifest.title).font(.title3.bold()).foregroundStyle(.primary)
             Text(manifest.subtitle).font(.subheadline).foregroundStyle(.secondary)
             Text(freeStatus(manifest)).font(.caption.bold()).foregroundStyle(tint)
+            if !availability.canOpen {
+              Text(availability.message).font(.caption.bold()).foregroundStyle(.orange)
+            }
           }
           Spacer(minLength: 0)
         }
 
         HStack {
-          if isCurrent {
+          if !availability.canOpen {
+            Label("利用できません", systemImage: "exclamationmark.triangle.fill")
+          } else if isCurrent {
             Label("選択中", systemImage: "checkmark.circle.fill")
           } else {
             Label("この教材を選択", systemImage: "arrow.right.circle.fill")
@@ -77,9 +83,12 @@ struct StudyMaterialSelectionView: View {
       .studyCard()
     }
     .buttonStyle(.plain)
-    .disabled(isCurrent)
+    .disabled(isCurrent || !availability.canOpen)
     .accessibilityIdentifier("materialSelection.option.\(manifest.id.rawValue)")
-    .accessibilityHint(isCurrent ? "現在使用している教材です" : "選択するとこの教材へ切り替わります")
+    .accessibilityHint(
+      !availability.canOpen
+        ? availability.message
+        : (isCurrent ? "現在使用している教材です" : "選択するとこの教材へ切り替わります"))
   }
 
   private func freeStatus(_ manifest: StudyPackManifest) -> String {

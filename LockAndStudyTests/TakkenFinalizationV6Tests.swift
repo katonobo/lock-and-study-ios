@@ -140,7 +140,9 @@ final class TakkenFinalizationV6Tests: XCTestCase {
   func testNormalPracticeDoesNotConsumeUnlockPreview() async throws {
     let dependencies = DependencyContainer(learningRootURL: temporaryRoot())
     let manifest = try await takkenManifest()
-    let questions = try TakkenQuestionRepository(bundle: .main).load(manifest: manifest)
+    let questions = try TakkenQuestionRepository(
+      packageRoot: try XCTUnwrap(Bundle.main.resourceURL)
+    ).load(manifest: manifest)
     let source = try XCTUnwrap(questions.first)
     let now = Date()
     var preview = makePreview(
@@ -368,7 +370,8 @@ final class TakkenFinalizationV6Tests: XCTestCase {
   }
 
   private func takkenManifest() async throws -> StudyPackManifest {
-    let manifests = try await ContentRepository(bundle: .main).releasedManifests()
+    let manifests = try await ContentRepository(source: BundledContentSource(bundle: .main))
+      .releasedManifests()
     return try XCTUnwrap(manifests.first { $0.id == "takken2026.v1" })
   }
 

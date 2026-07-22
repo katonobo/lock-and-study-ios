@@ -5,6 +5,7 @@ struct TakkenPendingPreview: Codable, Equatable, Sendable, Identifiable {
   static let recallDuration: TimeInterval = 86_400
 
   let id: UUID
+  let packID: StudyPackID
   let sourceUnlockBundleID: UUID
   let conceptID: String
   let sourceQuestionID: String
@@ -15,6 +16,57 @@ struct TakkenPendingPreview: Codable, Equatable, Sendable, Identifiable {
   var confirmedAt: Date?
   var consumedAt: Date?
   var foregroundExposureSeconds: TimeInterval
+
+  init(
+    id: UUID,
+    packID: StudyPackID = "takken2026.v1",
+    sourceUnlockBundleID: UUID,
+    conceptID: String,
+    sourceQuestionID: String,
+    preferredVariantID: String?,
+    contentVersion: String,
+    createdAt: Date,
+    recallExpiresAt: Date,
+    confirmedAt: Date?,
+    consumedAt: Date?,
+    foregroundExposureSeconds: TimeInterval
+  ) {
+    self.id = id
+    self.packID = packID
+    self.sourceUnlockBundleID = sourceUnlockBundleID
+    self.conceptID = conceptID
+    self.sourceQuestionID = sourceQuestionID
+    self.preferredVariantID = preferredVariantID
+    self.contentVersion = contentVersion
+    self.createdAt = createdAt
+    self.recallExpiresAt = recallExpiresAt
+    self.confirmedAt = confirmedAt
+    self.consumedAt = consumedAt
+    self.foregroundExposureSeconds = foregroundExposureSeconds
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case id, packID, sourceUnlockBundleID, conceptID, sourceQuestionID, preferredVariantID
+    case contentVersion, createdAt, recallExpiresAt, confirmedAt, consumedAt
+    case foregroundExposureSeconds
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    id = try container.decode(UUID.self, forKey: .id)
+    packID = try container.decodeIfPresent(StudyPackID.self, forKey: .packID) ?? "takken2026.v1"
+    sourceUnlockBundleID = try container.decode(UUID.self, forKey: .sourceUnlockBundleID)
+    conceptID = try container.decode(String.self, forKey: .conceptID)
+    sourceQuestionID = try container.decode(String.self, forKey: .sourceQuestionID)
+    preferredVariantID = try container.decodeIfPresent(String.self, forKey: .preferredVariantID)
+    contentVersion = try container.decode(String.self, forKey: .contentVersion)
+    createdAt = try container.decode(Date.self, forKey: .createdAt)
+    recallExpiresAt = try container.decode(Date.self, forKey: .recallExpiresAt)
+    confirmedAt = try container.decodeIfPresent(Date.self, forKey: .confirmedAt)
+    consumedAt = try container.decodeIfPresent(Date.self, forKey: .consumedAt)
+    foregroundExposureSeconds =
+      try container.decodeIfPresent(TimeInterval.self, forKey: .foregroundExposureSeconds) ?? 0
+  }
 
   var displayExpiresAt: Date { createdAt.addingTimeInterval(Self.displayDuration) }
 

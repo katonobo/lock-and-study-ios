@@ -44,9 +44,14 @@ struct TakkenRootView: View {
 
 struct TakkenFirstRunView: View {
   let context: StudyExperienceContext
-  @State private var settings = TakkenSettings.load()
+  @State private var settings: TakkenSettings
   @State private var category = "宅建業法"
   @State private var errorMessage: String?
+
+  init(context: StudyExperienceContext) {
+    self.context = context
+    _settings = State(initialValue: .load(packID: context.manifest.id))
+  }
   var body: some View {
     NavigationStack {
       ScrollView {
@@ -73,7 +78,7 @@ struct TakkenFirstRunView: View {
           Button("宅建学習を始める") {
             settings.selectedCategories = [category]
             do {
-              try settings.save()
+              try settings.save(packID: context.manifest.id)
               context.completeFirstRun()
             } catch {
               errorMessage = "設定を保存できませんでした。\n\(error.localizedDescription)"
@@ -313,7 +318,7 @@ private struct TakkenQuestionDetailView: View {
   let question: TakkenQuestion
   @State private var isAnswerVisible = false
   private var viewModel: TakkenQuestionDetailViewModel {
-    .init(question: question, answers: model.answers)
+    .init(question: question, answers: model.answers, packID: model.context.manifest.id)
   }
   var body: some View {
     List {

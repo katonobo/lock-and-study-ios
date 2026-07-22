@@ -38,6 +38,7 @@
 		3F1BEBE6D279229192B0A1EF /* LearningReportComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 732B5F1D44777422B1EF2242 /* LearningReportComponents.swift */; };
 		3FCB7A6F74EB7441301106C1 /* ScreenTimeLockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD167345A6CDA06B3C5F557 /* ScreenTimeLockService.swift */; };
 		436291DCC22D3FBEA1C0F6C7 /* LockAndStudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */; };
+		499ADC06D2F29FC9A1D4C0EC /* ContentPlatformScalabilityV7Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCC8C7A16D005A60099F866 /* ContentPlatformScalabilityV7Tests.swift */; };
 		4AA867658561F145B8EA9603 /* takken2026_credits_v1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7889412D6DB09D61362CF630 /* takken2026_credits_v1.txt */; };
 		51C88E183F7FF33322A9235A /* ShieldConfigurationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B9726E361B52CCEAE745AC /* ShieldConfigurationExtension.swift */; };
 		52ADC0EB12BAF6AD5E49045B /* LockAndStudyShieldConfigurationExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CC285D65F09CA0653D4AEB4A /* LockAndStudyShieldConfigurationExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -75,9 +76,11 @@
 		A4DE1C7DB1042DF183B3E9F1 /* Collection+Safe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5364CD50E0C3D03AEDDE95 /* Collection+Safe.swift */; };
 		A93EEFF9DE12E3923D210120 /* StoreKitCommerceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF2F115FD03369D7142BC94 /* StoreKitCommerceService.swift */; };
 		AB59E98EF3497801E92A16DA /* LearningReportSampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027111955F12232B3658FE76 /* LearningReportSampleView.swift */; };
+		ADE75AFCF2D7F919FBFB9BEC /* ContentSampleResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA623BD3EA6EDEDEE85668C /* ContentSampleResolver.swift */; };
 		AFDDA993E03EDA0FB485E698 /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
 		B35480BAA9533ADE7FC929DF /* VocabularyStudyModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C0A206E3F580B0270EEEC9 /* VocabularyStudyModule.swift */; };
 		B7BCC7D6831907F02030B2A6 /* vocabulary_english3000_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 42D285ECB76C5343277EDC93 /* vocabulary_english3000_v1.json */; };
+		B8B04D554A9A4E4B344439DD /* ContentAssetSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C55539332BF904738866B3A6 /* ContentAssetSource.swift */; };
 		B8B6AECAF7B797642B899462 /* takken2026_metadata_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 39E6AEA2E412FDC3AF36B580 /* takken2026_metadata_v1.json */; };
 		BA3A40E401E1E798E2DF3FEB /* LearningReportShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5452C5285DDFAE6F7ECB790 /* LearningReportShareService.swift */; };
 		BC38DAB0BBBC98A1A3C9444B /* TakkenStudyModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE0A366EC784825AD441E79 /* TakkenStudyModule.swift */; };
@@ -213,6 +216,7 @@
 		84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockAndStudySharedConstants.swift; sourceTree = "<group>"; };
 		863B9A9420F9698C3E2583E6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		8D05A8487A9D68222CEC0AE5 /* english3000_metadata_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = english3000_metadata_v1.json; sourceTree = "<group>"; };
+		8EA623BD3EA6EDEDEE85668C /* ContentSampleResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSampleResolver.swift; sourceTree = "<group>"; };
 		9527EC6207B6CA896ED2DF5B /* LearningReportModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportModels.swift; sourceTree = "<group>"; };
 		9646ABC650E86550A2B44F90 /* LockAndStudyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockAndStudyApp.swift; sourceTree = "<group>"; };
 		98737A725F68857CDF65FFD8 /* StudyContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyContentModels.swift; sourceTree = "<group>"; };
@@ -233,6 +237,7 @@
 		BB950C209CD7EF2261125E6A /* LockPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockPolicy.swift; sourceTree = "<group>"; };
 		C0D98D7EF0D60BF6E3208D7B /* SpeechService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechService.swift; sourceTree = "<group>"; };
 		C5452C5285DDFAE6F7ECB790 /* LearningReportShareService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportShareService.swift; sourceTree = "<group>"; };
+		C55539332BF904738866B3A6 /* ContentAssetSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentAssetSource.swift; sourceTree = "<group>"; };
 		C5E08D0CE9E32773B1696FC5 /* PolicyProtectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolicyProtectionService.swift; sourceTree = "<group>"; };
 		C6C30B7842E5A9CF6618495D /* vocabulary_free_sample_250_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = vocabulary_free_sample_250_v1.json; sourceTree = "<group>"; };
 		C8A89A96ABEC00BB68023331 /* LearningDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningDataStore.swift; sourceTree = "<group>"; };
@@ -248,6 +253,7 @@
 		D9634DE74BB84C2DBCE59CCE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		DA552FC4A38D04718E7EAD28 /* DateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateProvider.swift; sourceTree = "<group>"; };
 		DAEF0802E477B496A5E664CD /* DeviceActivityMonitorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceActivityMonitorExtension.swift; sourceTree = "<group>"; };
+		DFCC8C7A16D005A60099F866 /* ContentPlatformScalabilityV7Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPlatformScalabilityV7Tests.swift; sourceTree = "<group>"; };
 		E555E9D988204E317D236852 /* LockAndStudyShieldActionExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockAndStudyShieldActionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E710BB9EA03E205FD3A89607 /* StudySessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySessionView.swift; sourceTree = "<group>"; };
 		EA6C993937583046ED9BF8B7 /* CommerceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommerceTests.swift; sourceTree = "<group>"; };
@@ -286,6 +292,7 @@
 			children = (
 				EA6C993937583046ED9BF8B7 /* CommerceTests.swift */,
 				10A2FDD02695CD5C9DC00DE2 /* ContentAndStoreKitTests.swift */,
+				DFCC8C7A16D005A60099F866 /* ContentPlatformScalabilityV7Tests.swift */,
 				D66ECF0AAA315C757C2D5E10 /* EmergencyUnlockTests.swift */,
 				00B9E7EC872B32CDEFE75214 /* LearningReportTests.swift */,
 				D6F235FC79B123FC718044A6 /* LearningTests.swift */,
@@ -491,7 +498,9 @@
 			isa = PBXGroup;
 			children = (
 				324F5D76807C318F0B54DF88 /* ContentAccessService.swift */,
+				C55539332BF904738866B3A6 /* ContentAssetSource.swift */,
 				5ED9C76653DE4320A788E36C /* ContentRepository.swift */,
+				8EA623BD3EA6EDEDEE85668C /* ContentSampleResolver.swift */,
 				98737A725F68857CDF65FFD8 /* StudyContentModels.swift */,
 			);
 			path = Content;
@@ -957,7 +966,9 @@
 				E3D3CC2B2976A45F1C72FBC3 /* Collection+Safe.swift in Sources */,
 				75BA03B28D46795243DE86C7 /* CommerceModels.swift in Sources */,
 				035B1A5CA4B375CE041E0E2B /* ContentAccessService.swift in Sources */,
+				B8B04D554A9A4E4B344439DD /* ContentAssetSource.swift in Sources */,
 				2D06E60120AEC27E118473A9 /* ContentRepository.swift in Sources */,
+				ADE75AFCF2D7F919FBFB9BEC /* ContentSampleResolver.swift in Sources */,
 				DB83706FBC091A56363A0ECE /* DateProvider.swift in Sources */,
 				6C273D6FE27922D7B012AACC /* DependencyContainer.swift in Sources */,
 				2DF343EB992FFA5776C46196 /* EmergencyUnlockService.swift in Sources */,
@@ -1040,6 +1051,7 @@
 			files = (
 				09B44968BBDC4A73D58D632A /* CommerceTests.swift in Sources */,
 				8B2E9B5F62DD8C2CBEEA4D93 /* ContentAndStoreKitTests.swift in Sources */,
+				499ADC06D2F29FC9A1D4C0EC /* ContentPlatformScalabilityV7Tests.swift in Sources */,
 				1C58FDF3D58F841B64DEB956 /* EmergencyUnlockTests.swift in Sources */,
 				2B6282594D8C95709EFF2449 /* LearningReportTests.swift in Sources */,
 				D82E16DEB2D0B9DC7C0FAF09 /* LearningTests.swift in Sources */,

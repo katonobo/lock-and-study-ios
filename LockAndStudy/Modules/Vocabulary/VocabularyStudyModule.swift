@@ -22,11 +22,11 @@ private struct FreeSampleCatalogDTO: Decodable {
 
 struct VocabularyStudyModule: StudyModule {
   let moduleType = StudyModuleType.vocabulary
-  func loadPrompts(manifest: StudyPackManifest, bundle: Bundle) throws -> [StudyPrompt] {
+  func loadPrompts(manifest: StudyPackManifest, packageRoot: URL) throws -> [StudyPrompt] {
     guard let file = manifest.contentFiles.first,
-          let contentURL = resourceURL(file.path, bundle: bundle),
+          let contentURL = try? resourceURL(file.path, packageRoot: packageRoot),
           let sampleFile = manifest.sampleDefinition.catalogFile,
-          let sampleURL = resourceURL(sampleFile, bundle: bundle) else { throw ContentRepositoryError.missing(manifest.title) }
+          let sampleURL = try? resourceURL(sampleFile, packageRoot: packageRoot) else { throw ContentRepositoryError.missing(manifest.title) }
     let decoder = JSONDecoder()
     let items = try decoder.decode([VocabularyDTO].self, from: Data(contentsOf: contentURL))
     let sampleIDs = try decoder.decode(FreeSampleCatalogDTO.self, from: Data(contentsOf: sampleURL)).ids
@@ -50,9 +50,7 @@ struct VocabularyStudyModule: StudyModule {
   func feedbackPlan(wrongAttemptCount: Int) -> StudyFeedbackPlan {
     switch wrongAttemptCount { case 0: return .immediate; case 1: return .relearn6; case 2: return .relearn12; default: return .guided20 }
   }
-  private func resourceURL(_ path: String, bundle: Bundle) -> URL? {
-    let url = URL(fileURLWithPath: path)
-    return bundle.url(forResource: url.deletingPathExtension().lastPathComponent, withExtension: url.pathExtension)
+  private func resourceURL(_ path: String, packageRoot: URL) throws -> URL {
+    try ContentPackageLocation(kind: .bundled, rootURL: packageRoot).fileURL(for: path)
   }
 }
-

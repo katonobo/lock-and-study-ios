@@ -23,15 +23,22 @@ private struct ExperienceBundleDocument: Codable { let schemaVersion: Int; var b
 private struct VocabularyPendingPreviewDocument: Codable {
   let schemaVersion: Int
   var preview: VocabularyPendingPreview?
+  var previewsByPackID: [String: VocabularyPendingPreview]?
 }
 private struct TakkenPendingPreviewDocument: Codable {
   let schemaVersion: Int
   var preview: TakkenPendingPreview?
+  var previewsByPackID: [String: TakkenPendingPreview]?
 }
 private struct LegacyImportDocument: Codable { let schemaVersion: Int; var importedEventIDs: Set<UUID> }
 private struct ExportDocument: Codable { let schemaVersion: Int; let exportedAt: Date; let progress: [String: ItemProgress]; let events: [LearningEvent]; let answersByMonth: [String: [StudyAnswerRecord]] }
 private enum AnswerWriteStage: String, Codable { case prepared, answerWritten, progressWritten, completed }
-private struct AnswerTransaction: Codable { var stage: AnswerWriteStage; let eventID: UUID }
+private struct AnswerTransaction: Codable {
+  var stage: AnswerWriteStage
+  let eventID: UUID
+  var updatedAt: Date? = nil
+  var completedAt: Date? = nil
+}
 private struct AnswerTransactionDocument: Codable { let schemaVersion: Int; var transactions: [String: AnswerTransaction] }
 
 actor LearningDataStore {
@@ -41,6 +48,7 @@ actor LearningDataStore {
   private let encoder: JSONEncoder
   private let decoder: JSONDecoder
   private var progressCache: [String: ItemProgress]?
+  private var answerSubmissionIDCache: [String: Set<String>] = [:]
 
   init(rootURL: URL? = nil, fileManager: FileManager = .default) {
     self.fileManager = fileManager
@@ -78,7 +86,10 @@ actor LearningDataStore {
     }
     if transactions.transactions[submissionID]?.stage == .completed { return false }
     if transactions.transactions[submissionID] == nil {
-      transactions.transactions[submissionID] = .init(stage: .prepared, eventID: UUID())
+      transactions.transactions[submissionID] = .init(
+        stage: .prepared,
+        eventID: UUID(),
+        updatedAt: Date())
       try write(transactions, to: answerTransactionsURL)
     }
     guard var transaction = transactions.transactions[submissionID] else { return false }
@@ -88,6 +99,7 @@ actor LearningDataStore {
         try append(answer)
       }
       transaction.stage = .answerWritten
+      transaction.updatedAt = Date()
       transactions.transactions[submissionID] = transaction
       try write(transactions, to: answerTransactionsURL)
     }
@@ -108,6 +120,7 @@ actor LearningDataStore {
         progressCache = document.items
       }
       transaction.stage = .progressWritten
+      transaction.updatedAt = Date()
       transactions.transactions[submissionID] = transaction
       try write(transactions, to: answerTransactionsURL)
     }
@@ -122,9 +135,20 @@ actor LearningDataStore {
         detailCode: answer.isCorrect ? "correct" : "incorrect"
       ))
       transaction.stage = .completed
+      transaction.updatedAt = Date()
+      transaction.completedAt = transaction.updatedAt
       transactions.transactions[submissionID] = transaction
       if transactions.transactions.count > 20_000 {
-        transactions.transactions = Dictionary(uniqueKeysWithValues: transactions.transactions.suffix(10_000))
+        let unfinished = transactions.transactions.filter { $0.value.stage != .completed }
+        let completed = transactions.transactions.filter { $0.value.stage == .completed }
+          .sorted {
+            ($0.value.completedAt ?? $0.value.updatedAt ?? .distantPast)
+              > ($1.value.completedAt ?? $1.value.updatedAt ?? .distantPast)
+          }
+          .prefix(10_000)
+        transactions.transactions = unfinished.merging(
+          Dictionary(uniqueKeysWithValues: completed.map { ($0.key, $0.value) })
+        ) { current, _ in current }
       }
       try write(transactions, to: answerTransactionsURL)
     }
@@ -233,74 +257,154 @@ actor LearningDataStore {
     return document.bundle
   }
 
-  func saveVocabularyPendingPreview(_ preview: VocabularyPendingPreview?) throws {
-    try write(
-      VocabularyPendingPreviewDocument(schemaVersion: Self.schemaVersion, preview: preview),
-      to: vocabularyPendingPreviewURL
-    )
+  func saveVocabularyPendingPreview(
+    _ preview: VocabularyPendingPreview?,
+    for packID: StudyPackID = "english3000.v1"
+  ) throws {
+    var document: VocabularyPendingPreviewDocument = try load(
+      vocabularyPendingPreviewURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, preview: nil, previewsByPackID: [:]))
+    var values = migratedVocabularyPreviews(document)
+    if let preview {
+      guard preview.packID == packID else {
+        throw LearningDataStoreError.corrupted("予習のpack IDが一致しません")
+      }
+      values[packID.rawValue] = preview
+    } else {
+      values.removeValue(forKey: packID.rawValue)
+    }
+    document = .init(
+      schemaVersion: Self.schemaVersion,
+      preview: nil,
+      previewsByPackID: values)
+    try write(document, to: vocabularyPendingPreviewURL)
   }
 
-  func loadVocabularyPendingPreview(now: Date) throws -> VocabularyPendingPreview? {
-    let document: VocabularyPendingPreviewDocument = try load(
+  func loadVocabularyPendingPreview(
+    for packID: StudyPackID = "english3000.v1",
+    now: Date
+  ) throws -> VocabularyPendingPreview? {
+    var document: VocabularyPendingPreviewDocument = try load(
       vocabularyPendingPreviewURL,
-      fallback: .init(schemaVersion: Self.schemaVersion, preview: nil)
+      fallback: .init(schemaVersion: Self.schemaVersion, preview: nil, previewsByPackID: [:])
     )
     guard document.schemaVersion == Self.schemaVersion else {
       throw LearningDataStoreError.unsupportedSchema(document.schemaVersion)
     }
-    guard let preview = document.preview else { return nil }
+    let migrated = document.preview != nil
+    var values = migratedVocabularyPreviews(document)
+    if migrated {
+      document = .init(
+        schemaVersion: Self.schemaVersion,
+        preview: nil,
+        previewsByPackID: values)
+      try write(document, to: vocabularyPendingPreviewURL)
+    }
+    guard let preview = values[packID.rawValue], preview.packID == packID else { return nil }
     guard preview.recallExpiresAt > now else {
-      try saveVocabularyPendingPreview(nil)
+      values.removeValue(forKey: packID.rawValue)
+      try write(
+        VocabularyPendingPreviewDocument(
+          schemaVersion: Self.schemaVersion,
+          preview: nil,
+          previewsByPackID: values),
+        to: vocabularyPendingPreviewURL)
       return nil
     }
     return preview
   }
 
   @discardableResult
-  func consumeVocabularyPendingPreview(id: UUID, at date: Date) throws -> Bool {
-    guard var preview = try loadVocabularyPendingPreview(now: date),
+  func consumeVocabularyPendingPreview(
+    for packID: StudyPackID = "english3000.v1",
+    id: UUID,
+    at date: Date
+  ) throws -> Bool {
+    guard var preview = try loadVocabularyPendingPreview(for: packID, now: date),
       preview.id == id,
       preview.confirmedAt != nil,
       preview.consumedAt == nil
     else { return false }
     preview.consumedAt = date
-    try saveVocabularyPendingPreview(preview)
+    try saveVocabularyPendingPreview(preview, for: packID)
     return true
   }
 
-  func saveTakkenPendingPreview(_ preview: TakkenPendingPreview?) throws {
-    try write(
-      TakkenPendingPreviewDocument(schemaVersion: Self.schemaVersion, preview: preview),
-      to: takkenPendingPreviewURL)
+  func saveTakkenPendingPreview(
+    _ preview: TakkenPendingPreview?,
+    for packID: StudyPackID = "takken2026.v1"
+  ) throws {
+    var document: TakkenPendingPreviewDocument = try load(
+      takkenPendingPreviewURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, preview: nil, previewsByPackID: [:]))
+    var values = migratedTakkenPreviews(document)
+    if let preview {
+      guard preview.packID == packID else {
+        throw LearningDataStoreError.corrupted("予習のpack IDが一致しません")
+      }
+      values[packID.rawValue] = preview
+    } else {
+      values.removeValue(forKey: packID.rawValue)
+    }
+    document = .init(
+      schemaVersion: Self.schemaVersion,
+      preview: nil,
+      previewsByPackID: values)
+    try write(document, to: takkenPendingPreviewURL)
   }
 
-  func loadTakkenPendingPreview(now: Date) throws -> TakkenPendingPreview? {
-    let document: TakkenPendingPreviewDocument
+  func loadTakkenPendingPreview(
+    for packID: StudyPackID = "takken2026.v1",
+    now: Date
+  ) throws -> TakkenPendingPreview? {
+    var document: TakkenPendingPreviewDocument
     do {
       document = try load(
         takkenPendingPreviewURL,
-        fallback: .init(schemaVersion: Self.schemaVersion, preview: nil))
+        fallback: .init(
+          schemaVersion: Self.schemaVersion,
+          preview: nil,
+          previewsByPackID: [:]))
     } catch LearningDataStoreError.corrupted {
       return nil
     }
     guard document.schemaVersion == Self.schemaVersion else {
       throw LearningDataStoreError.unsupportedSchema(document.schemaVersion)
     }
-    guard let preview = document.preview else { return nil }
+    let migrated = document.preview != nil
+    var values = migratedTakkenPreviews(document)
+    if migrated {
+      document = .init(
+        schemaVersion: Self.schemaVersion,
+        preview: nil,
+        previewsByPackID: values)
+      try write(document, to: takkenPendingPreviewURL)
+    }
+    guard let preview = values[packID.rawValue], preview.packID == packID else { return nil }
     guard preview.recallExpiresAt > now else {
-      try saveTakkenPendingPreview(nil)
+      values.removeValue(forKey: packID.rawValue)
+      try write(
+        TakkenPendingPreviewDocument(
+          schemaVersion: Self.schemaVersion,
+          preview: nil,
+          previewsByPackID: values),
+        to: takkenPendingPreviewURL)
       return nil
     }
     return preview
   }
 
   @discardableResult
-  func consumeTakkenPendingPreview(id: UUID, at date: Date) throws -> Bool {
-    guard var preview = try loadTakkenPendingPreview(now: date),
+  func consumeTakkenPendingPreview(
+    for packID: StudyPackID = "takken2026.v1",
+    id: UUID,
+    at date: Date
+  ) throws -> Bool {
+    guard var preview = try loadTakkenPendingPreview(for: packID, now: date),
       preview.id == id, preview.confirmedAt != nil, preview.consumedAt == nil
     else { return false }
     preview.consumedAt = date
-    try saveTakkenPendingPreview(preview)
+    try saveTakkenPendingPreview(preview, for: packID)
     return true
   }
 
@@ -342,8 +446,29 @@ actor LearningDataStore {
       throw LearningDataStoreError.deletionFailed(Array(Set(failures + ["削除後の存在確認に失敗しました"])).sorted())
     }
     progressCache = nil
+    answerSubmissionIDCache.removeAll()
     let unresolved = Array(Set(failures + remaining)).sorted()
     if !unresolved.isEmpty { throw LearningDataStoreError.deletionFailed(unresolved) }
+  }
+
+  private func migratedVocabularyPreviews(
+    _ document: VocabularyPendingPreviewDocument
+  ) -> [String: VocabularyPendingPreview] {
+    var values = document.previewsByPackID ?? [:]
+    if let legacy = document.preview {
+      values[legacy.packID.rawValue] = legacy
+    }
+    return values
+  }
+
+  private func migratedTakkenPreviews(
+    _ document: TakkenPendingPreviewDocument
+  ) -> [String: TakkenPendingPreview] {
+    var values = document.previewsByPackID ?? [:]
+    if let legacy = document.preview {
+      values[legacy.packID.rawValue] = legacy
+    }
+    return values
   }
 
   private var progressURL: URL { rootURL.appendingPathComponent("progress.v1.json") }
@@ -373,9 +498,17 @@ actor LearningDataStore {
       try data.write(to: url, options: .atomic)
       protect(url)
     }
+    answerSubmissionIDCache[month(answer.answeredAt), default: []]
+      .insert(answer.submissionID ?? answer.id.uuidString)
   }
   private func answerExists(submissionID: String, monthKey: String) throws -> Bool {
-    try answers(monthKey: monthKey).contains { $0.submissionID == submissionID }
+    if let cached = answerSubmissionIDCache[monthKey] {
+      return cached.contains(submissionID)
+    }
+    let identifiers = Set(
+      try answers(monthKey: monthKey).map { $0.submissionID ?? $0.id.uuidString })
+    answerSubmissionIDCache[monthKey] = identifiers
+    return identifiers.contains(submissionID)
   }
   private func load<T: Codable>(_ url: URL, fallback: T) throws -> T {
     guard fileManager.fileExists(atPath: url.path) else { return fallback }

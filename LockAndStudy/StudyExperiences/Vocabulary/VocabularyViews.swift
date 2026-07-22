@@ -46,8 +46,13 @@ struct VocabularyRootView: View {
 
 struct VocabularyFirstRunView: View {
   let context: StudyExperienceContext
-  @State private var settings = VocabularySettings.load()
+  @State private var settings: VocabularySettings
   @State private var errorMessage: String?
+
+  init(context: StudyExperienceContext) {
+    self.context = context
+    _settings = State(initialValue: .load(packID: context.manifest.id))
+  }
 
   var body: some View {
     NavigationStack {
@@ -81,7 +86,7 @@ struct VocabularyFirstRunView: View {
             .studyCard()
           Button("英単語を始める") {
             do {
-              try settings.save()
+              try settings.save(packID: context.manifest.id)
               context.completeFirstRun()
             } catch {
               errorMessage = "設定を保存できませんでした。\n\(error.localizedDescription)"
@@ -598,6 +603,8 @@ struct VocabularyUnlockChallengeView: View {
   @State private var selected: Int?
   @State private var attempts = 0
   @State private var waitRemaining = 0
+  @State private var isReviewSyncing = false
+  @State private var pendingReviewActiveState: Bool?
   @State private var isSubmitting = false
   @State private var submissionError: String?
   private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -611,6 +618,16 @@ struct VocabularyUnlockChallengeView: View {
       bundle.challenge.questions.firstIndex { !bundle.completedQuestionIDs.contains($0.id) } ?? 0
     _index = State(initialValue: first)
     _completedQuestionIDs = State(initialValue: bundle.completedQuestionIDs)
+    if let question = bundle.challenge.questions[safe: first] {
+      _selected = State(
+        initialValue: bundle.lastSelectedChoiceIDByQuestionID?[question.id.rawValue])
+      _attempts = State(
+        initialValue: bundle.attemptCountsByQuestionID?[question.id.rawValue] ?? 0)
+      _waitRemaining = State(initialValue: max(
+        0,
+        Int(ceil(
+          bundle.reviewRemainingActiveSecondsByQuestionID?[question.id.rawValue] ?? 0))))
+    }
   }
 
   var body: some View {
@@ -649,6 +666,9 @@ struct VocabularyUnlockChallengeView: View {
                 Text(question.exampleEnglish)
                 Text(question.exampleJapanese).foregroundStyle(.secondary)
                 if !correct, waitRemaining > 0 { Text("あと\(waitRemaining)秒").monospacedDigit() }
+                if !correct, waitRemaining == 0 {
+                  Button("もう一度解く") { self.selected = nil }.primaryActionStyle()
+                }
                 if correct { Button(isLast ? "解除する" : "次へ") { advance() }.primaryActionStyle() }
               }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
             }
@@ -658,9 +678,20 @@ struct VocabularyUnlockChallengeView: View {
     }
     .interactiveDismissDisabled()
     .onReceive(timer) { _ in
-      guard scenePhase == .active, waitRemaining > 0 else { return }
-      waitRemaining -= 1
-      if waitRemaining == 0 { selected = nil }
+      guard scenePhase == .active, isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: true) }
+    }
+    .onChange(of: scenePhase) { phase in
+      guard isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: phase == .active) }
+    }
+    .onAppear {
+      guard scenePhase == .active, isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: true) }
+    }
+    .onDisappear {
+      guard isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: false) }
     }
     .accessibilityIdentifier("unlock.vocabulary")
     .alert("解除問題", isPresented: .init(
@@ -676,6 +707,10 @@ struct VocabularyUnlockChallengeView: View {
     !bundle.hasLaterUncompletedQuestion(
       after: index, completedQuestionIDs: completedQuestionIDs)
   }
+  private var isReviewingWrong: Bool {
+    guard let question = bundle.challenge.questions[safe: index], let selected else { return false }
+    return selected != question.correctChoiceID
+  }
   private func submit(_ question: UnlockQuestionSnapshot, choiceID: Int) {
     let correct = choiceID == question.correctChoiceID
     let plan = planner.plan(wrongAttemptCount: correct ? 0 : attempts + 1)
@@ -689,6 +724,7 @@ struct VocabularyUnlockChallengeView: View {
         selected = choiceID
         attempts = attemptNumber
         waitRemaining = remainingActiveSeconds
+        await synchronizeReviewExposure(isActive: scenePhase == .active)
       case .expired:
         submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
       case .failed(let message):
@@ -708,5 +744,30 @@ struct VocabularyUnlockChallengeView: View {
     } else {
       Task { await context.complete() }
     }
+  }
+
+  @MainActor
+  private func synchronizeReviewExposure(isActive: Bool) async {
+    if isReviewSyncing {
+      pendingReviewActiveState = isActive
+      return
+    }
+    guard let question = bundle.challenge.questions[safe: index] else { return }
+    isReviewSyncing = true
+    var desiredActiveState = isActive
+    repeat {
+      pendingReviewActiveState = nil
+      switch await context.updateReviewExposure(question.id, desiredActiveState) {
+      case .updated(let remainingActiveSeconds):
+        waitRemaining = remainingActiveSeconds
+      case .expired:
+        submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
+      case .failed(let message):
+        submissionError = "解説確認時間を保存できませんでした。\n\(message)"
+      }
+      guard let pending = pendingReviewActiveState else { break }
+      desiredActiveState = pending
+    } while true
+    isReviewSyncing = false
   }
 }

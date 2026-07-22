@@ -14,7 +14,7 @@ struct StudyExperienceDescriptor: Identifiable, Hashable, Sendable {
   let subtitle: String
   let systemImage: String
   let tintName: String
-  let supportedPackIDs: [StudyPackID]
+  let supportedExperienceTypes: Set<StudyExperienceType>
 }
 
 struct StudyExperienceSummary: Equatable, Sendable {
@@ -72,7 +72,30 @@ struct UnlockChallengeRequest: Sendable {
   let entitlement: CommerceEntitlementSnapshot
   let progress: [String: ItemProgress]
   let learning: LearningDataStore
+  let content: ContentRepository
   let now: Date
+
+  init(
+    requestID: UUID,
+    origin: UnlockChallengeOrigin,
+    policy: LockPolicy,
+    manifest: StudyPackManifest,
+    entitlement: CommerceEntitlementSnapshot,
+    progress: [String: ItemProgress],
+    learning: LearningDataStore,
+    content: ContentRepository = ContentRepository(),
+    now: Date
+  ) {
+    self.requestID = requestID
+    self.origin = origin
+    self.policy = policy
+    self.manifest = manifest
+    self.entitlement = entitlement
+    self.progress = progress
+    self.learning = learning
+    self.content = content
+    self.now = now
+  }
 }
 
 struct UnlockCompletionContext {
@@ -287,6 +310,7 @@ struct UnlockChallengeViewContext {
   let bundle: ExperienceUnlockBundleSnapshot
   let submit: @MainActor (UnlockQuestionSnapshot, Int, StudyFeedbackPlan) async -> UnlockAnswerSubmissionResult
   let updateReviewExposure: @MainActor (StudyItemID, Bool) async -> UnlockReviewExposureResult
+  let restart: @MainActor () async -> Void
   let complete: @MainActor () async -> Void
 }
 
@@ -312,14 +336,21 @@ extension StudyExperienceFactory {
 @MainActor
 struct StudyExperienceRegistry {
   private let factories: [StudyExperienceID: any StudyExperienceFactory]
+  private let factoriesByType: [StudyExperienceType: any StudyExperienceFactory]
 
   init(factories: [any StudyExperienceFactory]) {
     self.factories = Dictionary(uniqueKeysWithValues: factories.map { ($0.descriptor.id, $0) })
+    factoriesByType = Dictionary(uniqueKeysWithValues: factories.flatMap { factory in
+      factory.descriptor.supportedExperienceTypes.map { ($0, factory) }
+    })
   }
 
   func factory(for id: StudyExperienceID) -> (any StudyExperienceFactory)? { factories[id] }
-  func factory(for packID: StudyPackID) -> (any StudyExperienceFactory)? {
-    factories.values.first { $0.descriptor.supportedPackIDs.contains(packID) }
+  func factory(for type: StudyExperienceType) -> (any StudyExperienceFactory)? {
+    factoriesByType[type]
+  }
+  func factory(for manifest: StudyPackManifest) -> (any StudyExperienceFactory)? {
+    factory(for: manifest.experienceType)
   }
   var descriptors: [StudyExperienceDescriptor] {
     factories.values.map(\.descriptor).sorted { $0.title < $1.title }

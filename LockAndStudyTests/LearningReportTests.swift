@@ -133,7 +133,8 @@ final class LearningReportTests: XCTestCase {
   }
 
   func testVocabularyProviderDoesNotIncludeTakkenAnswers() async throws {
-    let manifests = try await ContentRepository(bundle: .main).releasedManifests()
+    let manifests = try await ContentRepository(source: BundledContentSource(bundle: .main))
+      .releasedManifests()
     let vocabulary = try XCTUnwrap(manifests.first { $0.id == "english3000.v1" })
     let now = Date()
     let values = [
@@ -148,7 +149,8 @@ final class LearningReportTests: XCTestCase {
   }
 
   func testTakkenProviderDoesNotIncludeVocabularyAnswers() async throws {
-    let manifests = try await ContentRepository(bundle: .main).releasedManifests()
+    let manifests = try await ContentRepository(source: BundledContentSource(bundle: .main))
+      .releasedManifests()
     let takken = try XCTUnwrap(manifests.first { $0.id == "takken2026.v1" })
     let now = Date()
     let values = [
@@ -255,7 +257,9 @@ final class LearningReportTests: XCTestCase {
     let dependencies = DependencyContainer(learningRootURL: blockedRoot)
     let manifests = try await dependencies.content.releasedManifests()
     let manifest = try XCTUnwrap(manifests.first { $0.id == "english3000.v1" })
-    let item = try XCTUnwrap(try VocabularyRepository().load(manifest: manifest).items.first)
+    let item = try XCTUnwrap(
+      try VocabularyRepository(packageRoot: try XCTUnwrap(Bundle.main.resourceURL))
+        .load(manifest: manifest).items.first)
     let question = try VocabularyQuestionGenerator().makeQuestion(for: item)
     let context = StudyExperienceContext(
       manifest: manifest, dependencies: dependencies,
@@ -281,7 +285,9 @@ final class LearningReportTests: XCTestCase {
     let dependencies = DependencyContainer(learningRootURL: blockedRoot)
     let manifests = try await dependencies.content.releasedManifests()
     let manifest = try XCTUnwrap(manifests.first { $0.id == "takken2026.v1" })
-    let question = try XCTUnwrap(try TakkenQuestionRepository().load(manifest: manifest).first)
+    let question = try XCTUnwrap(
+      try TakkenQuestionRepository(packageRoot: try XCTUnwrap(Bundle.main.resourceURL))
+        .load(manifest: manifest).first)
     let context = StudyExperienceContext(
       manifest: manifest, dependencies: dependencies,
       reportProviders: [VocabularyReportProvider(), TakkenReportProvider()],

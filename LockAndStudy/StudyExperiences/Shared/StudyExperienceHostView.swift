@@ -9,9 +9,11 @@ struct StudyExperienceHostView: View {
   {
     self.factory = factory
     self.baseContext = context
-    let key = "lockandstudy.experience.\(factory.descriptor.id.rawValue).first-run.completed"
     _firstRunCompleted = State(
-      initialValue: !requiresFirstRun || LockAndStudySharedConstants.defaults.bool(forKey: key))
+      initialValue: !requiresFirstRun
+        || PackFirstRunStore().isCompleted(
+          packID: context.manifest.id,
+          legacyExperienceID: factory.descriptor.id))
   }
 
   var body: some View {
@@ -36,12 +38,42 @@ struct StudyExperienceHostView: View {
       openMaterialSelection: baseContext.openMaterialSelection,
       beginUnlockStudy: baseContext.beginUnlockStudy,
       completeFirstRun: {
-        let key = "lockandstudy.experience.\(factory.descriptor.id.rawValue).first-run.completed"
-        LockAndStudySharedConstants.defaults.set(true, forKey: key)
+        PackFirstRunStore().setCompleted(packID: baseContext.manifest.id)
         firstRunCompleted = true
         baseContext.completeFirstRun()
       }
     )
+  }
+}
+
+struct PackFirstRunStore {
+  let defaults: UserDefaults
+
+  init(defaults: UserDefaults = LockAndStudySharedConstants.defaults) {
+    self.defaults = defaults
+  }
+
+  func isCompleted(packID: StudyPackID, legacyExperienceID: StudyExperienceID) -> Bool {
+    let packKey = key(packID)
+    if defaults.bool(forKey: packKey) { return true }
+    let legacyPackMatches =
+      (packID == "english3000.v1" && legacyExperienceID == .vocabulary)
+      || (packID == "takken2026.v1" && legacyExperienceID == .takken)
+    let legacyKey =
+      "lockandstudy.experience.\(legacyExperienceID.rawValue).first-run.completed"
+    if legacyPackMatches, defaults.bool(forKey: legacyKey) {
+      defaults.set(true, forKey: packKey)
+      return true
+    }
+    return false
+  }
+
+  func setCompleted(packID: StudyPackID) {
+    defaults.set(true, forKey: key(packID))
+  }
+
+  private func key(_ packID: StudyPackID) -> String {
+    "lockandstudy.pack.\(packID.rawValue).first-run.completed.v1"
   }
 }
 

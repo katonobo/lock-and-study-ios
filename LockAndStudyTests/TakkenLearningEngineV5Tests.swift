@@ -213,7 +213,8 @@ final class TakkenLearningEngineV5Tests: XCTestCase {
       makeAnswer(questionID: "c", conceptID: "c", format: .trueFalse,
                  correct: false, attempt: 1, submissionID: "c-1", at: now),
     ]
-    let manifests = try await ContentRepository(bundle: .main).releasedManifests()
+    let manifests = try await ContentRepository(source: BundledContentSource(bundle: .main))
+      .releasedManifests()
     let manifest = try XCTUnwrap(manifests.first { $0.id == "takken2026.v1" })
     let snapshot = LearningReportDataSnapshot(
       answers: answers, events: [], progress: [:], manifests: manifests, entitlement: .empty)

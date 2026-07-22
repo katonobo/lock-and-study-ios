@@ -38,7 +38,10 @@ struct PurchaseView: View {
   private var passProducts: [StoreProductPresentation] { commerce.products.filter { $0.kind.isSubscription } }
   private var availablePackProducts: [StoreProductPresentation] {
     commerce.products.filter { product in
-      guard let packID = product.kind.packID, let manifest = model.manifests.first(where: { $0.id == packID }), manifest.saleReady else { return false }
+      guard let packID = product.packID,
+        let manifest = model.manifests.first(where: { $0.id == packID }),
+        manifest.saleReady
+      else { return false }
       if let focusedPackID, packID != focusedPackID { return false }
       if commerce.entitlement.ownedPacks.contains(where: { $0.packID == packID }) { return false }
       return commerce.entitlement.activePass?.permitsAccess != true || showPermanentPurchase

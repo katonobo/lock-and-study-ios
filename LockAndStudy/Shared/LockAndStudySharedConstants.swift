@@ -27,6 +27,7 @@ enum LockAndStudySharedConstants {
     static let lastRelockAt = "lockandstudy.diagnostics.relock.at"
     static let lastRelockResult = "lockandstudy.diagnostics.relock.result"
     static let entitlementCache = "lockandstudy.commerce.snapshot.v1"
+    static let knownProductMappings = "lockandstudy.commerce.product-mappings.v1"
     static let selectedPackID = "lockandstudy.content.selected.pack"
     static let settings = "lockandstudy.settings.v1"
   }

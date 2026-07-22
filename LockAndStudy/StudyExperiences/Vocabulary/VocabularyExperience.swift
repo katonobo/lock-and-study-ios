@@ -20,12 +20,9 @@ final class VocabularyRouter: ObservableObject {
 }
 
 struct VocabularyUnlockChallengeProvider: UnlockChallengeProviding {
-  let repository: VocabularyRepository
-  init(bundle: Bundle = .main) { repository = .init(bundle: bundle) }
-
   func makeUnlockChallenge(packID: StudyPackID, request: UnlockChallengeRequest) async throws -> UnlockChallengeSnapshot {
-    let package = try repository.load(manifest: request.manifest)
-    let settings = VocabularySettings.load()
+    let package = try await request.content.vocabularyPackage(for: packID)
+    let settings = VocabularySettings.load(packID: packID)
     let access = ContentAccessService()
     let available = package.items.filter { item in
       let selected = settings.selectedLevelCodes.isEmpty || settings.selectedLevelCodes.contains(item.levelCode)
@@ -40,10 +37,12 @@ struct VocabularyUnlockChallengeProvider: UnlockChallengeProviding {
     guard !safePool.isEmpty else { throw ContentRepositoryError.invalid("無料英単語を読み込めません") }
     let planner = VocabularyLearningQueuePlanner()
     var previewItem: VocabularyItem?
-    if let preview = try await request.learning.loadVocabularyPendingPreview(now: request.now),
+    if let preview = try await request.learning.loadVocabularyPendingPreview(
+      for: packID, now: request.now),
       let candidate = safePool.first(where: { $0.id == preview.itemID }),
       preview.isUsableForRecall(contentVersion: candidate.metadata.contentVersion, now: request.now),
-      try await request.learning.consumeVocabularyPendingPreview(id: preview.id, at: request.now)
+      try await request.learning.consumeVocabularyPendingPreview(
+        for: packID, id: preview.id, at: request.now)
     {
       previewItem = candidate
     }
@@ -116,7 +115,7 @@ struct VocabularyExperience: StudyExperienceFactory {
     subtitle: "5レベル・SRS・無料250語",
     systemImage: "character.book.closed.fill",
     tintName: "indigo",
-    supportedPackIDs: ["english3000.v1"]
+    supportedExperienceTypes: [.vocabularyV1]
   )
   let unlockChallengeProvider: any UnlockChallengeProviding = VocabularyUnlockChallengeProvider()
   let reportProvider: (any StudyExperienceReportProviding)? = VocabularyReportProvider()
@@ -130,7 +129,9 @@ struct VocabularyExperience: StudyExperienceFactory {
   func makeProgressSummary(context: StudyExperienceContext) async throws -> StudyExperienceSummary {
     let allProgress = try await context.dependencies.learning.allProgress()
     let progress = allProgress.values.filter { $0.id.packID == context.manifest.id }
-    let answers = try await context.dependencies.learning.answers().filter { $0.experienceID == .vocabulary }
+    let answers = try await context.dependencies.learning.answers().filter {
+      $0.experienceID == .vocabulary && $0.packID == context.manifest.id
+    }
     return .init(
       experienceID: .vocabulary,
       packID: context.manifest.id,
@@ -146,14 +147,15 @@ struct VocabularyExperience: StudyExperienceFactory {
 
   func handleUnlockCompletion(_ context: UnlockCompletionContext) async throws {
     if let existing = try await context.dependencies.learning.loadVocabularyPendingPreview(
-      now: context.now),
+      for: context.manifest.id, now: context.now),
       existing.sourceUnlockBundleID == context.bundle.id
     {
       return
     }
 
-    let package = try VocabularyRepository().load(manifest: context.manifest)
-    let settings = VocabularySettings.load()
+    let package = try await context.dependencies.content.vocabularyPackage(
+      for: context.manifest.id)
+    let settings = VocabularySettings.load(packID: context.manifest.id)
     let access = ContentAccessService()
     let completedIDs = Set(context.bundle.challenge.questions.map { $0.id.rawValue })
     let available = package.items.filter { item in
@@ -175,11 +177,13 @@ struct VocabularyExperience: StudyExperienceFactory {
       count: 1,
       now: context.now
     ).first else {
-      try await context.dependencies.learning.saveVocabularyPendingPreview(nil)
+      try await context.dependencies.learning.saveVocabularyPendingPreview(
+        nil, for: context.manifest.id)
       return
     }
     let preview = VocabularyPendingPreview(
       id: UUID(),
+      packID: context.manifest.id,
       sourceUnlockBundleID: context.bundle.id,
       itemID: candidate.id,
       contentVersion: candidate.metadata.contentVersion,
@@ -189,7 +193,8 @@ struct VocabularyExperience: StudyExperienceFactory {
       consumedAt: nil,
       foregroundExposureSeconds: 0
     )
-    try await context.dependencies.learning.saveVocabularyPendingPreview(preview)
+    try await context.dependencies.learning.saveVocabularyPendingPreview(
+      preview, for: context.manifest.id)
   }
 }
 
@@ -212,7 +217,6 @@ final class VocabularyAppModel: ObservableObject {
   @Published private(set) var isLoading = false
 
   let context: StudyExperienceContext
-  private let repository = VocabularyRepository()
   private let planner = VocabularyLearningQueuePlanner()
   private let generator = VocabularyQuestionGenerator()
   private let feedbackPlanner = VocabularyFeedbackPlanner()
@@ -220,7 +224,7 @@ final class VocabularyAppModel: ObservableObject {
 
   init(context: StudyExperienceContext) {
     self.context = context
-    settings = .load()
+    settings = .load(packID: context.manifest.id)
     context.dependencies.commerce.$entitlement
       .dropFirst()
       .sink { [weak self] _ in Task { @MainActor in await self?.load() } }
@@ -235,7 +239,8 @@ final class VocabularyAppModel: ObservableObject {
     isLoading = true
     defer { isLoading = false }
     do {
-      let package = try repository.load(manifest: context.manifest)
+      let package = try await context.dependencies.content.vocabularyPackage(
+        for: context.manifest.id)
       freeSampleIDs = package.freeSampleIDs
       let access = ContentAccessService()
       items = package.items.filter {
@@ -246,7 +251,9 @@ final class VocabularyAppModel: ObservableObject {
         ).isAllowed
       }
       progress = try await context.dependencies.learning.allProgress()
-      answers = try await context.dependencies.learning.answers().filter { $0.experienceID == .vocabulary }
+      answers = try await context.dependencies.learning.answers().filter {
+        $0.experienceID == .vocabulary && $0.packID == context.manifest.id
+      }
       #if DEBUG
       if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestVocabularyPreview"),
         let item = items.first
@@ -254,6 +261,7 @@ final class VocabularyAppModel: ObservableObject {
         let now = Date()
         try await context.dependencies.learning.saveVocabularyPendingPreview(.init(
           id: UUID(),
+          packID: context.manifest.id,
           sourceUnlockBundleID: UUID(),
           itemID: item.id,
           contentVersion: item.metadata.contentVersion,
@@ -262,16 +270,17 @@ final class VocabularyAppModel: ObservableObject {
           confirmedAt: nil,
           consumedAt: nil,
           foregroundExposureSeconds: 0
-        ))
+        ), for: context.manifest.id)
       }
       #endif
-      pendingPreview = try await context.dependencies.learning.loadVocabularyPendingPreview(now: Date())
+      pendingPreview = try await context.dependencies.learning.loadVocabularyPendingPreview(
+        for: context.manifest.id, now: Date())
     } catch { errorMessage = error.localizedDescription }
   }
 
   func saveSettings() {
     if settings.selectedLevelCodes.isEmpty { settings.selectedLevelCodes = [VocabularyLevel.level0.rawValue] }
-    do { try settings.save() }
+    do { try settings.save(packID: context.manifest.id) }
     catch { errorMessage = "設定を保存できませんでした。\n\(error.localizedDescription)" }
   }
 
@@ -287,7 +296,8 @@ final class VocabularyAppModel: ObservableObject {
     else { return }
     preview.recordForegroundExposure(seconds: seconds, at: now)
     do {
-      try await context.dependencies.learning.saveVocabularyPendingPreview(preview)
+      try await context.dependencies.learning.saveVocabularyPendingPreview(
+        preview, for: context.manifest.id)
       pendingPreview = preview
     } catch { errorMessage = "予習状態を保存できませんでした。\n\(error.localizedDescription)" }
   }
@@ -298,7 +308,8 @@ final class VocabularyAppModel: ObservableObject {
     else { return }
     preview.resetUnconfirmedForegroundExposure()
     do {
-      try await context.dependencies.learning.saveVocabularyPendingPreview(preview)
+      try await context.dependencies.learning.saveVocabularyPendingPreview(
+        preview, for: context.manifest.id)
       pendingPreview = preview
     } catch { errorMessage = "予習状態を保存できませんでした。\n\(error.localizedDescription)" }
   }
@@ -365,7 +376,9 @@ final class VocabularyAppModel: ObservableObject {
     do {
       _ = try await context.dependencies.learning.recordUnique(record)
       progress = try await context.dependencies.learning.allProgress()
-      answers = try await context.dependencies.learning.answers().filter { $0.experienceID == .vocabulary }
+      answers = try await context.dependencies.learning.answers().filter {
+        $0.experienceID == .vocabulary && $0.packID == context.manifest.id
+      }
       context.dependencies.learningRevision.bump()
       return isCorrect ? .recordedCorrect(plan) : .recordedIncorrect(plan)
     } catch {
