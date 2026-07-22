@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+./scripts/verify_platform_v9
+./scripts/verify_platform_v10
+./scripts/verify_platform_v11
+./scripts/verify_platform_v12

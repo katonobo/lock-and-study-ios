@@ -53,7 +53,9 @@ SUPPORTED_EXPERIENCES = {
     "flashcard.v1": {"flashcard.items.v1"},
     "certification.v1": {"certification.questions.v1"},
     "safe-fallback.v1": {"safe-fallback.v1"},
+    "content.sample-index.v1": {"sample.index.v1"},
 }
+AUXILIARY_EXPERIENCES = {"content.sample-index.v1"}
 
 
 def _has_cycle(nodes: set[str], parent_for: dict[str, str | None]) -> bool:
@@ -166,9 +168,18 @@ def validate_catalog_relationships(snapshot: dict) -> list[str]:
         for component in components:
             component_experience = component.get("experienceID")
             component_schema = component.get("contentSchemaID")
-            if component_experience != experience_id:
+            if (
+                component_experience != experience_id
+                and component_experience not in AUXILIARY_EXPERIENCES
+            ):
                 errors.append(f"{pack_id}/{component.get('id')}: component experience mismatch")
-            if supported_schemas is not None and component_schema not in supported_schemas:
+            component_schemas = SUPPORTED_EXPERIENCES.get(component_experience)
+            if component_schemas is None:
+                errors.append(
+                    f"{pack_id}/{component.get('id')}: unsupported component experience "
+                    f"{component_experience}"
+                )
+            elif component_schema not in component_schemas:
                 errors.append(
                     f"{pack_id}/{component.get('id')}: unsupported content schema {component_schema}"
                 )

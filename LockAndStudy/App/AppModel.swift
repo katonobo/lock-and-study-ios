@@ -77,6 +77,7 @@ final class AppModel: ObservableObject {
   @Published var isMaterialSelectionPresented = false
   @Published var unlockChallenge: UnlockChallengeSessionEnvelope?
   @Published private(set) var unlockRecovery: UnlockRecoveryPresentation?
+  @Published private(set) var catalogRecoveryRequired = false
   @Published private(set) var records: [LearningEvent] = []
   @Published var alertMessage: String?
   @Published var isBusy = false
@@ -117,7 +118,7 @@ final class AppModel: ObservableObject {
     let initialPackID = StudyPackID(
       rawValue: defaults.string(forKey: LockAndStudySharedConstants.Key.activeUnlockPackID)
         ?? defaults.string(forKey: LockAndStudySharedConstants.Key.selectedPackID)
-        ?? "english3000.v1")
+        ?? "")
     selectedPackID = initialPackID
     activeUnlockPackID = initialPackID
     openedPackID = defaults.string(forKey: LockAndStudySharedConstants.Key.openedPackID).map {
@@ -162,28 +163,18 @@ final class AppModel: ObservableObject {
     isBusy = true
     do {
       let catalog = try await dependencies.content.catalogSnapshot()
-      categories = catalog.categories
-        .filter { $0.isVisible && ($0.availableFrom.map { $0 <= Date() } ?? true) }
-        .sorted { $0.sortOrder < $1.sortOrder }
-      series = catalog.series.filter(\.isVisible).sorted { $0.sortOrder < $1.sortOrder }
-      manifests = catalog.packs
-      dependencies.commerce.configure(manifests: manifests)
+      applyCatalog(catalog)
       #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestReportData") {
           try await seedReportUITestData()
         }
       #endif
-      if !manifests.contains(where: { $0.id == selectedPackID && availability(for: $0).canOpen }),
-        let first = manifests.first(where: { availability(for: $0).canOpen })
-      {
-        selectedPackID = first.id
-        activeUnlockPackID = first.id
-      }
       await dependencies.lockController.refreshLockState()
       await recoverLegacyOnboardingLockIfNeeded()
       if onboardingCompleted { ensureSelectedExperienceOpen() }
       await dependencies.commerce.loadProducts()
       await dependencies.commerce.refreshEntitlements()
+      synchronizeNormalPackSelection()
       records = (try? await dependencies.learning.events()) ?? []
       if onboardingCompleted {
         if let envelope = try await dependencies.unlockSessions.restore(at: Date()) {
@@ -200,7 +191,10 @@ final class AppModel: ObservableObject {
           hasSelection: dependencies.lockController.hasSelection,
           unlockUntil: dependencies.lockController.unlockUntil, now: Date())
         {
-          await beginUnlockStudy(requestID: request.id, origin: .shield)
+          await beginUnlockStudy(
+            requestID: request.id,
+            origin: .shield,
+            forceSafeFallback: catalogRecoveryRequired)
         }
       }
     } catch { alertMessage = error.localizedDescription }
@@ -210,6 +204,9 @@ final class AppModel: ObservableObject {
   func finishOnboarding(selectedPack: StudyPackID, pace: AccessPacePreset, review: ReviewLoadPreset)
     async throws
   {
+    guard onboardingPackCandidates.contains(where: { $0.id == selectedPack }) else {
+      throw ContentRepositoryError.invalid("初期設定に利用できる通常教材がありません")
+    }
     guard dependencies.lockController.isAuthorized else {
       throw LockControllerError.authorizationRequired
     }
@@ -237,6 +234,7 @@ final class AppModel: ObservableObject {
 
   func choosePack(_ id: StudyPackID) {
     guard let manifest = manifests.first(where: { $0.id == id }),
+      isNormalStudyPack(manifest),
       availability(for: manifest).canOpen
     else {
       alertMessage =
@@ -257,7 +255,8 @@ final class AppModel: ObservableObject {
   }
 
   func selectStudyMaterial(_ id: StudyPackID) {
-    guard let manifest = manifests.first(where: { $0.id == id }) else {
+    guard let manifest = manifests.first(where: { $0.id == id }), isNormalStudyPack(manifest)
+    else {
       alertMessage = "この教材は現在利用できません。"
       return
     }
@@ -272,7 +271,8 @@ final class AppModel: ObservableObject {
 
   func ensureSelectedExperienceOpen() {
     guard onboardingCompleted,
-      manifests.contains(where: { $0.id == selectedPackID && availability(for: $0).canOpen }),
+      !catalogRecoveryRequired,
+      onboardingPackCandidates.contains(where: { $0.id == selectedPackID }),
       activeExperience?.packID != selectedPackID
     else { return }
     openExperience(packID: selectedPackID, requiresFirstRun: true)
@@ -303,7 +303,9 @@ final class AppModel: ObservableObject {
     destination: StudyExperienceDestination = .home,
     requiresFirstRun: Bool = false
   ) {
-    guard let manifest = manifests.first(where: { $0.id == packID }) else {
+    guard let manifest = manifests.first(where: { $0.id == packID }),
+      isNormalStudyPack(manifest)
+    else {
       alertMessage = "この教材は現在利用できません。"
       return
     }
@@ -356,6 +358,49 @@ final class AppModel: ObservableObject {
       isOwned: dependencies.commerce.entitlement.ownedPacks.contains { $0.packID == manifest.id },
       supportsExperience: factory != nil
         && (factory?.validateCompatibility(with: manifest).isEmpty == true))
+  }
+
+  var normalManifests: [StudyPackManifest] {
+    manifests.filter(isNormalStudyPack).sorted { $0.sortOrder < $1.sortOrder }
+  }
+
+  var onboardingPackCandidates: [StudyPackManifest] {
+    normalManifests.filter { availability(for: $0).canOpen }
+  }
+
+  func isNormalStudyPack(_ manifest: StudyPackManifest) -> Bool {
+    manifest.experienceID.normalizedTemplateID != .safeFallbackV1
+      && manifest.storeState != .withdrawn
+  }
+
+  func reloadCatalog() async {
+    guard !isBusy else { return }
+    isBusy = true
+    defer { isBusy = false }
+    do {
+      let catalog = try await dependencies.content.reloadCatalog()
+      applyCatalog(catalog)
+      await dependencies.commerce.loadProducts()
+      await dependencies.commerce.refreshEntitlements()
+      synchronizeNormalPackSelection()
+      if onboardingCompleted { ensureSelectedExperienceOpen() }
+    } catch {
+      catalogRecoveryRequired = true
+      activeExperience = nil
+      alertMessage = error.localizedDescription
+    }
+  }
+
+  func beginCatalogSafeRecoveryStudy() async {
+    guard dependencies.lockController.isLockEnabled else {
+      alertMessage = "安全問題は、ロック中の解除回復が必要な場合に利用できます。"
+      return
+    }
+    await beginUnlockStudy(
+      packID: "safe-fallback.v1",
+      requestID: UUID(),
+      origin: .manual,
+      forceSafeFallback: true)
   }
 
   func successorManifest(for packID: StudyPackID) -> StudyPackManifest? {
@@ -748,10 +793,33 @@ final class AppModel: ObservableObject {
   private func loadCatalogForUnlockValidationIfNeeded() async {
     guard manifests.isEmpty else { return }
     guard let catalog = try? await dependencies.content.catalogSnapshot() else { return }
+    applyCatalog(catalog)
+  }
+
+  private func applyCatalog(_ catalog: StudyCatalogSnapshot) {
     categories = catalog.categories
-    series = catalog.series
+      .filter { $0.isVisible && ($0.availableFrom.map { $0 <= Date() } ?? true) }
+      .sorted { $0.sortOrder < $1.sortOrder }
+    series = catalog.series.filter(\.isVisible).sorted { $0.sortOrder < $1.sortOrder }
     manifests = catalog.packs
-    dependencies.commerce.configure(manifests: manifests)
+    dependencies.commerce.configure(manifests: normalManifests)
+    synchronizeNormalPackSelection()
+  }
+
+  private func synchronizeNormalPackSelection() {
+    let candidates = onboardingPackCandidates
+    catalogRecoveryRequired = candidates.isEmpty
+    guard !candidates.isEmpty else {
+      activeExperience = nil
+      return
+    }
+    let selectedIsAvailable = candidates.contains { $0.id == selectedPackID }
+    let activeIsAvailable = candidates.contains { $0.id == activeUnlockPackID }
+    if !selectedIsAvailable, let first = candidates.first { selectedPackID = first.id }
+    if !activeIsAvailable { activeUnlockPackID = selectedPackID }
+    let defaults = LockAndStudySharedConstants.defaults
+    defaults.set(selectedPackID.rawValue, forKey: LockAndStudySharedConstants.Key.selectedPackID)
+    defaults.set(activeUnlockPackID.rawValue, forKey: LockAndStudySharedConstants.Key.activeUnlockPackID)
   }
 
   func recordAnswer(

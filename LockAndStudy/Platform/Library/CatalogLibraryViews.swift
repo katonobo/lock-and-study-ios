@@ -30,11 +30,11 @@ struct MyLibraryView: View {
     var ids: Set<StudyPackID> = [model.activeUnlockPackID]
     ids.formUnion(commerce.entitlement.ownedPacks.map(\.packID))
     if commerce.entitlement.activePass?.permitsAccess == true {
-      ids.formUnion(model.manifests.filter {
+      ids.formUnion(model.normalManifests.filter {
         $0.passAccessPolicy.permitsAccess(storeState: $0.storeState)
       }.map(\.id))
     }
-    return model.manifests.filter { ids.contains($0.id) }.sorted { lhs, rhs in
+    return model.normalManifests.filter { ids.contains($0.id) }.sorted { lhs, rhs in
       if lhs.id == model.activeUnlockPackID { return true }
       if rhs.id == model.activeUnlockPackID { return false }
       return lhs.sortOrder < rhs.sortOrder
@@ -47,7 +47,8 @@ struct CategoryListView: View {
 
   var body: some View {
     librarySection("カテゴリー", systemImage: "square.grid.2x2.fill") {
-      ForEach(model.categories.filter { $0.parentCategoryID == nil }) { category in
+      ForEach(model.categories.filter { $0.parentCategoryID == nil && packCount($0.id) > 0 }) {
+        category in
         NavigationLink {
           CategoryDetailView(category: category)
         } label: {
@@ -78,7 +79,7 @@ struct CategoryListView: View {
 
   private func packCount(_ categoryID: StudyCategoryID) -> Int {
     let categoryIDs = descendantCategoryIDs(from: categoryID)
-    return model.manifests.filter { categoryIDs.contains($0.categoryID) }.count
+    return model.normalManifests.filter { categoryIDs.contains($0.categoryID) }.count
   }
 
   private func descendantCategoryIDs(from root: StudyCategoryID) -> Set<StudyCategoryID> {
@@ -146,7 +147,7 @@ struct CategoryDetailView: View {
           }
           .buttonStyle(.plain)
         }
-        let ungrouped = model.manifests.filter {
+        let ungrouped = model.normalManifests.filter {
           $0.categoryID == category.id && !Set(series.map(\.id)).contains($0.seriesID)
         }
         ForEach(ungrouped) { PackSelectionCard(manifest: $0) }
@@ -170,7 +171,10 @@ struct CategoryDetailView: View {
   }
 
   private var series: [StudySeriesManifest] {
-    model.series.filter { $0.categoryID == category.id }
+    model.series.filter { value in
+      value.categoryID == category.id
+        && model.normalManifests.contains(where: { $0.seriesID == value.id })
+    }
   }
 
   private var children: [StudyCategoryManifest] {
@@ -186,11 +190,11 @@ struct CategoryDetailView: View {
         if ids.insert(child.id).inserted { frontier.append(child.id) }
       }
     }
-    return model.manifests.filter { ids.contains($0.categoryID) }.count
+    return model.normalManifests.filter { ids.contains($0.categoryID) }.count
   }
 
   private func packs(for seriesID: StudySeriesID) -> [StudyPackManifest] {
-    model.manifests.filter { $0.seriesID == seriesID }
+    model.normalManifests.filter { $0.seriesID == seriesID }
   }
 }
 
@@ -221,7 +225,7 @@ struct SeriesDetailView: View {
   }
 
   private var sorted: [StudyPackManifest] {
-    model.manifests.filter { $0.seriesID == series.id }.sorted {
+    model.normalManifests.filter { $0.seriesID == series.id }.sorted {
       ($0.editionYear ?? Int.min, $0.sortOrder) > ($1.editionYear ?? Int.min, $1.sortOrder)
     }
   }

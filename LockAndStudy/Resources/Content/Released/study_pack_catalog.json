@@ -77,8 +77,8 @@
       "passEligible": true,
       "saleReady": true,
       "contentFiles": [
-        {"path": "vocabulary_english3000_v1.json", "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1", "itemCount": 3000},
-        {"path": "vocabulary_free_sample_250_v1.json", "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b", "itemCount": 250}
+        {"path": "vocabulary_english3000_v1.json", "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1", "itemCount": 3000, "byteCount": 5791310},
+        {"path": "vocabulary_free_sample_250_v1.json", "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b", "itemCount": 250, "byteCount": 58291}
       ],
       "components": [
         {
@@ -88,10 +88,19 @@
           "contentSchemaID": "flashcard.items.v1",
           "sortOrder": 0,
           "contentFiles": [
-            {"path": "vocabulary_english3000_v1.json", "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1", "itemCount": 3000},
-            {"path": "vocabulary_free_sample_250_v1.json", "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b", "itemCount": 250}
+            {"path": "vocabulary_english3000_v1.json", "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1", "itemCount": 3000, "byteCount": 5791310}
           ],
           "metadataFile": "english3000_metadata_v1.json"
+        },
+        {
+          "id": "sample-index",
+          "title": "固定無料サンプル索引",
+          "experienceID": "content.sample-index.v1",
+          "contentSchemaID": "sample.index.v1",
+          "sortOrder": 1,
+          "contentFiles": [
+            {"path": "vocabulary_free_sample_250_v1.json", "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b", "itemCount": 250, "byteCount": 58291}
+          ]
         }
       ],
       "metadataFile": "english3000_metadata_v1.json",
@@ -163,7 +172,7 @@
       "passEligible": true,
       "saleReady": false,
       "contentFiles": [
-        {"path": "takken_2026_free_100_v1.json", "sha256": "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af", "itemCount": 100}
+        {"path": "takken_2026_free_100_v1.json", "sha256": "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af", "itemCount": 100, "byteCount": 108995}
       ],
       "components": [
         {
@@ -173,7 +182,7 @@
           "contentSchemaID": "certification.questions.v1",
           "sortOrder": 0,
           "contentFiles": [
-            {"path": "takken_2026_free_100_v1.json", "sha256": "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af", "itemCount": 100}
+            {"path": "takken_2026_free_100_v1.json", "sha256": "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af", "itemCount": 100, "byteCount": 108995}
           ],
           "metadataFile": "takken2026_metadata_v1.json"
         }

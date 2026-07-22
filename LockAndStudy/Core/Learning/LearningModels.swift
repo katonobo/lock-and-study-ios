@@ -211,6 +211,19 @@ struct ItemProgress: Codable, Equatable, Sendable {
     id.itemID.rawValue.hasPrefix("safe-fallback-")
       || id.itemID.rawValue.hasPrefix("safe-")
   }
+
+  func rekeyed(to newID: CompositeStudyItemID) -> ItemProgress {
+    .init(
+      id: newID,
+      answerCount: answerCount,
+      correctCount: correctCount,
+      incorrectCount: incorrectCount,
+      consecutiveCorrect: consecutiveCorrect,
+      lastAnsweredAt: lastAnsweredAt,
+      dueAt: dueAt,
+      easeFactor: easeFactor,
+      intervalDays: intervalDays)
+  }
 }
 
 struct SRSScheduler: Sendable {

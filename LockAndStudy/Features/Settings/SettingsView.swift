@@ -408,14 +408,95 @@ private struct ManagementCodeSettingsView: View {
 }
 
 private struct ContentCreditsView: View {
+  @EnvironmentObject private var model: AppModel
+  @State private var entries: [ContentCreditPresentation] = []
+  @State private var isLoading = true
+
   var body: some View {
     List {
-      Section("英単語3,000語") {
-        Text("CEFR-J、NGSL等の公開語彙資料を参照。正式コンテンツ版 mvp-3000-ja-v4.0.0。固定無料サンプルは5レベル×50語です。")
+      if isLoading {
+        ProgressView("出典を読み込み中")
+      } else if entries.isEmpty {
+        VStack(spacing: 8) {
+          Image(systemName: "books.vertical").font(.largeTitle).foregroundStyle(.secondary)
+          Text("表示できる教材がありません").font(.headline)
+          Text("教材Catalogを読み込み直してください。")
+            .font(.subheadline).foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical)
+      } else {
+        ForEach(entries) { entry in
+          Section(entry.title) {
+            LabeledContent("コンテンツ版", value: entry.contentVersion)
+            if let editionYear = entry.editionYear {
+              LabeledContent("年度", value: "\(editionYear)年度")
+            }
+            if let lawBasisDate = entry.lawBasisDate {
+              LabeledContent("法令基準日", value: lawBasisDate)
+            }
+            if let statisticsYear = entry.statisticsYear {
+              LabeledContent("統計基準年", value: "\(statisticsYear)年")
+            }
+            if let creditsFile = entry.creditsFile {
+              LabeledContent("出典ファイル", value: creditsFile)
+            }
+            Text(entry.creditsText)
+              .foregroundStyle(entry.creditsLoadFailed ? .secondary : .primary)
+          }
+        }
       }
-      Section("宅建2026") {
-        Text("法令基準日2026-04-01。公開中は品質確認済みの宅建業法100問だけです。追加200問は承認待ち、700問はAI草稿でアプリに収録していません。")
+    }
+    .navigationTitle("コンテンツと出典")
+    .task {
+      entries = await ContentCreditsLoader().load(
+        manifests: model.normalManifests,
+        content: model.dependencies.content)
+      isLoading = false
+    }
+  }
+}
+
+struct ContentCreditPresentation: Identifiable, Equatable, Sendable {
+  let id: StudyPackID
+  let title: String
+  let editionYear: Int?
+  let contentVersion: String
+  let creditsFile: String?
+  let lawBasisDate: String?
+  let statisticsYear: Int?
+  let creditsText: String
+  let creditsLoadFailed: Bool
+}
+
+struct ContentCreditsLoader: Sendable {
+  func load(
+    manifests: [StudyPackManifest],
+    content: ContentRepository
+  ) async -> [ContentCreditPresentation] {
+    var values: [ContentCreditPresentation] = []
+    for manifest in manifests.sorted(by: { $0.sortOrder < $1.sortOrder }) {
+      let credits: (text: String, failed: Bool)
+      if let path = manifest.creditsFile {
+        do {
+          credits = (try await content.text(resourcePath: path, for: manifest.id), false)
+        } catch {
+          credits = ("出典情報を読み込めませんでした。教材の再読込後にもう一度確認してください。", true)
+        }
+      } else {
+        credits = ("この教材には個別の出典ファイルが登録されていません。", false)
       }
-    }.navigationTitle("コンテンツと出典")
+      values.append(.init(
+        id: manifest.id,
+        title: manifest.title,
+        editionYear: manifest.editionYear,
+        contentVersion: manifest.contentVersion,
+        creditsFile: manifest.creditsFile,
+        lawBasisDate: manifest.qualification?.lawBasisDate,
+        statisticsYear: manifest.qualification?.statisticsYear,
+        creditsText: credits.text,
+        creditsLoadFailed: credits.failed))
+    }
+    return values
   }
 }

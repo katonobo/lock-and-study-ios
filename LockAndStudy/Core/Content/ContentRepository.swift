@@ -17,6 +17,7 @@ enum ContentRepositoryError: LocalizedError {
 actor ContentRepository {
   private let source: any ContentAssetSource
   private let registry: StudyModuleRegistry
+  private let packageValidator: ContentPackageValidator
   private let validatedCatalogStore: ValidatedCatalogStore?
   private var catalogCache: StudyCatalogSnapshot?
   private var lastKnownGoodCatalog: StudyCatalogSnapshot?
@@ -28,10 +29,12 @@ actor ContentRepository {
   init(
     source: any ContentAssetSource = BundledContentSource(),
     registry: StudyModuleRegistry = .standard,
+    contentFileValidators: ContentFileValidatorRegistry = .standard,
     validatedCatalogStore: ValidatedCatalogStore? = nil
   ) {
     self.source = source
     self.registry = registry
+    packageValidator = ContentPackageValidator(registry: contentFileValidators)
     self.validatedCatalogStore = validatedCatalogStore
   }
 
@@ -276,7 +279,20 @@ actor ContentRepository {
     guard !locations.isEmpty else {
       throw ContentRepositoryError.missing(manifest.id.rawValue)
     }
-    return locations
+    var valid: [ContentPackageLocation] = []
+    var lastError: Error?
+    for location in locations {
+      do {
+        try packageValidator.validate(manifest: manifest, packageRoot: location.rootURL)
+        valid.append(location)
+      } catch {
+        lastError = error
+      }
+    }
+    guard !valid.isEmpty else {
+      throw lastError ?? ContentRepositoryError.missing(manifest.id.rawValue)
+    }
+    return valid
   }
 
   private func cacheKey(_ manifest: StudyPackManifest) -> String {

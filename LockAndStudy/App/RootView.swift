@@ -55,7 +55,9 @@ struct RootView: View {
   }
 
   @ViewBuilder private var standardContent: some View {
-    if !model.onboardingCompleted {
+    if model.catalogRecoveryRequired {
+      CatalogRecoveryView()
+    } else if !model.onboardingCompleted {
       OnboardingFlowView()
     } else if let presentation = model.activeExperience {
       experienceContent(presentation)
@@ -112,6 +114,83 @@ struct RootView: View {
     } else {
       ProgressView("教材を読み込み中")
     }
+  }
+}
+
+private struct CatalogRecoveryView: View {
+  @EnvironmentObject private var model: AppModel
+  @EnvironmentObject private var lock: LockController
+  @State private var isReloading = false
+  @State private var isStartingSafeStudy = false
+
+  var body: some View {
+    NavigationStack {
+      VStack(spacing: 20) {
+        Image(systemName: "books.vertical.fill")
+          .font(.system(size: 54))
+          .foregroundStyle(LockAndStudyTheme.teal)
+        Text("教材を復旧できませんでした")
+          .font(.title2.bold())
+          .multilineTextAlignment(.center)
+        Text("通常教材の検証に失敗したため、誤った教材は開かずに停止しています。設定を確認してから教材を読み込み直してください。")
+          .foregroundStyle(.secondary)
+          .multilineTextAlignment(.center)
+
+        NavigationLink {
+          SettingsView()
+        } label: {
+          Label("設定を確認", systemImage: "gearshape.fill")
+            .frame(maxWidth: .infinity)
+        }
+        .secondaryActionStyle()
+        .accessibilityIdentifier("catalogRecovery.settings")
+
+        Button {
+          guard !isReloading else { return }
+          isReloading = true
+          Task {
+            await model.reloadCatalog()
+            isReloading = false
+          }
+        } label: {
+          if isReloading {
+            ProgressView().frame(maxWidth: .infinity)
+          } else {
+            Label("教材を読み込み直す", systemImage: "arrow.clockwise")
+              .frame(maxWidth: .infinity)
+          }
+        }
+        .primaryActionStyle()
+        .disabled(isReloading)
+        .accessibilityIdentifier("catalogRecovery.reload")
+
+        if lock.isLockEnabled {
+          Button {
+            guard !isStartingSafeStudy else { return }
+            isStartingSafeStudy = true
+            Task {
+              await model.beginCatalogSafeRecoveryStudy()
+              isStartingSafeStudy = false
+            }
+          } label: {
+            if isStartingSafeStudy {
+              ProgressView().frame(maxWidth: .infinity)
+            } else {
+              Label("安全な無料問題で解除", systemImage: "lifepreserver.fill")
+                .frame(maxWidth: .infinity)
+            }
+          }
+          .secondaryActionStyle()
+          .disabled(isStartingSafeStudy)
+          .accessibilityIdentifier("catalogRecovery.beginSafeFallback")
+        }
+      }
+      .frame(maxWidth: 560)
+      .padding(24)
+      .navigationTitle("教材の復旧")
+      .navigationBarTitleDisplayMode(.inline)
+    }
+    .accessibilityIdentifier("catalogRecovery.screen")
   }
 }
 

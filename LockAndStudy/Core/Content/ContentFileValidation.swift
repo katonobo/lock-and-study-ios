@@ -1,0 +1,201 @@
+import Foundation
+
+protocol ContentFileValidating: Sendable {
+  var schemaID: ContentSchemaID { get }
+  func validate(
+    data: Data,
+    descriptor: ContentFileDescriptor,
+    packageRoot: URL
+  ) throws
+}
+
+struct ContentFileValidatorRegistry: Sendable {
+  private let validators: [ContentSchemaID: any ContentFileValidating]
+
+  init(validators: [any ContentFileValidating]) {
+    self.validators = Dictionary(uniqueKeysWithValues: validators.map { ($0.schemaID, $0) })
+  }
+
+  func validator(for schemaID: ContentSchemaID) -> (any ContentFileValidating)? {
+    validators[schemaID]
+  }
+
+  static let standard = ContentFileValidatorRegistry(validators: [
+    FlashcardItemsV1Validator(),
+    CertificationQuestionsV1Validator(),
+    SampleIndexV1Validator(),
+  ])
+}
+
+struct ContentPackageValidator: Sendable {
+  let registry: ContentFileValidatorRegistry
+
+  init(registry: ContentFileValidatorRegistry = .standard) {
+    self.registry = registry
+  }
+
+  func validate(manifest: StudyPackManifest, packageRoot: URL) throws {
+    let loader = VerifiedContentLoader(packageRoot: packageRoot)
+    for component in manifest.components {
+      guard let validator = registry.validator(for: component.contentSchemaID) else {
+        throw ContentRepositoryError.invalid(
+          "未登録content schemaです: \(component.contentSchemaID.rawValue)")
+      }
+      for descriptor in component.contentFiles {
+        let data = try loader.data(for: descriptor)
+        guard !data.isEmpty else {
+          throw ContentRepositoryError.invalid("\(descriptor.path) が空です")
+        }
+        if let expectedByteCount = descriptor.byteCount, data.count != expectedByteCount {
+          throw ContentRepositoryError.invalid("\(descriptor.path) のbyte数が一致しません")
+        }
+        try validator.validate(
+          data: data,
+          descriptor: descriptor,
+          packageRoot: packageRoot)
+      }
+    }
+  }
+}
+
+struct OpaqueBinaryContentValidator: ContentFileValidating {
+  let schemaID: ContentSchemaID
+  let minimumByteCount: Int
+  let allowedPathExtensions: Set<String>
+
+  init(
+    schemaID: ContentSchemaID,
+    minimumByteCount: Int = 1,
+    allowedPathExtensions: Set<String> = []
+  ) {
+    self.schemaID = schemaID
+    self.minimumByteCount = minimumByteCount
+    self.allowedPathExtensions = Set(allowedPathExtensions.map { $0.lowercased() })
+  }
+
+  func validate(data: Data, descriptor: ContentFileDescriptor, packageRoot: URL) throws {
+    guard data.count >= minimumByteCount else {
+      throw ContentRepositoryError.invalid("\(descriptor.path) のbinary dataが不足しています")
+    }
+    if !allowedPathExtensions.isEmpty {
+      let pathExtension = URL(fileURLWithPath: descriptor.path).pathExtension.lowercased()
+      guard allowedPathExtensions.contains(pathExtension) else {
+        throw ContentRepositoryError.invalid("\(descriptor.path) の拡張子は利用できません")
+      }
+    }
+  }
+}
+
+struct FlashcardItemsV1Validator: ContentFileValidating {
+  let schemaID: ContentSchemaID = .flashcardItemsV1
+
+  func validate(data: Data, descriptor: ContentFileDescriptor, packageRoot: URL) throws {
+    let items = try JSONContentValidation.items(in: data)
+    guard items.count == descriptor.itemCount else {
+      throw ContentRepositoryError.invalid("\(descriptor.path) の項目数が一致しません")
+    }
+    try JSONContentValidation.validateUniqueIDs(items, path: descriptor.path)
+    for item in items {
+      try JSONContentValidation.requireString("id", in: item, path: descriptor.path)
+      try JSONContentValidation.requireString("prompt", in: item, path: descriptor.path)
+      try JSONContentValidation.requireString("explanationJa", in: item, path: descriptor.path)
+      try JSONContentValidation.validateChoices(
+        key: "options", correctIndexKey: "correctIndex", in: item, path: descriptor.path)
+    }
+  }
+}
+
+struct CertificationQuestionsV1Validator: ContentFileValidating {
+  let schemaID: ContentSchemaID = .certificationQuestionsV1
+
+  func validate(data: Data, descriptor: ContentFileDescriptor, packageRoot: URL) throws {
+    let items = try JSONContentValidation.items(in: data)
+    guard items.count == descriptor.itemCount else {
+      throw ContentRepositoryError.invalid("\(descriptor.path) の項目数が一致しません")
+    }
+    try JSONContentValidation.validateUniqueIDs(items, path: descriptor.path)
+    for item in items {
+      try JSONContentValidation.requireString("id", in: item, path: descriptor.path)
+      try JSONContentValidation.requireString("prompt", in: item, path: descriptor.path)
+      guard ["explanation", "shortExplanation", "longExplanation"].contains(where: {
+        (item[$0] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+      }) else {
+        throw ContentRepositoryError.invalid("\(descriptor.path) に説明がない問題があります")
+      }
+      try JSONContentValidation.validateChoices(
+        key: "choices", correctIndexKey: "correctIndex", in: item, path: descriptor.path)
+    }
+  }
+}
+
+struct SampleIndexV1Validator: ContentFileValidating {
+  let schemaID: ContentSchemaID = .sampleIndexV1
+
+  func validate(data: Data, descriptor: ContentFileDescriptor, packageRoot: URL) throws {
+    let items = try JSONContentValidation.items(in: data)
+    guard items.count == descriptor.itemCount else {
+      throw ContentRepositoryError.invalid("\(descriptor.path) のsample件数が一致しません")
+    }
+    try JSONContentValidation.validateUniqueIDs(items, path: descriptor.path)
+  }
+}
+
+private enum JSONContentValidation {
+  static func items(in data: Data) throws -> [[String: Any]] {
+    let object = try JSONSerialization.jsonObject(with: data)
+    if let values = object as? [[String: Any]] { return values }
+    if let dictionary = object as? [String: Any],
+      let levels = dictionary["levels"] as? [[String: Any]]
+    {
+      return levels.flatMap { ($0["questions"] as? [[String: Any]]) ?? [] }
+    }
+    throw ContentRepositoryError.invalid("教材JSONの項目配列を確認できません")
+  }
+
+  static func validateUniqueIDs(_ items: [[String: Any]], path: String) throws {
+    let ids = items.compactMap { $0["id"] as? String }
+    guard ids.count == items.count, Set(ids).count == ids.count else {
+      throw ContentRepositoryError.invalid("\(path) のIDが空または重複しています")
+    }
+  }
+
+  static func requireString(
+    _ key: String,
+    in item: [String: Any],
+    path: String
+  ) throws {
+    guard let value = item[key] as? String,
+      !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    else { throw ContentRepositoryError.invalid("\(path) の\(key)が空です") }
+  }
+
+  static func validateChoices(
+    key: String,
+    correctIndexKey: String,
+    in item: [String: Any],
+    path: String
+  ) throws {
+    let choiceCount: Int?
+    if let choices = item[key] as? [String],
+      choices.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
+    {
+      choiceCount = choices.count
+    } else if let choices = item[key] as? [[String: Any]],
+      choices.allSatisfy({ choice in
+        (choice["text"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+          == false
+      })
+    {
+      choiceCount = choices.count
+    } else {
+      choiceCount = nil
+    }
+    guard let choiceCount,
+      choiceCount >= 2,
+      let correctIndex = item[correctIndexKey] as? Int,
+      (0..<choiceCount).contains(correctIndex)
+    else {
+      throw ContentRepositoryError.invalid("\(path) の選択肢または正解が不正です")
+    }
+  }
+}

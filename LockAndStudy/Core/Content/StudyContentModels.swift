@@ -32,6 +32,7 @@ struct ContentSchemaID: RawRepresentable, Codable, Hashable, ExpressibleByString
 
   static let flashcardItemsV1: Self = "flashcard.items.v1"
   static let certificationQuestionsV1: Self = "certification.questions.v1"
+  static let sampleIndexV1: Self = "sample.index.v1"
   static let safeFallbackV1: Self = "safe-fallback.items.v1"
 }
 
@@ -144,6 +145,14 @@ struct ContentFileDescriptor: Codable, Equatable, Sendable {
   let path: String
   let sha256: String
   let itemCount: Int
+  let byteCount: Int?
+
+  init(path: String, sha256: String, itemCount: Int, byteCount: Int? = nil) {
+    self.path = path
+    self.sha256 = sha256
+    self.itemCount = itemCount
+    self.byteCount = byteCount
+  }
 }
 
 struct ContentComponentManifest: Codable, Identifiable, Equatable, Sendable {
@@ -313,6 +322,7 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
   let locale: String
   let qualification: QualificationMetadata?
   let progressMigrationFile: String?
+  let progressMigrationSHA256: String?
   let presentation: StudyPresentationProfile?
 
   private enum CodingKeys: String, CodingKey {
@@ -322,7 +332,8 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
     case minimumAppVersion, releaseStatus, isEnabled, sortOrder, expectedItemCount
     case conceptCount, variantCount, sampleDefinition, oneTimeProductID, passEligible
     case saleReady, contentFiles, metadataFile, creditsFile, availableFrom, retiredAt
-    case supersedesPackID, locale, qualification, progressMigrationFile, presentation
+    case supersedesPackID, locale, qualification, progressMigrationFile, progressMigrationSHA256
+    case presentation
   }
 
   init(from decoder: Decoder) throws {
@@ -380,6 +391,8 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
     locale = try container.decodeIfPresent(String.self, forKey: .locale) ?? "ja-JP"
     qualification = try container.decodeIfPresent(QualificationMetadata.self, forKey: .qualification)
     progressMigrationFile = try container.decodeIfPresent(String.self, forKey: .progressMigrationFile)
+    progressMigrationSHA256 = try container.decodeIfPresent(
+      String.self, forKey: .progressMigrationSHA256)
     presentation = try container.decodeIfPresent(
       StudyPresentationProfile.self, forKey: .presentation)
 
@@ -449,6 +462,7 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
     try container.encode(locale, forKey: .locale)
     try container.encodeIfPresent(qualification, forKey: .qualification)
     try container.encodeIfPresent(progressMigrationFile, forKey: .progressMigrationFile)
+    try container.encodeIfPresent(progressMigrationSHA256, forKey: .progressMigrationSHA256)
     try container.encodeIfPresent(presentation, forKey: .presentation)
   }
 
@@ -629,21 +643,28 @@ struct ItemProgressMigration: Codable, Equatable, Sendable {
 }
 
 struct ProgressMigrationDocument: Codable, Equatable, Sendable {
+  static let supportedSchemaVersion = 1
+  let schemaVersion: Int
+  let packID: StudyPackID?
   let fromContentVersion: String
   let toContentVersion: String
   let defaultPolicy: ProgressCompatibilityPolicy
   let itemMigrations: [ItemProgressMigration]
 
   private enum CodingKeys: String, CodingKey {
-    case fromContentVersion, toContentVersion, defaultPolicy, itemMigrations
+    case schemaVersion, packID, fromContentVersion, toContentVersion, defaultPolicy, itemMigrations
   }
 
   init(
+    schemaVersion: Int = Self.supportedSchemaVersion,
+    packID: StudyPackID? = nil,
     fromContentVersion: String,
     toContentVersion: String,
     defaultPolicy: ProgressCompatibilityPolicy = .preserve,
     itemMigrations: [ItemProgressMigration]
   ) {
+    self.schemaVersion = schemaVersion
+    self.packID = packID
     self.fromContentVersion = fromContentVersion
     self.toContentVersion = toContentVersion
     self.defaultPolicy = defaultPolicy
@@ -652,6 +673,8 @@ struct ProgressMigrationDocument: Codable, Equatable, Sendable {
 
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
+    schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+    packID = try container.decodeIfPresent(StudyPackID.self, forKey: .packID)
     fromContentVersion = try container.decode(String.self, forKey: .fromContentVersion)
     toContentVersion = try container.decode(String.self, forKey: .toContentVersion)
     defaultPolicy = try container.decodeIfPresent(

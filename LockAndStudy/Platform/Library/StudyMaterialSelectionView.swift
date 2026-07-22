@@ -20,7 +20,7 @@ struct StudyMaterialSelectionView: View {
           CategoryListView()
           VStack(alignment: .leading, spacing: 12) {
             Label("すべての教材", systemImage: "rectangle.stack.fill").font(.title2.bold())
-            ForEach(model.manifests.sorted { $0.sortOrder < $1.sortOrder }) {
+            ForEach(model.normalManifests) {
               PackSelectionCard(manifest: $0, showsDetailsLink: true)
             }
           }

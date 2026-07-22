@@ -24,17 +24,42 @@ final class DependencyContainer {
   init(
     learningRootURL: URL? = nil,
     contentSource: (any ContentAssetSource)? = nil,
-    catalogDataOverride: Data? = nil
+    catalogDataOverride: Data? = nil,
+    contentFileValidators: ContentFileValidatorRegistry = .standard
   ) {
     lockController = LockController()
     commerce = StoreKitCommerceService()
+    if let learningRootURL {
+      learning = LearningDataStore(rootURL: learningRootURL)
+    } else {
+      #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("-LockAndStudyUITestResetData")
+          || arguments.contains("-LockAndStudyUITestPersistentLearningRoot")
+        {
+          let root = FileManager.default.temporaryDirectory.appendingPathComponent(
+            "LockAndStudy-UITests", isDirectory: true)
+          if arguments.contains("-LockAndStudyUITestResetData") {
+            try? FileManager.default.removeItem(at: root)
+          }
+          learning = LearningDataStore(rootURL: root)
+        } else {
+          learning = LearningDataStore()
+        }
+      #else
+        learning = LearningDataStore()
+      #endif
+    }
     let bundled = BundledContentSource()
     let catalogSource: any ContentAssetSource = catalogDataOverride.map {
       CatalogDataOverrideSource(data: $0, packageSource: bundled)
     } ?? bundled
     let packageRoot = learningRootURL?.appendingPathComponent(
       "InstalledContent", isDirectory: true)
-    let packageStore = ContentPackageStore(rootURL: packageRoot)
+    let packageStore = ContentPackageStore(
+      rootURL: packageRoot,
+      validatorRegistry: contentFileValidators,
+      progressStore: learning)
     contentPackages = packageStore
     let productionSource: any ContentAssetSource
     if let contentSource {
@@ -54,29 +79,9 @@ final class DependencyContainer {
       rootURL: learningRootURL?.appendingPathComponent("CatalogState", isDirectory: true))
     content = ContentRepository(
       source: productionSource,
+      contentFileValidators: contentFileValidators,
       validatedCatalogStore: catalogStore)
     learningRevision = LearningDataRevision()
-    if let learningRootURL {
-      learning = LearningDataStore(rootURL: learningRootURL)
-    } else {
-      #if DEBUG
-        let arguments = ProcessInfo.processInfo.arguments
-        if arguments.contains("-LockAndStudyUITestResetData")
-          || arguments.contains("-LockAndStudyUITestPersistentLearningRoot")
-        {
-          let root = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "LockAndStudy-UITests", isDirectory: true)
-          if arguments.contains("-LockAndStudyUITestResetData") {
-            try? FileManager.default.removeItem(at: root)
-          }
-          learning = LearningDataStore(rootURL: root)
-        } else {
-          learning = LearningDataStore()
-        }
-      #else
-      learning = LearningDataStore()
-      #endif
-    }
     unlockSessions = UnlockChallengeSessionCoordinator(store: learning)
     pendingPreviews = PendingPreviewStore(
       rootURL: learningRootURL?.appendingPathComponent("PendingPreviews", isDirectory: true))

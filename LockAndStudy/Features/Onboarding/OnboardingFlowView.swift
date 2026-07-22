@@ -6,7 +6,7 @@ struct OnboardingFlowView: View {
   @EnvironmentObject private var model: AppModel
   @EnvironmentObject private var lock: LockController
   @State private var step = 0
-  @State private var selectedPack: StudyPackID = "english3000.v1"
+  @State private var selectedPack: StudyPackID?
   @State private var pace = AccessPacePreset.balanced10
   @State private var review = ReviewLoadPreset.standard
   @State private var managementCode = ""
@@ -42,6 +42,8 @@ struct OnboardingFlowView: View {
           catch { model.alertMessage = error.localizedDescription }
         }
       }
+      .onAppear { synchronizeSelectedPack() }
+      .onChange(of: model.manifests) { _ in synchronizeSelectedPack() }
     }
   }
 
@@ -58,10 +60,14 @@ struct OnboardingFlowView: View {
     case 1:
       page(
         icon: "books.vertical.fill", title: "最初の教材を選ぶ",
-        body: "ロック解除に使う教材を選びます。どちらも無料範囲から始められ、教材固有の設定はこの初期設定の後に行います。")
+        body: "ロック解除に使う教材を選びます。利用可能な教材は無料範囲から始められ、教材固有の設定はこの初期設定の後に行います。")
       VStack(spacing: 12) {
-        ForEach(model.manifests) { manifest in
+        ForEach(model.onboardingPackCandidates) { manifest in
           let descriptor = model.experienceRegistry.factory(for: manifest)?.descriptor
+          let presentation = OnboardingPackPresentation(
+            manifest: manifest,
+            category: model.categories.first { $0.id == manifest.categoryID },
+            descriptor: descriptor)
           Button {
             selectedPack = manifest.id
           } label: {
@@ -69,19 +75,21 @@ struct OnboardingFlowView: View {
               Image(systemName: selectedPack == manifest.id ? "checkmark.circle.fill" : "circle")
                 .font(.title3).foregroundStyle(
                   selectedPack == manifest.id ? LockAndStudyTheme.teal : .secondary)
-              Image(systemName: descriptor?.systemImage ?? "book.fill").foregroundStyle(
-                manifest.moduleType == .vocabulary
-                  ? LockAndStudyTheme.vocabulary : LockAndStudyTheme.takken)
+              Image(systemName: presentation.systemImage).foregroundStyle(
+                CatalogTheme.color(for: presentation.themeToken))
               VStack(alignment: .leading) {
-                Text(manifest.title).font(.headline)
-                Text(manifest.subtitle).font(.subheadline).foregroundStyle(.secondary)
+                Text(presentation.title).font(.headline)
+                Text(presentation.subtitle).font(.subheadline).foregroundStyle(.secondary)
               }
               Spacer()
             }.frame(maxWidth: .infinity, minHeight: 58, alignment: .leading)
           }.buttonStyle(.plain).studyCard()
         }
       }
-      nextButton()
+      Button("次へ") { step += 1 }
+        .primaryActionStyle()
+        .disabled(selectedPack == nil)
+        .accessibilityIdentifier("onboarding.next.\(step)")
     case 2:
       page(
         icon: "lock.shield.fill", title: "選んだ対象だけを制限",
@@ -231,11 +239,23 @@ struct OnboardingFlowView: View {
     completionError = nil
     defer { isFinishing = false }
     do {
+      guard let selectedPack else {
+        throw ContentRepositoryError.invalid("利用可能な教材を選択してください")
+      }
       try await model.finishOnboarding(selectedPack: selectedPack, pace: pace, review: review)
     } catch {
       completionError = error.localizedDescription
     }
   }
+
+  private func synchronizeSelectedPack() {
+    let candidates = model.onboardingPackCandidates
+    if let selectedPack, candidates.contains(where: { $0.id == selectedPack }) { return }
+    selectedPack = OnboardingPackSelector.initialSelection(
+      saved: model.selectedPackID,
+      candidates: candidates)
+  }
+
   private func secureCodeField(
     title: String, placeholder: String, text: Binding<String>, identifier: String,
     contentType: UITextContentType?
@@ -253,6 +273,35 @@ struct OnboardingFlowView: View {
         )
         .accessibilityIdentifier(identifier)
     }
+  }
+}
+
+struct OnboardingPackSelector: Sendable {
+  static func initialSelection(
+    saved: StudyPackID,
+    candidates: [StudyPackManifest]
+  ) -> StudyPackID? {
+    candidates.first(where: { $0.id == saved })?.id ?? candidates.first?.id
+  }
+}
+
+struct OnboardingPackPresentation: Equatable, Sendable {
+  let id: StudyPackID
+  let title: String
+  let subtitle: String
+  let systemImage: String
+  let themeToken: String?
+
+  init(
+    manifest: StudyPackManifest,
+    category: StudyCategoryManifest?,
+    descriptor: StudyExperienceDescriptor?
+  ) {
+    id = manifest.id
+    title = manifest.title
+    subtitle = manifest.subtitle
+    systemImage = descriptor?.systemImage ?? category?.systemImage ?? "book.fill"
+    themeToken = category?.themeToken ?? descriptor?.tintName
   }
 }
 

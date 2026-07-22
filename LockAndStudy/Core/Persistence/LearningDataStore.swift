@@ -17,6 +17,20 @@ private struct ProgressDocument: Codable {
   var items: [String: ItemProgress]
   var appliedSubmissionIDs: Set<String>?
 }
+private enum ProgressMigrationCheckpointState: String, Codable { case prepared, applied }
+private struct ProgressMigrationCheckpoint: Codable {
+  let packID: StudyPackID
+  let fromContentVersion: String
+  let toContentVersion: String
+  let documentDigest: String
+  let beforeItems: [String: ItemProgress]
+  var state: ProgressMigrationCheckpointState
+  var appliedAt: Date?
+}
+private struct ProgressMigrationCheckpointDocument: Codable {
+  let schemaVersion: Int
+  var checkpoints: [String: ProgressMigrationCheckpoint]
+}
 private struct EventDocument: Codable { let schemaVersion: Int; var events: [LearningEvent] }
 private struct BundleDocument: Codable { let schemaVersion: Int; var bundle: UnlockLearningBundleSnapshot? }
 private struct ExperienceBundleDocument: Codable { let schemaVersion: Int; var bundle: ExperienceUnlockBundleSnapshot? }
@@ -45,7 +59,7 @@ private struct AnswerTransaction: Codable {
 }
 private struct AnswerTransactionDocument: Codable { let schemaVersion: Int; var transactions: [String: AnswerTransaction] }
 
-actor LearningDataStore {
+actor LearningDataStore: ContentProgressMigrationStoring {
   static let schemaVersion = 1
   private let rootURL: URL
   private let fileManager: FileManager
@@ -72,6 +86,139 @@ actor LearningDataStore {
     let doc: ProgressDocument = try load(progressURL, fallback: .init(schemaVersion: Self.schemaVersion, items: [:], appliedSubmissionIDs: []))
     guard doc.schemaVersion == Self.schemaVersion else { throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion) }
     progressCache = doc.items; return doc.items
+  }
+
+  func applyProgressMigration(
+    _ migration: ProgressMigrationDocument,
+    documentDigest: String
+  ) async throws {
+    guard migration.schemaVersion == ProgressMigrationDocument.supportedSchemaVersion,
+      let packID = migration.packID
+    else { throw ContentRepositoryError.invalid("進捗移行schemaまたはpack IDが不正です") }
+    let key = progressMigrationKey(
+      packID: packID,
+      from: migration.fromContentVersion,
+      to: migration.toContentVersion)
+    var checkpoints: ProgressMigrationCheckpointDocument = try load(
+      progressMigrationCheckpointsURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, checkpoints: [:]))
+    guard checkpoints.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(checkpoints.schemaVersion)
+    }
+    if let existing = checkpoints.checkpoints[key] {
+      guard existing.documentDigest == documentDigest else {
+        throw ContentRepositoryError.invalid("同じversionの進捗移行内容が変更されています")
+      }
+      if existing.state == .applied { return }
+    }
+
+    var progress: ProgressDocument = try load(
+      progressURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, items: [:], appliedSubmissionIDs: []))
+    guard progress.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(progress.schemaVersion)
+    }
+    let beforeItems = checkpoints.checkpoints[key]?.beforeItems
+      ?? progress.items.filter { $0.value.id.packID == packID }
+    let migratedItems = try migratedProgressItems(
+      current: progress.items,
+      originalPackItems: beforeItems,
+      migration: migration,
+      packID: packID)
+
+    if checkpoints.checkpoints[key] == nil {
+      checkpoints.checkpoints[key] = .init(
+        packID: packID,
+        fromContentVersion: migration.fromContentVersion,
+        toContentVersion: migration.toContentVersion,
+        documentDigest: documentDigest,
+        beforeItems: beforeItems,
+        state: .prepared,
+        appliedAt: nil)
+      try write(checkpoints, to: progressMigrationCheckpointsURL)
+    }
+
+    progress.items = migratedItems
+    try write(progress, to: progressURL)
+    progressCache = progress.items
+    checkpoints.checkpoints[key]?.state = .applied
+    checkpoints.checkpoints[key]?.appliedAt = Date()
+    try write(checkpoints, to: progressMigrationCheckpointsURL)
+  }
+
+  func rollbackProgressMigration(
+    packID: StudyPackID,
+    fromContentVersion: String,
+    toContentVersion: String
+  ) async throws {
+    let key = progressMigrationKey(
+      packID: packID,
+      from: fromContentVersion,
+      to: toContentVersion)
+    var checkpoints: ProgressMigrationCheckpointDocument = try load(
+      progressMigrationCheckpointsURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, checkpoints: [:]))
+    guard let checkpoint = checkpoints.checkpoints[key] else { return }
+    var progress: ProgressDocument = try load(
+      progressURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, items: [:], appliedSubmissionIDs: []))
+    progress.items = progress.items.filter { $0.value.id.packID != packID }
+    progress.items.merge(checkpoint.beforeItems) { _, original in original }
+    try write(progress, to: progressURL)
+    progressCache = progress.items
+    checkpoints.checkpoints.removeValue(forKey: key)
+    try write(checkpoints, to: progressMigrationCheckpointsURL)
+  }
+
+  private func migratedProgressItems(
+    current: [String: ItemProgress],
+    originalPackItems: [String: ItemProgress],
+    migration: ProgressMigrationDocument,
+    packID: StudyPackID
+  ) throws -> [String: ItemProgress] {
+    let mappingsByOldID = Dictionary(
+      uniqueKeysWithValues: migration.itemMigrations.map { ($0.oldItemID, $0) })
+    if migration.defaultPolicy == .migrate {
+      let unmapped = originalPackItems.values.filter {
+        mappingsByOldID[$0.id.itemID] == nil
+      }
+      guard unmapped.isEmpty else {
+        throw ContentRepositoryError.invalid("migrate policyに未定義の進捗IDがあります")
+      }
+    }
+
+    var result = current
+    for mapping in migration.itemMigrations {
+      let oldID = CompositeStudyItemID(packID: packID, itemID: mapping.oldItemID)
+      let newID = CompositeStudyItemID(packID: packID, itemID: mapping.newItemID)
+      switch mapping.policy {
+      case .preserve:
+        continue
+      case .resetChangedItems:
+        result.removeValue(forKey: oldID.storageKey)
+        result.removeValue(forKey: newID.storageKey)
+      case .migrate:
+        guard let original = originalPackItems[oldID.storageKey] else {
+          result.removeValue(forKey: oldID.storageKey)
+          continue
+        }
+        let moved = original.rekeyed(to: newID)
+        if oldID != newID, let existing = result[newID.storageKey], existing != moved {
+          throw ContentRepositoryError.invalid("進捗移行先IDに既存進捗があります")
+        }
+        result.removeValue(forKey: oldID.storageKey)
+        result[newID.storageKey] = moved
+      }
+    }
+    return result
+  }
+
+  private func progressMigrationKey(
+    packID: StudyPackID,
+    from: String,
+    to: String
+  ) -> String {
+    "\(packID.rawValue)::\(from)->\(to)"
   }
 
   func record(_ answer: StudyAnswerRecord) throws {
@@ -515,6 +662,9 @@ actor LearningDataStore {
   }
   private var answerTransactionsURL: URL { rootURL.appendingPathComponent("answer-transactions.v1.json") }
   private var legacyImportsURL: URL { rootURL.appendingPathComponent("legacy-imports.v1.json") }
+  private var progressMigrationCheckpointsURL: URL {
+    rootURL.appendingPathComponent("progress-migration-checkpoints.v1.json")
+  }
   private var exportURL: URL { rootURL.appendingPathComponent("lockandstudy-learning-export.json") }
   private var answersURL: URL { rootURL.appendingPathComponent("answers", isDirectory: true) }
   private func month(_ date: Date) -> String { let c = Calendar(identifier: .gregorian).dateComponents([.year, .month], from: date); return String(format: "%04d-%02d", c.year ?? 0, c.month ?? 0) }

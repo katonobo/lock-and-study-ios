@@ -27,7 +27,7 @@ remote実装は次の順序を変えない。
 2. catalog署名と鍵の有効期間を検証する。
 3. download byte sizeとSHA-256を検証する。
 4. safe extractionを行う。絶対path、`..`、symlink、hard link、package root外参照、過大なファイル数・展開量を拒否する。
-5. manifest、minimum app version、Experience、component schema、item count、sample IDを検証する。
+5. manifest、minimum app version、Experience、component schema、item count、必須フィールド、sample IDを検証する。
 6. package内の全descriptorを再度SHA-256検証する。
 7. 同一volumeのstaging directoryへflushし、完成したversion directoryへ原子的にrenameする。
 8. `active.json`をatomic writeで切り替える。
@@ -80,6 +80,29 @@ remote配信の導入を、学習履歴、Screen Time token、対象アプリ名
 - 新年度：別pack ID
 
 migration documentも署名・hash検証の対象とし、適用前backup、冪等な適用、件数確認、適用済みversion記録、失敗時rollbackを必須にする。回答履歴には回答時点の問題snapshotを残す。
+
+## v12で実装済みのschema検証
+
+`ContentPackageValidator`はBundleとInstalledの両方に同じ検証を適用する。共通層はpackage root外参照を拒否し、descriptorのSHA-256と、宣言されている場合は`byteCount`を確認する。JSON構造やbinary形式は`ContentFileValidating`へ委譲する。
+
+- `flashcard.items.v1`: 配列、件数、一意ID、prompt、選択肢、正解index、説明を検証
+- `certification.questions.v1`: 配列または`levels[].questions[]`、件数、一意ID、prompt、文字列/オブジェクト選択肢、正解index、説明を検証
+- `sample.index.v1`: 補助サンプル索引の件数と一意IDを検証
+- Custom binary: `OpaqueBinaryContentValidator`または専用validatorを`ContentFileValidatorRegistry`へ登録
+- 未登録schema: stageとRepository読込の両方でFail Closed
+
+## v12で実装済みの進捗移行
+
+更新版manifestは必要に応じて`progressMigrationFile`と`progressMigrationSHA256`を宣言する。文書schema 1は`packID`、`fromContentVersion`、`toContentVersion`、default policy、item mappingを持つ。activationは次の順序で行う。
+
+1. staged manifestとpackageのPack/version一致を確認する。
+2. migration path、SHA-256、document schema、Pack scope、from/toを検証する。
+3. Packの移行前`ItemProgress`とdocument digestをcheckpointへprepared保存する。
+4. `preserve`は維持、`resetChangedItems`は指定項目だけ削除、`migrate`は旧IDから新IDへSRS値を移す。
+5. 進捗保存後にcheckpointをappliedへし、その後で`active.json`を切り替える。
+6. 失敗時は旧activeを維持し、rollback時はcheckpointの旧Pack進捗を復元する。
+
+同じdigestの再適用は何も変更しない。回答NDJSON、submission transaction、eventは移行しない。新年度は従来どおり別Pack IDとする。
 
 ## v10で実装・実証済みの保証
 

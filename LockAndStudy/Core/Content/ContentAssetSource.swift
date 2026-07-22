@@ -96,14 +96,20 @@ actor ContentPackageStore: ContentPackageStoring {
   private let rootURL: URL
   private let fileManager: FileManager
   private let appVersion: String
+  private let packageValidator: ContentPackageValidator
+  private let progressMigrationService: ProgressMigrationService
 
   init(
     rootURL: URL? = nil,
     fileManager: FileManager = .default,
-    appVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+    appVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0",
+    validatorRegistry: ContentFileValidatorRegistry = .standard,
+    progressStore: (any ContentProgressMigrationStoring)? = nil
   ) {
     self.fileManager = fileManager
     self.appVersion = appVersion
+    packageValidator = ContentPackageValidator(registry: validatorRegistry)
+    progressMigrationService = ProgressMigrationService(progressStore: progressStore)
     self.rootURL =
       rootURL
       ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -131,7 +137,7 @@ actor ContentPackageStore: ContentPackageStoring {
     return .init(packID: packID, contentVersion: document.contentVersion, rootURL: packageRoot)
   }
 
-  func activate(_ package: InstalledContentPackage) throws {
+  func activate(_ package: InstalledContentPackage) async throws {
     let directory = try packDirectory(package.packID)
     let expected = try versionDirectory(packID: package.packID, version: package.contentVersion)
     guard package.rootURL.standardizedFileURL.resolvingSymlinksInPath() == expected,
@@ -139,13 +145,43 @@ actor ContentPackageStore: ContentPackageStoring {
     else { throw ContentRepositoryError.invalid("インストール済み教材の配置が不正です") }
     try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
     let previous = try activePointer(for: package.packID)?.contentVersion
+    let manifest = try stagedManifest(at: expected)
+    if let manifest {
+      guard manifest.id == package.packID, manifest.contentVersion == package.contentVersion else {
+        throw ContentRepositoryError.invalid("staged manifestがpackageと一致しません")
+      }
+      do {
+        try await progressMigrationService.prepareActivation(
+          manifest: manifest,
+          packageRoot: expected,
+          previousContentVersion: previous)
+      } catch {
+        if let previous {
+          try? await progressMigrationService.rollback(
+            packID: package.packID,
+            fromContentVersion: previous,
+            toContentVersion: package.contentVersion)
+        }
+        throw error
+      }
+    }
     let pointer = ActivePointer(
       contentVersion: package.contentVersion,
       previousContentVersion: previous == package.contentVersion ? nil : previous,
       activatedAt: Date())
-    try SharedJSON.encoder().encode(pointer).write(
-      to: directory.appendingPathComponent("active.json"),
-      options: .atomic)
+    do {
+      try SharedJSON.encoder().encode(pointer).write(
+        to: directory.appendingPathComponent("active.json"),
+        options: .atomic)
+    } catch {
+      if let previous {
+        try? await progressMigrationService.rollback(
+          packID: package.packID,
+          fromContentVersion: previous,
+          toContentVersion: package.contentVersion)
+      }
+      throw error
+    }
   }
 
   func stage(_ package: StagedContentPackage) throws -> InstalledContentPackage {
@@ -166,6 +202,7 @@ actor ContentPackageStore: ContentPackageStoring {
       packID: package.packID, version: package.contentVersion)
     guard !fileManager.fileExists(atPath: target.path) else {
       try validate(manifest: package.manifest, packageRoot: target)
+      try writeStagedManifest(package.manifest, at: target)
       return .init(
         packID: package.packID, contentVersion: package.contentVersion, rootURL: target)
     }
@@ -175,6 +212,7 @@ actor ContentPackageStore: ContentPackageStoring {
     do {
       try fileManager.copyItem(at: source, to: temporary)
       try validate(manifest: package.manifest, packageRoot: temporary)
+      try writeStagedManifest(package.manifest, at: temporary)
       try fileManager.moveItem(at: temporary, to: target)
     } catch {
       if fileManager.fileExists(atPath: temporary.path) {
@@ -186,7 +224,7 @@ actor ContentPackageStore: ContentPackageStoring {
       packID: package.packID, contentVersion: package.contentVersion, rootURL: target)
   }
 
-  func rollback(packID: StudyPackID) throws {
+  func rollback(packID: StudyPackID) async throws {
     guard let current = try activePointer(for: packID),
       let previous = current.previousContentVersion
     else { throw ContentRepositoryError.invalid("rollbackできる旧版がありません") }
@@ -194,13 +232,29 @@ actor ContentPackageStore: ContentPackageStoring {
     guard fileManager.fileExists(atPath: previousRoot.path) else {
       throw ContentRepositoryError.missing(previous)
     }
+    try await progressMigrationService.rollback(
+      packID: packID,
+      fromContentVersion: previous,
+      toContentVersion: current.contentVersion)
     let pointer = ActivePointer(
       contentVersion: previous,
       previousContentVersion: current.contentVersion,
       activatedAt: Date())
-    try SharedJSON.encoder().encode(pointer).write(
-      to: try packDirectory(packID).appendingPathComponent("active.json"),
-      options: .atomic)
+    do {
+      try SharedJSON.encoder().encode(pointer).write(
+        to: try packDirectory(packID).appendingPathComponent("active.json"),
+        options: .atomic)
+    } catch {
+      if let currentManifest = try stagedManifest(
+        at: try versionDirectory(packID: packID, version: current.contentVersion))
+      {
+        try? await progressMigrationService.prepareActivation(
+          manifest: currentManifest,
+          packageRoot: try versionDirectory(packID: packID, version: current.contentVersion),
+          previousContentVersion: previous)
+      }
+      throw error
+    }
   }
 
   func remove(packID: StudyPackID, version: String) throws {
@@ -234,27 +288,22 @@ actor ContentPackageStore: ContentPackageStoring {
   }
 
   private func validate(manifest: StudyPackManifest, packageRoot: URL) throws {
-    let loader = VerifiedContentLoader(packageRoot: packageRoot)
-    for descriptor in manifest.contentFiles {
-      let data = try loader.data(for: descriptor)
-      guard try itemCount(in: data) == descriptor.itemCount else {
-        throw ContentRepositoryError.invalid("\(descriptor.path) の項目数が一致しません")
-      }
-    }
+    try packageValidator.validate(manifest: manifest, packageRoot: packageRoot)
   }
 
-  private func itemCount(in data: Data) throws -> Int {
-    let object = try JSONSerialization.jsonObject(with: data)
-    if let items = object as? [Any] { return items.count }
-    if let dictionary = object as? [String: Any],
-      let levels = dictionary["levels"] as? [[String: Any]]
-    {
-      return levels.reduce(0) { count, level in
-        count + ((level["questions"] as? [Any])?.count ?? 0)
-      }
-    }
-    throw ContentRepositoryError.invalid("教材項目数を確認できません")
+  private func writeStagedManifest(_ manifest: StudyPackManifest, at root: URL) throws {
+    try SharedJSON.encoder().encode(manifest).write(
+      to: root.appendingPathComponent(Self.stagedManifestFilename),
+      options: .atomic)
   }
+
+  private func stagedManifest(at root: URL) throws -> StudyPackManifest? {
+    let url = root.appendingPathComponent(Self.stagedManifestFilename)
+    guard fileManager.fileExists(atPath: url.path) else { return nil }
+    return try SharedJSON.decoder().decode(StudyPackManifest.self, from: Data(contentsOf: url))
+  }
+
+  private static let stagedManifestFilename = ".lockandstudy-manifest.json"
 
   private struct ActivePointer: Codable {
     let contentVersion: String
