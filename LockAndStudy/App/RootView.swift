@@ -26,6 +26,8 @@ struct RootView: View {
     Group {
       if let envelope = model.unlockChallenge {
         unlockContent(envelope)
+      } else if let recovery = model.unlockRecovery {
+        unlockRecoveryContent(recovery)
       } else {
         #if DEBUG
           if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestRoutePurchase") {
@@ -83,13 +85,25 @@ struct RootView: View {
   }
 
   @ViewBuilder private func unlockContent(_ envelope: UnlockChallengeSessionEnvelope) -> some View {
-    let factory =
-      model.experienceRegistry.factory(forExperienceID: envelope.experienceID)
-      ?? model.experienceRegistry.factory(for: .safeFallback)
-    if let factory {
+    if let factory = model.experienceRegistry.factory(forExperienceID: envelope.experienceID),
+      let context = model.unlockViewContext(for: envelope)
+    {
       UnlockChallengeHostView(
-        factory: factory, envelope: envelope, context: model.unlockViewContext(for: envelope))
+        factory: factory, envelope: envelope, context: context)
+    } else {
+      UnlockRecoveryView {
+        await model.failClosedUnlockPresentation(envelope)
+        await model.beginSafeRecoveryStudy()
+      }
+      .task { await model.failClosedUnlockPresentation(envelope) }
     }
+  }
+
+  private func unlockRecoveryContent(_ recovery: UnlockRecoveryPresentation) -> some View {
+    UnlockRecoveryView {
+      await model.beginSafeRecoveryStudy()
+    }
+    .accessibilityIdentifier("unlock.recovery.\(recovery.reason.rawValue)")
   }
 
   @ViewBuilder private func routedPackDetail(_ packID: StudyPackID) -> some View {
@@ -98,5 +112,49 @@ struct RootView: View {
     } else {
       ProgressView("教材を読み込み中")
     }
+  }
+}
+
+private struct UnlockRecoveryView: View {
+  let beginSafeStudy: @MainActor () async -> Void
+  @State private var isStarting = false
+
+  var body: some View {
+    NavigationStack {
+      VStack(spacing: 20) {
+        Image(systemName: "lock.shield.fill")
+          .font(.system(size: 54))
+          .foregroundStyle(LockAndStudyTheme.teal)
+        Text("解除問題を復元できませんでした")
+          .font(.title2.bold())
+          .multilineTextAlignment(.center)
+        Text("教材の更新またはデータの不整合を検出したため、安全のためロックを維持しています。安全な無料問題で学習をやり直せます。")
+          .foregroundStyle(.secondary)
+          .multilineTextAlignment(.center)
+        Button {
+          guard !isStarting else { return }
+          isStarting = true
+          Task {
+            await beginSafeStudy()
+            isStarting = false
+          }
+        } label: {
+          if isStarting {
+            ProgressView().frame(maxWidth: .infinity)
+          } else {
+            Label("安全な無料問題を始める", systemImage: "lifepreserver.fill")
+              .frame(maxWidth: .infinity)
+          }
+        }
+        .primaryActionStyle()
+        .disabled(isStarting)
+        .accessibilityIdentifier("unlock.recovery.beginSafeFallback")
+      }
+      .frame(maxWidth: 560)
+      .padding(24)
+      .navigationTitle("解除学習の回復")
+      .navigationBarTitleDisplayMode(.inline)
+    }
+    .interactiveDismissDisabled()
   }
 }

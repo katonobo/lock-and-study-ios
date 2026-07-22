@@ -65,6 +65,7 @@
 		80B28147E49217E6DB0190EF /* PlatformMigrationV9.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6659CAE7ADFE499EA9ECB3 /* PlatformMigrationV9.swift */; };
 		81A62E9A93BF21D17D312494 /* StudyCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10186AD52B63C4CD875B3935 /* StudyCatalog.swift */; };
 		82A5F87CA7239C7298C5D0B9 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F578678CAD769C00603D3D6E /* AppModel.swift */; };
+		830EC94B00B2215BCDFBE03E /* PlatformHardeningV11Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1564A908AE1A0FF1F706AB /* PlatformHardeningV11Tests.swift */; };
 		871FCCE7D366B40637AA6085 /* LockPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8740A31CF8244BDC71F8395 /* LockPolicyTests.swift */; };
 		8B2E9B5F62DD8C2CBEEA4D93 /* ContentAndStoreKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A2FDD02695CD5C9DC00DE2 /* ContentAndStoreKitTests.swift */; };
 		8C18284A7C5762212C4D66C7 /* EmergencyUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFAAD12E85FA2D52431CB5EF /* EmergencyUnlockView.swift */; };
@@ -72,6 +73,7 @@
 		8ED625CE7B3C1BB885E1D31C /* yojijukugo_items_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F3B4C0DCBA458EDA195FDE5 /* yojijukugo_items_v1.json */; };
 		8FC452311966DDC1569E609B /* LearningReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D57F6606F9BC9C9BA0C04D3 /* LearningReportService.swift */; };
 		9473F6BDD997046634552AC0 /* TakkenExperienceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F995DD7EF80186CA1387D082 /* TakkenExperienceTests.swift */; };
+		966528E2A9F38CC396499364 /* ValidatedCatalogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B547AEE612A9D5CE29DCD992 /* ValidatedCatalogStore.swift */; };
 		9777C13D8261BFCEE994BF15 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99537359B9B92CCBE0D61ABE /* NotificationService.swift */; };
 		99296404BABD37DB6730706D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160FAFE293AD59C512C73931 /* SettingsView.swift */; };
 		9C940F442F86A524699CFCA1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D8C4A6BC2C49919399F5D034 /* PrivacyInfo.xcprivacy */; };
@@ -214,6 +216,7 @@
 		4039A8C47CD5D7D3D3E5FB4D /* LockAndStudyDeviceActivityMonitorExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockAndStudyDeviceActivityMonitorExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		42D285ECB76C5343277EDC93 /* vocabulary_english3000_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = vocabulary_english3000_v1.json; sourceTree = "<group>"; };
 		4BD167345A6CDA06B3C5F557 /* ScreenTimeLockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeLockService.swift; sourceTree = "<group>"; };
+		4D1564A908AE1A0FF1F706AB /* PlatformHardeningV11Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformHardeningV11Tests.swift; sourceTree = "<group>"; };
 		4DBF098CE23D864F3780E5D2 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
 		4FF2F115FD03369D7142BC94 /* StoreKitCommerceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitCommerceService.swift; sourceTree = "<group>"; };
 		5027452786CFF6F9D1E5F6A6 /* VocabularyModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyModels.swift; sourceTree = "<group>"; };
@@ -257,6 +260,7 @@
 		AFAAD12E85FA2D52431CB5EF /* EmergencyUnlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyUnlockView.swift; sourceTree = "<group>"; };
 		B2623E6B63CF1F38F3D80D4F /* TakkenReportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenReportProvider.swift; sourceTree = "<group>"; };
 		B4A3F0F1C265434131E1347D /* TakkenFinalizationV6Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenFinalizationV6Tests.swift; sourceTree = "<group>"; };
+		B547AEE612A9D5CE29DCD992 /* ValidatedCatalogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatedCatalogStore.swift; sourceTree = "<group>"; };
 		B75A0487F6EB0087CD449B28 /* VocabularyExperience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyExperience.swift; sourceTree = "<group>"; };
 		BA037A666C8D37419D5FFE30 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		BA10848279A29FDC4027C45A /* study_pack_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = study_pack_catalog.json; sourceTree = "<group>"; };
@@ -330,6 +334,7 @@
 				AEC3A0448978244375469A22 /* ManagementCodeTests.swift */,
 				C6DFFD2130706DFCFBA14743 /* PlatformCompletionV10Tests.swift */,
 				59604B79ADE3C33041A1C436 /* PlatformFoundationV9Tests.swift */,
+				4D1564A908AE1A0FF1F706AB /* PlatformHardeningV11Tests.swift */,
 				F995DD7EF80186CA1387D082 /* TakkenExperienceTests.swift */,
 				B4A3F0F1C265434131E1347D /* TakkenFinalizationV6Tests.swift */,
 				A586C5276A160A0E68DEFDC2 /* TakkenLearningEngineV5Tests.swift */,
@@ -569,6 +574,7 @@
 				8EA623BD3EA6EDEDEE85668C /* ContentSampleResolver.swift */,
 				10186AD52B63C4CD875B3935 /* StudyCatalog.swift */,
 				98737A725F68857CDF65FFD8 /* StudyContentModels.swift */,
+				B547AEE612A9D5CE29DCD992 /* ValidatedCatalogStore.swift */,
 			);
 			path = Content;
 			sourceTree = "<group>";
@@ -1096,6 +1102,7 @@
 				BC38DAB0BBBC98A1A3C9444B /* TakkenStudyModule.swift in Sources */,
 				75B9F2FA531CCCB77AAE2030 /* TakkenViews.swift in Sources */,
 				3EC7254F1A30DC3F5DCA1F8B /* UnlockSessionRuntime.swift in Sources */,
+				966528E2A9F38CC396499364 /* ValidatedCatalogStore.swift in Sources */,
 				DB46030E5F5C18A8EE30BEE9 /* VerifiedContentLoader.swift in Sources */,
 				9D6A1A157823E9BC580817C2 /* VocabularyExperience.swift in Sources */,
 				39A89E11B563AC51C620B58B /* VocabularyModels.swift in Sources */,
@@ -1141,6 +1148,7 @@
 				CAA00DCD5AAA296C1586D16C /* ManagementCodeTests.swift in Sources */,
 				70A88E1F3D1E45B43DBDAF78 /* PlatformCompletionV10Tests.swift in Sources */,
 				AEC1B9249F5742219F2A6926 /* PlatformFoundationV9Tests.swift in Sources */,
+				830EC94B00B2215BCDFBE03E /* PlatformHardeningV11Tests.swift in Sources */,
 				9473F6BDD997046634552AC0 /* TakkenExperienceTests.swift in Sources */,
 				E98C76B2A7C0CA026C42AB5F /* TakkenFinalizationV6Tests.swift in Sources */,
 				D41587BDBBAE1DBB604775A3 /* TakkenLearningEngineV5Tests.swift in Sources */,

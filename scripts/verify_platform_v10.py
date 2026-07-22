@@ -69,7 +69,7 @@ def main() -> int:
         if source not in dependency:
             fail(errors, f"production dependency misses {source}")
     installed_index = dependency.find("InstalledContentSource")
-    fallback_index = dependency.find("SafeFallbackContentSource")
+    fallback_index = dependency.find("SafeFallbackContentSource", installed_index)
     if installed_index < 0 or fallback_index < 0 or installed_index > fallback_index:
         fail(errors, "installed content must have priority over safe fallback")
 

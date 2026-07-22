@@ -75,6 +75,7 @@ struct LearningReport: Equatable, Sendable {
   let learningStartedCount: Int
   let earnedUnlockCount: Int
   let shieldEarnedUnlockCount: Int
+  let safeFallbackUnlockCount: Int
   let answerCount: Int
   let correctCount: Int
   let uniqueItemCount: Int

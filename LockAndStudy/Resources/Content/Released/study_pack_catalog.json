@@ -115,6 +115,13 @@
           "supportsSpeech": true,
           "supportsExamples": true,
           "supportsReverseDirection": false,
+          "emptyStateCopy": {
+            "noDueReview": "期限が来た復習はありません。",
+            "noMistakes": "復習する誤答はまだありません。",
+            "noWeakItems": "苦手として判定された単語はまだありません。",
+            "noNewItems": "このコースの新出単語は一巡しました。期限到来復習を続けられます。",
+            "noAvailableItems": "利用できる問題がありません。"
+          },
           "courseDefinitions": [
             {"code":"L0","title":"基礎・A1","subtitle":null,"sampleLabel":"無料50語"},
             {"code":"L1","title":"中学1年","subtitle":null,"sampleLabel":"無料50語"},

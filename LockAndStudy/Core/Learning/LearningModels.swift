@@ -51,6 +51,7 @@ enum StudyAnswerSubmissionResult: Equatable {
 }
 
 struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
+  static let safeFallbackTag = "lockandstudy.safe-fallback"
   let schemaVersion: Int
   let id: UUID
   let submissionID: String?
@@ -87,6 +88,11 @@ struct StudyAnswerRecord: Codable, Identifiable, Equatable, Sendable {
   let variantID: String?
   let attemptNumber: Int?
   let wasFirstAttempt: Bool?
+
+  var isSafeFallback: Bool {
+    tags?.contains(Self.safeFallbackTag) == true
+      || experienceID?.normalizedTemplateID == .safeFallbackV1
+  }
 
   init(
     prompt item: StudyPrompt,
@@ -199,6 +205,11 @@ struct ItemProgress: Codable, Equatable, Sendable {
   var intervalDays: Int
   static func initial(_ id: CompositeStudyItemID) -> ItemProgress {
     .init(id: id, answerCount: 0, correctCount: 0, incorrectCount: 0, consecutiveCorrect: 0, lastAnsweredAt: nil, dueAt: nil, easeFactor: 2, intervalDays: 0)
+  }
+
+  var isSafeFallbackArtifact: Bool {
+    id.itemID.rawValue.hasPrefix("safe-fallback-")
+      || id.itemID.rawValue.hasPrefix("safe-")
   }
 }
 

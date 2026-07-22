@@ -181,6 +181,7 @@ struct SafeFallbackExperience: StudyExperienceFactory {
       mode: .unlock,
       sessionID: envelope.id,
       feedbackPlan: feedback,
+      tags: [StudyAnswerRecord.safeFallbackTag],
       learningRole: AnswerLearningRole.classify(mode: .unlock, progress: priorProgress, at: answeredAt),
       wasNewAtSubmission: priorProgress.answerCount == 0,
       wasDueAtSubmission: priorProgress.dueAt.map { $0 <= answeredAt } ?? false,

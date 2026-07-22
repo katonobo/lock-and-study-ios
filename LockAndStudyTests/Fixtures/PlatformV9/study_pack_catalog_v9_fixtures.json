@@ -53,6 +53,13 @@
           "supportsSpeech": true,
           "supportsExamples": false,
           "supportsReverseDirection": false,
+          "emptyStateCopy": {
+            "noDueReview": "復習予定の四字熟語はありません。",
+            "noMistakes": "復習する誤答はまだありません。",
+            "noWeakItems": "学び直す四字熟語はまだありません。",
+            "noNewItems": "このコースの四字熟語は一巡しました。期限到来復習を続けられます。",
+            "noAvailableItems": "利用できる四字熟語はありません。"
+          },
           "courseDefinitions": [
             {"code":"L0","title":"基礎","subtitle":"日常で使う表現","sampleLabel":"無料6熟語"}
           ]

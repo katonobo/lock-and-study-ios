@@ -24,6 +24,7 @@ struct ContentPackageLocation: Equatable, Sendable {
 
 protocol ContentAssetSource: Sendable {
   func catalogData() async throws -> Data
+  func catalogDataCandidates() async -> [Data?]
   func packageLocation(
     for packID: StudyPackID,
     contentVersion: String
@@ -35,6 +36,10 @@ protocol ContentAssetSource: Sendable {
 }
 
 extension ContentAssetSource {
+  func catalogDataCandidates() async -> [Data?] {
+    [try? await catalogData()]
+  }
+
   func packageLocations(
     for packID: StudyPackID,
     contentVersion: String
@@ -313,6 +318,14 @@ struct CompositeContentSource: ContentAssetSource {
     throw lastError ?? ContentRepositoryError.missing("study_pack_catalog.json")
   }
 
+  func catalogDataCandidates() async -> [Data?] {
+    var candidates: [Data?] = []
+    for source in sources {
+      candidates.append(contentsOf: await source.catalogDataCandidates())
+    }
+    return candidates
+  }
+
   func packageLocation(
     for packID: StudyPackID,
     contentVersion: String
@@ -368,6 +381,13 @@ struct SafeFallbackContentSource: ContentAssetSource {
     for packID: StudyPackID,
     contentVersion: String
   ) async throws -> ContentPackageLocation? { nil }
+
+  static func builtInManifest() throws -> StudyPackManifest {
+    guard let manifest = try StudyCatalogDecoder().decode(Data(catalog.utf8)).packs.first else {
+      throw ContentRepositoryError.missing("safe-fallback.v1")
+    }
+    return manifest
+  }
 
   private static let catalog = #"""
   {

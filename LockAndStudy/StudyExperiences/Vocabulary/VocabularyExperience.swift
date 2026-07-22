@@ -162,7 +162,9 @@ struct FlashcardExperience: StudyExperienceFactory {
   }
   func makeProgressSummary(context: StudyExperienceContext) async throws -> StudyExperienceSummary {
     let allProgress = try await context.dependencies.learning.allProgress()
-    let progress = allProgress.values.filter { $0.id.packID == context.manifest.id }
+    let progress = allProgress.values.filter {
+      $0.id.packID == context.manifest.id && !$0.isSafeFallbackArtifact
+    }
     let answers = try await context.dependencies.learning.answers().filter {
       $0.experienceID == .vocabulary && $0.packID == context.manifest.id
     }
@@ -560,7 +562,7 @@ final class VocabularyAppModel: ObservableObject {
     )
     do {
       let questions = try queue.map(generator.makeQuestion)
-      guard !questions.isEmpty else { errorMessage = emptyMessage(for: mode); return }
+      guard !questions.isEmpty else { errorMessage = emptyStateMessage(for: mode); return }
       session = .init(id: UUID(), mode: mode, questions: questions)
       Task { try? await context.dependencies.learning.record(.init(kind: .studyStarted, packID: context.manifest.id, sessionID: session?.id)) }
     } catch { errorMessage = error.localizedDescription }
@@ -626,20 +628,33 @@ final class VocabularyAppModel: ObservableObject {
     VocabularyWeeklyReportService().make(
       answers: answers, progress: progress, packID: context.manifest.id, now: Date())
   }
-  var learnedCount: Int { progress.values.filter { $0.id.packID == context.manifest.id && $0.answerCount > 0 }.count }
-  var dueCount: Int { progress.values.filter { $0.id.packID == context.manifest.id && ($0.dueAt.map { $0 <= Date() } ?? false) }.count }
+  var pendingPreviewExamplesEnabled: Bool {
+    profile.supportsExamples && settings.examplesEnabled
+  }
+  var learnedCount: Int {
+    progress.values.filter {
+      $0.id.packID == context.manifest.id && !$0.isSafeFallbackArtifact && $0.answerCount > 0
+    }.count
+  }
+  var dueCount: Int {
+    progress.values.filter {
+      $0.id.packID == context.manifest.id && !$0.isSafeFallbackArtifact
+        && ($0.dueAt.map { $0 <= Date() } ?? false)
+    }.count
+  }
   func itemProgress(_ item: VocabularyItem) -> ItemProgress {
     progress[CompositeStudyItemID(packID: context.manifest.id, itemID: item.studyItemID).storageKey]
       ?? .initial(.init(packID: context.manifest.id, itemID: item.studyItemID))
   }
   func waitSeconds(for plan: StudyFeedbackPlan) -> Int { feedbackPlanner.waitSeconds(for: plan) }
-  private func emptyMessage(for mode: StudyMode) -> String {
+  func emptyStateMessage(for mode: StudyMode) -> String {
+    let copy = profile.resolvedEmptyStateCopy
     switch mode {
-    case .review: return "期限が来た復習はありません。"
-    case .mistakes: return "復習する誤答はまだありません。"
-    case .weakness: return "苦手として判定された単語はまだありません。"
-    case .newItems: return "このコースの新出単語は一巡しました。期限到来復習を続けられます。"
-    default: return "利用できる問題がありません。"
+    case .review: return copy.noDueReview
+    case .mistakes: return copy.noMistakes
+    case .weakness: return copy.noWeakItems
+    case .newItems: return copy.noNewItems
+    default: return copy.noAvailableItems
     }
   }
 }

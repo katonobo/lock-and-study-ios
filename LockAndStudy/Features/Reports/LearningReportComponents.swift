@@ -124,6 +124,9 @@ struct LearningReportBody: View {
       LabeledContent("正答率", value: "\(report.accuracy)%")
       LabeledContent("学習日数", value: "\(report.studyDayCount)日")
       LabeledContent("連続学習", value: "\(report.streak)日")
+      if report.safeFallbackUnlockCount > 0 {
+        LabeledContent("安全問題で解除", value: "\(report.safeFallbackUnlockCount)回")
+      }
       if report.learningOpportunityCount > 0 {
         LabeledContent("学習転換率", value: "\(report.learningConversionRate)%")
       }

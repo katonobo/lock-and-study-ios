@@ -10,8 +10,12 @@ struct LearningReportService: Sendable {
     calendar: Calendar
   ) throws -> LearningReport {
     let period = LearningReportPeriod.currentSevenDays(now: now, calendar: calendar)
-    let allScopedAnswers = snapshot.answers(for: scope)
+    let scopedAnswersIncludingFallback = snapshot.answers(for: scope)
+    let allScopedAnswers = scopedAnswersIncludingFallback.filter { !$0.isSafeFallback }
     let answers = allScopedAnswers.filter { period.contains($0.answeredAt) }
+    let fallbackAnswers = scopedAnswersIncludingFallback.filter {
+      $0.isSafeFallback && period.contains($0.answeredAt)
+    }
     let events = snapshot.events(for: scope).filter { period.contains($0.occurredAt) }
 
     let shieldStarts = uniqueSessionEvents(
@@ -25,6 +29,10 @@ struct LearningReportService: Sendable {
     }
     let unlocks = uniqueSessionEvents(events.filter { $0.kind == .unlockSuccess })
     let shieldUnlocks = unlocks.filter { $0.resolvedUnlockOrigin == .shield }
+    let fallbackSessionIDs = Set(fallbackAnswers.map(\.sessionID))
+    let fallbackUnlocks = unlocks.filter {
+      $0.sessionID.map(fallbackSessionIDs.contains) ?? false
+    }
 
     let today = calendar.startOfDay(for: now)
     let dailyPoints = (0..<7).compactMap { offset -> DailyLearningReportPoint? in
@@ -41,8 +49,11 @@ struct LearningReportService: Sendable {
     switch scope {
     case .allMaterials:
       selectedManifests = snapshot.manifests.filter { manifest in
-        snapshot.answers.contains { $0.packID == manifest.id }
-          || snapshot.progress.values.contains { $0.id.packID == manifest.id && $0.answerCount > 0 }
+        allScopedAnswers.contains { $0.packID == manifest.id }
+          || snapshot.progress.values.contains {
+            $0.id.packID == manifest.id && $0.answerCount > 0
+              && !$0.isSafeFallbackArtifact
+          }
       }
     case .pack(let packID):
       selectedManifests = snapshot.manifests.filter { $0.id == packID }
@@ -82,6 +93,7 @@ struct LearningReportService: Sendable {
       learningStartedCount: learningStarted.count,
       earnedUnlockCount: unlocks.count,
       shieldEarnedUnlockCount: shieldUnlocks.count,
+      safeFallbackUnlockCount: fallbackUnlocks.count,
       answerCount: answers.count,
       correctCount: correct,
       uniqueItemCount: Set(answers.map { CompositeStudyItemID(packID: $0.packID, itemID: $0.itemID) }).count,

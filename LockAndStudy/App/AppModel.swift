@@ -2,6 +2,66 @@ import Combine
 import FamilyControls
 import Foundation
 
+enum UnlockRecoveryReason: String, Equatable, Sendable {
+  case manifestMissing = "recovery-manifest-missing"
+  case manifestPackMismatch = "recovery-manifest-pack-mismatch"
+  case manifestUnavailable = "recovery-manifest-unavailable"
+  case experienceMismatch = "recovery-experience-mismatch"
+  case runtimeMissing = "recovery-runtime-missing"
+  case payloadSchemaUnsupported = "recovery-payload-schema-unsupported"
+  case contentVersionIncompatible = "recovery-content-version-incompatible"
+  case payloadRestoreFailed = "recovery-payload-restore-failed"
+  case completionStateInvalid = "recovery-completion-state-invalid"
+}
+
+struct UnlockRecoveryPresentation: Identifiable, Equatable, Sendable {
+  let id: UUID
+  let failedPackID: StudyPackID
+  let origin: UnlockChallengeOrigin
+  let reason: UnlockRecoveryReason
+
+  init(envelope: UnlockChallengeSessionEnvelope, reason: UnlockRecoveryReason) {
+    id = envelope.id
+    failedPackID = envelope.packID
+    origin = envelope.origin
+    self.reason = reason
+  }
+}
+
+@MainActor
+struct UnlockSessionRestorationValidator {
+  func failureReason(
+    envelope: UnlockChallengeSessionEnvelope,
+    manifest: StudyPackManifest?,
+    runtime: (any StudyExperienceFactory)?,
+    availability: PackAvailability?
+  ) -> UnlockRecoveryReason? {
+    guard let manifest else { return .manifestMissing }
+    guard manifest.id == envelope.packID else { return .manifestPackMismatch }
+    guard availability?.canOpen == true else { return .manifestUnavailable }
+    guard let runtime else { return .runtimeMissing }
+    guard runtime.experienceID.normalizedTemplateID == envelope.experienceID.normalizedTemplateID
+    else { return .experienceMismatch }
+    let usesSafeFallback = envelope.experienceID.normalizedTemplateID == .safeFallbackV1
+    if !usesSafeFallback {
+      guard manifest.experienceID.normalizedTemplateID == envelope.experienceID.normalizedTemplateID,
+        runtime.validateCompatibility(with: manifest).isEmpty
+      else { return .experienceMismatch }
+    }
+    guard runtime.supportedPayloadSchemaIDs.contains(envelope.enginePayloadSchemaID) else {
+      return .payloadSchemaUnsupported
+    }
+    if usesSafeFallback {
+      guard envelope.contentVersion == manifest.contentVersion
+        || envelope.contentVersion == "built-in-v1"
+      else { return .contentVersionIncompatible }
+    } else if manifest.contentVersion != envelope.contentVersion {
+      return .contentVersionIncompatible
+    }
+    return nil
+  }
+}
+
 @MainActor
 final class AppModel: ObservableObject {
   @Published var onboardingCompleted: Bool
@@ -16,6 +76,7 @@ final class AppModel: ObservableObject {
   @Published var activeExperience: ActiveStudyExperience?
   @Published var isMaterialSelectionPresented = false
   @Published var unlockChallenge: UnlockChallengeSessionEnvelope?
+  @Published private(set) var unlockRecovery: UnlockRecoveryPresentation?
   @Published private(set) var records: [LearningEvent] = []
   @Published var alertMessage: String?
   @Published var isBusy = false
@@ -126,26 +187,7 @@ final class AppModel: ObservableObject {
       records = (try? await dependencies.learning.events()) ?? []
       if onboardingCompleted {
         if let envelope = try await dependencies.unlockSessions.restore(at: Date()) {
-          if let runtime = experienceRegistry.factory(forExperienceID: envelope.experienceID),
-            runtime.supportedPayloadSchemaIDs.contains(envelope.enginePayloadSchemaID)
-          {
-            do {
-              let state = try runtime.restoreState(
-                payload: envelope.enginePayload, schemaID: envelope.enginePayloadSchemaID)
-              if state.isComplete {
-                unlockChallenge = envelope
-                await completeUnlockChallenge()
-              } else if envelope.completionState == .answering {
-                unlockChallenge = envelope
-              } else {
-                await abortActiveUnlock(reason: "invalid-recovered-completion-state")
-              }
-            } catch {
-              await abortActiveUnlock(reason: "experience-payload-restore-failed")
-            }
-          } else {
-            await abortActiveUnlock(reason: "unsupported-experience-payload-schema")
-          }
+          await restoreUnlockChallenge(envelope)
         } else if let restored = try? await dependencies.learning.loadUnlockBundle(now: Date()),
           let manifest = manifests.first(where: { $0.id == restored.access.packID })
         {
@@ -356,12 +398,20 @@ final class AppModel: ObservableObject {
   func beginUnlockStudy(
     packID: StudyPackID? = nil,
     requestID: UUID = UUID(),
-    origin: UnlockChallengeOrigin
+    origin: UnlockChallengeOrigin,
+    forceSafeFallback: Bool = false
   ) async {
     let requestedPackID = packID ?? activeUnlockPackID
-    guard let manifest = manifests.first(where: { $0.id == requestedPackID }) ?? manifests.first
-    else { return }
     do {
+      let manifest: StudyPackManifest
+      if forceSafeFallback {
+        manifest = try SafeFallbackContentSource.builtInManifest()
+      } else {
+        guard let exactManifest = manifests.first(where: { $0.id == requestedPackID }) else {
+          throw ContentRepositoryError.missing(requestedPackID.rawValue)
+        }
+        manifest = exactManifest
+      }
       let progress = try await dependencies.learning.allProgress()
       let now = Date()
       let policy = dependencies.policyStore.loadPolicy() ?? .initial(now: now)
@@ -378,7 +428,12 @@ final class AppModel: ObservableObject {
       )
       let resolvedRuntime: any StudyExperienceFactory
       let payload: ExperienceSessionPayload
-      if let runtime = experienceRegistry.factory(for: manifest),
+      if forceSafeFallback,
+        let fallback = experienceRegistry.factory(forExperienceID: .safeFallbackV1)
+      {
+        payload = try await fallback.createSession(request: request)
+        resolvedRuntime = fallback
+      } else if let runtime = experienceRegistry.factory(for: manifest),
         runtime.validateCompatibility(with: manifest).isEmpty
       {
         do {
@@ -425,6 +480,7 @@ final class AppModel: ObservableObject {
           sessionID: envelope.id, unlockOrigin: origin)
       )
       activeReviewStartedAt = nil
+      unlockRecovery = nil
       unlockChallenge = envelope
     } catch {
       alertMessage = "解除学習を準備できませんでした。無料教材を確認して再試行してください。\n\(error.localizedDescription)"
@@ -498,10 +554,20 @@ final class AppModel: ObservableObject {
 
   func completeUnlockChallenge() async {
     activeReviewStartedAt = nil
-    guard var envelope = try? await dependencies.learning.loadUnlockSessionEnvelope(),
-      let runtime = experienceRegistry.factory(forExperienceID: envelope.experienceID),
+    guard var envelope = try? await dependencies.learning.loadUnlockSessionEnvelope() else {
+      return
+    }
+    await loadCatalogForUnlockValidationIfNeeded()
+    if let failure = unlockRecoveryReason(for: envelope) {
+      await failClosedUnlockPresentation(envelope, reason: failure)
+      return
+    }
+    guard let runtime = experienceRegistry.factory(forExperienceID: envelope.experienceID),
       let proof = try? runtime.completionProof(envelope: envelope)
-    else { return }
+    else {
+      await failClosedUnlockPresentation(envelope, reason: .payloadRestoreFailed)
+      return
+    }
     if Date() >= envelope.expiresAt {
       await abortActiveUnlock(reason: "challenge-expired-before-unlock")
       return
@@ -589,10 +655,13 @@ final class AppModel: ObservableObject {
     } catch { alertMessage = error.localizedDescription }
   }
 
-  func unlockViewContext(for envelope: UnlockChallengeSessionEnvelope) -> ExperienceChallengeViewContext {
-    let manifest = manifests.first(where: { $0.id == envelope.packID })
-      ?? manifests.first!
-    return .init(
+  func unlockViewContext(
+    for envelope: UnlockChallengeSessionEnvelope
+  ) -> ExperienceChallengeViewContext? {
+    guard unlockRecoveryReason(for: envelope) == nil,
+      let manifest = unlockManifest(for: envelope)
+    else { return nil }
+    return ExperienceChallengeViewContext(
       manifest: manifest,
       submit: { [weak self] answer in
         await self?.submitUnlockAnswer(answer)
@@ -611,6 +680,78 @@ final class AppModel: ObservableObject {
       },
       complete: { [weak self] in await self?.completeUnlockChallenge() }
     )
+  }
+
+  func failClosedUnlockPresentation(
+    _ envelope: UnlockChallengeSessionEnvelope,
+    reason: UnlockRecoveryReason? = nil
+  ) async {
+    let resolvedReason = reason ?? unlockRecoveryReason(for: envelope) ?? .payloadRestoreFailed
+    await abortActiveUnlock(reason: resolvedReason.rawValue)
+    unlockRecovery = .init(envelope: envelope, reason: resolvedReason)
+  }
+
+  func beginSafeRecoveryStudy() async {
+    guard let recovery = unlockRecovery else { return }
+    await beginUnlockStudy(
+      packID: "safe-fallback.v1",
+      requestID: UUID(),
+      origin: recovery.origin,
+      forceSafeFallback: true)
+  }
+
+  private func restoreUnlockChallenge(_ envelope: UnlockChallengeSessionEnvelope) async {
+    if let failure = unlockRecoveryReason(for: envelope) {
+      await failClosedUnlockPresentation(envelope, reason: failure)
+      return
+    }
+    guard let runtime = experienceRegistry.factory(forExperienceID: envelope.experienceID) else {
+      await failClosedUnlockPresentation(envelope, reason: .runtimeMissing)
+      return
+    }
+    do {
+      let state = try runtime.restoreState(
+        payload: envelope.enginePayload, schemaID: envelope.enginePayloadSchemaID)
+      if state.isComplete {
+        unlockChallenge = envelope
+        await completeUnlockChallenge()
+      } else if envelope.completionState == .answering {
+        unlockChallenge = envelope
+      } else {
+        await failClosedUnlockPresentation(envelope, reason: .completionStateInvalid)
+      }
+    } catch {
+      await failClosedUnlockPresentation(envelope, reason: .payloadRestoreFailed)
+    }
+  }
+
+  private func unlockRecoveryReason(
+    for envelope: UnlockChallengeSessionEnvelope
+  ) -> UnlockRecoveryReason? {
+    let manifest = unlockManifest(for: envelope)
+    let runtime = experienceRegistry.factory(forExperienceID: envelope.experienceID)
+    return UnlockSessionRestorationValidator().failureReason(
+      envelope: envelope,
+      manifest: manifest,
+      runtime: runtime,
+      availability: manifest.map { availability(for: $0) })
+  }
+
+  private func unlockManifest(
+    for envelope: UnlockChallengeSessionEnvelope
+  ) -> StudyPackManifest? {
+    if let exact = manifests.first(where: { $0.id == envelope.packID }) { return exact }
+    guard envelope.packID == "safe-fallback.v1" else { return nil }
+    return try? SafeFallbackContentSource.builtInManifest()
+  }
+
+  private func loadCatalogForUnlockValidationIfNeeded() async {
+    guard manifests.isEmpty else { return }
+    guard let catalog = try? await dependencies.content.catalogSnapshot() else { return }
+    categories = catalog.categories
+    series = catalog.series
+    manifests = catalog.packs
+    dependencies.commerce.configure(manifests: manifests)
   }
 
   func recordAnswer(

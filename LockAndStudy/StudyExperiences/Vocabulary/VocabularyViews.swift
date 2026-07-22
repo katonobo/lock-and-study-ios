@@ -137,7 +137,7 @@ private struct VocabularyHomeView: View {
               item: item,
               preview: preview,
               now: timeline.date,
-              examplesEnabled: model.settings.examplesEnabled,
+              examplesEnabled: model.pendingPreviewExamplesEnabled,
               scenePhase: scenePhase
             )
           }

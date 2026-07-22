@@ -115,9 +115,12 @@ actor LearningDataStore {
       )
       var applied = document.appliedSubmissionIDs ?? []
       if !applied.contains(submissionID) {
-        let composite = CompositeStudyItemID(packID: answer.packID, itemID: answer.itemID)
-        let old = document.items[composite.storageKey] ?? .initial(composite)
-        document.items[composite.storageKey] = SRSScheduler().applying(isCorrect: answer.isCorrect, to: old, at: answer.answeredAt)
+        if !answer.isSafeFallback {
+          let composite = CompositeStudyItemID(packID: answer.packID, itemID: answer.itemID)
+          let old = document.items[composite.storageKey] ?? .initial(composite)
+          document.items[composite.storageKey] = SRSScheduler().applying(
+            isCorrect: answer.isCorrect, to: old, at: answer.answeredAt)
+        }
         applied.insert(submissionID)
         document.appliedSubmissionIDs = applied
         try write(document, to: progressURL)

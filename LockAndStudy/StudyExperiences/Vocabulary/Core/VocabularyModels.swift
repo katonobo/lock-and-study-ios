@@ -348,8 +348,13 @@ struct VocabularyWeeklyReportService: Sendable {
     let scoped = answers.filter {
       $0.experienceID == .vocabulary && $0.packID == packID && $0.answeredAt >= start
     }
-    let learned = progress.values.filter { $0.id.packID == packID && $0.answerCount > 0 }.count
-    let due = progress.values.filter { $0.id.packID == packID && ($0.dueAt.map { $0 <= now } ?? false) }.count
+    let learned = progress.values.filter {
+      $0.id.packID == packID && !$0.isSafeFallbackArtifact && $0.answerCount > 0
+    }.count
+    let due = progress.values.filter {
+      $0.id.packID == packID && !$0.isSafeFallbackArtifact
+        && ($0.dueAt.map { $0 <= now } ?? false)
+    }.count
     let days = Set(scoped.map { calendar.startOfDay(for: $0.answeredAt) })
     var streak = 0
     for offset in 0..<365 {

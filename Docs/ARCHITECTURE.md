@@ -44,3 +44,10 @@ Releaseコードは外部通信、広告、分析SDKを持ちません。
 英単語と宅建の各「記録」タブは、その教材の`NavigationStack`内から共通`LearningReportView`を開きます。グローバルTabViewは使用しません。画面内のスコープ切替だけで「この教材／すべての教材」を切り替え、他教材データがない場合は切替自体を表示しません。
 
 `LearningReportService`は回答、event、進捗、released manifestを`LearningDataStore`とContent Repositoryから毎回取得します。共通層はShield起点の学習チャンス、実回答、実際に作成された解除sessionだけを集計し、`VocabularyReportProvider`と`TakkenReportProvider`が新出・復習、レベル進捗、分野成績などを追加します。サンプルレポートは固定メモリデータだけを使い、保存領域へ書き込みません。
+# v11 final hardening
+
+Unlock Challengeの復元は`UnlockSessionRestorationValidator`を通過した場合だけChallenge Viewを生成する。pack ID、Packの利用可否（現行または買い切り所有済みArchived）、normalized Experience ID、payload schema、content versionの完全一致が必要である。不一致時はEnvelopeを`aborted`にし、ロックを維持した回復画面から組み込みの安全問題だけを開始する。別Packのmanifestを復元に流用してはならない。
+
+Catalog validationはGlobal fatalとPack-localを区別する。Category/Series/Packの重複ID、Category cycle、Catalog root/schema不正はCatalog全体を拒否する。Pack参照・component・商品ID等の局所エラーは該当Packだけを隔離する。Category/Seriesの曖昧な先勝ち・後勝ちは認めない。
+
+検証済みCatalogは`ValidatedCatalogStore`がApplication Supportへ原子的に保存し、1世代のbackupを保持する。読込み優先順は、新Catalog、プロセス内LKG、永続LKG/backup、bundled、safe fallbackである。永続データも再decode・再validationしてから利用する。

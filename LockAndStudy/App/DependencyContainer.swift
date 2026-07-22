@@ -36,13 +36,25 @@ final class DependencyContainer {
       "InstalledContent", isDirectory: true)
     let packageStore = ContentPackageStore(rootURL: packageRoot)
     contentPackages = packageStore
-    let productionSource: any ContentAssetSource = contentSource
-      ?? CompositeContentSource([
+    let productionSource: any ContentAssetSource
+    if let contentSource {
+      productionSource = CompositeContentSource([
+        contentSource,
+        catalogSource,
+        SafeFallbackContentSource(),
+      ])
+    } else {
+      productionSource = CompositeContentSource([
         InstalledContentSource(catalogSource: catalogSource, store: packageStore),
         catalogSource,
         SafeFallbackContentSource(),
       ])
-    content = ContentRepository(source: productionSource)
+    }
+    let catalogStore = ValidatedCatalogStore(
+      rootURL: learningRootURL?.appendingPathComponent("CatalogState", isDirectory: true))
+    content = ContentRepository(
+      source: productionSource,
+      validatedCatalogStore: catalogStore)
     learningRevision = LearningDataRevision()
     if let learningRootURL {
       learning = LearningDataStore(rootURL: learningRootURL)

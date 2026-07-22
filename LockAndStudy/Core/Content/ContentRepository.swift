@@ -17,6 +17,7 @@ enum ContentRepositoryError: LocalizedError {
 actor ContentRepository {
   private let source: any ContentAssetSource
   private let registry: StudyModuleRegistry
+  private let validatedCatalogStore: ValidatedCatalogStore?
   private var catalogCache: StudyCatalogSnapshot?
   private var lastKnownGoodCatalog: StudyCatalogSnapshot?
   private var catalogIssueCache: [CatalogValidationIssue] = []
@@ -26,10 +27,12 @@ actor ContentRepository {
 
   init(
     source: any ContentAssetSource = BundledContentSource(),
-    registry: StudyModuleRegistry = .standard
+    registry: StudyModuleRegistry = .standard,
+    validatedCatalogStore: ValidatedCatalogStore? = nil
   ) {
     self.source = source
     self.registry = registry
+    self.validatedCatalogStore = validatedCatalogStore
   }
 
   func releasedManifests() async throws -> [StudyPackManifest] {
@@ -39,46 +42,48 @@ actor ContentRepository {
 
   func catalogSnapshot() async throws -> StudyCatalogSnapshot {
     if let catalogCache { return catalogCache }
-    do {
-      let data = try await source.catalogData()
-      let decoded = try StudyCatalogDecoder().decode(data)
-      let validation = StudyCatalogValidator().validate(decoded)
-      catalogIssueCache = validation
-      let invalidPackIDs = Set(validation.compactMap(\.packID))
-      let validCategoryIDs = validCategories(in: decoded)
-      let validSeriesIDs = Set(decoded.series.filter {
-        validCategoryIDs.contains($0.categoryID)
-      }.map(\.id))
-      var seen: Set<StudyPackID> = []
-      let released = decoded.packs.filter {
-        ($0.releaseStatus == .release && $0.isEnabled) || $0.releaseStatus == .retired
+    let candidates = await source.catalogDataCandidates()
+    var lastError: Error = ContentRepositoryError.missing("study_pack_catalog.json")
+
+    if let primary = candidates.first ?? nil {
+      do {
+        let snapshot = try validatedSnapshot(from: primary, recordsDiagnostics: true)
+        return try await accept(
+          snapshot, persist: !isSafeFallbackOnly(snapshot))
+      } catch {
+        lastError = error
       }
-      .filter {
-        !invalidPackIDs.contains($0.id)
-          && validCategoryIDs.contains($0.categoryID)
-          && validSeriesIDs.contains($0.seriesID)
-          && seen.insert($0.id).inserted
-      }
-      .sorted { $0.sortOrder < $1.sortOrder }
-      guard !released.isEmpty else {
-        throw ContentRepositoryError.invalid("利用可能な教材がありません")
-      }
-      let snapshot = StudyCatalogSnapshot(
-        schemaVersion: decoded.schemaVersion,
-        generatedAt: decoded.generatedAt,
-        categories: decoded.categories.filter { validCategoryIDs.contains($0.id) },
-        series: decoded.series.filter { validSeriesIDs.contains($0.id) },
-        packs: released)
-      catalogCache = snapshot
-      lastKnownGoodCatalog = snapshot
-      return snapshot
-    } catch {
-      if let lastKnownGoodCatalog {
-        catalogCache = lastKnownGoodCatalog
-        return lastKnownGoodCatalog
-      }
-      throw error
     }
+
+    if let lastKnownGoodCatalog {
+      catalogCache = lastKnownGoodCatalog
+      return lastKnownGoodCatalog
+    }
+
+    if let validatedCatalogStore {
+      for persisted in await validatedCatalogStore.catalogDataCandidates() {
+        do {
+          let snapshot = try validatedSnapshot(from: persisted, recordsDiagnostics: false)
+          catalogCache = snapshot
+          lastKnownGoodCatalog = snapshot
+          return snapshot
+        } catch {
+          lastError = error
+        }
+      }
+    }
+
+    for fallback in candidates.dropFirst().compactMap({ $0 }) {
+      do {
+        let snapshot = try validatedSnapshot(
+          from: fallback, recordsDiagnostics: catalogIssueCache.isEmpty)
+        return try await accept(
+          snapshot, persist: !isSafeFallbackOnly(snapshot))
+      } catch {
+        lastError = error
+      }
+    }
+    throw lastError
   }
 
   func catalogDiagnostics() -> [CatalogValidationIssue] { catalogIssueCache }
@@ -86,6 +91,67 @@ actor ContentRepository {
   func reloadCatalog() async throws -> StudyCatalogSnapshot {
     catalogCache = nil
     return try await catalogSnapshot()
+  }
+
+  private func accept(
+    _ snapshot: StudyCatalogSnapshot,
+    persist: Bool
+  ) async throws -> StudyCatalogSnapshot {
+    catalogCache = snapshot
+    lastKnownGoodCatalog = snapshot
+    if persist, let validatedCatalogStore {
+      do {
+        let bytes = try SharedJSON.encoder().encode(snapshot)
+        try await validatedCatalogStore.save(catalogData: bytes, snapshot: snapshot)
+      } catch {
+        catalogIssueCache.append(.init(
+          "catalog-lkg-write-failed",
+          "validated Catalogを永続化できませんでした: \(error.localizedDescription)",
+          scope: .global))
+      }
+    }
+    return snapshot
+  }
+
+  private func validatedSnapshot(
+    from data: Data,
+    recordsDiagnostics: Bool
+  ) throws -> StudyCatalogSnapshot {
+    let decoded = try StudyCatalogDecoder().decode(data)
+    let validation = StudyCatalogValidator().validate(decoded)
+    if recordsDiagnostics { catalogIssueCache = validation }
+    let fatal = validation.filter(\.isGlobalFatal)
+    guard fatal.isEmpty else {
+      throw ContentRepositoryError.invalid(
+        "Catalog全体を拒否しました: \(fatal.map(\.code).joined(separator: ", "))")
+    }
+
+    let invalidPackIDs = Set(validation.compactMap { issue in
+      issue.scope == .pack ? issue.packID : nil
+    })
+    let categoryIDs = Set(decoded.categories.map(\.id))
+    let seriesIDs = Set(decoded.series.map(\.id))
+    let released = decoded.packs.filter {
+      ($0.releaseStatus == .release && $0.isEnabled) || $0.releaseStatus == .retired
+    }.filter {
+      !invalidPackIDs.contains($0.id)
+        && categoryIDs.contains($0.categoryID)
+        && seriesIDs.contains($0.seriesID)
+    }.sorted { $0.sortOrder < $1.sortOrder }
+    guard !released.isEmpty else {
+      throw ContentRepositoryError.invalid("利用可能な教材がありません")
+    }
+    return StudyCatalogSnapshot(
+      schemaVersion: decoded.schemaVersion,
+      generatedAt: decoded.generatedAt,
+      categories: decoded.categories,
+      series: decoded.series,
+      packs: released)
+  }
+
+  private func isSafeFallbackOnly(_ snapshot: StudyCatalogSnapshot) -> Bool {
+    !snapshot.packs.isEmpty
+      && snapshot.packs.allSatisfy { $0.experienceID.normalizedTemplateID == .safeFallbackV1 }
   }
 
   func prompts(for packID: StudyPackID) async throws -> [StudyPrompt] {

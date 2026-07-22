@@ -55,6 +55,7 @@ private extension LearningReport {
       learningStartedCount: 8,
       earnedUnlockCount: 7,
       shieldEarnedUnlockCount: 7,
+      safeFallbackUnlockCount: 0,
       answerCount: 56,
       correctCount: 47,
       uniqueItemCount: 40,

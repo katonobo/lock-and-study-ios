@@ -16,16 +16,50 @@ struct StudyCatalogSnapshot: Codable, Equatable, Sendable {
   }
 }
 
+enum CatalogValidationScope: String, Codable, Equatable, Sendable {
+  case global
+  case pack
+}
+
+enum CatalogValidationSeverity: String, Codable, Equatable, Sendable {
+  case fatal
+  case error
+}
+
 struct CatalogValidationIssue: Equatable, Sendable {
   let code: String
   let message: String
   let packID: StudyPackID?
+  let scope: CatalogValidationScope
+  let severity: CatalogValidationSeverity
 
-  init(_ code: String, _ message: String, packID: StudyPackID? = nil) {
+  init(
+    _ code: String,
+    _ message: String,
+    packID: StudyPackID? = nil,
+    scope: CatalogValidationScope? = nil,
+    severity: CatalogValidationSeverity = .error
+  ) {
     self.code = code
     self.message = message
     self.packID = packID
+    self.scope = scope ?? (packID == nil ? .global : .pack)
+    self.severity = Self.globalFatalCodes.contains(code) ? .fatal : severity
   }
+
+  var isGlobalFatal: Bool { scope == .global && severity == .fatal }
+
+  private static let globalFatalCodes: Set<String> = [
+    "duplicate-category-id",
+    "duplicate-series-id",
+    "duplicate-pack-id",
+    "category-cycle",
+    "missing-parent-category",
+    "missing-series-category",
+    "invalid-catalog-root",
+    "invalid-catalog-schema",
+    "invalid-catalog-signature",
+  ]
 }
 
 struct StudyCatalogDecoder: Sendable {
@@ -182,6 +216,12 @@ struct StudyCatalogValidator: Sendable {
           "duplicate-component-id", "component ID is duplicated", packID: pack.id))
       }
       if let productID = pack.oneTimeProductID {
+        if productID.isEmpty || productID.rangeOfCharacter(from: .whitespacesAndNewlines) != nil
+          || ProductCatalog.passProductIDs.contains(productID)
+        {
+          issues.append(.init(
+            "invalid-pack-product-id", "pack product ID is invalid", packID: pack.id))
+        }
         if let owner = productOwners[productID], owner != pack.id {
           issues.append(.init(
             "duplicate-product-id", "product ID \(productID) is reused", packID: pack.id))

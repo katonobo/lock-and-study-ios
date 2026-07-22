@@ -23,7 +23,9 @@ struct VocabularyReportProvider: StudyExperienceReportProviding {
     ).isAllowed
     let availableCount = hasFullAccess
       ? manifest.expectedItemCount : manifest.sampleDefinition.count
-    let scopedProgress = snapshot.progress.values.filter { $0.id.packID == manifest.id }
+    let scopedProgress = snapshot.progress.values.filter {
+      $0.id.packID == manifest.id && !$0.isSafeFallbackArtifact
+    }
     let learned = scopedProgress.filter { $0.answerCount > 0 }.count
     let due = scopedProgress.filter { $0.dueAt.map { $0 <= now } ?? false }.count
     let weak = scopedProgress.filter { $0.incorrectCount > 0 && $0.consecutiveCorrect == 0 }.count

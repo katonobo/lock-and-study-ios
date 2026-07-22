@@ -217,7 +217,9 @@ struct CertificationExperience: StudyExperienceFactory {
   }
   func makeProgressSummary(context: StudyExperienceContext) async throws -> StudyExperienceSummary {
     let allProgress = try await context.dependencies.learning.allProgress()
-    let progress = allProgress.values.filter { $0.id.packID == context.manifest.id }
+    let progress = allProgress.values.filter {
+      $0.id.packID == context.manifest.id && !$0.isSafeFallbackArtifact
+    }
     let answers = try await context.dependencies.learning.answers().filter {
       $0.experienceID == .takken && $0.packID == context.manifest.id
     }

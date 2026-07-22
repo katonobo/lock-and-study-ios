@@ -96,14 +96,17 @@ enum ContentDeliveryMode: String, Codable, Sendable {
 }
 
 enum PassAccessPolicy: String, Codable, Sendable {
+  // activeAndArchived remains decode-compatible with early v9 catalogs, but archived access is
+  // intentionally disabled. archivedOwnedOnly is always restricted to one-time owners.
   case included, excluded, latestEditionOnly, activeAndArchived
 
   func permitsAccess(storeState: PackStoreState) -> Bool {
+    guard storeState == .forSale else { return false }
     switch self {
-    case .included: return storeState != .withdrawn
+    case .included: return true
     case .excluded: return false
-    case .latestEditionOnly: return storeState == .forSale
-    case .activeAndArchived: return storeState != .withdrawn
+    case .latestEditionOnly: return true
+    case .activeAndArchived: return true
     }
   }
 }
@@ -174,6 +177,21 @@ struct FlashcardCourseDefinition: Codable, Equatable, Identifiable, Sendable {
   var id: String { code }
 }
 
+struct FlashcardEmptyStateCopy: Codable, Equatable, Sendable {
+  let noDueReview: String
+  let noMistakes: String
+  let noWeakItems: String
+  let noNewItems: String
+  let noAvailableItems: String
+
+  static let generic = Self(
+    noDueReview: "期限が来た復習はありません。",
+    noMistakes: "復習する誤答はまだありません。",
+    noWeakItems: "学び直し対象はまだありません。",
+    noNewItems: "このコースの新しい項目は一巡しました。期限到来復習を続けられます。",
+    noAvailableItems: "利用できる問題がありません。")
+}
+
 struct FlashcardPresentationProfile: Codable, Equatable, Sendable {
   let subjectName: String
   let itemSingularName: String
@@ -191,7 +209,12 @@ struct FlashcardPresentationProfile: Codable, Equatable, Sendable {
   let supportsSpeech: Bool
   let supportsExamples: Bool
   let supportsReverseDirection: Bool
+  var emptyStateCopy: FlashcardEmptyStateCopy? = nil
   let courseDefinitions: [FlashcardCourseDefinition]
+
+  var resolvedEmptyStateCopy: FlashcardEmptyStateCopy {
+    emptyStateCopy ?? .generic
+  }
 
   static func generic(for manifest: StudyPackManifest) -> Self {
     .init(
