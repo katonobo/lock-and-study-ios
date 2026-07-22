@@ -248,7 +248,7 @@ actor LearningDataStore {
 
   func saveExperienceUnlockBundle(_ bundle: ExperienceUnlockBundleSnapshot?) throws {
     try write(ExperienceBundleDocument(schemaVersion: Self.schemaVersion, bundle: bundle), to: experienceBundleURL)
-    let envelope = try bundle.map(UnlockChallengeSessionEnvelope.wrapping)
+    let envelope = try bundle.map { try LegacyUnlockBundleMigration().migrate($0) }
     try saveUnlockSessionEnvelope(envelope)
   }
 
@@ -278,7 +278,7 @@ actor LearningDataStore {
     }
     if let envelope = document.envelope { return envelope }
     guard let legacy = try loadExperienceUnlockBundle() else { return nil }
-    let migrated = try UnlockChallengeSessionEnvelope.wrapping(legacy)
+    let migrated = try LegacyUnlockBundleMigration().migrate(legacy)
     try saveUnlockSessionEnvelope(migrated)
     return migrated
   }

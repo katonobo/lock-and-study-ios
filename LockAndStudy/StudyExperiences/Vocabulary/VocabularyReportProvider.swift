@@ -27,31 +27,40 @@ struct VocabularyReportProvider: StudyExperienceReportProviding {
     let learned = scopedProgress.filter { $0.answerCount > 0 }.count
     let due = scopedProgress.filter { $0.dueAt.map { $0 <= now } ?? false }.count
     let weak = scopedProgress.filter { $0.incorrectCount > 0 && $0.consecutiveCorrect == 0 }.count
+    let profile = manifest.flashcardPresentation
     let metrics = [
       metric("vocabulary.answers", "回答", answers.count, "問", "checklist"),
       LearningReportMetric(
         id: "vocabulary.accuracy", label: "正答率", value: "\(accuracy(answers))%",
         systemImage: "target"),
-      metric("vocabulary.unique", "回答した単語", Set(answers.map(\.itemID)).count, "語", "character.book.closed"),
-      metric("vocabulary.new", "新しく学んだ", newItems.count, "語", "sparkles"),
-      metric("vocabulary.review", "復習した", reviewedItems.count, "語", "arrow.clockwise"),
+      metric("vocabulary.unique", "回答した\(profile.itemPluralName)", Set(answers.map(\.itemID)).count, profile.itemCountUnit, "character.book.closed"),
+      metric("vocabulary.new", "新しく学んだ", newItems.count, profile.itemCountUnit, "sparkles"),
+      metric("vocabulary.review", "復習した", reviewedItems.count, profile.itemCountUnit, "arrow.clockwise"),
       metric("vocabulary.unlock", "解除学習", answers.filter { $0.mode == .unlock }.count, "問", "lock.open"),
       metric("vocabulary.practice", "通常学習", answers.filter { $0.mode != .unlock }.count, "問", "book"),
     ]
     let currentMetrics = [
-      metric("vocabulary.learned", "学習済み", learned, "語", "checkmark.seal"),
-      metric("vocabulary.due", "期限到来", due, "語", "calendar.badge.clock"),
-      metric("vocabulary.weak", "学び直し対象", weak, "語", "arrow.counterclockwise"),
+      metric("vocabulary.learned", "学習済み", learned, profile.itemCountUnit, "checkmark.seal"),
+      metric("vocabulary.due", "期限到来", due, profile.itemCountUnit, "calendar.badge.clock"),
+      metric("vocabulary.weak", "学び直し対象", weak, profile.itemCountUnit, "arrow.counterclockwise"),
     ]
-    let progressRows = VocabularyLevel.allCases.map { level in
+    let courseDefinitions: [FlashcardCourseDefinition]
+    if profile.courseDefinitions.isEmpty {
+      courseDefinitions = Array(Set(allAnswers.map(\.category))).sorted().map {
+        .init(code: $0, title: $0, subtitle: nil, sampleLabel: nil)
+      }
+    } else {
+      courseDefinitions = profile.courseDefinitions
+    }
+    let progressRows = courseDefinitions.map { course in
       let learnedCount = Set(
-        allAnswers.filter { $0.category == level.rawValue }.map(\.itemID)
+        allAnswers.filter { $0.category == course.code }.map(\.itemID)
       ).count
       return LearningReportProgressRow(
-        id: level.rawValue,
-        label: level.title,
+        id: course.code,
+        label: course.title,
         completed: learnedCount,
-        available: availableCount / max(1, VocabularyLevel.allCases.count))
+        available: availableCount / max(1, courseDefinitions.count))
     }
     return .init(
       packID: manifest.id,

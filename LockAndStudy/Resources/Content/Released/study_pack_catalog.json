@@ -96,7 +96,35 @@
       ],
       "metadataFile": "english3000_metadata_v1.json",
       "creditsFile": "english3000_credits_v1.txt",
-      "locale": "ja-JP"
+      "locale": "ja-JP",
+      "presentation": {
+        "flashcard": {
+          "subjectName": "英単語",
+          "itemSingularName": "英単語",
+          "itemPluralName": "英単語",
+          "itemCountUnit": "語",
+          "homeTitle": "今日の英単語",
+          "firstRunTitle": "英単語の学習コース",
+          "firstRunDescription": "5レベルから最初の範囲を選びます。無料250語は各レベル50語で、あとから変更できます。",
+          "startButtonTitle": "英単語を始める",
+          "searchPlaceholder": "英単語・意味を検索",
+          "catalogTitle": "単語帳",
+          "frontLabel": "英単語",
+          "backLabel": "意味",
+          "unlockTitle": "英単語で解除",
+          "supportsSpeech": true,
+          "supportsExamples": true,
+          "supportsReverseDirection": false,
+          "courseDefinitions": [
+            {"code":"L0","title":"基礎・A1","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L1","title":"中学1年","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L2","title":"中学2年","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L3","title":"中学3年","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L4","title":"高校基礎","subtitle":null,"sampleLabel":"無料50語"}
+          ]
+        },
+        "certification": null
+      }
     },
     {
       "schemaVersion": 2,
@@ -146,7 +174,32 @@
       "metadataFile": "takken2026_metadata_v1.json",
       "creditsFile": "takken2026_credits_v1.txt",
       "locale": "ja-JP",
-      "qualification": {"examYear": 2026, "lawBasisDate": "2026-04-01", "requiresAnnualReview": true}
+      "qualification": {"examYear": 2026, "lawBasisDate": "2026-04-01", "requiresAnnualReview": true},
+      "presentation": {
+        "flashcard": null,
+        "certification": {
+          "subjectName": "宅建2026",
+          "homeTitle": "今日の宅建",
+          "firstRunTitle": "宅建学習の初期設定",
+          "firstRunDescription": "学ぶ分野と1回の問題数を選びます。あとから設定で変更できます。",
+          "startButtonTitle": "宅建学習を始める",
+          "unlockTitle": "宅建問題でロックを開く",
+          "freeContentLabel": "無料宅建問題",
+          "categoryDefinitions": [
+            {"code":"宅建業法","title":"宅建業法"}
+          ],
+          "formatDefinitions": [
+            {"code":"true_false","title":"○×"},
+            {"code":"number_choice","title":"数値選択"},
+            {"code":"wording_contrast","title":"文言比較"},
+            {"code":"multiple_choice","title":"四択"},
+            {"code":"case_study","title":"事例問題"}
+          ],
+          "showsEditionYear": true,
+          "showsLawBasisDate": true,
+          "supportsFinalSprint": true
+        }
+      }
     }
   ]
 }

@@ -24,8 +24,8 @@ struct RootView: View {
 
   @ViewBuilder private var rootContent: some View {
     Group {
-      if let bundle = model.unlockChallenge {
-        unlockContent(bundle)
+      if let envelope = model.unlockChallenge {
+        unlockContent(envelope)
       } else {
         #if DEBUG
           if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestRoutePurchase") {
@@ -82,13 +82,13 @@ struct RootView: View {
     }
   }
 
-  @ViewBuilder private func unlockContent(_ bundle: ExperienceUnlockBundleSnapshot) -> some View {
+  @ViewBuilder private func unlockContent(_ envelope: UnlockChallengeSessionEnvelope) -> some View {
     let factory =
-      model.experienceRegistry.factory(for: bundle.challenge.experienceID)
+      model.experienceRegistry.factory(forExperienceID: envelope.experienceID)
       ?? model.experienceRegistry.factory(for: .safeFallback)
     if let factory {
       UnlockChallengeHostView(
-        factory: factory, bundle: bundle, context: model.unlockViewContext(for: bundle))
+        factory: factory, envelope: envelope, context: model.unlockViewContext(for: envelope))
     }
   }
 

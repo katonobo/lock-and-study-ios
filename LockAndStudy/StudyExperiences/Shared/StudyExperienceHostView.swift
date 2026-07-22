@@ -84,10 +84,33 @@ struct PackFirstRunStore {
 
 struct UnlockChallengeHostView: View {
   let factory: any StudyExperienceFactory
-  let bundle: ExperienceUnlockBundleSnapshot
-  let context: UnlockChallengeViewContext
+  let envelope: UnlockChallengeSessionEnvelope
+  let context: ExperienceChallengeViewContext
 
   var body: some View {
-    factory.makeUnlockChallengeView(snapshot: bundle, context: context)
+    factory.makeChallengeView(envelope: envelope, context: context)
+  }
+}
+
+struct ExperienceSessionUnavailableView: View {
+  let context: ExperienceChallengeViewContext
+
+  var body: some View {
+    NavigationStack {
+      VStack(spacing: 16) {
+        Image(systemName: "exclamationmark.shield.fill")
+          .font(.largeTitle)
+          .foregroundStyle(.orange)
+        Text("解除問題を復元できませんでした").font(.headline)
+        Text("安全のためロックは解除していません。新しい問題でやり直してください。")
+          .multilineTextAlignment(.center)
+          .foregroundStyle(.secondary)
+        Button("新しい問題でやり直す") { Task { await context.restart() } }
+          .primaryActionStyle()
+      }
+      .padding()
+      .navigationTitle("解除学習")
+    }
+    .interactiveDismissDisabled()
   }
 }

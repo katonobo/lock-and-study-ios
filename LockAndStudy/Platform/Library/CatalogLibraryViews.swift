@@ -47,7 +47,7 @@ struct CategoryListView: View {
 
   var body: some View {
     librarySection("カテゴリー", systemImage: "square.grid.2x2.fill") {
-      ForEach(model.categories) { category in
+      ForEach(model.categories.filter { $0.parentCategoryID == nil }) { category in
         NavigationLink {
           CategoryDetailView(category: category)
         } label: {
@@ -77,7 +77,19 @@ struct CategoryListView: View {
   }
 
   private func packCount(_ categoryID: StudyCategoryID) -> Int {
-    model.manifests.filter { $0.categoryID == categoryID }.count
+    let categoryIDs = descendantCategoryIDs(from: categoryID)
+    return model.manifests.filter { categoryIDs.contains($0.categoryID) }.count
+  }
+
+  private func descendantCategoryIDs(from root: StudyCategoryID) -> Set<StudyCategoryID> {
+    var result: Set<StudyCategoryID> = [root]
+    var frontier: [StudyCategoryID] = [root]
+    while let current = frontier.popLast() {
+      for child in model.categories where child.parentCategoryID == current {
+        if result.insert(child.id).inserted { frontier.append(child.id) }
+      }
+    }
+    return result
   }
 }
 
@@ -88,6 +100,33 @@ struct CategoryDetailView: View {
   var body: some View {
     ScrollView {
       LazyVStack(spacing: 16) {
+        if !children.isEmpty {
+          librarySection("サブカテゴリー", systemImage: "folder.fill") {
+            ForEach(children) { child in
+              NavigationLink {
+                CategoryDetailView(category: child)
+              } label: {
+                HStack(spacing: 12) {
+                  Image(systemName: child.systemImage)
+                    .foregroundStyle(CatalogTheme.color(for: child.themeToken))
+                  VStack(alignment: .leading, spacing: 3) {
+                    Text(child.title).font(.headline).foregroundStyle(.primary)
+                    if let subtitle = child.subtitle {
+                      Text(subtitle).font(.caption).foregroundStyle(.secondary)
+                    }
+                    Text("\(descendantPackCount(child.id))教材")
+                      .font(.caption.bold())
+                      .foregroundStyle(CatalogTheme.color(for: child.themeToken))
+                  }
+                  Spacer()
+                  Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+                }
+                .studyCard()
+              }
+              .buttonStyle(.plain)
+            }
+          }
+        }
         ForEach(series) { value in
           NavigationLink {
             SeriesDetailView(series: value)
@@ -111,6 +150,16 @@ struct CategoryDetailView: View {
           $0.categoryID == category.id && !Set(series.map(\.id)).contains($0.seriesID)
         }
         ForEach(ungrouped) { PackSelectionCard(manifest: $0) }
+        if children.isEmpty && series.isEmpty && ungrouped.isEmpty {
+          VStack(spacing: 10) {
+            Image(systemName: "books.vertical").font(.largeTitle).foregroundStyle(.secondary)
+            Text("教材はまだありません").font(.headline)
+            Text("このカテゴリーの教材は準備中です。")
+              .font(.subheadline).foregroundStyle(.secondary)
+          }
+          .frame(maxWidth: .infinity)
+          .studyCard()
+        }
       }
       .frame(maxWidth: 720)
       .padding()
@@ -122,6 +171,22 @@ struct CategoryDetailView: View {
 
   private var series: [StudySeriesManifest] {
     model.series.filter { $0.categoryID == category.id }
+  }
+
+  private var children: [StudyCategoryManifest] {
+    model.categories.filter { $0.parentCategoryID == category.id }
+      .sorted { $0.sortOrder < $1.sortOrder }
+  }
+
+  private func descendantPackCount(_ root: StudyCategoryID) -> Int {
+    var ids: Set<StudyCategoryID> = [root]
+    var frontier = [root]
+    while let current = frontier.popLast() {
+      for child in model.categories where child.parentCategoryID == current {
+        if ids.insert(child.id).inserted { frontier.append(child.id) }
+      }
+    }
+    return model.manifests.filter { ids.contains($0.categoryID) }.count
   }
 
   private func packs(for seriesID: StudySeriesID) -> [StudyPackManifest] {

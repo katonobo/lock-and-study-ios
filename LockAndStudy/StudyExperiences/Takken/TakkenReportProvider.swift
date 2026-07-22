@@ -75,17 +75,26 @@ struct TakkenReportProvider: StudyExperienceReportProviding {
       metric("takken.unlock", "解除学習", answers.filter { $0.mode == .unlock }.count, "問", "lock.open"),
       metric("takken.practice", "通常学習", answers.filter { $0.mode != .unlock }.count, "問", "book"),
     ]
-    let formatMetrics = TakkenQuestionFormat.allCases.compactMap { format -> LearningReportMetric? in
-      let values = firstAttempts.filter { $0.questionFormat == format.rawValue }
+    let profile = manifest.certificationPresentation
+    let formatDefinitions: [CertificationFormatDefinition]
+    if profile.formatDefinitions.isEmpty {
+      formatDefinitions = Array(Set(firstAttempts.compactMap(\.questionFormat))).sorted().map {
+        .init(code: $0, title: $0)
+      }
+    } else {
+      formatDefinitions = profile.formatDefinitions
+    }
+    let formatMetrics = formatDefinitions.compactMap { format -> LearningReportMetric? in
+      let values = firstAttempts.filter { $0.questionFormat == format.code }
       guard !values.isEmpty else { return nil }
       return LearningReportMetric(
-        id: "takken.format.\(format.rawValue)", label: "\(format.displayName)正答率",
+        id: "takken.format.\(format.code)", label: "\(format.title)正答率",
         value: "\(values.count)問・\(accuracy(values))%", systemImage: "rectangle.3.group")
     }
     let qualification = manifest.qualification
     let footer = [
-      qualification?.examYear.map { "教材年度 \($0)年度" },
-      qualification?.lawBasisDate.map { "法令基準日 \($0)" },
+      profile.showsEditionYear ? qualification?.examYear.map { "教材年度 \($0)年度" } : nil,
+      profile.showsLawBasisDate ? qualification?.lawBasisDate.map { "基準日 \($0)" } : nil,
     ].compactMap { $0 }.joined(separator: "・")
     return .init(
       packID: manifest.id,

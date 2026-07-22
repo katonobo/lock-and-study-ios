@@ -51,6 +51,7 @@
 		6BB757E430990DE8F1792CB0 /* english3000_metadata_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 8D05A8487A9D68222CEC0AE5 /* english3000_metadata_v1.json */; };
 		6C273D6FE27922D7B012AACC /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD7630F84A8754CBF8048C2 /* DependencyContainer.swift */; };
 		6CD3C20096A96ABA1A4A6DCF /* LearningReportPrivacyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F22F6945F207E2AE13DE193 /* LearningReportPrivacyPolicy.swift */; };
+		70A88E1F3D1E45B43DBDAF78 /* PlatformCompletionV10Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DFFD2130706DFCFBA14743 /* PlatformCompletionV10Tests.swift */; };
 		7115F9E5A84C282EFF3402BE /* VocabularyReportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199AE3F47D5CABCD04A04EE6 /* VocabularyReportProvider.swift */; };
 		720C0A47367A103EDB864289 /* LearningReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8435058E522AF7D89E861E0 /* LearningReportView.swift */; };
 		72A3F360463E3028D61A56FD /* PlatformLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8374898D949817C23E14BFD0 /* PlatformLibraryView.swift */; };
@@ -84,6 +85,7 @@
 		AB59E98EF3497801E92A16DA /* LearningReportSampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027111955F12232B3658FE76 /* LearningReportSampleView.swift */; };
 		ADE75AFCF2D7F919FBFB9BEC /* ContentSampleResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA623BD3EA6EDEDEE85668C /* ContentSampleResolver.swift */; };
 		AEC1B9249F5742219F2A6926 /* PlatformFoundationV9Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59604B79ADE3C33041A1C436 /* PlatformFoundationV9Tests.swift */; };
+		AF7F6753D44752CF15067CF7 /* LegacyUnlockModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02935D1924FD86B86000876E /* LegacyUnlockModels.swift */; };
 		AFDDA993E03EDA0FB485E698 /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
 		B35480BAA9533ADE7FC929DF /* VocabularyStudyModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C0A206E3F580B0270EEEC9 /* VocabularyStudyModule.swift */; };
 		B7BCC7D6831907F02030B2A6 /* vocabulary_english3000_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 42D285ECB76C5343277EDC93 /* vocabulary_english3000_v1.json */; };
@@ -98,6 +100,7 @@
 		CB3AB4FB3D780DFDBC1BC9F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9634DE74BB84C2DBCE59CCE /* Assets.xcassets */; };
 		CBFCB5AC889A69CF66C73428 /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
 		CD5A09898B9ADC452E1F20D3 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BA037A666C8D37419D5FFE30 /* Localizable.xcstrings */; };
+		D2AF57A2065B065BA046D8A6 /* LegacyUnlockBundleMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E63A8009CB275DC4BDE407 /* LegacyUnlockBundleMigration.swift */; };
 		D2BBBDCAD0ACD89B32E771D2 /* LearningReportPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = D834EC7207776AECE638115A /* LearningReportPeriod.swift */; };
 		D3259C09970B645F543855C5 /* TakkenLearningEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF98BBBAE1C8568426AE3AC /* TakkenLearningEngine.swift */; };
 		D41587BDBBAE1DBB604775A3 /* TakkenLearningEngineV5Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A586C5276A160A0E68DEFDC2 /* TakkenLearningEngineV5Tests.swift */; };
@@ -118,6 +121,7 @@
 		EFE0E2B71811DED4202557F5 /* LockAndStudyDeviceActivityMonitorExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4039A8C47CD5D7D3D3E5FB4D /* LockAndStudyDeviceActivityMonitorExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F3B3DC444DD0E336062873E3 /* LockAndStudyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9646ABC650E86550A2B44F90 /* LockAndStudyApp.swift */; };
 		F688AF112F15C7DE22D05BBC /* LockAndStudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */; };
+		F8D7667F69FDA83156F23597 /* LegacyUITestReportFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119B6E4C03F532357DB46AFF /* LegacyUITestReportFixtures.swift */; };
 		FB23D60961A27B9A062016CD /* LearningReportEntryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541BE1DC72DB6DA9ECFB86F9 /* LearningReportEntryCard.swift */; };
 		FDE1EC3F7199EEF88B9C330C /* PolicyProtectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E08D0CE9E32773B1696FC5 /* PolicyProtectionService.swift */; };
 /* End PBXBuildFile section */
@@ -179,12 +183,15 @@
 /* Begin PBXFileReference section */
 		00B9E7EC872B32CDEFE75214 /* LearningReportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportTests.swift; sourceTree = "<group>"; };
 		027111955F12232B3658FE76 /* LearningReportSampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportSampleView.swift; sourceTree = "<group>"; };
+		02935D1924FD86B86000876E /* LegacyUnlockModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyUnlockModels.swift; sourceTree = "<group>"; };
 		0B1DB302DA36D70F1EC6C338 /* VerifiedContentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifiedContentLoader.swift; sourceTree = "<group>"; };
 		0D57F6606F9BC9C9BA0C04D3 /* LearningReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportService.swift; sourceTree = "<group>"; };
 		10186AD52B63C4CD875B3935 /* StudyCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyCatalog.swift; sourceTree = "<group>"; };
 		10A2FDD02695CD5C9DC00DE2 /* ContentAndStoreKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentAndStoreKitTests.swift; sourceTree = "<group>"; };
+		119B6E4C03F532357DB46AFF /* LegacyUITestReportFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyUITestReportFixtures.swift; sourceTree = "<group>"; };
 		139482F2D35E75B7435F7FEB /* TakkenViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenViews.swift; sourceTree = "<group>"; };
 		13D261FF84F544E4D59FFF3D /* LockAndStudy.storekit */ = {isa = PBXFileReference; path = LockAndStudy.storekit; sourceTree = "<group>"; };
+		14E63A8009CB275DC4BDE407 /* LegacyUnlockBundleMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyUnlockBundleMigration.swift; sourceTree = "<group>"; };
 		160FAFE293AD59C512C73931 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		199AE3F47D5CABCD04A04EE6 /* VocabularyReportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyReportProvider.swift; sourceTree = "<group>"; };
 		1A04C894C895389010355F5D /* VocabularyViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyViews.swift; sourceTree = "<group>"; };
@@ -259,6 +266,7 @@
 		C55539332BF904738866B3A6 /* ContentAssetSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentAssetSource.swift; sourceTree = "<group>"; };
 		C5E08D0CE9E32773B1696FC5 /* PolicyProtectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolicyProtectionService.swift; sourceTree = "<group>"; };
 		C6C30B7842E5A9CF6618495D /* vocabulary_free_sample_250_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = vocabulary_free_sample_250_v1.json; sourceTree = "<group>"; };
+		C6DFFD2130706DFCFBA14743 /* PlatformCompletionV10Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformCompletionV10Tests.swift; sourceTree = "<group>"; };
 		C8A89A96ABEC00BB68023331 /* LearningDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningDataStore.swift; sourceTree = "<group>"; };
 		CC285D65F09CA0653D4AEB4A /* LockAndStudyShieldConfigurationExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockAndStudyShieldConfigurationExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCE472B5FA3AADCA9AC1B75D /* StudyMaterialSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyMaterialSelectionView.swift; sourceTree = "<group>"; };
@@ -320,6 +328,7 @@
 				D6F235FC79B123FC718044A6 /* LearningTests.swift */,
 				D8740A31CF8244BDC71F8395 /* LockPolicyTests.swift */,
 				AEC3A0448978244375469A22 /* ManagementCodeTests.swift */,
+				C6DFFD2130706DFCFBA14743 /* PlatformCompletionV10Tests.swift */,
 				59604B79ADE3C33041A1C436 /* PlatformFoundationV9Tests.swift */,
 				F995DD7EF80186CA1387D082 /* TakkenExperienceTests.swift */,
 				B4A3F0F1C265434131E1347D /* TakkenFinalizationV6Tests.swift */,
@@ -346,6 +355,7 @@
 			isa = PBXGroup;
 			children = (
 				9A139A1AACB89E3F4BB1D558 /* App */,
+				16C75DCB0390385D336DD0C2 /* Compatibility */,
 				5B2C45303C034C9EC72EFD2A /* Core */,
 				EAA552ECD79A0A4F4C7E5F9D /* Features */,
 				8218701A225E33602C94C7F8 /* Modules */,
@@ -380,6 +390,16 @@
 				C5452C5285DDFAE6F7ECB790 /* LearningReportShareService.swift */,
 			);
 			path = Reporting;
+			sourceTree = "<group>";
+		};
+		16C75DCB0390385D336DD0C2 /* Compatibility */ = {
+			isa = PBXGroup;
+			children = (
+				119B6E4C03F532357DB46AFF /* LegacyUITestReportFixtures.swift */,
+				14E63A8009CB275DC4BDE407 /* LegacyUnlockBundleMigration.swift */,
+				02935D1924FD86B86000876E /* LegacyUnlockModels.swift */,
+			);
+			path = Compatibility;
 			sourceTree = "<group>";
 		};
 		1B892BC35A558365051474F8 /* Study */ = {
@@ -1041,6 +1061,9 @@
 				720C0A47367A103EDB864289 /* LearningReportView.swift in Sources */,
 				EA7221D3CC962B96C478396F /* LearningReportViewModel.swift in Sources */,
 				36063AC227FB8AE7A235FF04 /* LegacyMigrationModels.swift in Sources */,
+				F8D7667F69FDA83156F23597 /* LegacyUITestReportFixtures.swift in Sources */,
+				D2AF57A2065B065BA046D8A6 /* LegacyUnlockBundleMigration.swift in Sources */,
+				AF7F6753D44752CF15067CF7 /* LegacyUnlockModels.swift in Sources */,
 				F3B3DC444DD0E336062873E3 /* LockAndStudyApp.swift in Sources */,
 				CBFCB5AC889A69CF66C73428 /* LockAndStudySharedConstants.swift in Sources */,
 				F688AF112F15C7DE22D05BBC /* LockAndStudyTheme.swift in Sources */,
@@ -1116,6 +1139,7 @@
 				D82E16DEB2D0B9DC7C0FAF09 /* LearningTests.swift in Sources */,
 				871FCCE7D366B40637AA6085 /* LockPolicyTests.swift in Sources */,
 				CAA00DCD5AAA296C1586D16C /* ManagementCodeTests.swift in Sources */,
+				70A88E1F3D1E45B43DBDAF78 /* PlatformCompletionV10Tests.swift in Sources */,
 				AEC1B9249F5742219F2A6926 /* PlatformFoundationV9Tests.swift in Sources */,
 				9473F6BDD997046634552AC0 /* TakkenExperienceTests.swift in Sources */,
 				E98C76B2A7C0CA026C42AB5F /* TakkenFinalizationV6Tests.swift in Sources */,

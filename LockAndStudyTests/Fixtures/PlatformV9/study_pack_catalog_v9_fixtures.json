@@ -34,7 +34,31 @@
       "components": [{"id": "cards", "title": "四字熟語", "experienceID": "flashcard.v1", "contentSchemaID": "flashcard.items.v1", "sortOrder": 0, "contentFiles": [
         {"path": "yojijukugo_items_v1.json", "sha256": "e7425e951bd04eed333340059e3ce571afcfcf7f395f68793fc2b72506048b7a", "itemCount": 6},
         {"path": "yojijukugo_samples_v1.json", "sha256": "36adceb1dc9c4d3a136048a11d4665f0de99629a6fc708221cbe33cf27e00609", "itemCount": 6}
-      ]}], "locale": "ja-JP"
+      ]}], "locale": "ja-JP",
+      "presentation": {
+        "flashcard": {
+          "subjectName": "四字熟語",
+          "itemSingularName": "四字熟語",
+          "itemPluralName": "四字熟語",
+          "itemCountUnit": "熟語",
+          "homeTitle": "今日の四字熟語",
+          "firstRunTitle": "四字熟語の学習コース",
+          "firstRunDescription": "最初に学ぶ難易度を選びます。あとから設定で変更できます。",
+          "startButtonTitle": "四字熟語を始める",
+          "searchPlaceholder": "四字熟語・意味を検索",
+          "catalogTitle": "四字熟語一覧",
+          "frontLabel": "四字熟語",
+          "backLabel": "意味",
+          "unlockTitle": "四字熟語で解除",
+          "supportsSpeech": true,
+          "supportsExamples": false,
+          "supportsReverseDirection": false,
+          "courseDefinitions": [
+            {"code":"L0","title":"基礎","subtitle":"日常で使う表現","sampleLabel":"無料6熟語"}
+          ]
+        },
+        "certification": null
+      }
     },
     {
       "schemaVersion": 2, "id": "takken2027.fixture.v1", "categoryID": "qualification", "seriesID": "qualification.takken", "experienceID": "certification.v1",
@@ -44,7 +68,28 @@
       "sampleDefinition": {"kind": "allReleased", "count": 3}, "oneTimeProductID": "com.ameneko.lockandstudy.fixture.takken2027", "passEligible": true, "saleReady": true,
       "contentFiles": [{"path": "takken2027_questions_v1.json", "sha256": "ff668983fc8ebb19cf7d68dbfe45fda9007b65c16979d72db74e0a3231178a53", "itemCount": 3}],
       "components": [{"id": "questions", "title": "宅建問題", "experienceID": "certification.v1", "contentSchemaID": "certification.questions.v1", "sortOrder": 0, "contentFiles": [{"path": "takken2027_questions_v1.json", "sha256": "ff668983fc8ebb19cf7d68dbfe45fda9007b65c16979d72db74e0a3231178a53", "itemCount": 3}]}],
-      "supersedesPackID": "takken2026.v1", "locale": "ja-JP", "qualification": {"examYear": 2027, "lawBasisDate": "2027-04-01", "requiresAnnualReview": true}
+      "supersedesPackID": "takken2026.v1", "locale": "ja-JP", "qualification": {"examYear": 2027, "lawBasisDate": "2027-04-01", "requiresAnnualReview": true},
+      "presentation": {
+        "flashcard": null,
+        "certification": {
+          "subjectName": "宅建2027",
+          "homeTitle": "今日の宅建",
+          "firstRunTitle": "宅建学習の初期設定",
+          "firstRunDescription": "学ぶ分野と1回の問題数を選びます。あとから設定で変更できます。",
+          "startButtonTitle": "宅建学習を始める",
+          "unlockTitle": "宅建問題でロックを開く",
+          "freeContentLabel": "無料宅建問題",
+          "categoryDefinitions": [{"code":"宅建業法","title":"宅建業法"}],
+          "formatDefinitions": [
+            {"code":"true_false","title":"○×"},
+            {"code":"wording_contrast","title":"文言比較"},
+            {"code":"case_study","title":"事例問題"}
+          ],
+          "showsEditionYear": true,
+          "showsLawBasisDate": true,
+          "supportsFinalSprint": true
+        }
+      }
     },
     {
       "schemaVersion": 2, "id": "business-manners.fixture.v1", "categoryID": "life.manners", "seriesID": "life.business-manners", "experienceID": "certification.v1",
@@ -52,9 +97,32 @@
       "moduleType": "takken", "experienceType": "certification.takken.v1", "title": "ビジネスマナー 基礎", "subtitle": "テスト用3問", "description": "未知カテゴリーと既存Certification Templateの接続を証明するUnit Test専用教材です。",
       "contentVersion": "manners-1.0", "minimumAppVersion": "1.0", "releaseStatus": "release", "isEnabled": true, "sortOrder": 30, "expectedItemCount": 3, "conceptCount": 3, "variantCount": 3,
       "sampleDefinition": {"kind": "allReleased", "count": 3}, "passEligible": true, "saleReady": false,
-      "contentFiles": [{"path": "manners_questions_v1.json", "sha256": "6bc0b0ab5e3b7826ce801d34582c1f2089e77634310914a0c95f1e253cd2a028", "itemCount": 3}],
-      "components": [{"id": "questions", "title": "マナー問題", "experienceID": "certification.v1", "contentSchemaID": "certification.questions.v1", "sortOrder": 0, "contentFiles": [{"path": "manners_questions_v1.json", "sha256": "6bc0b0ab5e3b7826ce801d34582c1f2089e77634310914a0c95f1e253cd2a028", "itemCount": 3}]}],
-      "locale": "ja-JP"
+      "contentFiles": [{"path": "manners_questions_v1.json", "sha256": "4efe1b3654bf81ca992d7c23e3a6c3a7e4d13fd41e7522fd81f28ffd0eeb7b97", "itemCount": 3}],
+      "components": [{"id": "questions", "title": "マナー問題", "experienceID": "certification.v1", "contentSchemaID": "certification.questions.v1", "sortOrder": 0, "contentFiles": [{"path": "manners_questions_v1.json", "sha256": "4efe1b3654bf81ca992d7c23e3a6c3a7e4d13fd41e7522fd81f28ffd0eeb7b97", "itemCount": 3}]}],
+      "locale": "ja-JP",
+      "presentation": {
+        "flashcard": null,
+        "certification": {
+          "subjectName": "ビジネスマナー",
+          "homeTitle": "今日のマナー学習",
+          "firstRunTitle": "マナー学習の初期設定",
+          "firstRunDescription": "学ぶ分野と1回の問題数を選びます。あとから設定で変更できます。",
+          "startButtonTitle": "マナー学習を始める",
+          "unlockTitle": "マナー問題でロックを開く",
+          "freeContentLabel": "無料マナー問題",
+          "categoryDefinitions": [
+            {"code":"ビジネスマナー","title":"ビジネスマナー"}
+          ],
+          "formatDefinitions": [
+            {"code":"true_false","title":"○×"},
+            {"code":"wording_contrast","title":"文言比較"},
+            {"code":"case_study","title":"ケース問題"}
+          ],
+          "showsEditionYear": false,
+          "showsLawBasisDate": false,
+          "supportsFinalSprint": false
+        }
+      }
     }
   ]
 }

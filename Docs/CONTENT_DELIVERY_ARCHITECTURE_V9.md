@@ -4,7 +4,7 @@
 
 Lock and Studyで外部配信できるのは、JSON、SQLite、画像、音声、動画などの宣言的な教材アセットだけである。Swift、JavaScript、動的ライブラリなどの実行コードはApp Store配布物に限り、教材packageからロードしない。
 
-現在の本番教材は`BundledContentSource`から読む。`InstalledContentSource`、`CompositeContentSource`、`ContentPackageStore`は、同じ`ContentRepository`を維持したままApplication Support上の検証済みpackageへ移行する境界である。実ネットワーク、CDN、CMSはv9の対象外であり、`RemoteContentSource`は契約だけを定義する。
+本番`DependencyContainer`は`CompositeContentSource`を使い、検証済み`InstalledContentSource`、Bundle Catalog／教材、Safe Fallbackの順に読む。`ContentPackageStore`でApplication Supportへstage／activateした教材は、アプリ再ビルドなしに同じ`ContentRepository`から利用できる。テストでは`contentSource`または`catalogDataOverride`を注入できる。実ネットワーク、CDN、CMSは対象外であり、`RemoteContentSource`は契約だけを定義する。
 
 ## 信頼モデル
 
@@ -55,9 +55,10 @@ Application Support/
 読み込み優先順位は次のとおりである。
 
 1. 検証済みInstalled active version
-2. 直前の検証済みInstalled version
-3. Bundle同梱version／無料sample
-4. Safe Fallback
+2. Bundle同梱version／無料sample
+3. Safe Fallback
+
+Installedのhash・件数・schema検証に失敗した場合、Repositoryは次の候補へ進む。Catalogはentryをstrict decodeし、参照破損branchを隔離する。root/schemaなどの重大な更新失敗では、同一Repository instanceが保持する最後の正常Catalogへrollbackする。Remote導入時はこのlast-known-goodを永続化し、署名済みCatalogに拡張する。
 
 通信不能、署名不一致、hash不一致、minimum app version不適合、新しすぎるschemaでは、最後に正常利用できた状態を維持する。購入権の再検証に失敗しても教材ファイルを即時削除しない。ロック、管理コード、緊急解除、再ロックは通信、StoreKit、remote教材に依存させない。
 
@@ -80,12 +81,15 @@ remote配信の導入を、学習履歴、Screen Time token、対象アプリ名
 
 migration documentも署名・hash検証の対象とし、適用前backup、冪等な適用、件数確認、適用済みversion記録、失敗時rollbackを必須にする。回答履歴には回答時点の問題snapshotを残す。
 
-## v9で実装済みの保証
+## v10で実装・実証済みの保証
 
 - BundleとInstalledを同一Repositoryから読める。
 - stage完了前にactiveを変更しない。
 - SHA-256、件数、schema、minimum app version、path traversalを検証する。
 - active pointerを原子的に切り替え、previous versionへrollbackできる。
 - Installed破損時にBundleへfallbackできる。
+- 本番と同じ`DependencyContainer`からInstalled四字熟語を開き、Flashcard解除sessionを生成できる。
+- Catalog Dataをテスト注入でき、Installed packageを優先できる。
+- strict decode、Category参照隔離、last-known-good rollbackをテストする。
 
 署名検証、実download、safe archive extraction、容量管理UIはremote配信導入時の実装項目であり、本番配信を開始する前に上記の信頼モデルを満たす必要がある。

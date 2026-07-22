@@ -8,20 +8,19 @@
 
 オンボーディングはScreen Time認可とロック対象選択を必須とし、Shieldの適用成功後にだけ完了状態を保存します。したがって「オンボーディング完了」と「基本ロック有効」は同じコミット境界です。
 
-- `StudyExperienceRegistry`: pack IDからExperience factoryを解決
-- `StudyExperienceFactory`: 独自Root、First Run、進捗summary、解除renderer、教材固有の解除完了hookを提供
+- `StudyExperienceRegistry`: manifestの開いた`experienceID`からFactoryを解決
+- `StudyExperienceFactory`: 独自Root、First Run、進捗summary、`StudyExperienceSessionRuntime`、教材固有の解除完了hookを提供
 - `StudyExperienceReportProviding`: 共通snapshotから教材固有の週次指標だけを生成
-- `UnlockChallengeProviding`: Lock Coreが教材へ解除問題を要求する唯一の境界
-- `VocabularyExperience`: 独自AppModel、Router、Settings、5タブ、`VocabularyItem`による通常学習
-- `TakkenExperience`: 独自AppModel、Router、Settings、5タブ、`TakkenQuestion`による通常学習
+- `FlashcardExperience`: Profile、pack単位設定、SRS、予習、カード学習を提供。英単語と四字熟語で同じ本番Swift実装を使う
+- `CertificationExperience`: Profile、分野、問題形式、誤答学び直しを提供。宅建とビジネスマナーで同じ本番Swift実装を使う
 
-通常学習では教材型を共通`StudyPrompt`へ平坦化しません。共通Codable型は、プロセス再起動を越える解除challengeと回答履歴snapshotの境界に限定します。旧`StudyModule`/`StudyPrompt`経路は既存データ互換と移行のため残しますが、現行Experienceの通常学習には使いません。
+通常学習では教材型を共通`StudyPrompt`へ平坦化しません。解除の正本は`UnlockChallengeSessionEnvelope`であり、Lock Coreは`enginePayload`をdecodeしません。問題位置、選択肢、正誤、解説確認時間、再回答、SRSはExperience Runtimeが所有し、完了時だけ`ExperienceCompletionProof`を共通Coordinatorへ返します。旧`StudyModule`/`StudyPrompt`と旧問題snapshotは`Compatibility`と移行用途に限定され、新Experienceの可用性判定には使いません。
 
-英単語の次回予習は解除成功後の`VocabularyExperience.handleUnlockCompletion`だけで作成します。`VocabularyPendingPreview`を`vocabulary-pending-preview.v1.json`へ保存し、作成時刻から120秒だけホームへ表示します。前面で2秒確認された候補は、表示終了後も24時間以内なら次回解除問題の先頭へ一度だけ採用します。hookは解除bundle IDで冪等であり、予習保存失敗は獲得済み解除を取り消しません。宅建と安全問題のhookはno-opです。
+Flashcardの次回予習は解除成功後のRuntime hookでpack単位に作成します。作成時刻から120秒だけホームへ表示し、前面で2秒確認された候補は24時間以内なら次回解除問題の先頭へ一度だけ採用します。Certificationもpack単位の論点予習を保持します。hookはEnvelope IDで冪等であり、予習保存失敗は獲得済み解除を取り消しません。
 
 - Lock Core: policy、session、弱化判定、Screen Time adapter
 - Security: 管理コード、緊急解除、保護変更
-- Content: manifest、全contentFilesのhash/count検証、experience registry、access decision
+- Content: strict catalog、階層Category、manifest、全contentFilesのhash/count検証、experience compatibility、access decision、Installed→Bundled→Safe Fallback
 - Commerce: StoreKit 2、複合entitlement、表示モデル
 - Learning: 教材別queue/SRS/feedback、回答snapshot、解除challenge
 - Persistence: Application Supportのversioned JSON/NDJSON、submission ID、解除completion checkpoint、英単語予習の永続期限と一度だけの消費による再試行耐性
@@ -33,7 +32,7 @@
 ## 保存先
 
 - App Group: policy、選択token、解除session、拡張間request、最小診断状態
-- Application Support: 学習進捗、回答NDJSON、event、解除bundle
+- Application Support: 学習進捗、回答NDJSON、event、opaque解除Envelope、検証済みInstalled package
 - Keychain: salted PBKDF2管理コードcredential
 - UserDefaults entitlement cache: 起動表示用。StoreKit 2検証を権利の正本とする
 - Migration App Group: 旧アプリが生成する一時claim/progress

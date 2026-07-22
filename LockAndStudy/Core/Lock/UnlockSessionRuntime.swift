@@ -1,11 +1,16 @@
 import Foundation
 
+enum UnlockCompletionState: String, Codable, Equatable, Sendable {
+  case answering, proofAccepted, sessionCreated, eventRecorded, completed, aborted
+}
+
 struct ExperienceSessionPayload: Equatable, Sendable {
   let schemaID: String
   let data: Data
 }
 
 enum StudyAnswerValue: Codable, Equatable, Sendable {
+  case choice(questionID: String, choiceID: String)
   case choiceID(String)
   case multipleChoiceIDs([String])
   case text(String)
@@ -18,10 +23,12 @@ struct ExperienceCompletionProof: Codable, Equatable, Sendable {
   let packID: StudyPackID
   let completedAt: Date
   let evidenceVersion: Int
+  var unlockDuration: TimeInterval? = nil
 }
 
 struct UnlockChallengeSessionEnvelope: Codable, Equatable, Identifiable, Sendable {
   static let currentSchemaVersion = 1
+  static let expirationInterval: TimeInterval = 1_800
 
   let schemaVersion: Int
   let id: UUID
@@ -47,39 +54,6 @@ struct UnlockChallengeSessionEnvelope: Codable, Equatable, Identifiable, Sendabl
       && completionState != .completed && completionState != .aborted
   }
 
-  func decodeLegacyBundle() throws -> ExperienceUnlockBundleSnapshot {
-    try SharedJSON.decoder().decode(ExperienceUnlockBundleSnapshot.self, from: enginePayload)
-  }
-
-  static func wrapping(_ bundle: ExperienceUnlockBundleSnapshot) throws -> Self {
-    let payload = try SharedJSON.encoder().encode(bundle)
-    return .init(
-      schemaVersion: currentSchemaVersion,
-      id: bundle.id,
-      requestID: bundle.challenge.requestID,
-      origin: bundle.challenge.resolvedOrigin,
-      experienceID: bundle.challenge.experienceID.normalizedTemplateID,
-      packID: bundle.challenge.packID,
-      contentVersion: bundle.challenge.questions.first?.legacyContentVersion ?? "bundled",
-      policyVersion: bundle.challenge.policyVersion,
-      createdAt: bundle.challenge.createdAt,
-      expiresAt: bundle.challenge.expiresAt,
-      completionState: bundle.completionState,
-      completionEventID: bundle.completionEventID,
-      createdUnlockSessionID: bundle.createdUnlockSessionID,
-      abortReason: bundle.abortReason,
-      enginePayloadSchemaID: payloadSchemaID(for: bundle.challenge.experienceID),
-      enginePayload: payload)
-  }
-
-  private static func payloadSchemaID(for id: StudyExperienceID) -> String {
-    switch id.normalizedTemplateID {
-    case .flashcardV1: return "flashcard.unlock-session.v1"
-    case .certificationV1: return "certification.unlock-session.v1"
-    case .safeFallbackV1: return "safe-fallback.unlock-session.v1"
-    default: return "\(id.rawValue).unlock-session.v1"
-    }
-  }
 }
 
 enum UnlockCompletionProofDecision: Equatable, Sendable {

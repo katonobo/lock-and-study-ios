@@ -166,6 +166,88 @@ struct QualificationMetadata: Codable, Equatable, Sendable {
   let statisticsYear: Int?
 }
 
+struct FlashcardCourseDefinition: Codable, Equatable, Identifiable, Sendable {
+  let code: String
+  let title: String
+  let subtitle: String?
+  let sampleLabel: String?
+  var id: String { code }
+}
+
+struct FlashcardPresentationProfile: Codable, Equatable, Sendable {
+  let subjectName: String
+  let itemSingularName: String
+  let itemPluralName: String
+  let itemCountUnit: String
+  let homeTitle: String
+  let firstRunTitle: String
+  let firstRunDescription: String
+  let startButtonTitle: String
+  let searchPlaceholder: String
+  let catalogTitle: String
+  let frontLabel: String
+  let backLabel: String
+  let unlockTitle: String
+  let supportsSpeech: Bool
+  let supportsExamples: Bool
+  let supportsReverseDirection: Bool
+  let courseDefinitions: [FlashcardCourseDefinition]
+
+  static func generic(for manifest: StudyPackManifest) -> Self {
+    .init(
+      subjectName: manifest.title, itemSingularName: "項目", itemPluralName: "項目",
+      itemCountUnit: "項目", homeTitle: "今日の学習", firstRunTitle: "学習コース",
+      firstRunDescription: "最初に学ぶ範囲を選びます。あとから設定で変更できます。",
+      startButtonTitle: "学習を始める", searchPlaceholder: "教材を検索",
+      catalogTitle: "教材一覧", frontLabel: "問題", backLabel: "答え",
+      unlockTitle: "学習して解除", supportsSpeech: false, supportsExamples: false,
+      supportsReverseDirection: false, courseDefinitions: [])
+  }
+}
+
+struct CertificationCategoryDefinition: Codable, Equatable, Identifiable, Sendable {
+  let code: String
+  let title: String
+  var id: String { code }
+}
+
+struct CertificationFormatDefinition: Codable, Equatable, Identifiable, Sendable {
+  let code: String
+  let title: String
+  var id: String { code }
+}
+
+struct CertificationPresentationProfile: Codable, Equatable, Sendable {
+  let subjectName: String
+  let homeTitle: String
+  let firstRunTitle: String
+  let firstRunDescription: String
+  let startButtonTitle: String
+  let unlockTitle: String
+  let freeContentLabel: String
+  let categoryDefinitions: [CertificationCategoryDefinition]
+  let formatDefinitions: [CertificationFormatDefinition]
+  let showsEditionYear: Bool
+  let showsLawBasisDate: Bool
+  let supportsFinalSprint: Bool
+
+  static func generic(for manifest: StudyPackManifest) -> Self {
+    .init(
+      subjectName: manifest.title, homeTitle: "今日の学習", firstRunTitle: "学習設定",
+      firstRunDescription: "学ぶ分野と問題数を選びます。あとから設定で変更できます。",
+      startButtonTitle: "学習を始める", unlockTitle: "問題を解いて解除",
+      freeContentLabel: "無料問題", categoryDefinitions: [], formatDefinitions: [],
+      showsEditionYear: manifest.editionYear != nil,
+      showsLawBasisDate: manifest.qualification?.lawBasisDate != nil,
+      supportsFinalSprint: false)
+  }
+}
+
+struct StudyPresentationProfile: Codable, Equatable, Sendable {
+  let flashcard: FlashcardPresentationProfile?
+  let certification: CertificationPresentationProfile?
+}
+
 struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
   static let supportedSchemaVersion = 2
   let schemaVersion: Int
@@ -208,6 +290,7 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
   let locale: String
   let qualification: QualificationMetadata?
   let progressMigrationFile: String?
+  let presentation: StudyPresentationProfile?
 
   private enum CodingKeys: String, CodingKey {
     case schemaVersion, id, categoryID, seriesID, experienceID, editionID, editionYear
@@ -216,7 +299,7 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
     case minimumAppVersion, releaseStatus, isEnabled, sortOrder, expectedItemCount
     case conceptCount, variantCount, sampleDefinition, oneTimeProductID, passEligible
     case saleReady, contentFiles, metadataFile, creditsFile, availableFrom, retiredAt
-    case supersedesPackID, locale, qualification, progressMigrationFile
+    case supersedesPackID, locale, qualification, progressMigrationFile, presentation
   }
 
   init(from decoder: Decoder) throws {
@@ -274,6 +357,8 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
     locale = try container.decodeIfPresent(String.self, forKey: .locale) ?? "ja-JP"
     qualification = try container.decodeIfPresent(QualificationMetadata.self, forKey: .qualification)
     progressMigrationFile = try container.decodeIfPresent(String.self, forKey: .progressMigrationFile)
+    presentation = try container.decodeIfPresent(
+      StudyPresentationProfile.self, forKey: .presentation)
 
     storeState = try container.decodeIfPresent(PackStoreState.self, forKey: .storeState)
       ?? Self.legacyStoreState(releaseStatus: releaseStatus, retiredAt: retiredAt)
@@ -341,6 +426,7 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
     try container.encode(locale, forKey: .locale)
     try container.encodeIfPresent(qualification, forKey: .qualification)
     try container.encodeIfPresent(progressMigrationFile, forKey: .progressMigrationFile)
+    try container.encodeIfPresent(presentation, forKey: .presentation)
   }
 
   private static func normalizedExperienceID(_ value: String) -> StudyExperienceID {
@@ -404,9 +490,19 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
 }
 
 extension StudyPackManifest {
+  var flashcardPresentation: FlashcardPresentationProfile {
+    presentation?.flashcard ?? .generic(for: self)
+  }
+
+  var certificationPresentation: CertificationPresentationProfile {
+    presentation?.certification ?? .generic(for: self)
+  }
+
   var publishedCountLabel: String {
-    if moduleType == .vocabulary { return "\(expectedItemCount)語" }
-    if moduleType == .takken {
+    if experienceID.normalizedTemplateID == .flashcardV1 {
+      return "\(expectedItemCount)\(flashcardPresentation.itemCountUnit)"
+    }
+    if experienceID.normalizedTemplateID == .certificationV1 {
       guard let conceptCount else { return "\(expectedItemCount)問" }
       if let variantCount, variantCount != conceptCount {
         return "\(conceptCount)論点・\(variantCount)問"
@@ -417,8 +513,10 @@ extension StudyPackManifest {
   }
 
   var publishedStructureDescription: String {
-    guard moduleType == .takken, let conceptCount else { return publishedCountLabel }
-    return "宅建業法\(conceptCount)論点・校閲済み\(variantCount ?? expectedItemCount)問"
+    guard experienceID.normalizedTemplateID == .certificationV1, let conceptCount else {
+      return publishedCountLabel
+    }
+    return "\(certificationPresentation.subjectName) \(conceptCount)論点・校閲済み\(variantCount ?? expectedItemCount)問"
   }
 }
 

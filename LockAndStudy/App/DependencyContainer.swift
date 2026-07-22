@@ -12,6 +12,7 @@ final class DependencyContainer {
   let lockController: LockController
   let commerce: StoreKitCommerceService
   let content: ContentRepository
+  let contentPackages: any ContentPackageStoring
   let learning: LearningDataStore
   let unlockSessions: UnlockChallengeSessionCoordinator
   let pendingPreviews: PendingPreviewStore
@@ -20,10 +21,28 @@ final class DependencyContainer {
   let emergencyStore: EmergencyUnlockStore
   let policyStore: LockPolicyStore
 
-  init(learningRootURL: URL? = nil) {
+  init(
+    learningRootURL: URL? = nil,
+    contentSource: (any ContentAssetSource)? = nil,
+    catalogDataOverride: Data? = nil
+  ) {
     lockController = LockController()
     commerce = StoreKitCommerceService()
-    content = ContentRepository()
+    let bundled = BundledContentSource()
+    let catalogSource: any ContentAssetSource = catalogDataOverride.map {
+      CatalogDataOverrideSource(data: $0, packageSource: bundled)
+    } ?? bundled
+    let packageRoot = learningRootURL?.appendingPathComponent(
+      "InstalledContent", isDirectory: true)
+    let packageStore = ContentPackageStore(rootURL: packageRoot)
+    contentPackages = packageStore
+    let productionSource: any ContentAssetSource = contentSource
+      ?? CompositeContentSource([
+        InstalledContentSource(catalogSource: catalogSource, store: packageStore),
+        catalogSource,
+        SafeFallbackContentSource(),
+      ])
+    content = ContentRepository(source: productionSource)
     learningRevision = LearningDataRevision()
     if let learningRootURL {
       learning = LearningDataStore(rootURL: learningRootURL)

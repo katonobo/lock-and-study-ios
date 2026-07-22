@@ -265,10 +265,29 @@ actor ContentPackageStore: ContentPackageStoring {
 }
 
 struct InstalledContentSource: ContentAssetSource {
-  let fallbackCatalogData: Data
+  private let fallbackCatalogData: Data?
+  private let catalogSource: (any ContentAssetSource)?
   let store: any ContentPackageStoring
 
-  func catalogData() async throws -> Data { fallbackCatalogData }
+  init(fallbackCatalogData: Data, store: any ContentPackageStoring) {
+    self.fallbackCatalogData = fallbackCatalogData
+    catalogSource = nil
+    self.store = store
+  }
+
+  init(catalogSource: any ContentAssetSource, store: any ContentPackageStoring) {
+    fallbackCatalogData = nil
+    self.catalogSource = catalogSource
+    self.store = store
+  }
+
+  func catalogData() async throws -> Data {
+    if let fallbackCatalogData { return fallbackCatalogData }
+    guard let catalogSource else {
+      throw ContentRepositoryError.missing("study_pack_catalog.json")
+    }
+    return try await catalogSource.catalogData()
+  }
 
   func packageLocation(
     for packID: StudyPackID,
@@ -320,3 +339,60 @@ struct CompositeContentSource: ContentAssetSource {
 }
 
 protocol RemoteContentSource: ContentAssetSource {}
+
+struct CatalogDataOverrideSource: ContentAssetSource {
+  let data: Data
+  let packageSource: any ContentAssetSource
+
+  func catalogData() async throws -> Data { data }
+  func packageLocation(
+    for packID: StudyPackID,
+    contentVersion: String
+  ) async throws -> ContentPackageLocation? {
+    try await packageSource.packageLocation(for: packID, contentVersion: contentVersion)
+  }
+  func packageLocations(
+    for packID: StudyPackID,
+    contentVersion: String
+  ) async throws -> [ContentPackageLocation] {
+    try await packageSource.packageLocations(for: packID, contentVersion: contentVersion)
+  }
+}
+
+struct SafeFallbackContentSource: ContentAssetSource {
+  func catalogData() async throws -> Data {
+    Data(Self.catalog.utf8)
+  }
+
+  func packageLocation(
+    for packID: StudyPackID,
+    contentVersion: String
+  ) async throws -> ContentPackageLocation? { nil }
+
+  private static let catalog = #"""
+  {
+    "schemaVersion": 2,
+    "categories": [{
+      "schemaVersion": 1, "id": "safe", "title": "安全な学習", "systemImage": "lifepreserver.fill",
+      "sortOrder": 999, "isVisible": true, "themeToken": "teal"
+    }],
+    "series": [{
+      "schemaVersion": 1, "id": "safe.fallback", "categoryID": "safe", "title": "安全な無料問題",
+      "description": "教材を復旧できない場合の組み込み問題です。", "sortOrder": 999,
+      "editionPolicy": "evergreen", "defaultExperienceID": "safe-fallback.v1", "isVisible": true
+    }],
+    "packs": [{
+      "schemaVersion": 2, "id": "safe-fallback.v1", "categoryID": "safe", "seriesID": "safe.fallback",
+      "experienceID": "safe-fallback.v1", "editionID": "v1", "editionPolicy": "evergreen",
+      "storeState": "forSale", "deliveryMode": "bundled", "passAccessPolicy": "excluded",
+      "moduleType": "safe-fallback", "experienceType": "safe-fallback.v1", "title": "安全な無料問題",
+      "subtitle": "オフライン対応", "description": "組み込みの学習問題です。", "contentVersion": "built-in-v1",
+      "minimumAppVersion": "1.0", "releaseStatus": "release", "isEnabled": true, "sortOrder": 999,
+      "expectedItemCount": 3, "sampleDefinition": {"kind":"allReleased","count":3},
+      "passEligible": false, "saleReady": false, "contentFiles": [],
+      "components": [{"id":"safe","title":"安全な問題","experienceID":"safe-fallback.v1",
+        "contentSchemaID":"safe-fallback.items.v1","sortOrder":0,"contentFiles":[]}], "locale":"ja-JP"
+    }]
+  }
+  """#
+}

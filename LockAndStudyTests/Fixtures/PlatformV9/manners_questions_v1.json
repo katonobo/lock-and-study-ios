@@ -10,7 +10,7 @@
   },
   {
     "id": "BM002", "conceptID": "report", "variantID": "basic", "category": "ビジネスマナー", "subCategory": "報告", "difficulty": "基礎",
-    "format": "multiple_choice", "prompt": "業務上の問題が発生したとき、最初の行動として適切なのはどれか。",
+    "format": "wording_contrast", "prompt": "業務上の問題が発生したとき、最初の行動として適切なのはどれか。",
     "choices": [{"id": "report", "text": "事実を整理して速やかに報告する"}, {"id": "hide", "text": "問題を隠す", "rationale": "隠すと影響が拡大します。"}, {"id": "post", "text": "SNSに投稿する", "rationale": "機密や関係者への配慮を欠きます。"}, {"id": "ignore", "text": "何もしない", "rationale": "必要な対応が遅れます。"}],
     "correctChoiceID": "report", "correctIndex": 0, "explanation": "事実を整理し、速やかに上司や担当者へ報告します。", "shortExplanation": "事実を整理して報告します。",
     "longExplanation": "推測と事実を分け、影響・現在の対応・必要な支援を簡潔に伝えます。", "keyPoint": "問題は速やかに報告",
@@ -19,7 +19,7 @@
   },
   {
     "id": "BM003", "conceptID": "privacy", "variantID": "basic", "category": "ビジネスマナー", "subCategory": "情報管理", "difficulty": "標準",
-    "format": "true_false", "prompt": "業務で知った個人情報を、許可なく私的なSNSへ投稿してよい。",
+    "format": "case_study", "prompt": "業務で知った個人情報を、許可なく私的なSNSへ投稿してよい。",
     "choices": [{"id": "true", "text": "正しい", "rationale": "許可なく業務情報を公開してはいけません。"}, {"id": "false", "text": "誤り"}],
     "correctChoiceID": "false", "correctIndex": 1, "explanation": "個人情報や業務情報はルールに従って管理します。", "shortExplanation": "無断投稿は禁止です。",
     "longExplanation": "利用目的・社内規程・関係法令に従い、許可のない外部公開を行いません。", "keyPoint": "情報は許可なく公開しない",

@@ -32,7 +32,7 @@ struct StudyCatalogDecoder: Sendable {
   func decode(_ data: Data) throws -> StudyCatalogSnapshot {
     let object = try JSONSerialization.jsonObject(with: data)
     if let legacyPacks = object as? [Any] {
-      let packs: [StudyPackManifest] = decodeEntries(legacyPacks)
+      let packs: [StudyPackManifest] = try decodeEntries(legacyPacks, kind: "pack")
       guard !packs.isEmpty else {
         throw ContentRepositoryError.invalid("v1教材カタログに有効なpackがありません")
       }
@@ -51,9 +51,12 @@ struct StudyCatalogDecoder: Sendable {
     guard schemaVersion <= 2 else {
       throw ContentRepositoryError.invalid("未対応の教材カタログschemaです")
     }
-    let categories: [StudyCategoryManifest] = decodeEntries(dictionary["categories"] as? [Any] ?? [])
-    let series: [StudySeriesManifest] = decodeEntries(dictionary["series"] as? [Any] ?? [])
-    let packs: [StudyPackManifest] = decodeEntries(dictionary["packs"] as? [Any] ?? [])
+    let categories: [StudyCategoryManifest] = try decodeEntries(
+      dictionary["categories"] as? [Any] ?? [], kind: "category")
+    let series: [StudySeriesManifest] = try decodeEntries(
+      dictionary["series"] as? [Any] ?? [], kind: "series")
+    let packs: [StudyPackManifest] = try decodeEntries(
+      dictionary["packs"] as? [Any] ?? [], kind: "pack")
     guard !packs.isEmpty else {
       throw ContentRepositoryError.invalid("v2教材カタログに有効なpackがありません")
     }
@@ -65,13 +68,22 @@ struct StudyCatalogDecoder: Sendable {
       packs: packs)
   }
 
-  private func decodeEntries<Value: Decodable>(_ values: [Any]) -> [Value] {
+  private func decodeEntries<Value: Decodable>(
+    _ values: [Any],
+    kind: String
+  ) throws -> [Value] {
     let decoder = SharedJSON.decoder()
-    return values.compactMap { value in
-      guard JSONSerialization.isValidJSONObject(value),
-        let data = try? JSONSerialization.data(withJSONObject: value)
-      else { return nil }
-      return try? decoder.decode(Value.self, from: data)
+    return try values.enumerated().map { index, value in
+      guard JSONSerialization.isValidJSONObject(value) else {
+        throw ContentRepositoryError.invalid("catalog \(kind)[\(index)]がJSON objectではありません")
+      }
+      do {
+        let data = try JSONSerialization.data(withJSONObject: value)
+        return try decoder.decode(Value.self, from: data)
+      } catch {
+        throw ContentRepositoryError.invalid(
+          "catalog \(kind)[\(index)]をdecodeできません: \(error.localizedDescription)")
+      }
     }
   }
 

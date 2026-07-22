@@ -369,7 +369,7 @@ struct TakkenAnswerStateMachine: Equatable, Sendable {
   init() {}
 
   init(
-    restoring question: TakkenUnlockQuestionSnapshot,
+    restoring question: CertificationChallengeQuestion,
     selectedChoiceID: Int,
     wrongAttemptCount: Int,
     reviewRequiredUntil: Date?,
@@ -385,7 +385,7 @@ struct TakkenAnswerStateMachine: Equatable, Sendable {
   }
 
   init(
-    restoring question: TakkenUnlockQuestionSnapshot,
+    restoring question: CertificationChallengeQuestion,
     selectedChoiceID: Int,
     wrongAttemptCount: Int,
     reviewRemainingActiveSeconds: TimeInterval,
@@ -435,7 +435,7 @@ struct TakkenAnswerStateMachine: Equatable, Sendable {
   }
 
   mutating func record(
-    selectedChoiceID: Int, question: TakkenUnlockQuestionSnapshot, at date: Date
+    selectedChoiceID: Int, question: CertificationChallengeQuestion, at date: Date
   ) {
     let selected = question.choices.first { $0.id == selectedChoiceID }?.text ?? "未選択"
     let correct = question.choices.first { $0.id == question.correctChoiceID }?.text ?? "未設定"
@@ -468,7 +468,7 @@ struct TakkenAnswerStateMachine: Equatable, Sendable {
 
   mutating func record(
     selectedChoiceID: Int,
-    question: TakkenUnlockQuestionSnapshot,
+    question: CertificationChallengeQuestion,
     authoritativeRemainingActiveSeconds: Int,
     attemptNumber: Int,
     at date: Date

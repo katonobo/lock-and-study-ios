@@ -15,7 +15,7 @@ final class AppModel: ObservableObject {
   @Published var studySession: StudySessionPresentation?
   @Published var activeExperience: ActiveStudyExperience?
   @Published var isMaterialSelectionPresented = false
-  @Published var unlockChallenge: ExperienceUnlockBundleSnapshot?
+  @Published var unlockChallenge: UnlockChallengeSessionEnvelope?
   @Published private(set) var records: [LearningEvent] = []
   @Published var alertMessage: String?
   @Published var isBusy = false
@@ -25,9 +25,12 @@ final class AppModel: ObservableObject {
   private var completedStudySessions: Set<UUID> = []
   private var startTask: Task<Void, Never>?
   private let reviewClock = ContinuousClock()
-  private var activeReviewStartedAtByQuestionID: [String: ContinuousClock.Instant] = [:]
+  private var activeReviewStartedAt: ContinuousClock.Instant?
 
-  init(dependencies: DependencyContainer? = nil) {
+  init(
+    dependencies: DependencyContainer? = nil,
+    experienceRegistry: StudyExperienceRegistry? = nil
+  ) {
     let defaults = LockAndStudySharedConstants.defaults
     #if DEBUG
       if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestResetData") {
@@ -36,7 +39,7 @@ final class AppModel: ObservableObject {
     #endif
     PlatformMigrationV9().run(defaults: defaults)
     self.dependencies = dependencies ?? DependencyContainer()
-    experienceRegistry = .standard()
+    self.experienceRegistry = experienceRegistry ?? .standard()
     if ProcessInfo.processInfo.arguments.contains("-ResetOnboarding") {
       defaults.removeObject(forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
     }
@@ -122,24 +125,26 @@ final class AppModel: ObservableObject {
       await dependencies.commerce.refreshEntitlements()
       records = (try? await dependencies.learning.events()) ?? []
       if onboardingCompleted {
-        if var experienceBundle = try await dependencies.learning.loadExperienceUnlockBundle() {
-          if prepareRestoredReviewState(&experienceBundle, at: Date()) {
-            try await dependencies.learning.saveExperienceUnlockBundle(experienceBundle)
-          }
-          if experienceBundle.isAnswering(at: Date()) {
-            unlockChallenge = experienceBundle
-          } else if experienceBundle.isComplete && experienceBundle.completionState != .completed
-            && experienceBundle.completionState != .aborted
+        if let envelope = try await dependencies.unlockSessions.restore(at: Date()) {
+          if let runtime = experienceRegistry.factory(forExperienceID: envelope.experienceID),
+            runtime.supportedPayloadSchemaIDs.contains(envelope.enginePayloadSchemaID)
           {
-            await completeUnlockChallenge()
-          } else if experienceBundle.completionState == .completed
-            || experienceBundle.completionState == .aborted
-          {
-            try await dependencies.learning.saveExperienceUnlockBundle(nil)
-          } else if experienceBundle.challenge.expiresAt <= Date() {
-            var expiredBundle = experienceBundle
-            try await expireUnlockBundle(
-              &expiredBundle, reason: "challenge-expired-during-recovery")
+            do {
+              let state = try runtime.restoreState(
+                payload: envelope.enginePayload, schemaID: envelope.enginePayloadSchemaID)
+              if state.isComplete {
+                unlockChallenge = envelope
+                await completeUnlockChallenge()
+              } else if envelope.completionState == .answering {
+                unlockChallenge = envelope
+              } else {
+                await abortActiveUnlock(reason: "invalid-recovered-completion-state")
+              }
+            } catch {
+              await abortActiveUnlock(reason: "experience-payload-restore-failed")
+            }
+          } else {
+            await abortActiveUnlock(reason: "unsupported-experience-payload-schema")
           }
         } else if let restored = try? await dependencies.learning.loadUnlockBundle(now: Date()),
           let manifest = manifests.first(where: { $0.id == restored.access.packID })
@@ -301,13 +306,14 @@ final class AppModel: ObservableObject {
   }
 
   func availability(for manifest: StudyPackManifest, now: Date = Date()) -> PackAvailability {
-    PackAvailabilityResolver().resolve(
+    let factory = experienceRegistry.factory(for: manifest)
+    return PackAvailabilityResolver().resolve(
       manifest: manifest,
       appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0",
       now: now,
       isOwned: dependencies.commerce.entitlement.ownedPacks.contains { $0.packID == manifest.id },
-      supportsExperience: experienceRegistry.factory(for: manifest) != nil
-        && StudyModuleRegistry.standard.module(for: manifest.moduleType) != nil)
+      supportsExperience: factory != nil
+        && (factory?.validateCompatibility(with: manifest).isEmpty == true))
   }
 
   func successorManifest(for packID: StudyPackID) -> StudyPackManifest? {
@@ -370,230 +376,212 @@ final class AppModel: ObservableObject {
         content: dependencies.content,
         now: now
       )
-      let challenge: UnlockChallengeSnapshot
-      if let factory = experienceRegistry.factory(for: manifest) {
+      let resolvedRuntime: any StudyExperienceFactory
+      let payload: ExperienceSessionPayload
+      if let runtime = experienceRegistry.factory(for: manifest),
+        runtime.validateCompatibility(with: manifest).isEmpty
+      {
         do {
-          challenge = try await factory.unlockChallengeProvider.makeUnlockChallenge(
-            packID: manifest.id, request: request)
+          payload = try await runtime.createSession(request: request)
+          resolvedRuntime = runtime
         } catch {
-          challenge = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(
-            packID: manifest.id, request: request)
+          guard let fallback = experienceRegistry.factory(forExperienceID: .safeFallbackV1) else {
+            throw error
+          }
+          payload = try await fallback.createSession(request: request)
+          resolvedRuntime = fallback
         }
       } else {
-        challenge = try await SafeFallbackUnlockChallengeProvider().makeUnlockChallenge(
-          packID: manifest.id, request: request)
+        guard let fallback = experienceRegistry.factory(forExperienceID: .safeFallbackV1) else {
+          throw ContentRepositoryError.unsupported
+        }
+        payload = try await fallback.createSession(request: request)
+        resolvedRuntime = fallback
       }
-      let bundle = ExperienceUnlockBundleSnapshot(
-        schemaVersion: 2,
-        challenge: challenge,
-        completedQuestionIDs: [],
+      guard resolvedRuntime.supportedPayloadSchemaIDs.contains(payload.schemaID) else {
+        throw ContentRepositoryError.invalid("解除payload schemaが一致しません")
+      }
+      let envelope = UnlockChallengeSessionEnvelope(
+        schemaVersion: UnlockChallengeSessionEnvelope.currentSchemaVersion,
+        id: UUID(),
+        requestID: requestID,
+        origin: origin,
+        experienceID: resolvedRuntime.experienceID,
+        packID: manifest.id,
+        contentVersion: manifest.contentVersion,
+        policyVersion: policy.policyVersion,
+        createdAt: now,
+        expiresAt: now.addingTimeInterval(UnlockChallengeSessionEnvelope.expirationInterval),
         completionState: .answering,
         completionEventID: UUID(),
         createdUnlockSessionID: nil,
-        abortReason: nil
-      )
-      try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+        abortReason: nil,
+        enginePayloadSchemaID: payload.schemaID,
+        enginePayload: payload.data)
+      try await dependencies.learning.saveUnlockSessionEnvelope(envelope)
       try await dependencies.learning.record(
         .init(
           kind: .unlockChallengeStarted, occurredAt: now, packID: manifest.id,
-          sessionID: bundle.id, unlockOrigin: origin)
+          sessionID: envelope.id, unlockOrigin: origin)
       )
-      unlockChallenge = bundle
+      activeReviewStartedAt = nil
+      unlockChallenge = envelope
     } catch {
       alertMessage = "解除学習を準備できませんでした。無料教材を確認して再試行してください。\n\(error.localizedDescription)"
     }
   }
 
-  func submitUnlockAnswer(
-    question: UnlockQuestionSnapshot,
-    selectedChoiceID: Int,
-    feedback: StudyFeedbackPlan
-  ) async -> UnlockAnswerSubmissionResult {
+  func submitUnlockAnswer(_ answer: StudyAnswerValue) async -> UnlockAnswerSubmissionResult {
     do {
-      guard var bundle = try await dependencies.learning.loadExperienceUnlockBundle(),
-        bundle.completionState == .answering,
-        bundle.challenge.questions.contains(where: { $0.id == question.id })
+      guard var envelope = try await dependencies.learning.loadUnlockSessionEnvelope(),
+        envelope.completionState == .answering,
+        let runtime = experienceRegistry.factory(forExperienceID: envelope.experienceID),
+        runtime.supportedPayloadSchemaIDs.contains(envelope.enginePayloadSchemaID)
       else { return .failed("解除問題の状態を確認できませんでした。もう一度やり直してください。") }
-      guard Date() < bundle.challenge.expiresAt else {
-        try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-submission")
+      guard Date() < envelope.expiresAt else {
+        await abortActiveUnlock(reason: "challenge-expired-before-submission")
         return .expired
       }
-      let answeredAt = Date()
-      _ = bundle.migrateLegacyReviewState(at: answeredAt)
-      let authoritativeRemaining = settleReviewExposure(
-        in: &bundle, questionID: question.id, keepActive: false, at: answeredAt)
-      if authoritativeRemaining > 0 {
-        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
-        unlockChallenge = bundle
-        let seconds = max(1, Int(ceil(authoritativeRemaining)))
-        return .failed("解説をあと\(seconds)秒確認してから、再挑戦してください。")
-      }
-      let attemptNumber = (bundle.attemptCountsByQuestionID?[question.id.rawValue] ?? 0) + 1
-      let itemProgress = try await dependencies.learning.progress(
-        for: .init(packID: bundle.challenge.packID, itemID: question.id))
-      guard let factory = experienceRegistry.factory(for: bundle.challenge.experienceID) else {
-        return .failed("この解除問題を実行できる学習エンジンがありません。")
-      }
-      let answerContext = UnlockAnswerRecordContext(
-        question: question,
-        selectedChoiceID: selectedChoiceID,
-        feedback: feedback,
-        bundle: bundle,
-        answeredAt: answeredAt,
-        priorProgress: itemProgress,
-        attemptNumber: attemptNumber
-      )
-      let record = try factory.makeUnlockAnswerRecord(answerContext)
-      _ = try await dependencies.learning.recordUnique(record)
-      var attempts = bundle.attemptCountsByQuestionID ?? [:]
-      attempts[question.id.rawValue] = attemptNumber
-      bundle.attemptCountsByQuestionID = attempts
-      var reviewRemaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
-      var lastSelections = bundle.lastSelectedChoiceIDByQuestionID ?? [:]
-      if selectedChoiceID == question.correctChoiceID {
-        guard Date() < bundle.challenge.expiresAt else {
-          try await expireUnlockBundle(&bundle, reason: "challenge-expired-after-answer")
-          return .expired
+      if let startedAt = activeReviewStartedAt {
+        activeReviewStartedAt = nil
+        let tick = try await runtime.activeReviewTick(
+          seconds: elapsedSeconds(since: startedAt), envelope: envelope)
+        guard tick.payload.schemaID == envelope.enginePayloadSchemaID else {
+          await abortActiveUnlock(reason: "experience-payload-schema-changed")
+          return .failed("解除問題の状態を更新できませんでした。")
         }
-        bundle.completedQuestionIDs.insert(question.id)
-        bundle.clearReviewState(for: question.id)
-        reviewRemaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
-        lastSelections = bundle.lastSelectedChoiceIDByQuestionID ?? [:]
-      } else {
-        let minimumSeconds = try factory.minimumReviewSeconds(for: answerContext)
-        if minimumSeconds > 0 {
-          reviewRemaining[question.id.rawValue] = TimeInterval(minimumSeconds)
-        }
-        lastSelections[question.id.rawValue] = selectedChoiceID
+        envelope.enginePayload = tick.payload.data
       }
-      bundle.reviewRequiredUntilByQuestionID = nil
-      bundle.reviewRemainingActiveSecondsByQuestionID =
-        reviewRemaining.isEmpty
-        ? nil : reviewRemaining
-      var reviewLastActive = bundle.reviewLastActiveAtByQuestionID ?? [:]
-      reviewLastActive.removeValue(forKey: question.id.rawValue)
-      bundle.reviewLastActiveAtByQuestionID = reviewLastActive.isEmpty ? nil : reviewLastActive
-      bundle.lastSelectedChoiceIDByQuestionID = lastSelections
-      try await dependencies.learning.saveExperienceUnlockBundle(bundle)
-      unlockChallenge = bundle
+      let transition = try await runtime.acceptAnswer(
+        answer, envelope: envelope, dependencies: dependencies)
+      guard transition.payload.schemaID == envelope.enginePayloadSchemaID else {
+        await abortActiveUnlock(reason: "experience-payload-schema-changed")
+        return .failed("解除問題の状態を更新できませんでした。")
+      }
+      envelope.enginePayload = transition.payload.data
+      try await dependencies.learning.saveUnlockSessionEnvelope(envelope)
+      unlockChallenge = envelope
       records = try await dependencies.learning.events()
-      if selectedChoiceID == question.correctChoiceID { return .recordedCorrect }
-      let remaining: Int
-      remaining = max(0, Int(ceil(reviewRemaining[question.id.rawValue] ?? 0)))
-      return .recordedIncorrect(
-        remainingActiveSeconds: remaining, attemptNumber: attemptNumber)
+      return transition.submissionResult ?? .failed("学習エンジンから回答結果が返されませんでした。")
     } catch {
       return .failed(error.localizedDescription)
     }
   }
 
-  func updateUnlockReviewExposure(
-    questionID: StudyItemID,
-    isActive: Bool
-  ) async -> UnlockReviewExposureResult {
+  func updateUnlockReviewExposure(isActive: Bool) async -> UnlockReviewExposureResult {
     do {
-      guard var bundle = try await dependencies.learning.loadExperienceUnlockBundle(),
-        bundle.completionState == .answering,
-        bundle.challenge.questions.contains(where: { $0.id == questionID })
+      guard var envelope = try await dependencies.learning.loadUnlockSessionEnvelope(),
+        envelope.completionState == .answering,
+        let runtime = experienceRegistry.factory(forExperienceID: envelope.experienceID),
+        runtime.supportedPayloadSchemaIDs.contains(envelope.enginePayloadSchemaID)
       else { return .failed("解除問題の状態を確認できませんでした。") }
       let now = Date()
-      guard now < bundle.challenge.expiresAt else {
-        try await expireUnlockBundle(&bundle, reason: "challenge-expired-during-review")
+      guard now < envelope.expiresAt else {
+        await abortActiveUnlock(reason: "challenge-expired-during-review")
         return .expired
       }
-      _ = bundle.migrateLegacyReviewState(at: now)
-      let remaining = settleReviewExposure(
-        in: &bundle, questionID: questionID, keepActive: isActive, at: now)
-      try await dependencies.learning.saveExperienceUnlockBundle(bundle)
-      unlockChallenge = bundle
-      return .updated(remainingActiveSeconds: max(0, Int(ceil(remaining))))
+      let elapsed = activeReviewStartedAt.map(elapsedSeconds) ?? 0
+      activeReviewStartedAt = isActive ? reviewClock.now : nil
+      let transition = try await runtime.activeReviewTick(seconds: elapsed, envelope: envelope)
+      guard transition.payload.schemaID == envelope.enginePayloadSchemaID else {
+        await abortActiveUnlock(reason: "experience-payload-schema-changed")
+        return .failed("解説確認時間を更新できませんでした。")
+      }
+      envelope.enginePayload = transition.payload.data
+      try await dependencies.learning.saveUnlockSessionEnvelope(envelope)
+      unlockChallenge = envelope
+      return transition.reviewResult ?? .failed("解説確認時間を更新できませんでした。")
     } catch {
       return .failed(error.localizedDescription)
     }
   }
 
   func completeUnlockChallenge() async {
-    activeReviewStartedAtByQuestionID.removeAll()
-    guard var bundle = try? await dependencies.learning.loadExperienceUnlockBundle(),
-      bundle.isComplete
+    activeReviewStartedAt = nil
+    guard var envelope = try? await dependencies.learning.loadUnlockSessionEnvelope(),
+      let runtime = experienceRegistry.factory(forExperienceID: envelope.experienceID),
+      let proof = try? runtime.completionProof(envelope: envelope)
     else { return }
-    if Date() >= bundle.challenge.expiresAt {
-      do { try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-unlock") } catch
-      { alertMessage = error.localizedDescription }
+    if Date() >= envelope.expiresAt {
+      await abortActiveUnlock(reason: "challenge-expired-before-unlock")
       return
     }
     do {
       let proofDecision = try await dependencies.unlockSessions.acceptCompletionProof(
-        .init(
-          sessionID: bundle.id,
-          packID: bundle.challenge.packID,
-          completedAt: Date(),
-          evidenceVersion: 1),
+        proof,
         now: Date())
       switch proofDecision {
       case .accepted, .resuming:
         break
       case .alreadyCompleted:
-        try await dependencies.learning.saveExperienceUnlockBundle(nil)
+        try await dependencies.learning.saveUnlockSessionEnvelope(nil)
+        try await LegacyUnlockBundleMigration().clearPersistedBundle(
+          in: dependencies.learning)
         unlockChallenge = nil
         return
       case .rejected(let reason):
-        try await expireUnlockBundle(&bundle, reason: reason)
+        await abortActiveUnlock(reason: reason)
         return
       }
-      if bundle.completionState == .answering {
-        guard Date() < bundle.challenge.expiresAt else {
-          try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-session")
+      guard let coordinated = try await dependencies.learning.loadUnlockSessionEnvelope() else {
+        await abortActiveUnlock(reason: "unlock-session-missing-after-proof")
+        return
+      }
+      envelope = coordinated
+      if envelope.completionState == .proofAccepted {
+        guard Date() < envelope.expiresAt else {
+          await abortActiveUnlock(reason: "challenge-expired-before-session")
           return
         }
         if dependencies.lockController.isLockEnabled {
           let session = try await dependencies.lockController.beginUnlockSession(
             kind: .earnedByStudy,
-            duration: bundle.challenge.pace.unlockDuration,
-            reasonCode: "bundle:\(bundle.id.uuidString)"
+            duration: proof.unlockDuration
+              ?? (dependencies.policyStore.loadPolicy()?.accessPacePreset.unlockDuration ?? 300),
+            reasonCode: "envelope:\(envelope.id.uuidString)"
           )
-          bundle.createdUnlockSessionID = session.id
+          envelope.createdUnlockSessionID = session.id
         }
-        bundle.completionState = .sessionCreated
-        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+        envelope.completionState = .sessionCreated
+        try await dependencies.learning.saveUnlockSessionEnvelope(envelope)
       }
-      if bundle.completionState == .sessionCreated {
+      if envelope.completionState == .sessionCreated {
         let completionKind: LearningEventKind =
-          bundle.createdUnlockSessionID == nil ? .unlockChallengeCompleted : .unlockSuccess
+          envelope.createdUnlockSessionID == nil ? .unlockChallengeCompleted : .unlockSuccess
         try await dependencies.learning.record(
           .init(
-            id: bundle.completionEventID,
+            id: envelope.completionEventID,
             kind: completionKind,
-            packID: bundle.challenge.packID,
-            sessionID: bundle.id,
-            unlockOrigin: bundle.challenge.resolvedOrigin
+            packID: envelope.packID,
+            sessionID: envelope.id,
+            unlockOrigin: envelope.origin
           ))
-        bundle.completionState = .eventRecorded
-        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+        envelope.completionState = .eventRecorded
+        try await dependencies.learning.saveUnlockSessionEnvelope(envelope)
       }
-      if bundle.completionState == .eventRecorded {
+      if envelope.completionState == .eventRecorded {
         var completionWarning: String?
-        if let manifest = manifests.first(where: { $0.id == bundle.challenge.packID }),
-          let factory = experienceRegistry.factory(for: bundle.challenge.experienceID)
-        {
+        if let manifest = manifests.first(where: { $0.id == envelope.packID }) {
           do {
-            try await factory.handleUnlockCompletion(
+            try await runtime.handleUnlockCompletion(
               .init(
-                bundle: bundle,
+                envelope: envelope,
                 manifest: manifest,
                 dependencies: dependencies,
                 now: Date()
               ))
             dependencies.learningRevision.bump()
           } catch {
-            await factory.clearTransientState(
-              packID: bundle.challenge.packID, dependencies: dependencies)
+            await runtime.clearTransientState(
+              packID: envelope.packID, dependencies: dependencies)
             completionWarning = "ロック解除は完了しましたが、次回予習を保存できませんでした。\n\(error.localizedDescription)"
           }
         }
-        bundle.completionState = .completed
-        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
-        try await dependencies.learning.saveExperienceUnlockBundle(nil)
+        envelope.completionState = .completed
+        try await dependencies.learning.saveUnlockSessionEnvelope(envelope)
+        try await dependencies.learning.saveUnlockSessionEnvelope(nil)
+        try await LegacyUnlockBundleMigration().clearPersistedBundle(
+          in: dependencies.learning)
         if let completionWarning { alertMessage = completionWarning }
       }
       unlockChallenge = nil
@@ -601,23 +589,25 @@ final class AppModel: ObservableObject {
     } catch { alertMessage = error.localizedDescription }
   }
 
-  func unlockViewContext(for bundle: ExperienceUnlockBundleSnapshot) -> UnlockChallengeViewContext {
-    .init(
-      bundle: bundle,
-      submit: { [weak self] question, choiceID, feedback in
-        await self?.submitUnlockAnswer(
-          question: question, selectedChoiceID: choiceID, feedback: feedback)
+  func unlockViewContext(for envelope: UnlockChallengeSessionEnvelope) -> ExperienceChallengeViewContext {
+    let manifest = manifests.first(where: { $0.id == envelope.packID })
+      ?? manifests.first!
+    return .init(
+      manifest: manifest,
+      submit: { [weak self] answer in
+        await self?.submitUnlockAnswer(answer)
           ?? .failed("解除問題を送信できませんでした。")
       },
-      updateReviewExposure: { [weak self] questionID, isActive in
-        await self?.updateUnlockReviewExposure(questionID: questionID, isActive: isActive)
+      updateReviewExposure: { [weak self] isActive in
+        await self?.updateUnlockReviewExposure(isActive: isActive)
           ?? .failed("解説確認時間を保存できませんでした。")
       },
       restart: { [weak self] in
         guard let self else { return }
+        await self.abortActiveUnlock(reason: "challenge-restarted")
         await self.beginUnlockStudy(
-          packID: bundle.challenge.packID,
-          origin: bundle.challenge.resolvedOrigin)
+          packID: envelope.packID,
+          origin: envelope.origin)
       },
       complete: { [weak self] in await self?.completeUnlockChallenge() }
     )
@@ -710,12 +700,10 @@ final class AppModel: ObservableObject {
   }
 
   func abortActiveUnlock(reason: String) async {
-    activeReviewStartedAtByQuestionID.removeAll()
-    if var experienceBundle = try? await dependencies.learning.loadExperienceUnlockBundle() {
-      experienceBundle.abortReason = reason
-      experienceBundle.completionState = .aborted
-      try? await dependencies.learning.saveExperienceUnlockBundle(experienceBundle)
-    }
+    activeReviewStartedAt = nil
+    try? await dependencies.unlockSessions.abort(reason: reason)
+    await LegacyUnlockBundleMigration().abortPersistedBundle(
+      reason: reason, in: dependencies.learning)
     unlockChallenge = nil
     if var bundle = try? await dependencies.learning.loadUnlockBundle(now: Date()) {
       bundle.abortReason = reason
@@ -724,66 +712,10 @@ final class AppModel: ObservableObject {
     if studySession?.mode == .unlock { studySession = nil }
   }
 
-  private func prepareRestoredReviewState(
-    _ bundle: inout ExperienceUnlockBundleSnapshot,
-    at date: Date
-  ) -> Bool {
-    activeReviewStartedAtByQuestionID.removeAll()
-    var changed = bundle.migrateLegacyReviewState(at: date)
-    if bundle.reviewLastActiveAtByQuestionID != nil {
-      bundle.reviewLastActiveAtByQuestionID = nil
-      changed = true
-    }
-    return changed
-  }
-
-  private func settleReviewExposure(
-    in bundle: inout ExperienceUnlockBundleSnapshot,
-    questionID: StudyItemID,
-    keepActive: Bool,
-    at date: Date
-  ) -> TimeInterval {
-    let key = questionID.rawValue
-    var remaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
-    var value = max(0, remaining[key] ?? 0)
-    if let startedAt = activeReviewStartedAtByQuestionID.removeValue(forKey: key) {
-      value = bundle.applyActiveReviewExposure(elapsedSeconds(since: startedAt), for: questionID)
-      remaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
-    }
-    if value > 0 {
-      remaining[key] = value
-    } else {
-      remaining.removeValue(forKey: key)
-    }
-    bundle.reviewRemainingActiveSecondsByQuestionID = remaining.isEmpty ? nil : remaining
-    var lastActive = bundle.reviewLastActiveAtByQuestionID ?? [:]
-    if keepActive, value > 0 {
-      activeReviewStartedAtByQuestionID[key] = reviewClock.now
-      lastActive[key] = date
-    } else {
-      lastActive.removeValue(forKey: key)
-    }
-    bundle.reviewLastActiveAtByQuestionID = lastActive.isEmpty ? nil : lastActive
-    return value
-  }
-
   private func elapsedSeconds(since start: ContinuousClock.Instant) -> TimeInterval {
     let components = start.duration(to: reviewClock.now).components
     return TimeInterval(components.seconds)
       + TimeInterval(components.attoseconds) / 1_000_000_000_000_000_000
-  }
-
-  private func expireUnlockBundle(
-    _ bundle: inout ExperienceUnlockBundleSnapshot,
-    reason: String
-  ) async throws {
-    bundle.abortReason = reason
-    bundle.completionState = .aborted
-    try await dependencies.learning.saveExperienceUnlockBundle(bundle)
-    unlockChallenge = nil
-    if reason.hasPrefix("challenge-expired") {
-      alertMessage = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
-    }
   }
 
   func importLegacyData() async {
@@ -810,66 +742,4 @@ final class AppModel: ObservableObject {
     }
   }
 
-  #if DEBUG
-    private func seedReportUITestData() async throws {
-      let now = Date()
-      let vocabularySession = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
-      let takkenSession = UUID(uuidString: "22222222-2222-2222-2222-222222222222")!
-      let fixtures: [StudyAnswerRecord] = [
-        .init(
-          submissionID: "ui-report-vocabulary", experienceID: .vocabulary,
-          packID: "english3000.v1", moduleType: .vocabulary, itemID: "ui-word",
-          prompt: "学習レポート用英単語", choices: [.init(id: 0, text: "意味")],
-          selectedChoiceID: 0, correctChoiceID: 0, shortExplanation: "説明",
-          longExplanation: "説明", sourceNote: nil, category: "level0", subcategory: "名詞",
-          contentVersion: "ui", questionVersion: 1, examYear: nil, lawBasisDate: nil,
-          answeredAt: now.addingTimeInterval(-3_600), mode: .unlock,
-          sessionID: vocabularySession, feedbackPlan: .immediate,
-          learningRole: .newItem, wasNewAtSubmission: true, wasDueAtSubmission: false),
-        .init(
-          submissionID: "ui-report-takken-wrong", experienceID: .takken,
-          packID: "takken2026.v1", moduleType: .takken, itemID: "ui-takken",
-          prompt: "学習レポート用宅建",
-          choices: [
-            .init(id: 0, text: "誤り"), .init(id: 1, text: "正しい"),
-          ],
-          selectedChoiceID: 0, correctChoiceID: 1, shortExplanation: "説明",
-          longExplanation: "説明", sourceNote: nil, category: "宅建業法", subcategory: "免許",
-          contentVersion: "ui", questionVersion: 1, examYear: 2026,
-          lawBasisDate: "2026-04-01", answeredAt: now.addingTimeInterval(-1_900),
-          mode: .practice, sessionID: takkenSession, feedbackPlan: .relearn6,
-          difficulty: "基礎", questionFormat: TakkenQuestionFormat.trueFalse.rawValue,
-          learningRole: .newItem, wasNewAtSubmission: true,
-          wasDueAtSubmission: false, conceptID: "ui-takken-concept", variantID: "base",
-          attemptNumber: 1, wasFirstAttempt: true),
-        .init(
-          submissionID: "ui-report-takken-correct", experienceID: .takken,
-          packID: "takken2026.v1", moduleType: .takken, itemID: "ui-takken",
-          prompt: "学習レポート用宅建",
-          choices: [
-            .init(id: 0, text: "誤り"), .init(id: 1, text: "正しい"),
-          ],
-          selectedChoiceID: 1, correctChoiceID: 1, shortExplanation: "説明",
-          longExplanation: "説明", sourceNote: nil, category: "宅建業法", subcategory: "免許",
-          contentVersion: "ui", questionVersion: 1, examYear: 2026,
-          lawBasisDate: "2026-04-01", answeredAt: now.addingTimeInterval(-1_800),
-          mode: .practice, sessionID: takkenSession, feedbackPlan: .immediate,
-          difficulty: "基礎", questionFormat: TakkenQuestionFormat.trueFalse.rawValue,
-          learningRole: .generalReview, wasNewAtSubmission: false,
-          wasDueAtSubmission: false, conceptID: "ui-takken-concept", variantID: "base",
-          attemptNumber: 2, wasFirstAttempt: false),
-      ]
-      for fixture in fixtures { _ = try await dependencies.learning.recordUnique(fixture) }
-      try await dependencies.learning.record(
-        .init(
-          id: UUID(uuidString: "33333333-3333-3333-3333-333333333333")!,
-          kind: .unlockChallengeStarted, occurredAt: now.addingTimeInterval(-3_700),
-          packID: "english3000.v1", sessionID: vocabularySession, unlockOrigin: .shield))
-      try await dependencies.learning.record(
-        .init(
-          id: UUID(uuidString: "44444444-4444-4444-4444-444444444444")!,
-          kind: .unlockSuccess, occurredAt: now.addingTimeInterval(-3_500),
-          packID: "english3000.v1", sessionID: vocabularySession, unlockOrigin: .shield))
-    }
-  #endif
 }

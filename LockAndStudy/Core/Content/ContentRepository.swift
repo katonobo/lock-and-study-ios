@@ -18,6 +18,8 @@ actor ContentRepository {
   private let source: any ContentAssetSource
   private let registry: StudyModuleRegistry
   private var catalogCache: StudyCatalogSnapshot?
+  private var lastKnownGoodCatalog: StudyCatalogSnapshot?
+  private var catalogIssueCache: [CatalogValidationIssue] = []
   private var promptCache: [String: [StudyPrompt]] = [:]
   private var vocabularyCache: [String: VocabularyPackage] = [:]
   private var takkenCache: [String: [TakkenQuestion]] = [:]
@@ -37,25 +39,53 @@ actor ContentRepository {
 
   func catalogSnapshot() async throws -> StudyCatalogSnapshot {
     if let catalogCache { return catalogCache }
-    let data = try await source.catalogData()
-    let decoded = try StudyCatalogDecoder().decode(data)
-    let validation = StudyCatalogValidator().validate(decoded)
-    let invalidPackIDs = Set(validation.compactMap(\.packID))
-    var seen: Set<StudyPackID> = []
-    let released = decoded.packs.filter {
-      ($0.releaseStatus == .release && $0.isEnabled) || $0.releaseStatus == .retired
+    do {
+      let data = try await source.catalogData()
+      let decoded = try StudyCatalogDecoder().decode(data)
+      let validation = StudyCatalogValidator().validate(decoded)
+      catalogIssueCache = validation
+      let invalidPackIDs = Set(validation.compactMap(\.packID))
+      let validCategoryIDs = validCategories(in: decoded)
+      let validSeriesIDs = Set(decoded.series.filter {
+        validCategoryIDs.contains($0.categoryID)
+      }.map(\.id))
+      var seen: Set<StudyPackID> = []
+      let released = decoded.packs.filter {
+        ($0.releaseStatus == .release && $0.isEnabled) || $0.releaseStatus == .retired
+      }
+      .filter {
+        !invalidPackIDs.contains($0.id)
+          && validCategoryIDs.contains($0.categoryID)
+          && validSeriesIDs.contains($0.seriesID)
+          && seen.insert($0.id).inserted
+      }
+      .sorted { $0.sortOrder < $1.sortOrder }
+      guard !released.isEmpty else {
+        throw ContentRepositoryError.invalid("利用可能な教材がありません")
+      }
+      let snapshot = StudyCatalogSnapshot(
+        schemaVersion: decoded.schemaVersion,
+        generatedAt: decoded.generatedAt,
+        categories: decoded.categories.filter { validCategoryIDs.contains($0.id) },
+        series: decoded.series.filter { validSeriesIDs.contains($0.id) },
+        packs: released)
+      catalogCache = snapshot
+      lastKnownGoodCatalog = snapshot
+      return snapshot
+    } catch {
+      if let lastKnownGoodCatalog {
+        catalogCache = lastKnownGoodCatalog
+        return lastKnownGoodCatalog
+      }
+      throw error
     }
-    .filter { !invalidPackIDs.contains($0.id) && seen.insert($0.id).inserted }
-    .sorted { $0.sortOrder < $1.sortOrder }
-    guard !released.isEmpty else { throw ContentRepositoryError.invalid("利用可能な教材がありません") }
-    let snapshot = StudyCatalogSnapshot(
-      schemaVersion: decoded.schemaVersion,
-      generatedAt: decoded.generatedAt,
-      categories: decoded.categories,
-      series: decoded.series,
-      packs: released)
-    catalogCache = snapshot
-    return snapshot
+  }
+
+  func catalogDiagnostics() -> [CatalogValidationIssue] { catalogIssueCache }
+
+  func reloadCatalog() async throws -> StudyCatalogSnapshot {
+    catalogCache = nil
+    return try await catalogSnapshot()
   }
 
   func prompts(for packID: StudyPackID) async throws -> [StudyPrompt] {
@@ -187,5 +217,18 @@ actor ContentRepository {
     let component = manifest.components.sorted { $0.sortOrder < $1.sortOrder }.first?.id.rawValue
       ?? "primary"
     return "\(manifest.id.rawValue)::\(manifest.contentVersion)::\(component)"
+  }
+
+  private func validCategories(in snapshot: StudyCatalogSnapshot) -> Set<StudyCategoryID> {
+    let byID = snapshot.categoryByID
+    return Set(snapshot.categories.compactMap { category in
+      var visited: Set<StudyCategoryID> = []
+      var current: StudyCategoryID? = category.id
+      while let value = current {
+        guard visited.insert(value).inserted, let node = byID[value] else { return nil }
+        current = node.parentCategoryID
+      }
+      return category.id
+    })
   }
 }

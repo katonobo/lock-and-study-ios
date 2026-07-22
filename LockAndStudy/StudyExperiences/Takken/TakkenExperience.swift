@@ -19,10 +19,48 @@ final class TakkenRouter: ObservableObject {
   }
 }
 
-struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
-  func makeUnlockChallenge(
-    packID: StudyPackID, request: UnlockChallengeRequest
-  ) async throws -> UnlockChallengeSnapshot {
+struct CertificationChallengeQuestion: Codable, Equatable, Identifiable, Sendable {
+  let id: StudyItemID
+  let prompt: String
+  let choices: [StudyChoice]
+  let correctChoiceID: Int
+  let shortExplanation: String
+  let longExplanation: String
+  let keyPoint: String?
+  let category: String
+  let subCategory: String?
+  let difficulty: String
+  let format: String
+  let examYear: Int?
+  let lawBasisDate: String?
+  let sourceNote: String?
+  let contentVersion: String
+  let questionVersion: Int
+  let conceptID: String?
+  let variantID: String?
+  let minimumReviewSeconds: Int?
+  let contrastNote: String?
+  let wrongChoiceRationales: [Int: String]?
+
+  var resolvedConceptID: String { conceptID ?? id.rawValue }
+  var resolvedVariantID: String { variantID ?? "legacy" }
+}
+
+struct CertificationUnlockSessionPayload: Codable, Equatable, Sendable {
+  static let schemaID = "certification.unlock-session.v1"
+
+  let pace: AccessPacePreset
+  let questions: [CertificationChallengeQuestion]
+  var completedQuestionIDs: Set<StudyItemID>
+  var attemptCountsByQuestionID: [String: Int]
+  var reviewRemainingSecondsByQuestionID: [String: TimeInterval]
+  var lastSelectedChoiceIDByQuestionID: [String: Int]
+  var activeReviewQuestionID: String?
+}
+
+struct CertificationUnlockSessionBuilder: Sendable {
+  func makeSession(request: UnlockChallengeRequest) async throws -> ExperienceSessionPayload {
+    let packID = request.manifest.id
     let allQuestions = try await request.content.takkenQuestions(for: packID)
     let sampleIDs = try await request.content.sampleIDs(for: packID, itemIDs: Set(allQuestions.map(\.id)))
     let access = ContentAccessService()
@@ -34,6 +72,12 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
       ).isAllowed
     }
     var settings = TakkenSettings.load(packID: packID)
+    let availableCategories = Set(questions.map(\.category))
+    if !settings.selectedCategories.isEmpty,
+      settings.selectedCategories.isDisjoint(with: availableCategories)
+    {
+      settings.selectedCategories = []
+    }
     #if DEBUG
     if let fixtures = TakkenUITestFixtures.requestedQuestions() {
       questions = fixtures
@@ -94,7 +138,7 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
     ))
     presented.append(contentsOf: additionalDue)
     guard !presented.isEmpty else {
-      throw ContentRepositoryError.invalid("無料宅建問題を選べません")
+      throw ContentRepositoryError.invalid("利用できる資格問題を選べません")
     }
     if let preview = pendingPreview,
       presented.first?.source.resolvedConceptID == preview.conceptID
@@ -113,7 +157,7 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
         else { return nil }
         return (displayed.id, rationale)
       })
-      return UnlockQuestionSnapshot.takken(.init(
+      return CertificationChallengeQuestion(
         id: .init(rawValue: question.source.id),
         prompt: question.source.prompt,
         choices: question.presentedChoices,
@@ -134,48 +178,35 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
         variantID: question.source.resolvedVariantID,
         minimumReviewSeconds: question.source.minimumReviewSeconds,
         contrastNote: question.source.contrastNote,
-        wrongChoiceRationales: sourceRationales.isEmpty ? nil : sourceRationales
-      ))
+        wrongChoiceRationales: sourceRationales.isEmpty ? nil : sourceRationales)
     }
-    return .init(
-      schemaVersion: 3,
-      id: challengeID,
-      requestID: request.requestID,
-      origin: request.origin,
-      experienceID: .takken,
-      packID: packID,
-      policyVersion: request.policy.policyVersion,
+    let state = CertificationUnlockSessionPayload(
       pace: request.policy.accessPacePreset,
-      reviewLoad: request.policy.reviewLoadPreset,
       questions: snapshots,
-      access: .init(
-        packID: packID,
-        reason: access.decision(
-          isFreeSample: presented.first.map { sampleIDs.contains($0.source.id) } ?? true,
-          manifest: request.manifest,
-          entitlement: request.entitlement
-        ).reason,
-        verifiedAt: request.entitlement.lastVerifiedAt),
-      createdAt: request.now,
-      expiresAt: request.now.addingTimeInterval(
-        ExperienceUnlockBundleSnapshot.expirationInterval)
-    )
+      completedQuestionIDs: [],
+      attemptCountsByQuestionID: [:],
+      reviewRemainingSecondsByQuestionID: [:],
+      lastSelectedChoiceIDByQuestionID: [:],
+      activeReviewQuestionID: nil)
+    return .init(
+      schemaID: CertificationUnlockSessionPayload.schemaID,
+      data: try SharedJSON.encoder().encode(state))
   }
 }
 
 @MainActor
-struct TakkenExperience: StudyExperienceFactory {
+struct CertificationExperience: StudyExperienceFactory {
   let experienceID = StudyExperienceID.certificationV1
+  let supportedPayloadSchemaIDs: Set<String> = [CertificationUnlockSessionPayload.schemaID]
   let supportedContentSchemas: Set<ContentSchemaID> = [.certificationQuestionsV1]
   let descriptor = StudyExperienceDescriptor(
     id: .takken,
-    title: "宅建2026",
-    subtitle: "品質確認済み教材",
+    title: "資格・知識問題",
+    subtitle: "分野別演習・学び直し対応",
     systemImage: "building.columns.fill",
     tintName: "orange",
     supportedExperienceTypes: [.takkenV1]
   )
-  let unlockChallengeProvider: any UnlockChallengeProviding = TakkenUnlockChallengeProvider()
   let reportProvider: (any StudyExperienceReportProviding)? = TakkenReportProvider()
 
   func makeRootView(context: StudyExperienceContext) -> AnyView {
@@ -199,78 +230,151 @@ struct TakkenExperience: StudyExperienceFactory {
       dueCount: progress.filter { $0.dueAt.map { $0 <= Date() } ?? false }.count
     )
   }
-  func makeUnlockChallengeView(
-    snapshot: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext
+  func createSession(request: UnlockChallengeRequest) async throws -> ExperienceSessionPayload {
+    try await CertificationUnlockSessionBuilder().makeSession(request: request)
+  }
+  func makeChallengeView(
+    envelope: UnlockChallengeSessionEnvelope,
+    context: ExperienceChallengeViewContext
   ) -> AnyView {
-    AnyView(TakkenUnlockChallengeView(bundle: snapshot, context: context))
-  }
-
-  func makeUnlockAnswerRecord(
-    _ context: UnlockAnswerRecordContext
-  ) throws -> StudyAnswerRecord {
-    guard case .takken(let value) = context.question else {
-      throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "資格四択")
+    guard let state = try? decode(envelope) else {
+      return AnyView(ExperienceSessionUnavailableView(context: context))
     }
+    return AnyView(TakkenUnlockChallengeView(session: state, context: context))
+  }
+  func restoreState(payload: Data, schemaID: String) throws -> ExperienceSessionState {
+    guard supportedPayloadSchemaIDs.contains(schemaID) else {
+      throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "certification payload")
+    }
+    let state = try SharedJSON.decoder().decode(
+      CertificationUnlockSessionPayload.self, from: payload)
     return .init(
-      submissionID: context.submissionID,
-      experienceID: .takken,
-      packID: context.bundle.challenge.packID,
-      moduleType: .takken,
-      itemID: value.id,
-      prompt: value.prompt,
-      choices: value.choices,
-      selectedChoiceID: context.selectedChoiceID,
-      correctChoiceID: value.correctChoiceID,
-      shortExplanation: value.shortExplanation,
-      longExplanation: value.longExplanation,
-      sourceNote: value.sourceNote,
-      category: value.category,
-      subcategory: value.subCategory,
-      contentVersion: value.contentVersion,
-      questionVersion: value.questionVersion,
-      examYear: value.examYear,
-      lawBasisDate: value.lawBasisDate,
-      answeredAt: context.answeredAt,
-      mode: .unlock,
-      sessionID: context.bundle.id,
-      feedbackPlan: context.feedback,
-      difficulty: value.difficulty,
-      questionFormat: value.format,
-      keyPoint: value.keyPoint,
-      learningRole: context.learningRole,
-      wasNewAtSubmission: context.wasNew,
-      wasDueAtSubmission: context.wasDue,
-      conceptID: value.resolvedConceptID,
-      variantID: value.resolvedVariantID,
-      attemptNumber: context.attemptNumber,
-      wasFirstAttempt: context.attemptNumber == 1
-    )
+      completedUnitCount: state.completedQuestionIDs.count,
+      totalUnitCount: state.questions.count,
+      reviewRemainingSeconds: state.reviewRemainingSecondsByQuestionID.values.max() ?? 0)
   }
-
-  func minimumReviewSeconds(for context: UnlockAnswerRecordContext) throws -> Int {
-    guard case .takken(let value) = context.question else {
-      throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "資格四択")
+  func acceptAnswer(
+    _ answer: StudyAnswerValue,
+    envelope: UnlockChallengeSessionEnvelope,
+    dependencies: DependencyContainer
+  ) async throws -> ExperienceSessionTransition {
+    var state = try decode(envelope)
+    let resolved = try choice(from: answer, state: state)
+    guard let question = state.questions.first(where: { $0.id.rawValue == resolved.questionID }) else {
+      throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "certification question")
     }
-    let stagedSeconds = context.attemptNumber == 1 ? 10 : (context.attemptNumber == 2 ? 15 : 20)
-    return max(value.minimumReviewSeconds ?? 10, stagedSeconds)
+    let key = question.id.rawValue
+    let remaining = state.reviewRemainingSecondsByQuestionID[key] ?? 0
+    guard remaining <= 0 else {
+      return try transition(
+        state,
+        submission: .failed("解説をあと\(max(1, Int(ceil(remaining))))秒確認してから、再挑戦してください。"))
+    }
+    guard let selectedChoiceID = Int(resolved.choiceID),
+      question.choices.contains(where: { $0.id == selectedChoiceID })
+    else { throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "certification choice") }
+    let answeredAt = Date()
+    let priorProgress = try await dependencies.learning.progress(
+      for: .init(packID: envelope.packID, itemID: question.id))
+    let attempt = (state.attemptCountsByQuestionID[key] ?? 0) + 1
+    let correct = selectedChoiceID == question.correctChoiceID
+    let feedback = correct
+      ? StudyFeedbackPlan.immediate
+      : TakkenFeedbackPlanner().plan(wrongAttemptCount: attempt)
+    let record = StudyAnswerRecord(
+      submissionID: "unlock::\(envelope.id.uuidString)::\(key)::attempt::\(attempt)::choice::\(selectedChoiceID)",
+      experienceID: .takken,
+      packID: envelope.packID,
+      moduleType: .takken,
+      itemID: question.id,
+      prompt: question.prompt,
+      choices: question.choices,
+      selectedChoiceID: selectedChoiceID,
+      correctChoiceID: question.correctChoiceID,
+      shortExplanation: question.shortExplanation,
+      longExplanation: question.longExplanation,
+      sourceNote: question.sourceNote,
+      category: question.category,
+      subcategory: question.subCategory,
+      contentVersion: question.contentVersion,
+      questionVersion: question.questionVersion,
+      examYear: question.examYear,
+      lawBasisDate: question.lawBasisDate,
+      answeredAt: answeredAt,
+      mode: .unlock,
+      sessionID: envelope.id,
+      feedbackPlan: feedback,
+      difficulty: question.difficulty,
+      questionFormat: question.format,
+      keyPoint: question.keyPoint,
+      learningRole: AnswerLearningRole.classify(mode: .unlock, progress: priorProgress, at: answeredAt),
+      wasNewAtSubmission: priorProgress.answerCount == 0,
+      wasDueAtSubmission: priorProgress.dueAt.map { $0 <= answeredAt } ?? false,
+      conceptID: question.resolvedConceptID,
+      variantID: question.resolvedVariantID,
+      attemptNumber: attempt,
+      wasFirstAttempt: attempt == 1
+    )
+    _ = try await dependencies.learning.recordUnique(record)
+    state.attemptCountsByQuestionID[key] = attempt
+    state.lastSelectedChoiceIDByQuestionID[key] = selectedChoiceID
+    if correct {
+      state.completedQuestionIDs.insert(question.id)
+      state.reviewRemainingSecondsByQuestionID.removeValue(forKey: key)
+      state.activeReviewQuestionID = nil
+      return try transition(state, submission: .recordedCorrect)
+    }
+    let stagedSeconds = attempt == 1 ? 10 : (attempt == 2 ? 15 : 20)
+    let seconds = max(question.minimumReviewSeconds ?? 10, stagedSeconds)
+    state.reviewRemainingSecondsByQuestionID[key] = TimeInterval(seconds)
+    state.activeReviewQuestionID = key
+    return try transition(
+      state,
+      submission: .recordedIncorrect(remainingActiveSeconds: seconds, attemptNumber: attempt))
+  }
+  func activeReviewTick(
+    seconds: TimeInterval,
+    envelope: UnlockChallengeSessionEnvelope
+  ) async throws -> ExperienceSessionTransition {
+    var state = try decode(envelope)
+    guard let key = state.activeReviewQuestionID else {
+      return try transition(state, review: .updated(remainingActiveSeconds: 0))
+    }
+    let remaining = max(0, (state.reviewRemainingSecondsByQuestionID[key] ?? 0) - max(0, seconds))
+    if remaining == 0 {
+      state.reviewRemainingSecondsByQuestionID.removeValue(forKey: key)
+      state.activeReviewQuestionID = nil
+    } else {
+      state.reviewRemainingSecondsByQuestionID[key] = remaining
+    }
+    return try transition(
+      state,
+      review: .updated(remainingActiveSeconds: max(0, Int(ceil(remaining)))))
+  }
+  func completionProof(
+    envelope: UnlockChallengeSessionEnvelope
+  ) throws -> ExperienceCompletionProof? {
+    let state = try decode(envelope)
+    guard !state.questions.isEmpty,
+      state.completedQuestionIDs.count >= state.questions.count
+    else { return nil }
+    return .init(
+      sessionID: envelope.id, packID: envelope.packID,
+      completedAt: Date(), evidenceVersion: 1,
+      unlockDuration: state.pace.unlockDuration)
   }
 
-  func handleUnlockCompletion(_ context: UnlockCompletionContext) async throws {
-    guard context.bundle.challenge.experienceID == .takken,
-      context.manifest.moduleType == .takken
-    else { return }
+  func handleUnlockCompletion(_ context: UnlockRuntimeCompletionContext) async throws {
+    let state = try decode(context.envelope)
     if let existing = try await context.dependencies.learning.loadTakkenPendingPreview(
-      for: context.manifest.id, now: context.now), existing.sourceUnlockBundleID == context.bundle.id
+      for: context.manifest.id, now: context.now), existing.sourceUnlockBundleID == context.envelope.id
     {
       return
     }
 
     let questions = try await context.dependencies.content.takkenQuestions(for: context.manifest.id)
     let settings = TakkenSettings.load(packID: context.manifest.id)
-    let completedConcepts: Set<String> = Set(context.bundle.challenge.questions.compactMap { snapshot in
-      guard case .takken(let question) = snapshot else { return nil }
-      return question.resolvedConceptID
-    })
+    let completedConcepts = Set(state.questions.map(\.resolvedConceptID))
     let eligible = questions.filter { question in
       question.unlockEligible
         && (settings.selectedCategories.isEmpty
@@ -292,7 +396,7 @@ struct TakkenExperience: StudyExperienceFactory {
       packID: context.manifest.id,
       mode: .unlock,
       count: 1,
-      sessionID: context.bundle.id,
+      sessionID: context.envelope.id,
       pendingPreview: nil,
       now: context.now
     )).first?.source
@@ -304,7 +408,7 @@ struct TakkenExperience: StudyExperienceFactory {
     let preview = TakkenPendingPreview(
       id: UUID(),
       packID: context.manifest.id,
-      sourceUnlockBundleID: context.bundle.id,
+      sourceUnlockBundleID: context.envelope.id,
       conceptID: candidate.resolvedConceptID,
       sourceQuestionID: candidate.id,
       preferredVariantID: candidate.resolvedVariantID,
@@ -322,7 +426,50 @@ struct TakkenExperience: StudyExperienceFactory {
   func clearTransientState(packID: StudyPackID, dependencies: DependencyContainer) async {
     try? await dependencies.learning.saveTakkenPendingPreview(nil, for: packID)
   }
+
+  private func decode(
+    _ envelope: UnlockChallengeSessionEnvelope
+  ) throws -> CertificationUnlockSessionPayload {
+    guard envelope.experienceID.normalizedTemplateID == experienceID,
+      supportedPayloadSchemaIDs.contains(envelope.enginePayloadSchemaID)
+    else { throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "certification payload") }
+    return try SharedJSON.decoder().decode(
+      CertificationUnlockSessionPayload.self, from: envelope.enginePayload)
+  }
+
+  private func choice(
+    from answer: StudyAnswerValue,
+    state: CertificationUnlockSessionPayload
+  ) throws -> (questionID: String, choiceID: String) {
+    switch answer {
+    case .choice(let questionID, let choiceID): return (questionID, choiceID)
+    case .choiceID(let choiceID):
+      guard let question = state.questions.first(where: {
+        !state.completedQuestionIDs.contains($0.id)
+      }) else {
+        throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "certification question")
+      }
+      return (question.id.rawValue, choiceID)
+    default:
+      throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "certification choice")
+    }
+  }
+
+  private func transition(
+    _ state: CertificationUnlockSessionPayload,
+    submission: UnlockAnswerSubmissionResult? = nil,
+    review: UnlockReviewExposureResult? = nil
+  ) throws -> ExperienceSessionTransition {
+    .init(
+      payload: .init(
+        schemaID: CertificationUnlockSessionPayload.schemaID,
+        data: try SharedJSON.encoder().encode(state)),
+      submissionResult: submission,
+      reviewResult: review)
+  }
 }
+
+typealias TakkenExperience = CertificationExperience
 
 struct TakkenSessionPresentation: Identifiable {
   let id: UUID
@@ -342,6 +489,15 @@ final class TakkenAppModel: ObservableObject {
   @Published private(set) var isLoading = false
 
   let context: StudyExperienceContext
+  var profile: CertificationPresentationProfile {
+    context.manifest.certificationPresentation
+  }
+  var categoryDefinitions: [CertificationCategoryDefinition] {
+    if !profile.categoryDefinitions.isEmpty { return profile.categoryDefinitions }
+    return Array(Set(questions.map(\.category))).sorted().map {
+      .init(code: $0, title: $0)
+    }
+  }
   private let selectionEngine = TakkenQuestionSelectionEngine()
   private let feedbackPlanner = TakkenFeedbackPlanner()
   private var cancellables: Set<AnyCancellable> = []
@@ -375,6 +531,13 @@ final class TakkenAppModel: ObservableObject {
           manifest: context.manifest,
           entitlement: context.dependencies.commerce.entitlement
         ).isAllowed
+      }
+      let availableCategories = Set(allQuestions.map(\.category))
+      if !settings.selectedCategories.isEmpty,
+        settings.selectedCategories.isDisjoint(with: availableCategories)
+      {
+        settings.selectedCategories = profile.categoryDefinitions.first.map { [$0.code] } ?? []
+        try settings.save(packID: context.manifest.id)
       }
       #if DEBUG
         if let fixture = TakkenUITestFixtures.requestedQuestion() {

@@ -30,7 +30,7 @@ struct TakkenRootView: View {
       TakkenStudySessionView(presentation: $0).environmentObject(model)
     }
     .alert(
-      "宅建2026",
+      model.profile.subjectName,
       isPresented: Binding(
         get: { model.errorMessage != nil }, set: { if !$0 { model.errorMessage = nil } })
     ) {
@@ -45,12 +45,18 @@ struct TakkenRootView: View {
 struct TakkenFirstRunView: View {
   let context: StudyExperienceContext
   @State private var settings: TakkenSettings
-  @State private var category = "宅建業法"
+  @State private var category: String
   @State private var errorMessage: String?
 
   init(context: StudyExperienceContext) {
     self.context = context
     _settings = State(initialValue: .load(packID: context.manifest.id))
+    _category = State(
+      initialValue: context.manifest.certificationPresentation.categoryDefinitions.first?.code
+        ?? "")
+  }
+  private var profile: CertificationPresentationProfile {
+    context.manifest.certificationPresentation
   }
   var body: some View {
     NavigationStack {
@@ -58,25 +64,34 @@ struct TakkenFirstRunView: View {
         VStack(spacing: 20) {
           Image(systemName: "building.columns.fill").font(.system(size: 58)).foregroundStyle(
             LockAndStudyTheme.takken)
-          Text("宅建2026の学習方針").font(.largeTitle.bold()).multilineTextAlignment(.center)
-          Text(context.manifest.description)
+          Text(profile.firstRunTitle).font(.largeTitle.bold()).multilineTextAlignment(.center)
+          Text(profile.firstRunDescription)
             .foregroundStyle(.secondary).multilineTextAlignment(.center)
-          Picker("受験年度", selection: $settings.examYear) { Text("2026年度").tag(2026) }.pickerStyle(
-            .segmented
-          ).studyCard()
-          VStack(alignment: .leading, spacing: 8) {
-            Text("最初の分野").font(.headline)
-            Picker("最初の分野", selection: $category) { Text("宅建業法").tag("宅建業法") }.pickerStyle(
-              .segmented)
-          }.studyCard()
+          if profile.showsEditionYear, let year = context.manifest.editionYear {
+            Picker("受験年度", selection: $settings.examYear) {
+              Text("\(year)年度").tag(year)
+            }.pickerStyle(.segmented).studyCard()
+          }
+          if !profile.categoryDefinitions.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+              Text("最初の分野").font(.headline)
+              Picker("最初の分野", selection: $category) {
+                ForEach(profile.categoryDefinitions) { value in
+                  Text(value.title).tag(value.code)
+                }
+              }.pickerStyle(.segmented)
+            }.studyCard()
+          }
           VStack(alignment: .leading, spacing: 8) {
             Text("学習方針").font(.headline)
-            Toggle("直前期対象を優先", isOn: $settings.last30DaysFocus)
+            if profile.supportsFinalSprint {
+              Toggle("直前期対象を優先", isOn: $settings.last30DaysFocus)
+            }
             Stepper(
               "1回 \(settings.questionCount)問", value: $settings.questionCount, in: 5...30, step: 5)
           }.studyCard()
-          Button("宅建学習を始める") {
-            settings.selectedCategories = [category]
+          Button(profile.startButtonTitle) {
+            settings.selectedCategories = category.isEmpty ? [] : [category]
             do {
               try settings.save(packID: context.manifest.id)
               context.completeFirstRun()
@@ -86,9 +101,9 @@ struct TakkenFirstRunView: View {
           }
           .primaryActionStyle().accessibilityIdentifier("takken.firstRun.finish")
         }.frame(maxWidth: 640).padding()
-      }.navigationTitle("宅建 初期設定").navigationBarTitleDisplayMode(.inline)
+      }.navigationTitle(profile.firstRunTitle).navigationBarTitleDisplayMode(.inline)
     }
-    .alert("宅建", isPresented: .init(
+    .alert(profile.subjectName, isPresented: .init(
       get: { errorMessage != nil },
       set: { if !$0 { errorMessage = nil } }
     )) {
@@ -107,15 +122,20 @@ private struct TakkenHomeView: View {
       VStack(spacing: 16) {
         VStack(alignment: .leading, spacing: 10) {
           HStack {
-            Text("宅建2026").font(.title2.bold())
+            Text(model.profile.subjectName).font(.title2.bold())
             Spacer()
             Text(model.context.manifest.publishedCountLabel)
               .font(.caption.bold()).foregroundStyle(.green)
           }
-          LabeledContent("試験年度", value: "2026年度")
-          LabeledContent(
-            "法令基準日", value: model.context.manifest.qualification?.lawBasisDate ?? "2026-04-01")
-          Text("全範囲版は準備中です。校閲前の900問はこのアプリに公開していません。").font(.footnote).foregroundStyle(.orange)
+          if model.profile.showsEditionYear, let year = model.context.manifest.editionYear {
+            LabeledContent("試験年度", value: "\(year)年度")
+          }
+          if model.profile.showsLawBasisDate,
+            let basis = model.context.manifest.qualification?.lawBasisDate
+          {
+            LabeledContent("基準日", value: basis)
+          }
+          Text(model.context.manifest.description).font(.footnote).foregroundStyle(.secondary)
         }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
         HStack {
           metric("回答", "\(model.summary.answerCount)問")
@@ -136,7 +156,7 @@ private struct TakkenHomeView: View {
         Button {
           Task { await model.context.beginUnlockStudy() }
         } label: {
-          Label("宅建問題でロックを開く", systemImage: "lock.open.fill")
+          Label(model.profile.unlockTitle, systemImage: "lock.open.fill")
         }
         .secondaryActionStyle().accessibilityIdentifier("takken.start.unlock")
         VStack(alignment: .leading, spacing: 10) {
@@ -155,7 +175,7 @@ private struct TakkenHomeView: View {
           }
         }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
       }.frame(maxWidth: 720).padding()
-    }.navigationTitle("宅建").accessibilityIdentifier("takken.home")
+    }.navigationTitle(model.profile.subjectName).accessibilityIdentifier("takken.home")
   }
   private func metric(_ title: String, _ value: String) -> some View {
     VStack {
@@ -361,8 +381,12 @@ private struct TakkenQuestionDetailView: View {
         LabeledContent("分野", value: question.category)
         if let sub = question.subCategory { LabeledContent("小分野", value: sub) }
         LabeledContent("難易度", value: question.difficulty)
-        if let year = question.examYear { LabeledContent("年度", value: "\(year)") }
-        if let basis = question.lawBasisDate { LabeledContent("法令基準日", value: basis) }
+        if model.profile.showsEditionYear, let year = question.examYear {
+          LabeledContent("年度", value: "\(year)")
+        }
+        if model.profile.showsLawBasisDate, let basis = question.lawBasisDate {
+          LabeledContent("基準日", value: basis)
+        }
         if let importance = question.importance { LabeledContent("重要度", value: importance) }
         if question.requiresAnnualReview || question.requiresAnnualUpdate {
           Label("年度更新確認が必要な論点", systemImage: "calendar.badge.exclamationmark").foregroundStyle(
@@ -403,7 +427,9 @@ private struct TakkenPracticeMenuView: View {
           "分野",
           value: model.settings.selectedCategories.isEmpty
             ? "すべて" : model.settings.selectedCategories.sorted().joined(separator: "・"))
-        LabeledContent("直前期", value: model.settings.last30DaysFocus ? "対象問題を優先" : "通常")
+        if model.profile.supportsFinalSprint {
+          LabeledContent("直前期", value: model.settings.last30DaysFocus ? "対象問題を優先" : "通常")
+        }
       }
     }.navigationTitle("演習").accessibilityIdentifier("takken.practice")
   }
@@ -470,7 +496,7 @@ private struct TakkenRecordsView: View {
           }
         }
       }
-    }.navigationTitle("宅建の記録").accessibilityIdentifier("takken.records")
+    }.navigationTitle("\(model.profile.subjectName)の記録").accessibilityIdentifier("takken.records")
   }
 }
 
@@ -491,21 +517,29 @@ private struct TakkenSettingsView: View {
         }
         .accessibilityIdentifier("takken.settings.materialSelection")
       }
-      Section("受験") {
-        Picker("受験年度", selection: binding(\.examYear)) { Text("2026年度").tag(2026) }
-        Toggle("直前期対象だけを優先", isOn: binding(\.last30DaysFocus))
+      if model.profile.showsEditionYear || model.profile.supportsFinalSprint {
+        Section("受験") {
+          if model.profile.showsEditionYear, let year = model.context.manifest.editionYear {
+            Picker("受験年度", selection: binding(\.examYear)) {
+              Text("\(year)年度").tag(year)
+            }
+          }
+          if model.profile.supportsFinalSprint {
+            Toggle("直前期対象だけを優先", isOn: binding(\.last30DaysFocus))
+          }
+        }
       }
       Section("分野") {
-        ForEach(model.categories, id: \.self) { category in
+        ForEach(model.categoryDefinitions) { category in
           Toggle(
-            category,
+            category.title,
             isOn: Binding(
-              get: { model.settings.selectedCategories.contains(category) },
+              get: { model.settings.selectedCategories.contains(category.code) },
               set: { enabled in
                 if enabled {
-                  model.settings.selectedCategories.insert(category)
+                  model.settings.selectedCategories.insert(category.code)
                 } else {
-                  model.settings.selectedCategories.remove(category)
+                  model.settings.selectedCategories.remove(category.code)
                 }
                 model.saveSettings()
               }))
@@ -538,9 +572,9 @@ private struct TakkenSettingsView: View {
         Label(
           "\(model.context.manifest.publishedStructureDescription)を利用中",
           systemImage: "checkmark.circle.fill")
-        Text("全範囲版は準備中です。購入操作は表示しません。").foregroundStyle(.orange)
+        Text(model.context.manifest.description).foregroundStyle(.secondary)
       }
-    }.navigationTitle("宅建設定").accessibilityIdentifier("takken.settings")
+    }.navigationTitle("\(model.profile.subjectName)設定").accessibilityIdentifier("takken.settings")
   }
   private func binding<Value>(_ keyPath: WritableKeyPath<TakkenSettings, Value>) -> Binding<Value> {
     .init(
@@ -576,7 +610,8 @@ private struct TakkenStudySessionView: View {
             questionHeader(
               category: question.source.category, difficulty: question.source.difficulty,
               format: question.source.resolvedFormat, prompt: question.source.prompt,
-              lawBasisDate: question.source.lawBasisDate)
+              lawBasisDate: question.source.lawBasisDate,
+              showsLawBasisDate: model.profile.showsLawBasisDate)
             ForEach(question.presentedChoices) { choice in
               TakkenAnswerChoiceButton(
                 choice: choice, phase: machine.phase,
@@ -587,6 +622,7 @@ private struct TakkenStudySessionView: View {
               TakkenAnswerReviewCard(
                 phase: machine.phase,
                 remainingSeconds: machine.remainingSeconds(at: Date()),
+                showsLawBasisDate: model.profile.showsLawBasisDate,
                 retry: { _ = machine.retry() },
                 nextTitle: index + 1 == presentation.questions.count ? "完了" : "次へ",
                 nextAction: advance)
@@ -594,7 +630,7 @@ private struct TakkenStudySessionView: View {
           }
         }.frame(maxWidth: 720).padding()
       }
-      .navigationTitle("宅建演習").navigationBarTitleDisplayMode(.inline).toolbar {
+      .navigationTitle("\(model.profile.subjectName)演習").navigationBarTitleDisplayMode(.inline).toolbar {
         ToolbarItem(placement: .cancellationAction) { Button("閉じる") { dismiss() } }
       }
     }
@@ -651,8 +687,8 @@ private struct TakkenStudySessionView: View {
 }
 
 struct TakkenUnlockChallengeView: View {
-  let bundle: ExperienceUnlockBundleSnapshot
-  let context: UnlockChallengeViewContext
+  let session: CertificationUnlockSessionPayload
+  let context: ExperienceChallengeViewContext
   @Environment(\.scenePhase) private var scenePhase
   @State private var index: Int
   @State private var completedQuestionIDs: Set<StudyItemID>
@@ -665,27 +701,23 @@ struct TakkenUnlockChallengeView: View {
   private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
   private let feedbackPlanner = TakkenFeedbackPlanner()
 
-  init(bundle: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext) {
-    self.bundle = bundle
+  init(session: CertificationUnlockSessionPayload, context: ExperienceChallengeViewContext) {
+    self.session = session
     self.context = context
-    let initialIndex = bundle.challenge.questions.firstIndex {
-      !bundle.completedQuestionIDs.contains($0.id)
+    let initialIndex = session.questions.firstIndex {
+      !session.completedQuestionIDs.contains($0.id)
     } ?? 0
     _index = State(initialValue: initialIndex)
-    _completedQuestionIDs = State(initialValue: bundle.completedQuestionIDs)
-    if let snapshot = bundle.challenge.questions[safe: initialIndex],
-      case .takken(let question) = snapshot,
-      let selectedChoiceID = bundle.lastSelectedChoiceIDByQuestionID?[question.id.rawValue]
+    _completedQuestionIDs = State(initialValue: session.completedQuestionIDs)
+    if let question = session.questions[safe: initialIndex],
+      let selectedChoiceID = session.lastSelectedChoiceIDByQuestionID[question.id.rawValue]
     {
       let now = Date()
-      let remaining = bundle.reviewRemainingActiveSecondsByQuestionID?[question.id.rawValue]
-        ?? bundle.reviewRequiredUntilByQuestionID?[question.id.rawValue]
-          .map { max(0, $0.timeIntervalSince(now)) }
-        ?? 0
+      let remaining = session.reviewRemainingSecondsByQuestionID[question.id.rawValue] ?? 0
       _machine = State(initialValue: .init(
         restoring: question,
         selectedChoiceID: selectedChoiceID,
-        wrongAttemptCount: bundle.attemptCountsByQuestionID?[question.id.rawValue] ?? 1,
+        wrongAttemptCount: session.attemptCountsByQuestionID[question.id.rawValue] ?? 1,
         reviewRemainingActiveSeconds: remaining,
         now: now))
       _reviewRemainingSeconds = State(initialValue: max(0, Int(ceil(remaining))))
@@ -700,33 +732,34 @@ struct TakkenUnlockChallengeView: View {
         VStack(spacing: 16) {
           ProgressView(
             value: Double(completedQuestionIDs.count),
-            total: Double(max(1, bundle.challenge.questions.count)))
-            .accessibilityValue("\(completedQuestionIDs.count)/\(bundle.challenge.questions.count)")
+            total: Double(max(1, session.questions.count)))
+            .accessibilityValue("\(completedQuestionIDs.count)/\(session.questions.count)")
             .accessibilityIdentifier("takken.unlock.progress")
-          if let snapshot = bundle.challenge.questions[safe: index],
-            case .takken(let question) = snapshot
-          {
+          if let question = session.questions[safe: index] {
             questionHeader(
               category: question.category, difficulty: question.difficulty,
               format: TakkenQuestionFormat(rawValue: question.format) ?? .multipleChoice,
-              prompt: question.prompt, lawBasisDate: question.lawBasisDate)
+              prompt: question.prompt, lawBasisDate: question.lawBasisDate,
+              showsLawBasisDate: context.manifest.certificationPresentation.showsLawBasisDate)
             ForEach(question.choices) { choice in
               TakkenAnswerChoiceButton(
                 choice: choice, phase: machine.phase,
-                action: { submit(snapshot, question: question, choiceID: choice.id) })
+                action: { submit(question: question, choiceID: choice.id) })
                 .disabled(!isAnswering || isSubmitting)
             }
             if !isAnswering {
               TakkenAnswerReviewCard(
                 phase: machine.phase,
                 remainingSeconds: reviewRemainingSeconds,
+                showsLawBasisDate: context.manifest.certificationPresentation.showsLawBasisDate,
                 retry: { _ = machine.retry() },
                 nextTitle: isLast ? "解除する" : "次へ",
                 nextAction: advance)
             }
           }
         }.frame(maxWidth: 720).padding()
-      }.navigationTitle("宅建で解除").navigationBarTitleDisplayMode(.inline)
+      }.navigationTitle(context.manifest.certificationPresentation.unlockTitle)
+        .navigationBarTitleDisplayMode(.inline)
     }
     .interactiveDismissDisabled()
     .onReceive(timer) { _ in
@@ -751,25 +784,23 @@ struct TakkenUnlockChallengeView: View {
     return false
   }
   private var isLast: Bool {
-    !bundle.hasLaterUncompletedQuestion(
-      after: index, completedQuestionIDs: completedQuestionIDs)
+    !session.questions.indices.contains {
+      $0 > index && !completedQuestionIDs.contains(session.questions[$0].id)
+    }
   }
   private var isReviewingWrong: Bool {
     if case .reviewingWrong = machine.phase { return true }
     return false
   }
 
-  private func submit(
-    _ snapshot: UnlockQuestionSnapshot, question: TakkenUnlockQuestionSnapshot, choiceID: Int
-  ) {
+  private func submit(question: CertificationChallengeQuestion, choiceID: Int) {
     guard isAnswering else { return }
-    let correct = choiceID == question.correctChoiceID
-    let ordinal = machine.wrongAttemptCount + (correct ? 0 : 1)
-    let plan = feedbackPlanner.plan(wrongAttemptCount: correct ? 0 : ordinal)
     let date = Date()
     isSubmitting = true
     Task {
-      switch await context.submit(snapshot, choiceID, plan) {
+      switch await context.submit(
+        .choice(questionID: question.id.rawValue, choiceID: String(choiceID)))
+      {
       case .recordedCorrect:
         machine.record(selectedChoiceID: choiceID, question: question, at: date)
         completedQuestionIDs.insert(question.id)
@@ -793,9 +824,9 @@ struct TakkenUnlockChallengeView: View {
   }
 
   private func advance() {
-    if let next = bundle.nextUncompletedQuestionIndex(
-      after: index, completedQuestionIDs: completedQuestionIDs)
-    {
+    if let next = session.questions.indices.first(where: {
+      $0 > index && !completedQuestionIDs.contains(session.questions[$0].id)
+    }) {
       index = next
       machine = .init()
       reviewRemainingSeconds = 0
@@ -815,12 +846,11 @@ struct TakkenUnlockChallengeView: View {
       pendingReviewActiveState = isActive
       return
     }
-    guard let question = bundle.challenge.questions[safe: index] else { return }
     isReviewSyncing = true
     var desiredActiveState = isActive
     repeat {
       pendingReviewActiveState = nil
-      switch await context.updateReviewExposure(question.id, desiredActiveState) {
+      switch await context.updateReviewExposure(desiredActiveState) {
       case .updated(let remainingActiveSeconds):
         reviewRemainingSeconds = remainingActiveSeconds
         machine.updateReviewRemaining(activeSeconds: remainingActiveSeconds, at: Date())
@@ -892,6 +922,7 @@ private struct TakkenAnswerChoiceButton: View {
 private struct TakkenAnswerReviewCard: View {
   let phase: TakkenAnswerPhase
   let remainingSeconds: Int
+  let showsLawBasisDate: Bool
   let retry: () -> Void
   let nextTitle: String
   let nextAction: () -> Void
@@ -957,8 +988,8 @@ private struct TakkenAnswerReviewCard: View {
     textBlock("正しいルール", value.rule)
     if let contrast = value.contrast { textBlock("混同しやすい違い", contrast) }
     if let key = value.keyPoint { Label(key, systemImage: "key.fill") }
-    if value.lawBasisDate != nil || value.sourceNote != nil {
-      Text([value.lawBasisDate.map { "法令基準日 \($0)" }, value.sourceNote]
+    if (showsLawBasisDate && value.lawBasisDate != nil) || value.sourceNote != nil {
+      Text([showsLawBasisDate ? value.lawBasisDate.map { "基準日 \($0)" } : nil, value.sourceNote]
         .compactMap { $0 }.joined(separator: "・"))
         .font(.footnote).foregroundStyle(.secondary)
     }
@@ -974,7 +1005,7 @@ private struct TakkenAnswerReviewCard: View {
 
 private func questionHeader(
   category: String, difficulty: String, format: TakkenQuestionFormat, prompt: String,
-  lawBasisDate: String?
+  lawBasisDate: String?, showsLawBasisDate: Bool
 ) -> some View {
   VStack(alignment: .leading, spacing: 8) {
     HStack {
@@ -986,8 +1017,8 @@ private func questionHeader(
       Text(difficulty).font(.caption)
     }
     Text(prompt).font(.title2.bold())
-    if let lawBasisDate {
-      Text("法令基準日 \(lawBasisDate)").font(.caption).foregroundStyle(.secondary)
+    if showsLawBasisDate, let lawBasisDate {
+      Text("基準日 \(lawBasisDate)").font(.caption).foregroundStyle(.secondary)
     }
   }
   .frame(maxWidth: .infinity, alignment: .leading)

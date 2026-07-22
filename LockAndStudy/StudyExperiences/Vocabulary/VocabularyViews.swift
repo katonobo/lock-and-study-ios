@@ -16,7 +16,7 @@ struct VocabularyRootView: View {
       NavigationStack { VocabularyLearningView() }
         .tabItem { Label("学習", systemImage: "brain.head.profile") }.tag(VocabularyTab.learning)
       NavigationStack { VocabularyWordbookView() }
-        .tabItem { Label("単語帳", systemImage: "character.book.closed.fill") }.tag(
+        .tabItem { Label(model.profile.catalogTitle, systemImage: "character.book.closed.fill") }.tag(
           VocabularyTab.words)
       NavigationStack { VocabularyRecordsView() }
         .tabItem { Label("記録", systemImage: "chart.bar.fill") }.tag(VocabularyTab.records)
@@ -30,7 +30,7 @@ struct VocabularyRootView: View {
       VocabularyStudySessionView(presentation: session).environmentObject(model)
     }
     .alert(
-      "英単語",
+      model.profile.subjectName,
       isPresented: Binding(
         get: { model.errorMessage != nil },
         set: { if !$0 { model.errorMessage = nil } }
@@ -54,37 +54,45 @@ struct VocabularyFirstRunView: View {
     _settings = State(initialValue: .load(packID: context.manifest.id))
   }
 
+  private var profile: FlashcardPresentationProfile { context.manifest.flashcardPresentation }
+
   var body: some View {
     NavigationStack {
       ScrollView {
         VStack(spacing: 20) {
           Image(systemName: "character.book.closed.fill")
             .font(.system(size: 58)).foregroundStyle(LockAndStudyTheme.vocabulary)
-          Text("英単語の学習コース").font(.largeTitle.bold()).multilineTextAlignment(.center)
-          Text("5レベルから最初の範囲を選びます。無料250語は各レベル50語で、あとから変更できます。")
+          Text(profile.firstRunTitle).font(.largeTitle.bold()).multilineTextAlignment(.center)
+          Text(profile.firstRunDescription)
             .foregroundStyle(.secondary).multilineTextAlignment(.center)
-          VStack(spacing: 10) {
-            ForEach(VocabularyLevel.allCases) { level in
+          if !profile.courseDefinitions.isEmpty {
+            VStack(spacing: 10) {
+            ForEach(profile.courseDefinitions) { course in
               Button {
-                settings.selectedLevelCodes = [level.rawValue]
+                settings.selectedLevelCodes = [course.code]
               } label: {
                 HStack {
                   Image(
-                    systemName: settings.selectedLevelCodes.contains(level.rawValue)
+                    systemName: settings.selectedLevelCodes.contains(course.code)
                       ? "checkmark.circle.fill" : "circle")
                   VStack(alignment: .leading) {
-                    Text(level.title).font(.headline)
-                    Text("無料50語").font(.caption).foregroundStyle(.secondary)
+                    Text(course.title).font(.headline)
+                    if let sampleLabel = course.sampleLabel {
+                      Text(sampleLabel).font(.caption).foregroundStyle(.secondary)
+                    }
                   }
                   Spacer()
                 }
               }.secondaryActionStyle()
             }
-          }.studyCard()
-          Toggle("問題文と単語を読み上げる", isOn: $settings.speechEnabled).studyCard()
+            }.studyCard()
+          }
+          if profile.supportsSpeech {
+            Toggle("読み上げる", isOn: $settings.speechEnabled).studyCard()
+          }
           Stepper("1日の目標 \(settings.dailyGoal)問", value: $settings.dailyGoal, in: 5...30, step: 5)
             .studyCard()
-          Button("英単語を始める") {
+          Button(profile.startButtonTitle) {
             do {
               try settings.save(packID: context.manifest.id)
               context.completeFirstRun()
@@ -94,9 +102,9 @@ struct VocabularyFirstRunView: View {
           }
           .primaryActionStyle().accessibilityIdentifier("vocabulary.firstRun.finish")
         }.frame(maxWidth: 640).padding()
-      }.navigationTitle("英単語 初期設定").navigationBarTitleDisplayMode(.inline)
+      }.navigationTitle(profile.firstRunTitle).navigationBarTitleDisplayMode(.inline)
     }
-    .alert("英単語", isPresented: .init(
+    .alert(profile.subjectName, isPresented: .init(
       get: { errorMessage != nil },
       set: { if !$0 { errorMessage = nil } }
     )) {
@@ -114,10 +122,10 @@ private struct VocabularyHomeView: View {
     ScrollView {
       VStack(spacing: 16) {
         VStack(alignment: .leading, spacing: 10) {
-          Text("今日の英単語").font(.title2.bold())
+          Text(model.profile.homeTitle).font(.title2.bold())
           HStack {
-            metric("学習済み", value: "\(model.learnedCount)語")
-            metric("復習期限", value: "\(model.dueCount)語")
+            metric("学習済み", value: "\(model.learnedCount)\(model.profile.itemCountUnit)")
+            metric("復習期限", value: "\(model.dueCount)\(model.profile.itemCountUnit)")
             metric("連続", value: "\(model.weeklyReport.streak)日")
           }
         }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
@@ -142,7 +150,7 @@ private struct VocabularyHomeView: View {
           Label("学習してロックを開く", systemImage: "lock.open.fill")
         }.secondaryActionStyle().accessibilityIdentifier("vocabulary.start.unlock")
       }.frame(maxWidth: 720).padding()
-    }.navigationTitle("英単語").accessibilityIdentifier("vocabulary.home")
+    }.navigationTitle(model.profile.subjectName).accessibilityIdentifier("vocabulary.home")
   }
   private func metric(_ title: String, value: String) -> some View {
     VStack(alignment: .leading) {
@@ -217,21 +225,21 @@ private struct VocabularyLearningView: View {
     List {
       Section("学習モード") {
         modeRow("おすすめ", detail: "期限到来復習→新出→定着確認", icon: "sparkles", mode: .practice)
-        modeRow("期限到来復習", detail: "SRSで今日が期限の単語だけ", icon: "calendar.badge.clock", mode: .review)
-        modeRow("新出", detail: "まだ答えていない単語", icon: "plus.circle.fill", mode: .newItems)
+        modeRow("期限到来復習", detail: "SRSで今日が期限の項目だけ", icon: "calendar.badge.clock", mode: .review)
+        modeRow("新出", detail: "まだ答えていない項目", icon: "plus.circle.fill", mode: .newItems)
         modeRow(
-          "誤答", detail: "間違えたことがある単語", icon: "arrow.counterclockwise.circle.fill", mode: .mistakes)
-        modeRow("苦手", detail: "誤答が正答以上の単語", icon: "exclamationmark.triangle.fill", mode: .weakness)
+          "誤答", detail: "間違えたことがある項目", icon: "arrow.counterclockwise.circle.fill", mode: .mistakes)
+        modeRow("苦手", detail: "誤答が正答以上の項目", icon: "exclamationmark.triangle.fill", mode: .weakness)
       }
       Section("学習範囲") {
-        ForEach(VocabularyLevel.allCases) { level in
-          let total = model.items.filter { $0.levelCode == level.rawValue }.count
+        ForEach(model.courseDefinitions) { course in
+          let total = model.items.filter { $0.levelCode == course.code }.count
           let learned = model.items.filter {
-            $0.levelCode == level.rawValue && model.itemProgress($0).answerCount > 0
+            $0.levelCode == course.code && model.itemProgress($0).answerCount > 0
           }.count
           VStack(alignment: .leading) {
             HStack {
-              Text(level.title)
+              Text(course.title)
               Spacer()
               Text("\(learned)/\(total)").monospacedDigit()
             }
@@ -261,10 +269,10 @@ private struct VocabularyLearningView: View {
 private struct VocabularyWordbookView: View {
   @EnvironmentObject private var model: VocabularyAppModel
   @State private var search = ""
-  @State private var level: VocabularyLevel?
+  @State private var courseCode: String?
   private var filtered: [VocabularyItem] {
     model.items.filter { item in
-      (level == nil || item.levelCode == level?.rawValue)
+      (courseCode == nil || item.levelCode == courseCode)
         && (search.isEmpty || item.displayWord.localizedCaseInsensitiveContains(search)
           || item.quizMeaningJa.localizedCaseInsensitiveContains(search))
     }
@@ -272,9 +280,9 @@ private struct VocabularyWordbookView: View {
   var body: some View {
     List {
       Section {
-        Picker("レベル", selection: $level) {
-          Text("すべて").tag(VocabularyLevel?.none)
-          ForEach(VocabularyLevel.allCases) { Text($0.title).tag(Optional($0)) }
+        Picker("コース", selection: $courseCode) {
+          Text("すべて").tag(String?.none)
+          ForEach(model.courseDefinitions) { Text($0.title).tag(Optional($0.code)) }
         }
       }
       ForEach(filtered, id: \.id) { item in
@@ -296,7 +304,8 @@ private struct VocabularyWordbookView: View {
           }
         }
       }
-    }.searchable(text: $search, prompt: "英単語・意味を検索").navigationTitle("単語帳")
+    }.searchable(text: $search, prompt: model.profile.searchPlaceholder)
+      .navigationTitle(model.profile.catalogTitle)
       .accessibilityIdentifier("vocabulary.wordbook")
   }
 }
@@ -312,9 +321,11 @@ private struct VocabularyWordDetailView: View {
         Text(item.fullMeaningJa).font(.title3)
         Text(item.partOfSpeechJa).foregroundStyle(.secondary)
       }
-      Section("例文") {
-        Text(item.exampleEn)
-        Text(item.exampleJa).foregroundStyle(.secondary)
+      if model.profile.supportsExamples {
+        Section("例") {
+          if !item.exampleEn.isEmpty { Text(item.exampleEn) }
+          if !item.exampleJa.isEmpty { Text(item.exampleJa).foregroundStyle(.secondary) }
+        }
       }
       Section("学習") {
         let progress = model.itemProgress(item)
@@ -322,10 +333,12 @@ private struct VocabularyWordDetailView: View {
         LabeledContent("正解", value: "\(progress.correctCount)回")
         if let due = progress.dueAt { LabeledContent("次回復習", value: due.formatted()) }
       }
-      Button {
-        speech.speak(item.speechText)
-      } label: {
-        Label("発音を聞く", systemImage: "speaker.wave.2.fill")
+      if model.profile.supportsSpeech {
+        Button {
+          speech.speak(item.speechText)
+        } label: {
+          Label("音声を聞く", systemImage: "speaker.wave.2.fill")
+        }
       }
     }.navigationTitle(item.displayWord).navigationBarTitleDisplayMode(.inline)
   }
@@ -343,8 +356,8 @@ private struct VocabularyRecordsView: View {
       Section("今週") {
         LabeledContent("回答", value: "\(model.weeklyReport.answers)問")
         LabeledContent("正答率", value: "\(model.weeklyReport.accuracy)%")
-        LabeledContent("学習済み", value: "\(model.weeklyReport.learned)語")
-        LabeledContent("期限到来", value: "\(model.weeklyReport.due)語")
+        LabeledContent("学習済み", value: "\(model.weeklyReport.learned)\(model.profile.itemCountUnit)")
+        LabeledContent("期限到来", value: "\(model.weeklyReport.due)\(model.profile.itemCountUnit)")
         LabeledContent("連続学習", value: "\(model.weeklyReport.streak)日")
       }
       Section("最近の回答") {
@@ -360,10 +373,10 @@ private struct VocabularyRecordsView: View {
           }
         }
       }
-      Section("レベル別") {
-        ForEach(VocabularyLevel.allCases) { level in
-          let values = model.answers.filter { $0.category == level.rawValue }
-          LabeledContent(level.title, value: "\(values.count)問・\(accuracy(values))%")
+      Section("コース別") {
+        ForEach(model.courseDefinitions) { course in
+          let values = model.answers.filter { $0.category == course.code }
+          LabeledContent(course.title, value: "\(values.count)問・\(accuracy(values))%")
         }
       }
       Section("品詞別") {
@@ -377,7 +390,7 @@ private struct VocabularyRecordsView: View {
           LabeledContent(part, value: "\(values.count)問・\(accuracy(values))%")
         }
       }
-    }.navigationTitle("英単語の記録").accessibilityIdentifier("vocabulary.records")
+    }.navigationTitle("\(model.profile.subjectName)の記録").accessibilityIdentifier("vocabulary.records")
   }
   private func accuracy(_ answers: [StudyAnswerRecord]) -> Int {
     answers.isEmpty
@@ -403,16 +416,16 @@ private struct VocabularySettingsView: View {
         .accessibilityIdentifier("vocabulary.settings.materialSelection")
       }
       Section("コース") {
-        ForEach(VocabularyLevel.allCases) { level in
+        ForEach(model.courseDefinitions) { course in
           Toggle(
-            level.title,
+            course.title,
             isOn: Binding(
-              get: { model.settings.selectedLevelCodes.contains(level.rawValue) },
+              get: { model.settings.selectedLevelCodes.contains(course.code) },
               set: { enabled in
                 if enabled {
-                  model.settings.selectedLevelCodes.insert(level.rawValue)
+                  model.settings.selectedLevelCodes.insert(course.code)
                 } else if model.settings.selectedLevelCodes.count > 1 {
-                  model.settings.selectedLevelCodes.remove(level.rawValue)
+                  model.settings.selectedLevelCodes.remove(course.code)
                 }
                 model.saveSettings()
               }
@@ -428,22 +441,22 @@ private struct VocabularySettingsView: View {
               model.settings.dailyGoal = $0
               model.saveSettings()
             }), in: 5...30, step: 5)
-        Toggle(
-          "発音",
+        if model.profile.supportsSpeech { Toggle(
+          "音声",
           isOn: Binding(
             get: { model.settings.speechEnabled },
             set: {
               model.settings.speechEnabled = $0
               model.saveSettings()
-            }))
-        Toggle(
-          "例文",
+            })) }
+        if model.profile.supportsExamples { Toggle(
+          "例",
           isOn: Binding(
             get: { model.settings.examplesEnabled },
             set: {
               model.settings.examplesEnabled = $0
               model.saveSettings()
-            }))
+            })) }
       }
       Section("ロックンスタディ") {
         NavigationLink("ロックと共通設定") { SettingsView() }
@@ -455,12 +468,12 @@ private struct VocabularySettingsView: View {
         } else if model.context.dependencies.commerce.entitlement.ownedPacks.contains(where: {
           $0.packID == model.context.manifest.id
         }) {
-          Label("英単語3,000語を永久購入済み", systemImage: "checkmark.circle.fill")
+          Label("\(model.context.manifest.title)を永久購入済み", systemImage: "checkmark.circle.fill")
         } else {
-          Text("無料250語")
+          Text("無料\(model.context.manifest.sampleDefinition.count)\(model.profile.itemCountUnit)")
         }
       }
-    }.navigationTitle("英単語設定").accessibilityIdentifier("vocabulary.settings")
+    }.navigationTitle("\(model.profile.subjectName)設定").accessibilityIdentifier("vocabulary.settings")
   }
 }
 
@@ -490,11 +503,11 @@ private struct VocabularyStudySessionView: View {
             VStack(alignment: .leading, spacing: 10) {
               Text(question.item.instructionJa).font(.caption).foregroundStyle(.secondary)
               Text(question.item.prompt).font(.title2.bold())
-              if model.settings.speechEnabled {
+              if model.profile.supportsSpeech && model.settings.speechEnabled {
                 Button {
                   speech.speak(question.item.speechText)
                 } label: {
-                  Label("発音", systemImage: "speaker.wave.2.fill")
+                  Label("音声", systemImage: "speaker.wave.2.fill")
                 }
               }
             }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
@@ -515,7 +528,7 @@ private struct VocabularyStudySessionView: View {
           }
         }.frame(maxWidth: 720).padding()
       }
-      .navigationTitle("英単語学習")
+      .navigationTitle("\(model.profile.subjectName)学習")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar { ToolbarItem(placement: .cancellationAction) { Button("閉じる") { dismiss() } } }
     }
@@ -541,12 +554,12 @@ private struct VocabularyStudySessionView: View {
       Label(correct ? "正解" : "学び直し", systemImage: correct ? "checkmark.circle.fill" : "book.fill")
         .font(.headline).foregroundStyle(correct ? .green : .orange)
       Text(question.item.explanationJa)
-      if model.settings.examplesEnabled {
+      if model.profile.supportsExamples && model.settings.examplesEnabled {
         Text(question.item.exampleEn)
         Text(question.item.exampleJa).foregroundStyle(.secondary)
       }
       if !correct, waitRemaining > 0 {
-        Text("あと\(waitRemaining)秒、意味と例文を確認してください。").monospacedDigit()
+        Text("あと\(waitRemaining)秒、解説を確認してください。").monospacedDigit()
       }
       if correct {
         Button(index + 1 == presentation.questions.count ? "完了" : "次へ") { advance() }
@@ -595,8 +608,8 @@ private struct VocabularyStudySessionView: View {
 }
 
 struct VocabularyUnlockChallengeView: View {
-  let bundle: ExperienceUnlockBundleSnapshot
-  let context: UnlockChallengeViewContext
+  let session: FlashcardUnlockSessionPayload
+  let context: ExperienceChallengeViewContext
   @Environment(\.scenePhase) private var scenePhase
   @State private var index: Int
   @State private var completedQuestionIDs: Set<StudyItemID>
@@ -611,22 +624,22 @@ struct VocabularyUnlockChallengeView: View {
   private let planner = VocabularyFeedbackPlanner()
   private let speech = SpeechService()
 
-  init(bundle: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext) {
-    self.bundle = bundle
+  init(session: FlashcardUnlockSessionPayload, context: ExperienceChallengeViewContext) {
+    self.session = session
     self.context = context
     let first =
-      bundle.challenge.questions.firstIndex { !bundle.completedQuestionIDs.contains($0.id) } ?? 0
+      session.questions.firstIndex { !session.completedQuestionIDs.contains($0.id) } ?? 0
     _index = State(initialValue: first)
-    _completedQuestionIDs = State(initialValue: bundle.completedQuestionIDs)
-    if let question = bundle.challenge.questions[safe: first] {
+    _completedQuestionIDs = State(initialValue: session.completedQuestionIDs)
+    if let question = session.questions[safe: first] {
       _selected = State(
-        initialValue: bundle.lastSelectedChoiceIDByQuestionID?[question.id.rawValue])
+        initialValue: session.lastSelectedChoiceIDByQuestionID[question.id.rawValue])
       _attempts = State(
-        initialValue: bundle.attemptCountsByQuestionID?[question.id.rawValue] ?? 0)
+        initialValue: session.attemptCountsByQuestionID[question.id.rawValue] ?? 0)
       _waitRemaining = State(initialValue: max(
         0,
         Int(ceil(
-          bundle.reviewRemainingActiveSecondsByQuestionID?[question.id.rawValue] ?? 0))))
+          session.reviewRemainingSecondsByQuestionID[question.id.rawValue] ?? 0))))
     }
   }
 
@@ -636,23 +649,25 @@ struct VocabularyUnlockChallengeView: View {
         VStack(spacing: 16) {
           ProgressView(
             value: Double(completedQuestionIDs.count),
-            total: Double(max(1, bundle.challenge.questions.count)))
-            .accessibilityValue("\(completedQuestionIDs.count)/\(bundle.challenge.questions.count)")
+            total: Double(max(1, session.questions.count)))
+            .accessibilityValue("\(completedQuestionIDs.count)/\(session.questions.count)")
             .accessibilityIdentifier("vocabulary.unlock.progress")
-          if let snapshot = bundle.challenge.questions[safe: index],
-            case .vocabulary(let question) = snapshot
-          {
+          if let question = session.questions[safe: index] {
             VStack(alignment: .leading, spacing: 10) {
-              Text(question.levelCode).font(.caption).foregroundStyle(.secondary)
+              Text(question.courseCode).font(.caption).foregroundStyle(.secondary)
               Text(question.prompt).font(.title2.bold())
-              Button {
-                speech.speak(question.speechText)
-              } label: {
-                Label("発音を聞く", systemImage: "speaker.wave.2.fill")
+              if context.manifest.flashcardPresentation.supportsSpeech,
+                let speechText = question.speechText
+              {
+                Button {
+                  speech.speak(speechText)
+                } label: {
+                  Label("音声を聞く", systemImage: "speaker.wave.2.fill")
+                }
               }
             }.frame(maxWidth: .infinity, alignment: .leading).studyCard()
             ForEach(question.choices) { choice in
-              Button(choice.text) { submit(snapshot, choiceID: choice.id) }.secondaryActionStyle()
+              Button(choice.text) { submit(question, choiceID: choice.id) }.secondaryActionStyle()
                 .disabled(selected != nil || isSubmitting)
             }
             if let selected {
@@ -663,8 +678,12 @@ struct VocabularyUnlockChallengeView: View {
                   systemImage: correct ? "checkmark.circle.fill" : "book.fill"
                 ).font(.headline).foregroundStyle(correct ? .green : .orange)
                 Text(question.explanation)
-                Text(question.exampleEnglish)
-                Text(question.exampleJapanese).foregroundStyle(.secondary)
+                if context.manifest.flashcardPresentation.supportsExamples {
+                  if let example = question.primaryExample { Text(example) }
+                  if let example = question.secondaryExample {
+                    Text(example).foregroundStyle(.secondary)
+                  }
+                }
                 if !correct, waitRemaining > 0 { Text("あと\(waitRemaining)秒").monospacedDigit() }
                 if !correct, waitRemaining == 0 {
                   Button("もう一度解く") { self.selected = nil }.primaryActionStyle()
@@ -674,7 +693,8 @@ struct VocabularyUnlockChallengeView: View {
             }
           }
         }.frame(maxWidth: 720).padding()
-      }.navigationTitle("英単語で解除").navigationBarTitleDisplayMode(.inline)
+      }.navigationTitle(context.manifest.flashcardPresentation.unlockTitle)
+        .navigationBarTitleDisplayMode(.inline)
     }
     .interactiveDismissDisabled()
     .onReceive(timer) { _ in
@@ -704,19 +724,20 @@ struct VocabularyUnlockChallengeView: View {
     }
   }
   private var isLast: Bool {
-    !bundle.hasLaterUncompletedQuestion(
-      after: index, completedQuestionIDs: completedQuestionIDs)
+    !session.questions.indices.contains {
+      $0 > index && !completedQuestionIDs.contains(session.questions[$0].id)
+    }
   }
   private var isReviewingWrong: Bool {
-    guard let question = bundle.challenge.questions[safe: index], let selected else { return false }
+    guard let question = session.questions[safe: index], let selected else { return false }
     return selected != question.correctChoiceID
   }
-  private func submit(_ question: UnlockQuestionSnapshot, choiceID: Int) {
-    let correct = choiceID == question.correctChoiceID
-    let plan = planner.plan(wrongAttemptCount: correct ? 0 : attempts + 1)
+  private func submit(_ question: FlashcardChallengeQuestion, choiceID: Int) {
     isSubmitting = true
     Task {
-      switch await context.submit(question, choiceID, plan) {
+      switch await context.submit(
+        .choice(questionID: question.id.rawValue, choiceID: String(choiceID)))
+      {
       case .recordedCorrect:
         selected = choiceID
         completedQuestionIDs.insert(question.id)
@@ -734,9 +755,9 @@ struct VocabularyUnlockChallengeView: View {
     }
   }
   private func advance() {
-    if let next = bundle.nextUncompletedQuestionIndex(
-      after: index, completedQuestionIDs: completedQuestionIDs)
-    {
+    if let next = session.questions.indices.first(where: {
+      $0 > index && !completedQuestionIDs.contains(session.questions[$0].id)
+    }) {
       index = next
       selected = nil
       attempts = 0
@@ -752,12 +773,11 @@ struct VocabularyUnlockChallengeView: View {
       pendingReviewActiveState = isActive
       return
     }
-    guard let question = bundle.challenge.questions[safe: index] else { return }
     isReviewSyncing = true
     var desiredActiveState = isActive
     repeat {
       pendingReviewActiveState = nil
-      switch await context.updateReviewExposure(question.id, desiredActiveState) {
+      switch await context.updateReviewExposure(desiredActiveState) {
       case .updated(let remainingActiveSeconds):
         waitRemaining = remainingActiveSeconds
       case .expired:
