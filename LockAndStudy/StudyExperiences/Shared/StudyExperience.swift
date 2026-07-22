@@ -4,9 +4,23 @@ import SwiftUI
 struct StudyExperienceID: RawRepresentable, Codable, Hashable, Sendable {
   let rawValue: String
   init(rawValue: String) { self.rawValue = rawValue }
+  static let flashcardV1 = StudyExperienceID(rawValue: "flashcard.v1")
+  static let certificationV1 = StudyExperienceID(rawValue: "certification.v1")
+  static let safeFallbackV1 = StudyExperienceID(rawValue: "safe-fallback.v1")
+
+  // Presentation/history IDs remain stable for existing learning data.
   static let vocabulary = StudyExperienceID(rawValue: "vocabulary")
   static let takken = StudyExperienceID(rawValue: "takken")
   static let safeFallback = StudyExperienceID(rawValue: "safe-fallback")
+
+  var normalizedTemplateID: StudyExperienceID {
+    switch rawValue {
+    case "vocabulary", "vocabulary.v1": return .flashcardV1
+    case "takken", "certification.takken.v1": return .certificationV1
+    case "safe-fallback": return .safeFallbackV1
+    default: return self
+    }
+  }
 }
 struct StudyExperienceDescriptor: Identifiable, Hashable, Sendable {
   let id: StudyExperienceID
@@ -194,6 +208,13 @@ enum UnlockQuestionSnapshot: Codable, Equatable, Identifiable, Sendable {
     case .safeFallback(let value): return value.correctChoiceID
     }
   }
+  var legacyContentVersion: String {
+    switch self {
+    case .vocabulary(let value): return value.contentVersion
+    case .takken(let value): return value.contentVersion
+    case .safeFallback: return "built-in-v1"
+    }
+  }
 }
 
 struct UnlockChallengeSnapshot: Codable, Equatable, Identifiable, Sendable {
@@ -215,7 +236,7 @@ struct UnlockChallengeSnapshot: Codable, Equatable, Identifiable, Sendable {
 }
 
 enum UnlockCompletionState: String, Codable, Equatable, Sendable {
-  case answering, sessionCreated, eventRecorded, completed, aborted
+  case answering, proofAccepted, sessionCreated, eventRecorded, completed, aborted
 }
 
 struct ExperienceUnlockBundleSnapshot: Codable, Equatable, Identifiable, Sendable {
@@ -314,49 +335,117 @@ struct UnlockChallengeViewContext {
   let complete: @MainActor () async -> Void
 }
 
+struct UnlockAnswerRecordContext: Sendable {
+  let question: UnlockQuestionSnapshot
+  let selectedChoiceID: Int
+  let feedback: StudyFeedbackPlan
+  let bundle: ExperienceUnlockBundleSnapshot
+  let answeredAt: Date
+  let priorProgress: ItemProgress
+  let attemptNumber: Int
+
+  var submissionID: String {
+    "unlock::\(bundle.id.uuidString)::\(question.id.rawValue)::attempt::\(attemptNumber)::choice::\(selectedChoiceID)"
+  }
+  var learningRole: AnswerLearningRole {
+    AnswerLearningRole.classify(mode: .unlock, progress: priorProgress, at: answeredAt)
+  }
+  var wasNew: Bool { priorProgress.answerCount == 0 }
+  var wasDue: Bool { priorProgress.dueAt.map { $0 <= answeredAt } ?? false }
+}
+
+enum StudyExperienceRuntimeError: LocalizedError {
+  case incompatibleQuestion(expected: String)
+
+  var errorDescription: String? {
+    switch self {
+    case .incompatibleQuestion(let expected):
+      return "解除問題が\(expected)の実行形式と一致しません。"
+    }
+  }
+}
+
 @MainActor
 protocol StudyExperienceFactory {
+  var experienceID: StudyExperienceID { get }
   var descriptor: StudyExperienceDescriptor { get }
+  var supportedContentSchemas: Set<ContentSchemaID> { get }
   var unlockChallengeProvider: any UnlockChallengeProviding { get }
   var reportProvider: (any StudyExperienceReportProviding)? { get }
+  func validateCompatibility(with manifest: StudyPackManifest) -> [String]
   func makeRootView(context: StudyExperienceContext) -> AnyView
   func makeFirstRunView(context: StudyExperienceContext) -> AnyView?
   func makeProgressSummary(context: StudyExperienceContext) async throws -> StudyExperienceSummary
   func makeUnlockChallengeView(
     snapshot: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext
   ) -> AnyView
+  func makeUnlockAnswerRecord(_ context: UnlockAnswerRecordContext) throws -> StudyAnswerRecord
+  func minimumReviewSeconds(
+    for context: UnlockAnswerRecordContext
+  ) throws -> Int
   func handleUnlockCompletion(_ context: UnlockCompletionContext) async throws
+  func clearTransientState(packID: StudyPackID, dependencies: DependencyContainer) async
 }
 
 extension StudyExperienceFactory {
   var reportProvider: (any StudyExperienceReportProviding)? { nil }
+  func validateCompatibility(with manifest: StudyPackManifest) -> [String] {
+    guard manifest.experienceID.normalizedTemplateID == experienceID else {
+      return ["experience IDが一致しません"]
+    }
+    let relevant = manifest.components.filter {
+      $0.experienceID.normalizedTemplateID == experienceID
+    }
+    guard !relevant.isEmpty else { return ["対応componentがありません"] }
+    let unsupported = relevant.filter { !supportedContentSchemas.contains($0.contentSchemaID) }
+    return unsupported.map { "未対応content schema: \($0.contentSchemaID.rawValue)" }
+  }
   func handleUnlockCompletion(_ context: UnlockCompletionContext) async throws {}
+  func clearTransientState(packID: StudyPackID, dependencies: DependencyContainer) async {}
+  func minimumReviewSeconds(for context: UnlockAnswerRecordContext) throws -> Int {
+    switch context.feedback {
+    case .immediate: return 0
+    case .relearn6: return 6
+    case .relearn12: return 12
+    case .guided20: return 20
+    }
+  }
 }
 
 @MainActor
 struct StudyExperienceRegistry {
-  private let factories: [StudyExperienceID: any StudyExperienceFactory]
+  private let factoriesByPresentationID: [StudyExperienceID: any StudyExperienceFactory]
+  private let factoriesByExperienceID: [StudyExperienceID: any StudyExperienceFactory]
   private let factoriesByType: [StudyExperienceType: any StudyExperienceFactory]
 
   init(factories: [any StudyExperienceFactory]) {
-    self.factories = Dictionary(uniqueKeysWithValues: factories.map { ($0.descriptor.id, $0) })
+    factoriesByPresentationID = Dictionary(
+      uniqueKeysWithValues: factories.map { ($0.descriptor.id, $0) })
+    factoriesByExperienceID = Dictionary(
+      uniqueKeysWithValues: factories.map { ($0.experienceID, $0) })
     factoriesByType = Dictionary(uniqueKeysWithValues: factories.flatMap { factory in
       factory.descriptor.supportedExperienceTypes.map { ($0, factory) }
     })
   }
 
-  func factory(for id: StudyExperienceID) -> (any StudyExperienceFactory)? { factories[id] }
+  func factory(for id: StudyExperienceID) -> (any StudyExperienceFactory)? {
+    factoriesByPresentationID[id] ?? factoriesByExperienceID[id.normalizedTemplateID]
+  }
+  func factory(forExperienceID id: StudyExperienceID) -> (any StudyExperienceFactory)? {
+    factoriesByExperienceID[id.normalizedTemplateID]
+  }
   func factory(for type: StudyExperienceType) -> (any StudyExperienceFactory)? {
     factoriesByType[type]
+      ?? factoriesByExperienceID[StudyExperienceID(rawValue: type.rawValue).normalizedTemplateID]
   }
   func factory(for manifest: StudyPackManifest) -> (any StudyExperienceFactory)? {
-    factory(for: manifest.experienceType)
+    factory(forExperienceID: manifest.experienceID)
   }
   var descriptors: [StudyExperienceDescriptor] {
-    factories.values.map(\.descriptor).sorted { $0.title < $1.title }
+    factoriesByExperienceID.values.map(\.descriptor).sorted { $0.title < $1.title }
   }
   var reportProviders: [any StudyExperienceReportProviding] {
-    factories.values.compactMap(\.reportProvider)
+    factoriesByExperienceID.values.compactMap(\.reportProvider)
   }
   static func standard() -> StudyExperienceRegistry {
     .init(factories: [VocabularyExperience(), TakkenExperience(), SafeFallbackExperience()])

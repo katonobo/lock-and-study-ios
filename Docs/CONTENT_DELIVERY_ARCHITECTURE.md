@@ -73,7 +73,7 @@ download to a unique temporary directory
 
 ## 進捗互換性
 
-履歴の主キーは`packID + itemID`を維持する。content更新のmigration documentは`preserve`、`resetItem`、`migrate`を明示する。誤字修正は`preserve`、正解や論点変更は`resetItem`、ID置換は`migrate`とする。migrationは署名対象に含め、適用前backup、冪等な適用、適用済みversion記録、失敗時rollbackを必須とする。年度資格教材は原則として別pack IDにする。
+履歴の主キーは`packID + itemID`を維持する。content更新のmigration documentは`preserve`、`resetChangedItems`、`migrate`を明示する。誤字修正は`preserve`、正解や論点変更は`resetChangedItems`、ID置換は`migrate`とする。migrationは署名対象に含め、適用前backup、冪等な適用、適用済みversion記録、失敗時rollbackを必須とする。年度資格教材は原則として別pack IDにする。
 
 ## JSONからSQLiteへの移行
 

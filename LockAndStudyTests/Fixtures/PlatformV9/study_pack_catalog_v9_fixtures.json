@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-22T00:00:00Z",
+  "categories": [
+    {"schemaVersion": 1, "id": "language.japanese", "title": "国語", "subtitle": "ことばと表現", "systemImage": "character.book.closed.fill", "sortOrder": 10, "isVisible": true, "themeToken": "japanese"},
+    {"schemaVersion": 1, "id": "qualification", "title": "資格", "subtitle": "年度別資格試験", "systemImage": "building.columns.fill", "sortOrder": 20, "isVisible": true, "themeToken": "orange"},
+    {"schemaVersion": 1, "id": "life.manners", "title": "仕事と暮らし", "subtitle": "実務で役立つ基礎", "systemImage": "person.2.fill", "sortOrder": 30, "isVisible": true, "themeToken": "unknown-future-token"}
+  ],
+  "series": [
+    {"schemaVersion": 1, "id": "japanese.yojijukugo", "categoryID": "language.japanese", "title": "四字熟語", "subtitle": "意味と読み", "description": "四字熟語をカード形式で学びます。", "sortOrder": 10, "editionPolicy": "evergreen", "defaultExperienceID": "flashcard.v1", "isVisible": true},
+    {"schemaVersion": 1, "id": "qualification.takken", "categoryID": "qualification", "title": "宅地建物取引士", "subtitle": "年度別", "description": "年度ごとの法令基準日を明示します。", "sortOrder": 20, "editionPolicy": "annual", "defaultExperienceID": "certification.v1", "isVisible": true},
+    {"schemaVersion": 1, "id": "life.business-manners", "categoryID": "life.manners", "title": "ビジネスマナー", "subtitle": "職場の基本", "description": "職場で必要な基本行動を確認します。", "sortOrder": 30, "editionPolicy": "evergreen", "defaultExperienceID": "certification.v1", "isVisible": true}
+  ],
+  "packs": [
+    {
+      "schemaVersion": 2, "id": "takken2026.v1", "categoryID": "qualification", "seriesID": "qualification.takken", "experienceID": "certification.v1",
+      "editionID": "2026", "editionYear": 2026, "editionPolicy": "annual", "storeState": "archivedOwnedOnly", "deliveryMode": "downloadable", "passAccessPolicy": "excluded",
+      "moduleType": "takken", "experienceType": "certification.takken.v1", "title": "宅建2026 historical reference", "subtitle": "fixture predecessor", "description": "宅建2027 fixtureの前年度参照です。",
+      "contentVersion": "historical-reference", "minimumAppVersion": "1.0", "releaseStatus": "retired", "isEnabled": false, "sortOrder": 19, "expectedItemCount": 0, "conceptCount": 0, "variantCount": 0,
+      "sampleDefinition": {"kind": "allReleased", "count": 0}, "oneTimeProductID": "com.ameneko.lockandstudy.pack.takken2026.v1", "passEligible": false, "saleReady": false,
+      "contentFiles": [], "components": [{"id": "questions", "title": "宅建問題", "experienceID": "certification.v1", "contentSchemaID": "certification.questions.v1", "sortOrder": 0, "contentFiles": []}],
+      "locale": "ja-JP", "qualification": {"examYear": 2026, "lawBasisDate": "2026-04-01", "requiresAnnualReview": true}
+    },
+    {
+      "schemaVersion": 2, "id": "yojijukugo.fixture.v1", "categoryID": "language.japanese", "seriesID": "japanese.yojijukugo", "experienceID": "flashcard.v1",
+      "editionID": "fixture-v1", "editionPolicy": "evergreen", "storeState": "forSale", "deliveryMode": "downloadable", "passAccessPolicy": "included",
+      "moduleType": "vocabulary", "experienceType": "vocabulary.v1", "title": "四字熟語 基礎", "subtitle": "テスト用6項目", "description": "Platform v9のデータ駆動追加を証明するUnit Test専用教材です。",
+      "contentVersion": "yojijukugo-1.0", "minimumAppVersion": "1.0", "releaseStatus": "release", "isEnabled": true, "sortOrder": 10, "expectedItemCount": 6,
+      "sampleDefinition": {"kind": "fixed", "count": 6, "catalogFile": "yojijukugo_samples_v1.json"}, "passEligible": true, "saleReady": false,
+      "contentFiles": [
+        {"path": "yojijukugo_items_v1.json", "sha256": "e7425e951bd04eed333340059e3ce571afcfcf7f395f68793fc2b72506048b7a", "itemCount": 6},
+        {"path": "yojijukugo_samples_v1.json", "sha256": "36adceb1dc9c4d3a136048a11d4665f0de99629a6fc708221cbe33cf27e00609", "itemCount": 6}
+      ],
+      "components": [{"id": "cards", "title": "四字熟語", "experienceID": "flashcard.v1", "contentSchemaID": "flashcard.items.v1", "sortOrder": 0, "contentFiles": [
+        {"path": "yojijukugo_items_v1.json", "sha256": "e7425e951bd04eed333340059e3ce571afcfcf7f395f68793fc2b72506048b7a", "itemCount": 6},
+        {"path": "yojijukugo_samples_v1.json", "sha256": "36adceb1dc9c4d3a136048a11d4665f0de99629a6fc708221cbe33cf27e00609", "itemCount": 6}
+      ]}], "locale": "ja-JP"
+    },
+    {
+      "schemaVersion": 2, "id": "takken2027.fixture.v1", "categoryID": "qualification", "seriesID": "qualification.takken", "experienceID": "certification.v1",
+      "editionID": "2027", "editionYear": 2027, "editionPolicy": "annual", "storeState": "forSale", "deliveryMode": "downloadable", "passAccessPolicy": "included",
+      "moduleType": "takken", "experienceType": "certification.takken.v1", "title": "宅建2027 fixture", "subtitle": "校閲済みテスト3問", "description": "新年度を別pack・別商品として扱うUnit Test専用教材です。",
+      "contentVersion": "takken-2027-fixture-1.0", "minimumAppVersion": "1.0", "releaseStatus": "release", "isEnabled": true, "sortOrder": 20, "expectedItemCount": 3, "conceptCount": 3, "variantCount": 3,
+      "sampleDefinition": {"kind": "allReleased", "count": 3}, "oneTimeProductID": "com.ameneko.lockandstudy.fixture.takken2027", "passEligible": true, "saleReady": true,
+      "contentFiles": [{"path": "takken2027_questions_v1.json", "sha256": "ff668983fc8ebb19cf7d68dbfe45fda9007b65c16979d72db74e0a3231178a53", "itemCount": 3}],
+      "components": [{"id": "questions", "title": "宅建問題", "experienceID": "certification.v1", "contentSchemaID": "certification.questions.v1", "sortOrder": 0, "contentFiles": [{"path": "takken2027_questions_v1.json", "sha256": "ff668983fc8ebb19cf7d68dbfe45fda9007b65c16979d72db74e0a3231178a53", "itemCount": 3}]}],
+      "supersedesPackID": "takken2026.v1", "locale": "ja-JP", "qualification": {"examYear": 2027, "lawBasisDate": "2027-04-01", "requiresAnnualReview": true}
+    },
+    {
+      "schemaVersion": 2, "id": "business-manners.fixture.v1", "categoryID": "life.manners", "seriesID": "life.business-manners", "experienceID": "certification.v1",
+      "editionID": "fixture-v1", "editionPolicy": "evergreen", "storeState": "forSale", "deliveryMode": "downloadable", "passAccessPolicy": "included",
+      "moduleType": "takken", "experienceType": "certification.takken.v1", "title": "ビジネスマナー 基礎", "subtitle": "テスト用3問", "description": "未知カテゴリーと既存Certification Templateの接続を証明するUnit Test専用教材です。",
+      "contentVersion": "manners-1.0", "minimumAppVersion": "1.0", "releaseStatus": "release", "isEnabled": true, "sortOrder": 30, "expectedItemCount": 3, "conceptCount": 3, "variantCount": 3,
+      "sampleDefinition": {"kind": "allReleased", "count": 3}, "passEligible": true, "saleReady": false,
+      "contentFiles": [{"path": "manners_questions_v1.json", "sha256": "6bc0b0ab5e3b7826ce801d34582c1f2089e77634310914a0c95f1e253cd2a028", "itemCount": 3}],
+      "components": [{"id": "questions", "title": "マナー問題", "experienceID": "certification.v1", "contentSchemaID": "certification.questions.v1", "sortOrder": 0, "contentFiles": [{"path": "manners_questions_v1.json", "sha256": "6bc0b0ab5e3b7826ce801d34582c1f2089e77634310914a0c95f1e253cd2a028", "itemCount": 3}]}],
+      "locale": "ja-JP"
+    }
+  ]
+}

@@ -13,6 +13,8 @@ final class DependencyContainer {
   let commerce: StoreKitCommerceService
   let content: ContentRepository
   let learning: LearningDataStore
+  let unlockSessions: UnlockChallengeSessionCoordinator
+  let pendingPreviews: PendingPreviewStore
   let learningRevision: LearningDataRevision
   let managementCode: ManagementCodeStore
   let emergencyStore: EmergencyUnlockStore
@@ -44,6 +46,9 @@ final class DependencyContainer {
       learning = LearningDataStore()
       #endif
     }
+    unlockSessions = UnlockChallengeSessionCoordinator(store: learning)
+    pendingPreviews = PendingPreviewStore(
+      rootURL: learningRootURL?.appendingPathComponent("PendingPreviews", isDirectory: true))
     managementCode = ManagementCodeStore()
     emergencyStore = EmergencyUnlockStore()
     policyStore = LockPolicyStore()

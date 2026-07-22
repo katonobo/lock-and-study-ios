@@ -42,7 +42,9 @@ struct VocabularyStudyModule: StudyModule {
   func validate(manifest: StudyPackManifest, prompts: [StudyPrompt]) -> [String] {
     var issues: [String] = []
     if prompts.count != manifest.expectedItemCount { issues.append("期待件数\(manifest.expectedItemCount)に対して\(prompts.count)件") }
-    if prompts.filter(\.isFreeSample).count != 250 { issues.append("無料英単語が250件ではありません") }
+    if prompts.filter(\.isFreeSample).count != manifest.sampleDefinition.count {
+      issues.append("無料項目数がmanifestと一致しません")
+    }
     if Set(prompts.map(\.id)).count != prompts.count { issues.append("問題IDが重複しています") }
     if prompts.contains(where: { $0.choices.count != 4 || !$0.choices.indices.contains($0.correctChoiceID) }) { issues.append("選択肢が不正です") }
     return issues

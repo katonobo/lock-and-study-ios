@@ -29,6 +29,10 @@ enum LockAndStudySharedConstants {
     static let entitlementCache = "lockandstudy.commerce.snapshot.v1"
     static let knownProductMappings = "lockandstudy.commerce.product-mappings.v1"
     static let selectedPackID = "lockandstudy.content.selected.pack"
+    static let activeUnlockPackID = "lockandstudy.content.active-unlock-pack.v2"
+    static let openedPackID = "lockandstudy.content.opened-pack.v2"
+    static let lastStudiedPackID = "lockandstudy.content.last-studied-pack.v2"
+    static let platformMigrationV9Completed = "lockandstudy.migration.platform-foundation.v9"
     static let settings = "lockandstudy.settings.v1"
   }
 

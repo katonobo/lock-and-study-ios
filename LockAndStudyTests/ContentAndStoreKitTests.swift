@@ -4,6 +4,8 @@ import XCTest
 @testable import LockAndStudy
 
 final class ContentAndStoreKitTests: XCTestCase {
+  private let englishProductID = "com.ameneko.lockandstudy.pack.english3000.v1"
+  private let takkenProductID = "com.ameneko.lockandstudy.pack.takken2026.v1"
   func testReleasedContentCountsAndSamples() async throws {
     let repository = ContentRepository(source: BundledContentSource(bundle: Bundle.main))
     let manifests = try await repository.releasedManifests()
@@ -25,8 +27,8 @@ final class ContentAndStoreKitTests: XCTestCase {
     XCTAssertEqual(
       ids,
       Set([
-        StoreProductKind.english3000.productID,
-        StoreProductKind.takken2026.productID,
+        englishProductID,
+        takkenProductID,
         StoreProductKind.passMonthly.productID,
         StoreProductKind.passYearly.productID,
       ]))
@@ -43,7 +45,7 @@ final class ContentAndStoreKitTests: XCTestCase {
     let session = try SKTestSession(contentsOf: url)
     defer { session.clearTransactions() }
     session.disableDialogs = true
-    let testOrder = [StoreProductKind.english3000.productID, StoreProductKind.takken2026.productID,
+    let testOrder = [englishProductID, takkenProductID,
                      StoreProductKind.passMonthly.productID, StoreProductKind.passYearly.productID]
     for productID in testOrder {
       session.clearTransactions()

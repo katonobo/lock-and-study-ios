@@ -73,7 +73,12 @@ struct PackFirstRunStore {
   }
 
   private func key(_ packID: StudyPackID) -> String {
-    "lockandstudy.pack.\(packID.rawValue).first-run.completed.v1"
+    let v2 = "lockandstudy.pack.\(packID.rawValue).first-run.completed.v2"
+    if !defaults.bool(forKey: v2) {
+      let v1 = "lockandstudy.pack.\(packID.rawValue).first-run.completed.v1"
+      if defaults.bool(forKey: v1) { defaults.set(true, forKey: v2) }
+    }
+    return v2
   }
 }
 

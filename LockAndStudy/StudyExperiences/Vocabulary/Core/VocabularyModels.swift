@@ -227,17 +227,17 @@ struct VocabularyRepository: Sendable {
       items.append(contentsOf: decoded)
     }
     guard items.count == manifest.expectedItemCount else {
-      throw ContentRepositoryError.invalid("英単語の合計件数が\(manifest.expectedItemCount)件ではありません")
+      throw ContentRepositoryError.invalid("Flashcardの合計件数が\(manifest.expectedItemCount)件ではありません")
     }
     guard Set(items.map(\.id)).count == items.count else {
-      throw ContentRepositoryError.invalid("英単語IDが重複しています")
+      throw ContentRepositoryError.invalid("Flashcardの項目IDが重複しています")
     }
     let sampleData = try verifiedSampleData ?? loader.data(resourcePath: samplePath)
     let catalog = try decoder.decode(VocabularyFreeSampleCatalog.self, from: sampleData)
     let sampleIDs = Set(catalog.levels.flatMap { $0.questions.map(\.id) })
     guard sampleIDs.count == manifest.sampleDefinition.count,
           sampleIDs.isSubset(of: Set(items.map(\.id))) else {
-      throw ContentRepositoryError.invalid("固定無料250語を検証できません")
+      throw ContentRepositoryError.invalid("固定無料項目を検証できません")
     }
     return .init(items: items.sorted { $0.order < $1.order }, freeSampleIDs: sampleIDs)
   }

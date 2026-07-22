@@ -29,9 +29,162 @@ def load_json(path: Path):
 
 def catalog():
     value = load_json(CATALOG)
-    if not isinstance(value, list):
-        raise CheckFailure("study_pack_catalog.json must be an array")
-    return value
+    if isinstance(value, list):
+        return value
+    if isinstance(value, dict) and isinstance(value.get("packs"), list):
+        return value["packs"]
+    raise CheckFailure("study_pack_catalog.json must be a v1 array or v2 snapshot")
+
+
+def catalog_snapshot():
+    value = load_json(CATALOG)
+    if isinstance(value, list):
+        return {"schemaVersion": 1, "categories": [], "series": [], "packs": value}
+    if isinstance(value, dict) and isinstance(value.get("packs"), list):
+        return value
+    raise CheckFailure("study_pack_catalog.json must be a v1 array or v2 snapshot")
+
+
+PASS_PRODUCT_IDS = {
+    "com.ameneko.lockandstudy.pass.monthly",
+    "com.ameneko.lockandstudy.pass.yearly",
+}
+SUPPORTED_EXPERIENCES = {
+    "flashcard.v1": {"flashcard.items.v1"},
+    "certification.v1": {"certification.questions.v1"},
+    "safe-fallback.v1": {"safe-fallback.v1"},
+}
+
+
+def _has_cycle(nodes: set[str], parent_for: dict[str, str | None]) -> bool:
+    for start in nodes:
+        seen: set[str] = set()
+        current: str | None = start
+        while current is not None and current in nodes:
+            if current in seen:
+                return True
+            seen.add(current)
+            current = parent_for.get(current)
+    return False
+
+
+def _safe_relative_path(value: object) -> bool:
+    if not isinstance(value, str) or not value:
+        return False
+    path = Path(value)
+    return not path.is_absolute() and ".." not in path.parts
+
+
+def validate_catalog_relationships(snapshot: dict) -> list[str]:
+    errors: list[str] = []
+    categories = snapshot.get("categories") or []
+    series = snapshot.get("series") or []
+    packs = snapshot.get("packs") or []
+
+    def unique_ids(values: list[dict], label: str) -> set[str]:
+        ids = [value.get("id") for value in values]
+        if any(not isinstance(value, str) or not value for value in ids):
+            errors.append(f"{label} contains an empty ID")
+        if len(ids) != len(set(ids)):
+            errors.append(f"duplicate {label} ID")
+        return {value for value in ids if isinstance(value, str) and value}
+
+    category_ids = unique_ids(categories, "category")
+    series_ids = unique_ids(series, "series")
+    pack_ids = unique_ids(packs, "pack")
+    category_by_id = {value.get("id"): value for value in categories}
+    series_by_id = {value.get("id"): value for value in series}
+
+    category_parents: dict[str, str | None] = {}
+    for category in categories:
+        category_id = category.get("id")
+        parent_id = category.get("parentCategoryID")
+        if parent_id is not None and parent_id not in category_ids:
+            errors.append(f"{category_id}: unknown parent category {parent_id}")
+        if isinstance(category_id, str):
+            category_parents[category_id] = parent_id
+    if _has_cycle(category_ids, category_parents):
+        errors.append("parent category cycle")
+
+    for value in series:
+        if value.get("categoryID") not in category_ids:
+            errors.append(f"{value.get('id')}: unknown category {value.get('categoryID')}")
+
+    product_owners: dict[str, str] = {}
+    supersedes: dict[str, str | None] = {}
+    for pack in packs:
+        pack_id = pack.get("id", "<unknown>")
+        category_id = pack.get("categoryID")
+        series_id = pack.get("seriesID")
+        if category_id not in category_ids:
+            errors.append(f"{pack_id}: unknown category {category_id}")
+        if series_id not in series_ids:
+            errors.append(f"{pack_id}: unknown series {series_id}")
+        elif series_by_id[series_id].get("categoryID") != category_id:
+            errors.append(f"{pack_id}: series/category mismatch")
+
+        edition_policy = pack.get("editionPolicy")
+        series_policy = series_by_id.get(series_id, {}).get("editionPolicy")
+        if (edition_policy == "annual" or series_policy == "annual") and not isinstance(
+            pack.get("editionYear"), int
+        ):
+            errors.append(f"{pack_id}: annual pack requires editionYear")
+
+        predecessor = pack.get("supersedesPackID")
+        if predecessor is not None and predecessor not in pack_ids:
+            errors.append(f"{pack_id}: unknown superseded pack {predecessor}")
+        if isinstance(pack_id, str):
+            supersedes[pack_id] = predecessor
+
+        store_state = pack.get("storeState")
+        if store_state == "archivedOwnedOnly" and pack.get("saleReady") is True:
+            errors.append(f"{pack_id}: archivedOwnedOnly cannot be sale ready")
+        if store_state == "withdrawn" and (
+            pack.get("passEligible") is True or pack.get("passAccessPolicy") == "included"
+        ):
+            errors.append(f"{pack_id}: withdrawn pack cannot be sold through Pass")
+
+        product_id = pack.get("oneTimeProductID")
+        if product_id is not None:
+            if product_id in PASS_PRODUCT_IDS:
+                errors.append(f"{pack_id}: one-time product collides with Pass")
+            prior = product_owners.get(product_id)
+            if prior is not None and prior != pack_id:
+                errors.append(f"product ID reused by {prior} and {pack_id}: {product_id}")
+            product_owners[product_id] = pack_id
+
+        experience_id = pack.get("experienceID")
+        supported_schemas = SUPPORTED_EXPERIENCES.get(experience_id)
+        if supported_schemas is None and (
+            pack.get("saleReady") is True or pack.get("passAccessPolicy") == "included"
+        ):
+            errors.append(f"{pack_id}: unsupported experience must not be purchasable")
+        components = pack.get("components") or []
+        component_ids = [component.get("id") for component in components]
+        if len(component_ids) != len(set(component_ids)):
+            errors.append(f"{pack_id}: duplicate component ID")
+        for component in components:
+            component_experience = component.get("experienceID")
+            component_schema = component.get("contentSchemaID")
+            if component_experience != experience_id:
+                errors.append(f"{pack_id}/{component.get('id')}: component experience mismatch")
+            if supported_schemas is not None and component_schema not in supported_schemas:
+                errors.append(
+                    f"{pack_id}/{component.get('id')}: unsupported content schema {component_schema}"
+                )
+            for descriptor in component.get("contentFiles") or []:
+                if not _safe_relative_path(descriptor.get("path")):
+                    errors.append(f"{pack_id}/{component.get('id')}: unsafe content path")
+        for descriptor in pack.get("contentFiles") or []:
+            if not _safe_relative_path(descriptor.get("path")):
+                errors.append(f"{pack_id}: unsafe content path")
+        for key in ("metadataFile", "creditsFile"):
+            if pack.get(key) is not None and not _safe_relative_path(pack.get(key)):
+                errors.append(f"{pack_id}: unsafe {key}")
+
+    if _has_cycle(pack_ids, supersedes):
+        errors.append("supersedes cycle")
+    return errors
 
 
 def sha256(path: Path) -> str:
@@ -209,12 +362,14 @@ def validate_takken_v2_drafts(items: list[dict]) -> list[str]:
 
 def validate_content() -> list[str]:
     errors: list[str] = []
+    snapshot = catalog_snapshot()
+    errors.extend(validate_catalog_relationships(snapshot))
     packs = catalog()
     ids = [pack.get("id") for pack in packs]
     if len(ids) != len(set(ids)):
         errors.append("duplicate pack ID")
     for pack in packs:
-        if pack.get("schemaVersion") != 1:
+        if pack.get("schemaVersion") not in (1, 2):
             errors.append(f"{pack.get('id')}: unsupported schemaVersion")
         if pack.get("releaseStatus") != "release" or pack.get("isEnabled") is not True:
             errors.append(f"{pack.get('id')}: non-release pack in Release Resources")
@@ -227,6 +382,17 @@ def validate_content() -> list[str]:
                 continue
             if sha256(path) != descriptor.get("sha256"):
                 errors.append(f"{pack.get('id')}: hash mismatch {path.name}")
+            value = load_json(path)
+            if isinstance(value, list):
+                actual_count = len(value)
+            elif isinstance(value, dict) and isinstance(value.get("levels"), list):
+                actual_count = sum(len(level.get("questions", [])) for level in value["levels"])
+            else:
+                actual_count = None
+            if actual_count is not None and actual_count != descriptor.get("itemCount"):
+                errors.append(f"{pack.get('id')}: item count mismatch {path.name}")
+            if "ai_draft" in json.dumps(value, ensure_ascii=False):
+                errors.append(f"{pack.get('id')}: ai_draft found in Release {path.name}")
         for key in ("metadataFile", "creditsFile"):
             if pack.get(key) and not (RELEASED / pack[key]).is_file():
                 errors.append(f"{pack.get('id')}: missing {pack[key]}")
@@ -267,9 +433,84 @@ def validate_content() -> list[str]:
         if item.get("examYear") != 2026 or item.get("lawBasisDate") != "2026-04-01":
             errors.append(f"invalid Takken year/law basis: {item.get('id')}")
     takken_manifest = by_id.get("takken2026.v1", {})
-    if (takken_manifest.get("contentQualityProfile") == "takken-v2"
-            or takken_manifest.get("schemaVersion", 1) >= 2):
+    if takken_manifest.get("contentQualityProfile") == "takken-v2":
         errors.extend(validate_takken_v2(takken, takken_manifest))
+    release_text = json.dumps(snapshot, ensure_ascii=False).lower()
+    if "fixture" in release_text:
+        errors.append("test fixture reference found in production catalog")
+    if any("fixture" in path.name.lower() for path in RELEASED.iterdir()):
+        errors.append("test fixture file found in production Release Resources")
+    return errors
+
+
+def verify_platform_v9() -> list[str]:
+    errors: list[str] = []
+    fixture_root = ROOT / "LockAndStudyTests/Fixtures/PlatformV9"
+    fixture_catalog = fixture_root / "study_pack_catalog_v9_fixtures.json"
+    snapshot = load_json(fixture_catalog)
+    errors.extend(validate_catalog_relationships(snapshot))
+
+    category_ids = {value.get("id") for value in snapshot.get("categories", [])}
+    series_ids = {value.get("id") for value in snapshot.get("series", [])}
+    pack_by_id = {value.get("id"): value for value in snapshot.get("packs", [])}
+    expected_categories = {"language.japanese", "qualification", "life.manners"}
+    expected_series = {
+        "japanese.yojijukugo", "qualification.takken", "life.business-manners"
+    }
+    expected_fixture_packs = {
+        "yojijukugo.fixture.v1", "takken2027.fixture.v1",
+        "business-manners.fixture.v1",
+    }
+    if category_ids != expected_categories:
+        errors.append("Platform v9 fixture categories changed")
+    if series_ids != expected_series:
+        errors.append("Platform v9 fixture series changed")
+    if not expected_fixture_packs.issubset(pack_by_id):
+        errors.append("Platform v9 proof pack is missing")
+
+    expected_templates = {
+        "yojijukugo.fixture.v1": ("flashcard.v1", "flashcard.items.v1", 6),
+        "takken2027.fixture.v1": (
+            "certification.v1", "certification.questions.v1", 3
+        ),
+        "business-manners.fixture.v1": (
+            "certification.v1", "certification.questions.v1", 3
+        ),
+    }
+    for pack_id, (experience_id, schema_id, expected_count) in expected_templates.items():
+        pack = pack_by_id.get(pack_id, {})
+        if pack.get("experienceID") != experience_id:
+            errors.append(f"{pack_id}: fixture experience template changed")
+        components = pack.get("components") or []
+        if not components or components[0].get("contentSchemaID") != schema_id:
+            errors.append(f"{pack_id}: fixture content schema changed")
+        if pack.get("expectedItemCount") != expected_count:
+            errors.append(f"{pack_id}: fixture item count changed")
+        for descriptor in pack.get("contentFiles") or []:
+            path = fixture_root / descriptor.get("path", "")
+            if not path.is_file():
+                errors.append(f"{pack_id}: missing fixture {path.name}")
+                continue
+            if sha256(path) != descriptor.get("sha256"):
+                errors.append(f"{pack_id}: fixture hash mismatch {path.name}")
+
+    takken2027 = pack_by_id.get("takken2027.fixture.v1", {})
+    if takken2027.get("editionYear") != 2027:
+        errors.append("Takken 2027 fixture must be an annual 2027 edition")
+    if takken2027.get("supersedesPackID") != "takken2026.v1":
+        errors.append("Takken 2027 fixture predecessor changed")
+    if takken2027.get("oneTimeProductID") == "com.ameneko.lockandstudy.pack.takken2026.v1":
+        errors.append("Takken 2027 fixture must use a separate product")
+    manners_category = next(
+        (value for value in snapshot.get("categories", []) if value.get("id") == "life.manners"),
+        {},
+    )
+    if manners_category.get("themeToken") != "unknown-future-token":
+        errors.append("unknown theme-token fallback fixture changed")
+
+    production_ids = {value.get("id") for value in catalog()}
+    if production_ids & expected_fixture_packs:
+        errors.append("Platform v9 fixture pack leaked into production catalog")
     return errors
 
 
@@ -325,6 +566,16 @@ def verify_storekit() -> list[str]:
         errors.append("all products must be family-shareable in local catalog")
     if any("lifetime" in str(item).lower() for item in products + subscriptions):
         errors.append("all-content lifetime product is prohibited")
+    commerce_source = (ROOT / "LockAndStudy/Core/Commerce/CommerceModels.swift").read_text(
+        encoding="utf-8"
+    )
+    historical_mappings = {
+        "com.ameneko.lockandstudy.pack.english3000.v1": "english3000.v1",
+        "com.ameneko.lockandstudy.pack.takken2026.v1": "takken2026.v1",
+    }
+    for product_id, pack_id in historical_mappings.items():
+        if product_id not in commerce_source or pack_id not in commerce_source:
+            errors.append(f"historical product mapping disappeared: {product_id} -> {pack_id}")
     return errors
 
 

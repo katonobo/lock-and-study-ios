@@ -165,6 +165,8 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
 
 @MainActor
 struct TakkenExperience: StudyExperienceFactory {
+  let experienceID = StudyExperienceID.certificationV1
+  let supportedContentSchemas: Set<ContentSchemaID> = [.certificationQuestionsV1]
   let descriptor = StudyExperienceDescriptor(
     id: .takken,
     title: "宅建2026",
@@ -201,6 +203,56 @@ struct TakkenExperience: StudyExperienceFactory {
     snapshot: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext
   ) -> AnyView {
     AnyView(TakkenUnlockChallengeView(bundle: snapshot, context: context))
+  }
+
+  func makeUnlockAnswerRecord(
+    _ context: UnlockAnswerRecordContext
+  ) throws -> StudyAnswerRecord {
+    guard case .takken(let value) = context.question else {
+      throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "資格四択")
+    }
+    return .init(
+      submissionID: context.submissionID,
+      experienceID: .takken,
+      packID: context.bundle.challenge.packID,
+      moduleType: .takken,
+      itemID: value.id,
+      prompt: value.prompt,
+      choices: value.choices,
+      selectedChoiceID: context.selectedChoiceID,
+      correctChoiceID: value.correctChoiceID,
+      shortExplanation: value.shortExplanation,
+      longExplanation: value.longExplanation,
+      sourceNote: value.sourceNote,
+      category: value.category,
+      subcategory: value.subCategory,
+      contentVersion: value.contentVersion,
+      questionVersion: value.questionVersion,
+      examYear: value.examYear,
+      lawBasisDate: value.lawBasisDate,
+      answeredAt: context.answeredAt,
+      mode: .unlock,
+      sessionID: context.bundle.id,
+      feedbackPlan: context.feedback,
+      difficulty: value.difficulty,
+      questionFormat: value.format,
+      keyPoint: value.keyPoint,
+      learningRole: context.learningRole,
+      wasNewAtSubmission: context.wasNew,
+      wasDueAtSubmission: context.wasDue,
+      conceptID: value.resolvedConceptID,
+      variantID: value.resolvedVariantID,
+      attemptNumber: context.attemptNumber,
+      wasFirstAttempt: context.attemptNumber == 1
+    )
+  }
+
+  func minimumReviewSeconds(for context: UnlockAnswerRecordContext) throws -> Int {
+    guard case .takken(let value) = context.question else {
+      throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "資格四択")
+    }
+    let stagedSeconds = context.attemptNumber == 1 ? 10 : (context.attemptNumber == 2 ? 15 : 20)
+    return max(value.minimumReviewSeconds ?? 10, stagedSeconds)
   }
 
   func handleUnlockCompletion(_ context: UnlockCompletionContext) async throws {
@@ -265,6 +317,10 @@ struct TakkenExperience: StudyExperienceFactory {
     )
     try await context.dependencies.learning.saveTakkenPendingPreview(
       preview, for: context.manifest.id)
+  }
+
+  func clearTransientState(packID: StudyPackID, dependencies: DependencyContainer) async {
+    try? await dependencies.learning.saveTakkenPendingPreview(nil, for: packID)
   }
 }
 

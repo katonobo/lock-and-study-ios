@@ -8,6 +8,7 @@ cd "$(dirname "$0")/.."
 ./scripts/check_unreviewed_content
 ./scripts/check_legacy_identifiers
 ./scripts/verify_storekit_catalog
+./scripts/verify_platform_v9
 ./scripts/verify_privacy_manifest
 ./scripts/release_safety_check
 ./scripts/release_readiness

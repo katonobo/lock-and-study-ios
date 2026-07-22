@@ -1,0 +1,35 @@
+[
+  {
+    "id": "T27-001", "conceptID": "license-application", "variantID": "2027-a", "examYear": 2027,
+    "lawBasisDate": "2027-04-01", "category": "宅建業法", "subCategory": "免許", "difficulty": "基礎",
+    "format": "true_false", "prompt": "宅地建物取引業を営むには、原則として免許が必要である。",
+    "choices": [{"id": "true", "text": "正しい"}, {"id": "false", "text": "誤り", "rationale": "反復継続して宅建業を営む場合は免許が必要です。"}],
+    "correctChoiceID": "true", "correctIndex": 0, "explanation": "宅建業は免許制です。", "shortExplanation": "宅建業は免許制です。",
+    "longExplanation": "宅地・建物の取引を業として行う場合は、原則として免許が必要です。", "keyPoint": "宅建業は免許制",
+    "minimumReviewSeconds": 1, "sourceNote": "v9 test fixture", "reviewStatus": "checked", "version": 1,
+    "packId": "takken2027.fixture.v1", "tags": ["免許"], "unlockEligible": true, "isPlaceholder": false,
+    "requiresAnnualReview": true, "requiresAnnualUpdate": false
+  },
+  {
+    "id": "T27-002", "conceptID": "office-sign", "variantID": "2027-a", "examYear": 2027,
+    "lawBasisDate": "2027-04-01", "category": "宅建業法", "subCategory": "事務所", "difficulty": "基礎",
+    "format": "true_false", "prompt": "宅建業者は、事務所ごとに所定の標識を掲示する。",
+    "choices": [{"id": "true", "text": "正しい"}, {"id": "false", "text": "誤り", "rationale": "事務所には標識の掲示が必要です。"}],
+    "correctChoiceID": "true", "correctIndex": 0, "explanation": "事務所ごとに標識を掲示します。", "shortExplanation": "標識の掲示が必要です。",
+    "longExplanation": "利用者が免許情報等を確認できるよう、所定の標識を掲示します。", "keyPoint": "事務所には標識",
+    "minimumReviewSeconds": 1, "sourceNote": "v9 test fixture", "reviewStatus": "checked", "version": 1,
+    "packId": "takken2027.fixture.v1", "tags": ["事務所"], "unlockEligible": true, "isPlaceholder": false,
+    "requiresAnnualReview": true, "requiresAnnualUpdate": false
+  },
+  {
+    "id": "T27-003", "conceptID": "important-matters", "variantID": "2027-a", "examYear": 2027,
+    "lawBasisDate": "2027-04-01", "category": "宅建業法", "subCategory": "重要事項説明", "difficulty": "標準",
+    "format": "multiple_choice", "prompt": "重要事項説明を行う者として適切なのは誰か。",
+    "choices": [{"id": "agent", "text": "宅地建物取引士"}, {"id": "clerk", "text": "一般の事務員", "rationale": "資格のない事務員は行えません。"}, {"id": "buyer", "text": "買主", "rationale": "買主が説明者になる制度ではありません。"}, {"id": "neighbor", "text": "近隣住民", "rationale": "近隣住民は説明者ではありません。"}],
+    "correctChoiceID": "agent", "correctIndex": 0, "explanation": "重要事項説明は宅地建物取引士が行います。", "shortExplanation": "宅地建物取引士が説明します。",
+    "longExplanation": "資格を有する宅地建物取引士が所定の書面を用いて説明します。", "keyPoint": "重要事項説明は宅建士",
+    "minimumReviewSeconds": 1, "sourceNote": "v9 test fixture", "reviewStatus": "checked", "version": 1,
+    "packId": "takken2027.fixture.v1", "tags": ["重要事項説明"], "unlockEligible": true, "isPlaceholder": false,
+    "requiresAnnualReview": true, "requiresAnnualUpdate": false
+  }
+]

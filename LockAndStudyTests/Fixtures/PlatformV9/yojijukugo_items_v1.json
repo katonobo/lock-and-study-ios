@@ -1,0 +1,62 @@
+[
+  {
+    "id": "YJ001", "levelCode": "L0", "levelName": "基礎", "order": 1, "levelOrder": 1,
+    "headword": "一期一会", "displayWord": "一期一会", "partOfSpeechJa": "四字熟語", "primaryPosJa": "四字熟語",
+    "quizMeaningJa": "一生に一度の出会いを大切にすること", "fullMeaningJa": "一生に一度の機会と心得て、相手との出会いを大切にすること。",
+    "exampleEn": "一期一会の気持ちで客を迎える。", "exampleJa": "出会いを大切にする姿勢を表します。",
+    "questionType": "meaningChoice", "instructionJa": "意味を選んでください。", "prompt": "『一期一会』の意味は？",
+    "options": ["一生に一度の出会いを大切にする", "何度も同じことを行う", "一人で最後まで行う", "急いで結論を出す"],
+    "correctIndex": 0, "correctAnswer": "一生に一度の出会いを大切にする", "explanationJa": "茶道に由来し、その機会を一度限りと考えて大切にする意味です。",
+    "speechText": "いちごいちえ", "metadata": {"cefr": "J1", "contentVersion": "yojijukugo-1.0", "releaseStatus": "fixture", "releaseEligible": false}
+  },
+  {
+    "id": "YJ002", "levelCode": "L0", "levelName": "基礎", "order": 2, "levelOrder": 2,
+    "headword": "温故知新", "displayWord": "温故知新", "partOfSpeechJa": "四字熟語", "primaryPosJa": "四字熟語",
+    "quizMeaningJa": "昔を学び新しい知識を得ること", "fullMeaningJa": "過去の事柄を学び直して、新しい知識や道理を得ること。",
+    "exampleEn": "歴史を温故知新の姿勢で学ぶ。", "exampleJa": "過去から新しい知恵を得ます。",
+    "questionType": "meaningChoice", "instructionJa": "意味を選んでください。", "prompt": "『温故知新』の意味は？",
+    "options": ["新しい物だけを重視する", "昔を学び新しい知識を得る", "知識を隠しておく", "温度の変化を調べる"],
+    "correctIndex": 1, "correctAnswer": "昔を学び新しい知識を得る", "explanationJa": "『故きを温ねて新しきを知る』に由来します。",
+    "speechText": "おんこちしん", "metadata": {"cefr": "J1", "contentVersion": "yojijukugo-1.0", "releaseStatus": "fixture", "releaseEligible": false}
+  },
+  {
+    "id": "YJ003", "levelCode": "L0", "levelName": "基礎", "order": 3, "levelOrder": 3,
+    "headword": "試行錯誤", "displayWord": "試行錯誤", "partOfSpeechJa": "四字熟語", "primaryPosJa": "四字熟語",
+    "quizMeaningJa": "試みと失敗を重ねて解決に近づくこと", "fullMeaningJa": "さまざまな方法を試し、失敗を修正しながら解決を目指すこと。",
+    "exampleEn": "試行錯誤を重ねて完成させた。", "exampleJa": "試して改善する過程を表します。",
+    "questionType": "meaningChoice", "instructionJa": "意味を選んでください。", "prompt": "『試行錯誤』の意味は？",
+    "options": ["一度で成功する", "考えずに諦める", "試みと失敗を重ねて解決する", "他人に任せきる"],
+    "correctIndex": 2, "correctAnswer": "試みと失敗を重ねて解決する", "explanationJa": "複数の方法を試し、誤りを直す過程です。",
+    "speechText": "しこうさくご", "metadata": {"cefr": "J1", "contentVersion": "yojijukugo-1.0", "releaseStatus": "fixture", "releaseEligible": false}
+  },
+  {
+    "id": "YJ004", "levelCode": "L0", "levelName": "基礎", "order": 4, "levelOrder": 4,
+    "headword": "臨機応変", "displayWord": "臨機応変", "partOfSpeechJa": "四字熟語", "primaryPosJa": "四字熟語",
+    "quizMeaningJa": "状況に応じて適切に対応すること", "fullMeaningJa": "その時々の状況に合わせ、適切な方法で対応すること。",
+    "exampleEn": "予定変更に臨機応変に対応する。", "exampleJa": "状況に合わせて柔軟に動きます。",
+    "questionType": "meaningChoice", "instructionJa": "意味を選んでください。", "prompt": "『臨機応変』の意味は？",
+    "options": ["決めた方法を変えない", "状況に応じて適切に対応する", "準備せず待ち続ける", "問題から逃げる"],
+    "correctIndex": 1, "correctAnswer": "状況に応じて適切に対応する", "explanationJa": "機会や状況に臨み、変化に応じることです。",
+    "speechText": "りんきおうへん", "metadata": {"cefr": "J1", "contentVersion": "yojijukugo-1.0", "releaseStatus": "fixture", "releaseEligible": false}
+  },
+  {
+    "id": "YJ005", "levelCode": "L0", "levelName": "基礎", "order": 5, "levelOrder": 5,
+    "headword": "有言実行", "displayWord": "有言実行", "partOfSpeechJa": "四字熟語", "primaryPosJa": "四字熟語",
+    "quizMeaningJa": "口にしたことを実際に行うこと", "fullMeaningJa": "自分がすると公言したことを、責任を持って実行すること。",
+    "exampleEn": "目標を宣言し有言実行した。", "exampleJa": "言葉にしたことを行動に移します。",
+    "questionType": "meaningChoice", "instructionJa": "意味を選んでください。", "prompt": "『有言実行』の意味は？",
+    "options": ["何も言わずに行う", "言ったことを取り消す", "他人の言葉を記録する", "口にしたことを実際に行う"],
+    "correctIndex": 3, "correctAnswer": "口にしたことを実際に行う", "explanationJa": "公言した内容をそのとおり実行する意味です。",
+    "speechText": "ゆうげんじっこう", "metadata": {"cefr": "J1", "contentVersion": "yojijukugo-1.0", "releaseStatus": "fixture", "releaseEligible": false}
+  },
+  {
+    "id": "YJ006", "levelCode": "L0", "levelName": "基礎", "order": 6, "levelOrder": 6,
+    "headword": "切磋琢磨", "displayWord": "切磋琢磨", "partOfSpeechJa": "四字熟語", "primaryPosJa": "四字熟語",
+    "quizMeaningJa": "互いに励まし合って向上すること", "fullMeaningJa": "仲間同士が励まし競い合い、学問や人格を高めること。",
+    "exampleEn": "仲間と切磋琢磨して成長する。", "exampleJa": "互いを高め合う関係を表します。",
+    "questionType": "meaningChoice", "instructionJa": "意味を選んでください。", "prompt": "『切磋琢磨』の意味は？",
+    "options": ["互いに励まし合って向上する", "一人だけで秘密に学ぶ", "道具を処分する", "議論を避ける"],
+    "correctIndex": 0, "correctAnswer": "互いに励まし合って向上する", "explanationJa": "素材を磨く語から、互いに努力して成長する意味になりました。",
+    "speechText": "せっさたくま", "metadata": {"cefr": "J1", "contentVersion": "yojijukugo-1.0", "releaseStatus": "fixture", "releaseEligible": false}
+  }
+]

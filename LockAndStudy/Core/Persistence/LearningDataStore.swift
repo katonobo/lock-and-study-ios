@@ -20,6 +20,10 @@ private struct ProgressDocument: Codable {
 private struct EventDocument: Codable { let schemaVersion: Int; var events: [LearningEvent] }
 private struct BundleDocument: Codable { let schemaVersion: Int; var bundle: UnlockLearningBundleSnapshot? }
 private struct ExperienceBundleDocument: Codable { let schemaVersion: Int; var bundle: ExperienceUnlockBundleSnapshot? }
+private struct UnlockSessionEnvelopeDocument: Codable {
+  let schemaVersion: Int
+  var envelope: UnlockChallengeSessionEnvelope?
+}
 private struct VocabularyPendingPreviewDocument: Codable {
   let schemaVersion: Int
   var preview: VocabularyPendingPreview?
@@ -244,6 +248,8 @@ actor LearningDataStore {
 
   func saveExperienceUnlockBundle(_ bundle: ExperienceUnlockBundleSnapshot?) throws {
     try write(ExperienceBundleDocument(schemaVersion: Self.schemaVersion, bundle: bundle), to: experienceBundleURL)
+    let envelope = try bundle.map(UnlockChallengeSessionEnvelope.wrapping)
+    try saveUnlockSessionEnvelope(envelope)
   }
 
   func loadExperienceUnlockBundle() throws -> ExperienceUnlockBundleSnapshot? {
@@ -255,6 +261,26 @@ actor LearningDataStore {
       throw LearningDataStoreError.unsupportedSchema(document.schemaVersion)
     }
     return document.bundle
+  }
+
+  func saveUnlockSessionEnvelope(_ envelope: UnlockChallengeSessionEnvelope?) throws {
+    try write(
+      UnlockSessionEnvelopeDocument(schemaVersion: 1, envelope: envelope),
+      to: unlockSessionEnvelopeURL)
+  }
+
+  func loadUnlockSessionEnvelope() throws -> UnlockChallengeSessionEnvelope? {
+    let document: UnlockSessionEnvelopeDocument = try load(
+      unlockSessionEnvelopeURL,
+      fallback: .init(schemaVersion: 1, envelope: nil))
+    guard document.schemaVersion == 1 else {
+      throw LearningDataStoreError.unsupportedSchema(document.schemaVersion)
+    }
+    if let envelope = document.envelope { return envelope }
+    guard let legacy = try loadExperienceUnlockBundle() else { return nil }
+    let migrated = try UnlockChallengeSessionEnvelope.wrapping(legacy)
+    try saveUnlockSessionEnvelope(migrated)
+    return migrated
   }
 
   func saveVocabularyPendingPreview(
@@ -475,6 +501,9 @@ actor LearningDataStore {
   private var eventsURL: URL { rootURL.appendingPathComponent("events.v1.json") }
   private var bundleURL: URL { rootURL.appendingPathComponent("unlock-bundle.v1.json") }
   private var experienceBundleURL: URL { rootURL.appendingPathComponent("experience-unlock-bundle.v2.json") }
+  private var unlockSessionEnvelopeURL: URL {
+    rootURL.appendingPathComponent("unlock-session-envelope.v3.json")
+  }
   private var vocabularyPendingPreviewURL: URL {
     rootURL.appendingPathComponent("vocabulary-pending-preview.v1.json")
   }

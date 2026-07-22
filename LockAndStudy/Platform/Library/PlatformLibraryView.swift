@@ -14,11 +14,31 @@ struct PlatformPackDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
           Text(manifest.title).font(.largeTitle.bold())
           Text(manifest.description)
+          if !manifest.saleReady {
+            Text("準備中のため購入操作は表示されません。")
+              .font(.footnote)
+              .foregroundStyle(.secondary)
+          }
+          LabeledContent("カテゴリー", value: categoryTitle)
+          LabeledContent("シリーズ", value: seriesTitle)
+          LabeledContent("版", value: manifest.editionID)
           LabeledContent("公開数", value: manifest.publishedCountLabel)
           LabeledContent("コンテンツ版", value: manifest.contentVersion)
+          LabeledContent("配信", value: deliveryLabel)
+          LabeledContent("インストール", value: installLabel)
+          LabeledContent("買い切り価格", value: priceLabel)
+          LabeledContent("Study Pass", value: passLabel)
           if let q = manifest.qualification { if let year = q.examYear { LabeledContent("試験年度", value: "\(year)年度") }; if let date = q.lawBasisDate { LabeledContent("法令基準日", value: date) } }
           if let summary { LabeledContent("学習済み", value: "\(summary.learnedItemCount)"); LabeledContent("正答率", value: "\(Int(summary.accuracy * 100))%") }
           if !manifest.saleReady { Label("全範囲版は準備中です。校閲完了まで購入できません。", systemImage: "clock.badge.exclamationmark").foregroundStyle(.orange) }
+          if manifest.storeState == .archivedOwnedOnly {
+            Label("過去年度版です。法令・制度が現在と異なる可能性があります。", systemImage: "calendar.badge.exclamationmark")
+              .foregroundStyle(.orange)
+          }
+          if model.experienceRegistry.factory(for: manifest) == nil {
+            Label("この教材を利用するには、Lock and Studyを最新版へ更新してください。", systemImage: "arrow.down.app.fill")
+              .foregroundStyle(.orange)
+          }
         }.padding(.vertical)
       }
       Section {
@@ -32,7 +52,7 @@ struct PlatformPackDetailView: View {
             .secondaryActionStyle()
           }
         } else {
-          if model.selectedPackID == manifest.id {
+          if model.activeUnlockPackID == manifest.id {
             Label("解除教材に設定済み", systemImage: "checkmark.circle.fill")
               .foregroundStyle(LockAndStudyTheme.teal)
               .accessibilityIdentifier("platform.pack.selectedForUnlock")
@@ -52,13 +72,11 @@ struct PlatformPackDetailView: View {
             }
             .primaryActionStyle()
             .accessibilityIdentifier("platform.pack.openFree")
-            if manifest.saleReady {
+            if manifest.saleReady && manifest.storeState == .forSale
+              && model.experienceRegistry.factory(for: manifest) != nil
+            {
               Button("購入方法を見る") { showPurchase = true }.secondaryActionStyle()
                 .accessibilityIdentifier("platform.pack.purchase")
-            } else {
-              Text("準備中のため購入操作は表示されません。")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
             }
           }
           if isIncludedByPass {
@@ -75,8 +93,34 @@ struct PlatformPackDetailView: View {
     .accessibilityIdentifier("platform.pack.detail")
   }
   private var isOwned: Bool { commerce.entitlement.ownedPacks.contains { $0.packID == manifest.id } }
-  private var isIncludedByPass: Bool { manifest.passEligible && commerce.entitlement.activePass?.permitsAccess == true }
+  private var isIncludedByPass: Bool {
+    manifest.passAccessPolicy.permitsAccess(storeState: manifest.storeState)
+      && commerce.entitlement.activePass?.permitsAccess == true
+  }
   private var availability: PackAvailability { model.availability(for: manifest) }
+  private var categoryTitle: String {
+    model.categories.first { $0.id == manifest.categoryID }?.title ?? manifest.categoryID.rawValue
+  }
+  private var seriesTitle: String {
+    model.series.first { $0.id == manifest.seriesID }?.title ?? manifest.seriesID.rawValue
+  }
+  private var deliveryLabel: String {
+    switch manifest.deliveryMode {
+    case .bundled: return "アプリ同梱"
+    case .downloadable: return "ダウンロード対応"
+    }
+  }
+  private var installLabel: String {
+    manifest.deliveryMode == .bundled ? "インストール済み" : "利用時に確認"
+  }
+  private var priceLabel: String {
+    guard let productID = manifest.oneTimeProductID else { return "買い切りなし" }
+    return commerce.products.first { $0.id == productID }?.displayPrice
+      ?? (manifest.storeState == .archivedOwnedOnly ? "販売終了" : "取得中")
+  }
+  private var passLabel: String {
+    manifest.passAccessPolicy.permitsAccess(storeState: manifest.storeState) ? "対象" : "対象外"
+  }
   private func load() async {
     if let file = manifest.creditsFile {
       credits = (try? await model.dependencies.content.text(

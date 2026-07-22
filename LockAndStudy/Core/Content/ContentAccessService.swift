@@ -42,7 +42,8 @@ struct ContentAccessService: Sendable {
       case .appStore: return .init(isAllowed: true, reason: .ownedNonConsumable)
       }
     }
-    if manifest.passEligible, let pass = entitlement.activePass, pass.permitsAccess,
+    if manifest.passAccessPolicy.permitsAccess(storeState: manifest.storeState),
+      let pass = entitlement.activePass, pass.permitsAccess,
       pass.expirationDate.map({ $0 > now }) ?? true
     {
       return .init(

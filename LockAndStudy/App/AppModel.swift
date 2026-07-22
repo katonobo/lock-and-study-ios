@@ -6,7 +6,12 @@ import Foundation
 final class AppModel: ObservableObject {
   @Published var onboardingCompleted: Bool
   @Published private(set) var manifests: [StudyPackManifest] = []
+  @Published private(set) var categories: [StudyCategoryManifest] = []
+  @Published private(set) var series: [StudySeriesManifest] = []
   @Published var selectedPackID: StudyPackID
+  @Published var activeUnlockPackID: StudyPackID
+  @Published private(set) var openedPackID: StudyPackID?
+  @Published private(set) var lastStudiedPackID: StudyPackID?
   @Published var studySession: StudySessionPresentation?
   @Published var activeExperience: ActiveStudyExperience?
   @Published var isMaterialSelectionPresented = false
@@ -29,6 +34,7 @@ final class AppModel: ObservableObject {
         defaults.removePersistentDomain(forName: LockAndStudySharedConstants.appGroupID)
       }
     #endif
+    PlatformMigrationV9().run(defaults: defaults)
     self.dependencies = dependencies ?? DependencyContainer()
     experienceRegistry = .standard()
     if ProcessInfo.processInfo.arguments.contains("-ResetOnboarding") {
@@ -40,14 +46,26 @@ final class AppModel: ObservableObject {
       defaults.set(true, forKey: "lockandstudy.experience.takken.first-run.completed")
       defaults.set(true, forKey: "lockandstudy.pack.english3000.v1.first-run.completed.v1")
       defaults.set(true, forKey: "lockandstudy.pack.takken2026.v1.first-run.completed.v1")
+      defaults.set(true, forKey: "lockandstudy.pack.english3000.v1.first-run.completed.v2")
+      defaults.set(true, forKey: "lockandstudy.pack.takken2026.v1.first-run.completed.v2")
     }
     onboardingCompleted = defaults.bool(forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
-    selectedPackID = .init(
-      rawValue: defaults.string(forKey: LockAndStudySharedConstants.Key.selectedPackID)
+    let initialPackID = StudyPackID(
+      rawValue: defaults.string(forKey: LockAndStudySharedConstants.Key.activeUnlockPackID)
+        ?? defaults.string(forKey: LockAndStudySharedConstants.Key.selectedPackID)
         ?? "english3000.v1")
+    selectedPackID = initialPackID
+    activeUnlockPackID = initialPackID
+    openedPackID = defaults.string(forKey: LockAndStudySharedConstants.Key.openedPackID).map {
+      StudyPackID(rawValue: $0)
+    }
+    lastStudiedPackID = defaults.string(
+      forKey: LockAndStudySharedConstants.Key.lastStudiedPackID
+    ).map { StudyPackID(rawValue: $0) }
     #if DEBUG
       if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestSelectedTakken") {
         selectedPackID = "takken2026.v1"
+        activeUnlockPackID = "takken2026.v1"
       }
       let arguments = ProcessInfo.processInfo.arguments
       if arguments.contains("-LockAndStudyUITestUnlock2")
@@ -79,7 +97,12 @@ final class AppModel: ObservableObject {
   private func performStart() async {
     isBusy = true
     do {
-      manifests = try await dependencies.content.releasedManifests()
+      let catalog = try await dependencies.content.catalogSnapshot()
+      categories = catalog.categories
+        .filter { $0.isVisible && ($0.availableFrom.map { $0 <= Date() } ?? true) }
+        .sorted { $0.sortOrder < $1.sortOrder }
+      series = catalog.series.filter(\.isVisible).sorted { $0.sortOrder < $1.sortOrder }
+      manifests = catalog.packs
       dependencies.commerce.configure(manifests: manifests)
       #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestReportData") {
@@ -90,6 +113,7 @@ final class AppModel: ObservableObject {
         let first = manifests.first(where: { availability(for: $0).canOpen })
       {
         selectedPackID = first.id
+        activeUnlockPackID = first.id
       }
       await dependencies.lockController.refreshLockState()
       await recoverLegacyOnboardingLockIfNeeded()
@@ -155,8 +179,10 @@ final class AppModel: ObservableObject {
     guard dependencies.lockController.isLockEnabled else { throw LockControllerError.unavailable }
 
     selectedPackID = selectedPack
+    activeUnlockPackID = selectedPack
     let defaults = LockAndStudySharedConstants.defaults
     defaults.set(selectedPack.rawValue, forKey: LockAndStudySharedConstants.Key.selectedPackID)
+    defaults.set(selectedPack.rawValue, forKey: LockAndStudySharedConstants.Key.activeUnlockPackID)
     defaults.set(true, forKey: LockAndStudySharedConstants.Key.onboardingCompleted)
     onboardingCompleted = true
     openExperience(packID: selectedPack, requiresFirstRun: true)
@@ -172,8 +198,11 @@ final class AppModel: ObservableObject {
       return
     }
     selectedPackID = id
+    activeUnlockPackID = id
     LockAndStudySharedConstants.defaults.set(
       id.rawValue, forKey: LockAndStudySharedConstants.Key.selectedPackID)
+    LockAndStudySharedConstants.defaults.set(
+      id.rawValue, forKey: LockAndStudySharedConstants.Key.activeUnlockPackID)
   }
 
   func presentMaterialSelection() {
@@ -246,6 +275,9 @@ final class AppModel: ObservableObject {
       destination: destination,
       requiresFirstRun: requiresFirstRun
     )
+    openedPackID = packID
+    LockAndStudySharedConstants.defaults.set(
+      packID.rawValue, forKey: LockAndStudySharedConstants.Key.openedPackID)
   }
 
   func closeExperience() { activeExperience = nil }
@@ -304,6 +336,9 @@ final class AppModel: ObservableObject {
         return lhs == rhs ? $0.itemID.rawValue < $1.itemID.rawValue : lhs < rhs
       }
       let sessionID = UUID()
+      lastStudiedPackID = packID
+      LockAndStudySharedConstants.defaults.set(
+        packID.rawValue, forKey: LockAndStudySharedConstants.Key.lastStudiedPackID)
       studySession = .init(
         id: sessionID, packID: packID, packTitle: manifest.title, mode: mode,
         prompts: Array(ordered.prefix(10)), bundleID: nil)
@@ -317,7 +352,7 @@ final class AppModel: ObservableObject {
     requestID: UUID = UUID(),
     origin: UnlockChallengeOrigin
   ) async {
-    let requestedPackID = packID ?? selectedPackID
+    let requestedPackID = packID ?? activeUnlockPackID
     guard let manifest = manifests.first(where: { $0.id == requestedPackID }) ?? manifests.first
     else { return }
     do {
@@ -396,8 +431,11 @@ final class AppModel: ObservableObject {
       let attemptNumber = (bundle.attemptCountsByQuestionID?[question.id.rawValue] ?? 0) + 1
       let itemProgress = try await dependencies.learning.progress(
         for: .init(packID: bundle.challenge.packID, itemID: question.id))
-      let record = answerRecord(
-        for: question,
+      guard let factory = experienceRegistry.factory(for: bundle.challenge.experienceID) else {
+        return .failed("この解除問題を実行できる学習エンジンがありません。")
+      }
+      let answerContext = UnlockAnswerRecordContext(
+        question: question,
         selectedChoiceID: selectedChoiceID,
         feedback: feedback,
         bundle: bundle,
@@ -405,6 +443,7 @@ final class AppModel: ObservableObject {
         priorProgress: itemProgress,
         attemptNumber: attemptNumber
       )
+      let record = try factory.makeUnlockAnswerRecord(answerContext)
       _ = try await dependencies.learning.recordUnique(record)
       var attempts = bundle.attemptCountsByQuestionID ?? [:]
       attempts[question.id.rawValue] = attemptNumber
@@ -421,13 +460,7 @@ final class AppModel: ObservableObject {
         reviewRemaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
         lastSelections = bundle.lastSelectedChoiceIDByQuestionID ?? [:]
       } else {
-        let minimumSeconds: Int
-        if case .takken(let value) = question {
-          let stagedSeconds = attemptNumber == 1 ? 10 : (attemptNumber == 2 ? 15 : 20)
-          minimumSeconds = max(value.minimumReviewSeconds ?? 10, stagedSeconds)
-        } else {
-          minimumSeconds = feedbackWaitSeconds(feedback)
-        }
+        let minimumSeconds = try factory.minimumReviewSeconds(for: answerContext)
         if minimumSeconds > 0 {
           reviewRemaining[question.id.rawValue] = TimeInterval(minimumSeconds)
         }
@@ -490,6 +523,24 @@ final class AppModel: ObservableObject {
       return
     }
     do {
+      let proofDecision = try await dependencies.unlockSessions.acceptCompletionProof(
+        .init(
+          sessionID: bundle.id,
+          packID: bundle.challenge.packID,
+          completedAt: Date(),
+          evidenceVersion: 1),
+        now: Date())
+      switch proofDecision {
+      case .accepted, .resuming:
+        break
+      case .alreadyCompleted:
+        try await dependencies.learning.saveExperienceUnlockBundle(nil)
+        unlockChallenge = nil
+        return
+      case .rejected(let reason):
+        try await expireUnlockBundle(&bundle, reason: reason)
+        return
+      }
       if bundle.completionState == .answering {
         guard Date() < bundle.challenge.expiresAt else {
           try await expireUnlockBundle(&bundle, reason: "challenge-expired-before-session")
@@ -535,13 +586,8 @@ final class AppModel: ObservableObject {
               ))
             dependencies.learningRevision.bump()
           } catch {
-            if bundle.challenge.experienceID == .vocabulary {
-              try? await dependencies.learning.saveVocabularyPendingPreview(
-                nil, for: bundle.challenge.packID)
-            } else if bundle.challenge.experienceID == .takken {
-              try? await dependencies.learning.saveTakkenPendingPreview(
-                nil, for: bundle.challenge.packID)
-            }
+            await factory.clearTransientState(
+              packID: bundle.challenge.packID, dependencies: dependencies)
             completionWarning = "ロック解除は完了しましたが、次回予習を保存できませんでした。\n\(error.localizedDescription)"
           }
         }
@@ -678,64 +724,6 @@ final class AppModel: ObservableObject {
     if studySession?.mode == .unlock { studySession = nil }
   }
 
-  private func answerRecord(
-    for question: UnlockQuestionSnapshot,
-    selectedChoiceID: Int,
-    feedback: StudyFeedbackPlan,
-    bundle: ExperienceUnlockBundleSnapshot,
-    answeredAt: Date,
-    priorProgress: ItemProgress,
-    attemptNumber: Int
-  ) -> StudyAnswerRecord {
-    let submissionID =
-      "unlock::\(bundle.id.uuidString)::\(question.id.rawValue)::attempt::\(attemptNumber)::choice::\(selectedChoiceID)"
-    let role = AnswerLearningRole.classify(mode: .unlock, progress: priorProgress, at: answeredAt)
-    let wasNew = priorProgress.answerCount == 0
-    let wasDue = priorProgress.dueAt.map { $0 <= answeredAt } ?? false
-    switch question {
-    case .vocabulary(let value):
-      return .init(
-        submissionID: submissionID, experienceID: .vocabulary, packID: bundle.challenge.packID,
-        moduleType: .vocabulary, itemID: value.id, prompt: value.prompt, choices: value.choices,
-        selectedChoiceID: selectedChoiceID, correctChoiceID: value.correctChoiceID,
-        shortExplanation: value.explanation,
-        longExplanation: "\(value.explanation)\n\(value.exampleEnglish)\n\(value.exampleJapanese)",
-        sourceNote: nil, category: value.levelCode, subcategory: nil,
-        contentVersion: value.contentVersion, questionVersion: 1, examYear: nil, lawBasisDate: nil,
-        answeredAt: answeredAt, mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
-        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue,
-        attemptNumber: attemptNumber, wasFirstAttempt: attemptNumber == 1
-      )
-    case .takken(let value):
-      return .init(
-        submissionID: submissionID, experienceID: .takken, packID: bundle.challenge.packID,
-        moduleType: .takken, itemID: value.id, prompt: value.prompt, choices: value.choices,
-        selectedChoiceID: selectedChoiceID, correctChoiceID: value.correctChoiceID,
-        shortExplanation: value.shortExplanation, longExplanation: value.longExplanation,
-        sourceNote: value.sourceNote, category: value.category, subcategory: value.subCategory,
-        contentVersion: value.contentVersion, questionVersion: value.questionVersion,
-        examYear: value.examYear, lawBasisDate: value.lawBasisDate,
-        answeredAt: answeredAt, mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
-        difficulty: value.difficulty, questionFormat: value.format, keyPoint: value.keyPoint,
-        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue,
-        conceptID: value.resolvedConceptID, variantID: value.resolvedVariantID,
-        attemptNumber: attemptNumber, wasFirstAttempt: attemptNumber == 1
-      )
-    case .safeFallback(let value):
-      return .init(
-        submissionID: submissionID, experienceID: .safeFallback, packID: bundle.challenge.packID,
-        moduleType: .vocabulary, itemID: value.id, prompt: value.prompt, choices: value.choices,
-        selectedChoiceID: selectedChoiceID, correctChoiceID: value.correctChoiceID,
-        shortExplanation: value.explanation, longExplanation: value.explanation,
-        sourceNote: "built-in-safe-fallback", category: "安全な無料問題", subcategory: nil,
-        contentVersion: "built-in-v1", questionVersion: 1, examYear: nil, lawBasisDate: nil,
-        answeredAt: answeredAt, mode: .unlock, sessionID: bundle.id, feedbackPlan: feedback,
-        learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue,
-        attemptNumber: attemptNumber, wasFirstAttempt: attemptNumber == 1
-      )
-    }
-  }
-
   private func prepareRestoredReviewState(
     _ bundle: inout ExperienceUnlockBundleSnapshot,
     at date: Date
@@ -783,15 +771,6 @@ final class AppModel: ObservableObject {
     let components = start.duration(to: reviewClock.now).components
     return TimeInterval(components.seconds)
       + TimeInterval(components.attoseconds) / 1_000_000_000_000_000_000
-  }
-
-  private func feedbackWaitSeconds(_ feedback: StudyFeedbackPlan) -> Int {
-    switch feedback {
-    case .immediate: return 0
-    case .relearn6: return 6
-    case .relearn12: return 12
-    case .guided20: return 20
-    }
   }
 
   private func expireUnlockBundle(

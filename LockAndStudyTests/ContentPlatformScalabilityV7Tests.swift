@@ -81,7 +81,7 @@ final class ContentPlatformScalabilityV7Tests: XCTestCase {
   }
 
   @MainActor
-  func testRegistryUsesExperienceTypeForNewPackID() async throws {
+  func testRegistryUsesManifestExperienceIDForNewPackID() async throws {
     let base = try await manifest("english3000.v1")
     let newPack = try replacing(base, with: ["id": "toeic.words.v1"])
     let factory = StudyExperienceRegistry.standard().factory(for: newPack)
@@ -92,18 +92,23 @@ final class ContentPlatformScalabilityV7Tests: XCTestCase {
   func testUnknownTypesAndNewSchemaDoNotBreakKnownCatalogEntries() async throws {
     let bundled = BundledContentSource(bundle: .main)
     let data = try await bundled.catalogData()
-    var entries = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [[String: Any]])
+    var snapshot = try XCTUnwrap(
+      JSONSerialization.jsonObject(with: data) as? [String: Any])
+    var entries = try XCTUnwrap(snapshot["packs"] as? [[String: Any]])
     var unknownModule = try XCTUnwrap(entries.first)
     unknownModule["id"] = "future.module.v1"
     unknownModule["moduleType"] = "future-module"
-    unknownModule["experienceType"] = StudyExperienceType.vocabularyV1.rawValue
+    unknownModule["experienceID"] = StudyExperienceID.flashcardV1.rawValue
+    unknownModule.removeValue(forKey: "oneTimeProductID")
     var unknownExperience = try XCTUnwrap(entries.first)
     unknownExperience["id"] = "future.experience.v1"
-    unknownExperience["experienceType"] = "future-experience.v1"
+    unknownExperience["experienceID"] = "future-experience.v1"
     unknownExperience["schemaVersion"] = StudyPackManifest.supportedSchemaVersion + 1
+    unknownExperience.removeValue(forKey: "oneTimeProductID")
     entries.append(contentsOf: [unknownModule, unknownExperience])
+    snapshot["packs"] = entries
     let source = DirectoryContentSource(
-      catalog: try JSONSerialization.data(withJSONObject: entries),
+      catalog: try JSONSerialization.data(withJSONObject: snapshot),
       root: try XCTUnwrap(Bundle.main.resourceURL))
     let repository = ContentRepository(source: source)
     let decoded = try await repository.releasedManifests()
@@ -225,7 +230,8 @@ final class ContentPlatformScalabilityV7Tests: XCTestCase {
       dynamic, with: ["releaseStatus": "retired", "isEnabled": false])
     let retiredCatalog = ProductCatalog(
       manifests: [retiredManifest], knownProductMappings: [:], now: now)
-    XCTAssertFalse(retiredCatalog.allIDs.contains(productID))
+    XCTAssertTrue(retiredCatalog.allIDs.contains(productID))
+    XCTAssertFalse(retiredCatalog.purchasableProductIDs.contains(productID))
     XCTAssertEqual(retiredCatalog.packID(for: productID), packID)
 
     let pass = CommerceEntitlementResolver().resolve(

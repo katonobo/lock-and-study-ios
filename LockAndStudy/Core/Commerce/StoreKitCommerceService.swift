@@ -13,6 +13,7 @@ final class StoreKitCommerceService: ObservableObject {
   private let dateProvider: any DateProviding
   private let logger = Logger(subsystem: "com.ameneko.lockandstudy", category: "StoreKit")
   private var productCatalog: ProductCatalog
+  private var packTitleByID: [StudyPackID: String] = [:]
   private var updatesTask: Task<Void, Never>?
   #if DEBUG
     private let uiTestScenario: CommerceUITestScenario?
@@ -40,6 +41,9 @@ final class StoreKitCommerceService: ObservableObject {
   deinit { updatesTask?.cancel() }
 
   func configure(manifests: [StudyPackManifest]) {
+    packTitleByID = Dictionary(
+      manifests.map { ($0.id, $0.title) },
+      uniquingKeysWith: { current, _ in current })
     productCatalog = ProductCatalog(
       manifests: manifests,
       knownProductMappings: productCatalog.productMappings)
@@ -51,7 +55,7 @@ final class StoreKitCommerceService: ObservableObject {
   func loadProducts() async {
     #if DEBUG
       if uiTestScenario != nil {
-        products = Self.uiTestProducts(catalog: productCatalog)
+        products = uiTestProducts(catalog: productCatalog)
         state = .idle
         return
       }
@@ -61,6 +65,7 @@ final class StoreKitCommerceService: ObservableObject {
       storeProducts = try await Product.products(for: productCatalog.allIDs)
       var values: [StoreProductPresentation] = []
       for product in storeProducts {
+        guard productCatalog.isPurchasable(product.id) else { continue }
         guard let descriptor = productCatalog.descriptor(for: product.id) else { continue }
         let trialEligible: Bool
         if descriptor.kind == .passYearly, let subscription = product.subscription {
@@ -86,6 +91,10 @@ final class StoreKitCommerceService: ObservableObject {
   }
 
   func purchase(productID: String) async {
+    guard productCatalog.isPurchasable(productID) else {
+      state = .failed("この商品は現在購入できません。")
+      return
+    }
     #if DEBUG
       if let uiTestScenario {
         if uiTestScenario == .pending {
@@ -139,7 +148,8 @@ final class StoreKitCommerceService: ObservableObject {
         let packID = StudyPackID(rawValue: "english3000.v1")
         entitlement.ownedPacks = [
           .init(
-            packID: packID, productID: StoreProductKind.english3000.productID,
+            packID: packID,
+            productID: "com.ameneko.lockandstudy.pack.english3000.v1",
             purchaseDate: dateProvider.now(), ownershipType: .purchased, source: .appStore)
         ]
         state = .purchased
@@ -284,15 +294,15 @@ final class StoreKitCommerceService: ObservableObject {
   }
 
   #if DEBUG
-    private static func uiTestProducts(catalog: ProductCatalog) -> [StoreProductPresentation] {
-      catalog.descriptors.map { descriptor in
+    private func uiTestProducts(catalog: ProductCatalog) -> [StoreProductPresentation] {
+      catalog.descriptors.filter { catalog.isPurchasable($0.productID) }.map { descriptor in
         .init(
           id: descriptor.productID,
           kind: descriptor.kind,
           packID: descriptor.packID,
           displayName: descriptor.kind.isSubscription
             ? (descriptor.kind == .passYearly ? "Study Pass 年額" : "Study Pass 月額")
-            : (descriptor.packID == "english3000.v1" ? "英単語3,000語" : "宅建2026"),
+            : (descriptor.packID.flatMap { packTitleByID[$0] } ?? "学習教材"),
           description: "UIテスト用StoreKit表示",
           displayPrice: "テスト価格",
           isFamilyShareable: true,
@@ -337,7 +347,8 @@ final class StoreKitCommerceService: ObservableObject {
           activePass: nil,
           ownedPacks: [
             .init(
-              packID: "english3000.v1", productID: StoreProductKind.english3000.productID,
+              packID: "english3000.v1",
+              productID: "com.ameneko.lockandstudy.pack.english3000.v1",
               purchaseDate: now, ownershipType: .purchased, source: .appStore)
           ],
           familySharedProductIDs: [], legacyGrants: [], lastVerifiedAt: now,

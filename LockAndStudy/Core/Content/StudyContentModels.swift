@@ -6,6 +6,41 @@ struct StudyPackID: RawRepresentable, Codable, Hashable, ExpressibleByStringLite
   init(stringLiteral value: String) { rawValue = value }
 }
 
+struct StudyCategoryID: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral, Sendable {
+  let rawValue: String
+  init(rawValue: String) { self.rawValue = rawValue }
+  init(stringLiteral value: String) { rawValue = value }
+
+  static let english: Self = "language.english"
+  static let japanese: Self = "language.japanese"
+  static let qualification: Self = "qualification"
+}
+
+struct StudySeriesID: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral, Sendable {
+  let rawValue: String
+  init(rawValue: String) { self.rawValue = rawValue }
+  init(stringLiteral value: String) { rawValue = value }
+
+  static let englishVocabulary: Self = "english.vocabulary"
+  static let takken: Self = "qualification.takken"
+}
+
+struct ContentSchemaID: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral, Sendable {
+  let rawValue: String
+  init(rawValue: String) { self.rawValue = rawValue }
+  init(stringLiteral value: String) { rawValue = value }
+
+  static let flashcardItemsV1: Self = "flashcard.items.v1"
+  static let certificationQuestionsV1: Self = "certification.questions.v1"
+  static let safeFallbackV1: Self = "safe-fallback.items.v1"
+}
+
+struct ContentComponentID: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral, Sendable {
+  let rawValue: String
+  init(rawValue: String) { self.rawValue = rawValue }
+  init(stringLiteral value: String) { rawValue = value }
+}
+
 struct StudyItemID: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral, Sendable {
   let rawValue: String
   init(rawValue: String) { self.rawValue = rawValue }
@@ -47,6 +82,57 @@ struct StudyExperienceType: RawRepresentable, Codable, Hashable, Sendable {
   static let vocabularyV1 = Self(rawValue: "vocabulary.v1")
   static let takkenV1 = Self(rawValue: "certification.takken.v1")
 }
+
+enum EditionPolicy: String, Codable, Sendable {
+  case evergreen, annual, versioned
+}
+
+enum PackStoreState: String, Codable, Sendable {
+  case upcoming, forSale, archivedOwnedOnly, withdrawn
+}
+
+enum ContentDeliveryMode: String, Codable, Sendable {
+  case bundled, downloadable
+}
+
+enum PassAccessPolicy: String, Codable, Sendable {
+  case included, excluded, latestEditionOnly, activeAndArchived
+
+  func permitsAccess(storeState: PackStoreState) -> Bool {
+    switch self {
+    case .included: return storeState != .withdrawn
+    case .excluded: return false
+    case .latestEditionOnly: return storeState == .forSale
+    case .activeAndArchived: return storeState != .withdrawn
+    }
+  }
+}
+
+struct StudyCategoryManifest: Codable, Identifiable, Equatable, Sendable {
+  let schemaVersion: Int
+  let id: StudyCategoryID
+  let parentCategoryID: StudyCategoryID?
+  let title: String
+  let subtitle: String?
+  let systemImage: String
+  let sortOrder: Int
+  let isVisible: Bool
+  let availableFrom: Date?
+  let themeToken: String?
+}
+
+struct StudySeriesManifest: Codable, Identifiable, Equatable, Sendable {
+  let schemaVersion: Int
+  let id: StudySeriesID
+  let categoryID: StudyCategoryID
+  let title: String
+  let subtitle: String?
+  let description: String
+  let sortOrder: Int
+  let editionPolicy: EditionPolicy
+  let defaultExperienceID: StudyExperienceID?
+  let isVisible: Bool
+}
 enum ReleaseStatus: String, Codable, CaseIterable, Sendable {
   case draft, reviewed, release, retired
 }
@@ -55,6 +141,16 @@ struct ContentFileDescriptor: Codable, Equatable, Sendable {
   let path: String
   let sha256: String
   let itemCount: Int
+}
+
+struct ContentComponentManifest: Codable, Identifiable, Equatable, Sendable {
+  let id: ContentComponentID
+  let title: String
+  let experienceID: StudyExperienceID
+  let contentSchemaID: ContentSchemaID
+  let sortOrder: Int
+  let contentFiles: [ContentFileDescriptor]
+  let metadataFile: String?
 }
 
 struct SampleDefinition: Codable, Equatable, Sendable {
@@ -71,9 +167,21 @@ struct QualificationMetadata: Codable, Equatable, Sendable {
 }
 
 struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
-  static let supportedSchemaVersion = 1
+  static let supportedSchemaVersion = 2
   let schemaVersion: Int
   let id: StudyPackID
+  let categoryID: StudyCategoryID
+  let seriesID: StudySeriesID
+  let experienceID: StudyExperienceID
+  let editionID: String
+  let editionYear: Int?
+  let editionPolicy: EditionPolicy
+  let storeState: PackStoreState
+  let deliveryMode: ContentDeliveryMode
+  let passAccessPolicy: PassAccessPolicy
+  let components: [ContentComponentManifest]
+
+  // Transitional v1 fields remain readable while presentation adapters are migrated.
   let moduleType: StudyModuleType
   let experienceType: StudyExperienceType
   let title: String
@@ -100,6 +208,199 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
   let locale: String
   let qualification: QualificationMetadata?
   let progressMigrationFile: String?
+
+  private enum CodingKeys: String, CodingKey {
+    case schemaVersion, id, categoryID, seriesID, experienceID, editionID, editionYear
+    case editionPolicy, storeState, deliveryMode, passAccessPolicy, components
+    case moduleType, experienceType, title, subtitle, description, contentVersion
+    case minimumAppVersion, releaseStatus, isEnabled, sortOrder, expectedItemCount
+    case conceptCount, variantCount, sampleDefinition, oneTimeProductID, passEligible
+    case saleReady, contentFiles, metadataFile, creditsFile, availableFrom, retiredAt
+    case supersedesPackID, locale, qualification, progressMigrationFile
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+    id = try container.decode(StudyPackID.self, forKey: .id)
+
+    let decodedModule = try container.decodeIfPresent(StudyModuleType.self, forKey: .moduleType)
+    let legacyExperience = try container.decodeIfPresent(
+      StudyExperienceType.self, forKey: .experienceType)
+    let explicitExperience = try container.decodeIfPresent(
+      StudyExperienceID.self, forKey: .experienceID)
+    experienceID = Self.normalizedExperienceID(
+      explicitExperience?.rawValue ?? legacyExperience?.rawValue ?? decodedModule?.rawValue ?? "")
+    moduleType = decodedModule ?? Self.moduleType(for: experienceID)
+    experienceType = legacyExperience ?? Self.legacyExperienceType(for: experienceID)
+
+    categoryID = try container.decodeIfPresent(StudyCategoryID.self, forKey: .categoryID)
+      ?? Self.defaultCategoryID(for: moduleType)
+    seriesID = try container.decodeIfPresent(StudySeriesID.self, forKey: .seriesID)
+      ?? Self.defaultSeriesID(for: moduleType, packID: id)
+    editionID = try container.decodeIfPresent(String.self, forKey: .editionID)
+      ?? id.rawValue
+    editionYear = try container.decodeIfPresent(Int.self, forKey: .editionYear)
+      ?? (try container.decodeIfPresent(QualificationMetadata.self, forKey: .qualification))?.examYear
+    editionPolicy = try container.decodeIfPresent(EditionPolicy.self, forKey: .editionPolicy)
+      ?? (editionYear == nil ? .evergreen : .annual)
+
+    title = try container.decode(String.self, forKey: .title)
+    subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle) ?? ""
+    description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
+    contentVersion = try container.decode(String.self, forKey: .contentVersion)
+    minimumAppVersion = try container.decodeIfPresent(String.self, forKey: .minimumAppVersion)
+      ?? "1.0"
+    releaseStatus = try container.decodeIfPresent(ReleaseStatus.self, forKey: .releaseStatus)
+      ?? .release
+    isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
+    sortOrder = try container.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
+    expectedItemCount = try container.decodeIfPresent(Int.self, forKey: .expectedItemCount) ?? 0
+    conceptCount = try container.decodeIfPresent(Int.self, forKey: .conceptCount)
+    variantCount = try container.decodeIfPresent(Int.self, forKey: .variantCount)
+    sampleDefinition = try container.decodeIfPresent(SampleDefinition.self, forKey: .sampleDefinition)
+      ?? .init(kind: "none", count: 0, catalogFile: nil)
+    oneTimeProductID = try container.decodeIfPresent(String.self, forKey: .oneTimeProductID)
+    passEligible = try container.decodeIfPresent(Bool.self, forKey: .passEligible)
+      ?? ((try container.decodeIfPresent(PassAccessPolicy.self, forKey: .passAccessPolicy)) != .excluded)
+    saleReady = try container.decodeIfPresent(Bool.self, forKey: .saleReady) ?? false
+    let legacyFiles = try container.decodeIfPresent(
+      [ContentFileDescriptor].self, forKey: .contentFiles) ?? []
+    metadataFile = try container.decodeIfPresent(String.self, forKey: .metadataFile)
+    creditsFile = try container.decodeIfPresent(String.self, forKey: .creditsFile)
+    availableFrom = try container.decodeIfPresent(Date.self, forKey: .availableFrom)
+    retiredAt = try container.decodeIfPresent(Date.self, forKey: .retiredAt)
+    supersedesPackID = try container.decodeIfPresent(StudyPackID.self, forKey: .supersedesPackID)
+    locale = try container.decodeIfPresent(String.self, forKey: .locale) ?? "ja-JP"
+    qualification = try container.decodeIfPresent(QualificationMetadata.self, forKey: .qualification)
+    progressMigrationFile = try container.decodeIfPresent(String.self, forKey: .progressMigrationFile)
+
+    storeState = try container.decodeIfPresent(PackStoreState.self, forKey: .storeState)
+      ?? Self.legacyStoreState(releaseStatus: releaseStatus, retiredAt: retiredAt)
+    deliveryMode = try container.decodeIfPresent(ContentDeliveryMode.self, forKey: .deliveryMode)
+      ?? .bundled
+    passAccessPolicy = try container.decodeIfPresent(PassAccessPolicy.self, forKey: .passAccessPolicy)
+      ?? (passEligible ? .included : .excluded)
+
+    let decodedComponents = try container.decodeIfPresent(
+      [ContentComponentManifest].self, forKey: .components) ?? []
+    if decodedComponents.isEmpty {
+      components = [
+        .init(
+          id: "primary",
+          title: title,
+          experienceID: experienceID,
+          contentSchemaID: Self.contentSchemaID(for: moduleType),
+          sortOrder: 0,
+          contentFiles: legacyFiles,
+          metadataFile: metadataFile)
+      ]
+    } else {
+      components = decodedComponents
+    }
+    contentFiles = legacyFiles.isEmpty ? components.flatMap(\.contentFiles) : legacyFiles
+  }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(schemaVersion, forKey: .schemaVersion)
+    try container.encode(id, forKey: .id)
+    try container.encode(categoryID, forKey: .categoryID)
+    try container.encode(seriesID, forKey: .seriesID)
+    try container.encode(experienceID, forKey: .experienceID)
+    try container.encode(editionID, forKey: .editionID)
+    try container.encodeIfPresent(editionYear, forKey: .editionYear)
+    try container.encode(editionPolicy, forKey: .editionPolicy)
+    try container.encode(storeState, forKey: .storeState)
+    try container.encode(deliveryMode, forKey: .deliveryMode)
+    try container.encode(passAccessPolicy, forKey: .passAccessPolicy)
+    try container.encode(components, forKey: .components)
+    try container.encode(moduleType, forKey: .moduleType)
+    try container.encode(experienceType, forKey: .experienceType)
+    try container.encode(title, forKey: .title)
+    try container.encode(subtitle, forKey: .subtitle)
+    try container.encode(description, forKey: .description)
+    try container.encode(contentVersion, forKey: .contentVersion)
+    try container.encode(minimumAppVersion, forKey: .minimumAppVersion)
+    try container.encode(releaseStatus, forKey: .releaseStatus)
+    try container.encode(isEnabled, forKey: .isEnabled)
+    try container.encode(sortOrder, forKey: .sortOrder)
+    try container.encode(expectedItemCount, forKey: .expectedItemCount)
+    try container.encodeIfPresent(conceptCount, forKey: .conceptCount)
+    try container.encodeIfPresent(variantCount, forKey: .variantCount)
+    try container.encode(sampleDefinition, forKey: .sampleDefinition)
+    try container.encodeIfPresent(oneTimeProductID, forKey: .oneTimeProductID)
+    try container.encode(passEligible, forKey: .passEligible)
+    try container.encode(saleReady, forKey: .saleReady)
+    try container.encode(contentFiles, forKey: .contentFiles)
+    try container.encodeIfPresent(metadataFile, forKey: .metadataFile)
+    try container.encodeIfPresent(creditsFile, forKey: .creditsFile)
+    try container.encodeIfPresent(availableFrom, forKey: .availableFrom)
+    try container.encodeIfPresent(retiredAt, forKey: .retiredAt)
+    try container.encodeIfPresent(supersedesPackID, forKey: .supersedesPackID)
+    try container.encode(locale, forKey: .locale)
+    try container.encodeIfPresent(qualification, forKey: .qualification)
+    try container.encodeIfPresent(progressMigrationFile, forKey: .progressMigrationFile)
+  }
+
+  private static func normalizedExperienceID(_ value: String) -> StudyExperienceID {
+    switch value {
+    case "vocabulary", "vocabulary.v1": return .init(rawValue: "flashcard.v1")
+    case "takken", "certification.takken.v1": return .init(rawValue: "certification.v1")
+    case "safe-fallback": return .init(rawValue: "safe-fallback.v1")
+    default: return .init(rawValue: value)
+    }
+  }
+
+  private static func legacyExperienceType(for id: StudyExperienceID) -> StudyExperienceType {
+    switch id.rawValue {
+    case "flashcard.v1": return .vocabularyV1
+    case "certification.v1": return .takkenV1
+    default: return .init(rawValue: id.rawValue)
+    }
+  }
+
+  private static func moduleType(for id: StudyExperienceID) -> StudyModuleType {
+    switch id.rawValue {
+    case "flashcard.v1": return .vocabulary
+    case "certification.v1": return .takken
+    default: return .init(rawValue: id.rawValue)
+    }
+  }
+
+  private static func defaultCategoryID(for module: StudyModuleType) -> StudyCategoryID {
+    switch module {
+    case .vocabulary: return .english
+    case .takken: return .qualification
+    default: return .init(rawValue: "uncategorized")
+    }
+  }
+
+  private static func defaultSeriesID(
+    for module: StudyModuleType, packID: StudyPackID
+  ) -> StudySeriesID {
+    switch module {
+    case .vocabulary: return .englishVocabulary
+    case .takken: return .takken
+    default: return .init(rawValue: "uncategorized.\(packID.rawValue)")
+    }
+  }
+
+  private static func contentSchemaID(for module: StudyModuleType) -> ContentSchemaID {
+    switch module {
+    case .vocabulary: return .flashcardItemsV1
+    case .takken: return .certificationQuestionsV1
+    default: return .init(rawValue: module.rawValue)
+    }
+  }
+
+  private static func legacyStoreState(
+    releaseStatus: ReleaseStatus, retiredAt: Date?
+  ) -> PackStoreState {
+    if releaseStatus == .retired || retiredAt != nil { return .archivedOwnedOnly }
+    if releaseStatus == .release { return .forSale }
+    return .upcoming
+  }
 }
 
 extension StudyPackManifest {
@@ -168,15 +469,23 @@ struct PackAvailabilityResolver: Sendable {
     if let availableFrom = manifest.availableFrom, availableFrom > now {
       return .comingSoon(availableFrom)
     }
-    if manifest.releaseStatus == .retired
+    if manifest.storeState == .archivedOwnedOnly
+      || manifest.releaseStatus == .retired
       || manifest.retiredAt.map({ $0 <= now }) == true
     {
       return isOwned ? .retiredOwned : .retiredUnavailable
     }
+    if manifest.storeState == .withdrawn {
+      return .invalid("この教材は現在利用できません")
+    }
+    if manifest.storeState == .upcoming {
+      return manifest.availableFrom.map(PackAvailability.comingSoon)
+        ?? .invalid("この教材は公開準備中です")
+    }
     guard manifest.releaseStatus == .release, manifest.isEnabled else {
       return .invalid("この教材は現在利用できません")
     }
-    return manifest.saleReady ? .available : .notForSale
+    return manifest.storeState == .forSale && manifest.saleReady ? .available : .notForSale
   }
 
   private func compareVersions(_ lhs: String, _ rhs: String) -> ComparisonResult {
@@ -184,22 +493,51 @@ struct PackAvailabilityResolver: Sendable {
   }
 }
 
-enum ProgressCompatibility: String, Codable, Sendable {
+enum ProgressCompatibilityPolicy: String, Codable, Sendable {
   case preserve
-  case resetItem
+  case resetChangedItems
   case migrate
 }
+
+typealias ProgressCompatibility = ProgressCompatibilityPolicy
 
 struct ItemProgressMigration: Codable, Equatable, Sendable {
   let oldItemID: StudyItemID
   let newItemID: StudyItemID
-  let policy: ProgressCompatibility
+  let policy: ProgressCompatibilityPolicy
 }
 
 struct ProgressMigrationDocument: Codable, Equatable, Sendable {
   let fromContentVersion: String
   let toContentVersion: String
+  let defaultPolicy: ProgressCompatibilityPolicy
   let itemMigrations: [ItemProgressMigration]
+
+  private enum CodingKeys: String, CodingKey {
+    case fromContentVersion, toContentVersion, defaultPolicy, itemMigrations
+  }
+
+  init(
+    fromContentVersion: String,
+    toContentVersion: String,
+    defaultPolicy: ProgressCompatibilityPolicy = .preserve,
+    itemMigrations: [ItemProgressMigration]
+  ) {
+    self.fromContentVersion = fromContentVersion
+    self.toContentVersion = toContentVersion
+    self.defaultPolicy = defaultPolicy
+    self.itemMigrations = itemMigrations
+  }
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    fromContentVersion = try container.decode(String.self, forKey: .fromContentVersion)
+    toContentVersion = try container.decode(String.self, forKey: .toContentVersion)
+    defaultPolicy = try container.decodeIfPresent(
+      ProgressCompatibilityPolicy.self, forKey: .defaultPolicy) ?? .preserve
+    itemMigrations = try container.decodeIfPresent(
+      [ItemProgressMigration].self, forKey: .itemMigrations) ?? []
+  }
 }
 
 struct StudyChoice: Codable, Identifiable, Equatable, Sendable {

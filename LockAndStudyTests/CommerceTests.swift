@@ -3,16 +3,17 @@ import XCTest
 
 final class CommerceTests: XCTestCase {
   private let now = Date(timeIntervalSince1970: 1_000)
+  private let englishProductID = "com.ameneko.lockandstudy.pack.english3000.v1"
   func testFreeExpiredRevokedAndUnverifiedEquivalentCandidates() {
     let resolver = CommerceEntitlementResolver()
     let expired = EntitlementCandidate(productID: StoreProductKind.passMonthly.productID, purchaseDate: now, expirationDate: now, revocationDate: nil, isUpgraded: false, familyShared: false)
-    let revoked = EntitlementCandidate(productID: StoreProductKind.english3000.productID, purchaseDate: now, expirationDate: nil, revocationDate: now, isUpgraded: false, familyShared: false)
+    let revoked = EntitlementCandidate(productID: englishProductID, purchaseDate: now, expirationDate: nil, revocationDate: now, isUpgraded: false, familyShared: false)
     let result = resolver.resolve(candidates: [expired, revoked], legacy: [], now: now)
     XCTAssertNil(result.activePass); XCTAssertTrue(result.ownedPacks.isEmpty)
   }
 
   func testPassAndOwnedPackCoexistAndOwnedRemainsAfterPassEnds() {
-    let pack = EntitlementCandidate(productID: StoreProductKind.english3000.productID, purchaseDate: now, expirationDate: nil, revocationDate: nil, isUpgraded: false, familyShared: false)
+    let pack = EntitlementCandidate(productID: englishProductID, purchaseDate: now, expirationDate: nil, revocationDate: nil, isUpgraded: false, familyShared: false)
     let pass = EntitlementCandidate(productID: StoreProductKind.passYearly.productID, purchaseDate: now, expirationDate: now.addingTimeInterval(100), revocationDate: nil, isUpgraded: false, familyShared: false)
     let resolver = CommerceEntitlementResolver()
     let active = resolver.resolve(candidates: [pack, pass], legacy: [], now: now)
@@ -22,7 +23,7 @@ final class CommerceTests: XCTestCase {
   }
 
   func testFamilySharingIsPreserved() {
-    let candidate = EntitlementCandidate(productID: StoreProductKind.english3000.productID, purchaseDate: now, expirationDate: nil, revocationDate: nil, isUpgraded: false, familyShared: true)
+    let candidate = EntitlementCandidate(productID: englishProductID, purchaseDate: now, expirationDate: nil, revocationDate: nil, isUpgraded: false, familyShared: true)
     let value = CommerceEntitlementResolver().resolve(candidates: [candidate], legacy: [], now: now)
     XCTAssertEqual(value.ownedPacks.first?.ownershipType, .familyShared)
     XCTAssertTrue(value.familySharedProductIDs.contains(candidate.productID))
@@ -39,4 +40,3 @@ final class CommerceTests: XCTestCase {
     XCTAssertNil(CommerceEntitlementResolver().resolve(candidates: [], legacy: grants, now: now.addingTimeInterval(51)).activePass)
   }
 }
-

@@ -1,0 +1,156 @@
+import Foundation
+
+struct ExperienceSessionPayload: Equatable, Sendable {
+  let schemaID: String
+  let data: Data
+}
+
+enum StudyAnswerValue: Codable, Equatable, Sendable {
+  case choiceID(String)
+  case multipleChoiceIDs([String])
+  case text(String)
+  case decimal(String)
+  case completion
+}
+
+struct ExperienceCompletionProof: Codable, Equatable, Sendable {
+  let sessionID: UUID
+  let packID: StudyPackID
+  let completedAt: Date
+  let evidenceVersion: Int
+}
+
+struct UnlockChallengeSessionEnvelope: Codable, Equatable, Identifiable, Sendable {
+  static let currentSchemaVersion = 1
+
+  let schemaVersion: Int
+  let id: UUID
+  let requestID: UUID
+  let origin: UnlockChallengeOrigin
+  let experienceID: StudyExperienceID
+  let packID: StudyPackID
+  let contentVersion: String
+  let policyVersion: Int
+  let createdAt: Date
+  let expiresAt: Date
+
+  var completionState: UnlockCompletionState
+  var completionEventID: UUID
+  var createdUnlockSessionID: UUID?
+  var abortReason: String?
+
+  let enginePayloadSchemaID: String
+  var enginePayload: Data
+
+  func isRecoverable(at date: Date) -> Bool {
+    date < expiresAt && abortReason == nil
+      && completionState != .completed && completionState != .aborted
+  }
+
+  func decodeLegacyBundle() throws -> ExperienceUnlockBundleSnapshot {
+    try SharedJSON.decoder().decode(ExperienceUnlockBundleSnapshot.self, from: enginePayload)
+  }
+
+  static func wrapping(_ bundle: ExperienceUnlockBundleSnapshot) throws -> Self {
+    let payload = try SharedJSON.encoder().encode(bundle)
+    return .init(
+      schemaVersion: currentSchemaVersion,
+      id: bundle.id,
+      requestID: bundle.challenge.requestID,
+      origin: bundle.challenge.resolvedOrigin,
+      experienceID: bundle.challenge.experienceID.normalizedTemplateID,
+      packID: bundle.challenge.packID,
+      contentVersion: bundle.challenge.questions.first?.legacyContentVersion ?? "bundled",
+      policyVersion: bundle.challenge.policyVersion,
+      createdAt: bundle.challenge.createdAt,
+      expiresAt: bundle.challenge.expiresAt,
+      completionState: bundle.completionState,
+      completionEventID: bundle.completionEventID,
+      createdUnlockSessionID: bundle.createdUnlockSessionID,
+      abortReason: bundle.abortReason,
+      enginePayloadSchemaID: payloadSchemaID(for: bundle.challenge.experienceID),
+      enginePayload: payload)
+  }
+
+  private static func payloadSchemaID(for id: StudyExperienceID) -> String {
+    switch id.normalizedTemplateID {
+    case .flashcardV1: return "flashcard.unlock-session.v1"
+    case .certificationV1: return "certification.unlock-session.v1"
+    case .safeFallbackV1: return "safe-fallback.unlock-session.v1"
+    default: return "\(id.rawValue).unlock-session.v1"
+    }
+  }
+}
+
+enum UnlockCompletionProofDecision: Equatable, Sendable {
+  case accepted
+  case resuming
+  case alreadyCompleted
+  case rejected(String)
+}
+
+actor UnlockChallengeSessionCoordinator {
+  private let store: LearningDataStore
+
+  init(store: LearningDataStore) { self.store = store }
+
+  func restore(at date: Date) async throws -> UnlockChallengeSessionEnvelope? {
+    guard var envelope = try await store.loadUnlockSessionEnvelope() else { return nil }
+    guard envelope.schemaVersion <= UnlockChallengeSessionEnvelope.currentSchemaVersion else {
+      envelope.abortReason = "unsupported-envelope-schema"
+      envelope.completionState = .aborted
+      try await store.saveUnlockSessionEnvelope(envelope)
+      return nil
+    }
+    guard envelope.expiresAt > date else {
+      if envelope.completionState != .completed && envelope.completionState != .aborted {
+        envelope.abortReason = "challenge-expired-during-recovery"
+        envelope.completionState = .aborted
+        try await store.saveUnlockSessionEnvelope(envelope)
+      }
+      return nil
+    }
+    guard envelope.abortReason == nil, envelope.completionState != .aborted else { return nil }
+    return envelope
+  }
+
+  func acceptCompletionProof(
+    _ proof: ExperienceCompletionProof,
+    now: Date
+  ) async throws -> UnlockCompletionProofDecision {
+    guard var envelope = try await store.loadUnlockSessionEnvelope() else {
+      return .rejected("unlock-session-missing")
+    }
+    guard envelope.id == proof.sessionID, envelope.packID == proof.packID else {
+      return .rejected("completion-proof-mismatch")
+    }
+    guard proof.evidenceVersion == 1 else {
+      return .rejected("completion-proof-version")
+    }
+    guard proof.completedAt <= envelope.expiresAt, now < envelope.expiresAt else {
+      envelope.abortReason = "completion-proof-expired"
+      envelope.completionState = .aborted
+      try await store.saveUnlockSessionEnvelope(envelope)
+      return .rejected("completion-proof-expired")
+    }
+    switch envelope.completionState {
+    case .answering:
+      envelope.completionState = .proofAccepted
+      try await store.saveUnlockSessionEnvelope(envelope)
+      return .accepted
+    case .proofAccepted, .sessionCreated, .eventRecorded:
+      return .resuming
+    case .completed:
+      return .alreadyCompleted
+    case .aborted:
+      return .rejected(envelope.abortReason ?? "unlock-session-aborted")
+    }
+  }
+
+  func abort(reason: String) async throws {
+    guard var envelope = try await store.loadUnlockSessionEnvelope() else { return }
+    envelope.abortReason = reason
+    envelope.completionState = .aborted
+    try await store.saveUnlockSessionEnvelope(envelope)
+  }
+}

@@ -77,6 +77,8 @@ struct SafeFallbackUnlockChallengeProvider: UnlockChallengeProviding {
 
 @MainActor
 struct SafeFallbackExperience: StudyExperienceFactory {
+  let experienceID = StudyExperienceID.safeFallbackV1
+  let supportedContentSchemas: Set<ContentSchemaID> = [.safeFallbackV1]
   let descriptor = StudyExperienceDescriptor(
     id: .safeFallback,
     title: "安全な無料問題",
@@ -93,6 +95,42 @@ struct SafeFallbackExperience: StudyExperienceFactory {
   }
   func makeUnlockChallengeView(snapshot: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext) -> AnyView {
     AnyView(SafeFallbackUnlockChallengeView(bundle: snapshot, context: context))
+  }
+  func makeUnlockAnswerRecord(
+    _ context: UnlockAnswerRecordContext
+  ) throws -> StudyAnswerRecord {
+    guard case .safeFallback(let value) = context.question else {
+      throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "安全な無料問題")
+    }
+    return .init(
+      submissionID: context.submissionID,
+      experienceID: .safeFallback,
+      packID: context.bundle.challenge.packID,
+      moduleType: .vocabulary,
+      itemID: value.id,
+      prompt: value.prompt,
+      choices: value.choices,
+      selectedChoiceID: context.selectedChoiceID,
+      correctChoiceID: value.correctChoiceID,
+      shortExplanation: value.explanation,
+      longExplanation: value.explanation,
+      sourceNote: "built-in-safe-fallback",
+      category: "安全な無料問題",
+      subcategory: nil,
+      contentVersion: "built-in-v1",
+      questionVersion: 1,
+      examYear: nil,
+      lawBasisDate: nil,
+      answeredAt: context.answeredAt,
+      mode: .unlock,
+      sessionID: context.bundle.id,
+      feedbackPlan: context.feedback,
+      learningRole: context.learningRole,
+      wasNewAtSubmission: context.wasNew,
+      wasDueAtSubmission: context.wasDue,
+      attemptNumber: context.attemptNumber,
+      wasFirstAttempt: context.attemptNumber == 1
+    )
   }
 }
 

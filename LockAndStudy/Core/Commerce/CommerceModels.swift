@@ -6,34 +6,15 @@ struct StoreProductKind: RawRepresentable, Codable, Hashable, Sendable {
 
   static let passMonthly = Self(rawValue: "passMonthly")
   static let passYearly = Self(rawValue: "passYearly")
-  static let english3000 = Self(rawValue: "english3000")
-  static let takken2026 = Self(rawValue: "takken2026")
+  static let studyPack = Self(rawValue: "studyPack")
 
-  static func pack(_ packID: StudyPackID) -> Self {
-    switch packID.rawValue {
-    case "english3000.v1": return .english3000
-    case "takken2026.v1": return .takken2026
-    default: return .init(rawValue: "pack.\(packID.rawValue)")
-    }
-  }
+  static func pack(_ packID: StudyPackID) -> Self { .studyPack }
 
   var productID: String {
     switch self {
     case .passMonthly: return ProductCatalog.monthlyPassProductID
     case .passYearly: return ProductCatalog.yearlyPassProductID
-    case .english3000: return "com.ameneko.lockandstudy.pack.english3000.v1"
-    case .takken2026: return "com.ameneko.lockandstudy.pack.takken2026.v1"
     default: return rawValue
-    }
-  }
-
-  var packID: StudyPackID? {
-    switch self {
-    case .english3000: return "english3000.v1"
-    case .takken2026: return "takken2026.v1"
-    default:
-      guard rawValue.hasPrefix("pack.") else { return nil }
-      return .init(rawValue: String(rawValue.dropFirst("pack.".count)))
     }
   }
 
@@ -128,24 +109,38 @@ struct StoreProductDescriptor: Equatable, Sendable {
   var isSubscription: Bool { kind.isSubscription }
 }
 
+struct CommerceProductCatalogSnapshot: Equatable, Sendable {
+  let passProductIDs: Set<String>
+  let packIDByProductID: [String: StudyPackID]
+  let purchasableProductIDs: Set<String>
+  let knownHistoricalProductMappings: [String: StudyPackID]
+
+  var storeKitQueryProductIDs: Set<String> {
+    passProductIDs
+      .union(purchasableProductIDs)
+      .union(knownHistoricalProductMappings.keys)
+  }
+}
+
 struct ProductCatalog: Equatable, Sendable {
   static let monthlyPassProductID = "com.ameneko.lockandstudy.pass.monthly"
   static let yearlyPassProductID = "com.ameneko.lockandstudy.pass.yearly"
   static let passProductIDs: Set<String> = [monthlyPassProductID, yearlyPassProductID]
   static let legacyProductMappings: [String: StudyPackID] = [
-    StoreProductKind.english3000.productID: "english3000.v1",
-    StoreProductKind.takken2026.productID: "takken2026.v1",
+    "com.ameneko.lockandstudy.pack.english3000.v1": "english3000.v1",
+    "com.ameneko.lockandstudy.pack.takken2026.v1": "takken2026.v1",
   ]
 
   let descriptors: [StoreProductDescriptor]
   let productMappings: [String: StudyPackID]
+  let snapshot: CommerceProductCatalogSnapshot
 
   init(
     manifests: [StudyPackManifest],
     knownProductMappings: [String: StudyPackID] = ProductCatalog.legacyProductMappings,
     now: Date = Date()
   ) {
-    var mappings = knownProductMappings
+    var mappings = Self.legacyProductMappings.merging(knownProductMappings) { _, current in current }
     for manifest in manifests {
       if let productID = manifest.oneTimeProductID { mappings[productID] = manifest.id }
     }
@@ -166,7 +161,10 @@ struct ProductCatalog: Equatable, Sendable {
       guard manifest.schemaVersion <= StudyPackManifest.supportedSchemaVersion,
         manifest.releaseStatus == .release,
         manifest.isEnabled,
-        manifest.retiredAt.map({ $0 > now }) ?? true
+        manifest.retiredAt.map({ $0 > now }) ?? true,
+        manifest.availableFrom.map({ $0 <= now }) ?? true,
+        manifest.storeState == .forSale,
+        manifest.saleReady
       else { return nil }
       guard let productID = manifest.oneTimeProductID else { return nil }
       return .init(
@@ -176,9 +174,21 @@ struct ProductCatalog: Equatable, Sendable {
         displayOrder: manifest.sortOrder)
     }
     descriptors = (packs + passes).sorted { $0.displayOrder < $1.displayOrder }
+    let purchasableIDs = Set(packs.map(\.productID))
+    let historical = mappings.filter { !purchasableIDs.contains($0.key) }
+    snapshot = .init(
+      passProductIDs: Self.passProductIDs,
+      packIDByProductID: mappings,
+      purchasableProductIDs: purchasableIDs,
+      knownHistoricalProductMappings: historical)
   }
 
-  var allIDs: [String] { descriptors.map(\.productID) }
+  var allIDs: [String] { snapshot.storeKitQueryProductIDs.sorted() }
+  var purchasableProductIDs: Set<String> { snapshot.purchasableProductIDs }
+  func isPurchasable(_ productID: String) -> Bool {
+    snapshot.passProductIDs.contains(productID)
+      || snapshot.purchasableProductIDs.contains(productID)
+  }
   func descriptor(for productID: String) -> StoreProductDescriptor? {
     descriptors.first { $0.productID == productID }
       ?? productMappings[productID].map {

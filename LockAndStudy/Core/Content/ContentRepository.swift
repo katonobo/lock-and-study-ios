@@ -17,7 +17,7 @@ enum ContentRepositoryError: LocalizedError {
 actor ContentRepository {
   private let source: any ContentAssetSource
   private let registry: StudyModuleRegistry
-  private var manifestsCache: [StudyPackManifest]?
+  private var catalogCache: StudyCatalogSnapshot?
   private var promptCache: [String: [StudyPrompt]] = [:]
   private var vocabularyCache: [String: VocabularyPackage] = [:]
   private var takkenCache: [String: [TakkenQuestion]] = [:]
@@ -31,29 +31,31 @@ actor ContentRepository {
   }
 
   func releasedManifests() async throws -> [StudyPackManifest] {
-    if let manifestsCache { return manifestsCache }
+    let snapshot = try await catalogSnapshot()
+    return snapshot.packs
+  }
+
+  func catalogSnapshot() async throws -> StudyCatalogSnapshot {
+    if let catalogCache { return catalogCache }
     let data = try await source.catalogData()
-    let decoder = SharedJSON.decoder()
-    guard let entries = try JSONSerialization.jsonObject(with: data) as? [Any] else {
-      throw ContentRepositoryError.invalid("教材カタログが配列ではありません")
-    }
-    let manifests = entries.compactMap { entry -> StudyPackManifest? in
-      guard JSONSerialization.isValidJSONObject(entry),
-        let entryData = try? JSONSerialization.data(withJSONObject: entry),
-        let manifest = try? decoder.decode(StudyPackManifest.self, from: entryData)
-      else { return nil }
-      return manifest
-    }
-    let released = manifests.filter {
+    let decoded = try StudyCatalogDecoder().decode(data)
+    let validation = StudyCatalogValidator().validate(decoded)
+    let invalidPackIDs = Set(validation.compactMap(\.packID))
+    var seen: Set<StudyPackID> = []
+    let released = decoded.packs.filter {
       ($0.releaseStatus == .release && $0.isEnabled) || $0.releaseStatus == .retired
     }
+    .filter { !invalidPackIDs.contains($0.id) && seen.insert($0.id).inserted }
     .sorted { $0.sortOrder < $1.sortOrder }
     guard !released.isEmpty else { throw ContentRepositoryError.invalid("利用可能な教材がありません") }
-    guard Set(released.map(\.id)).count == released.count else {
-      throw ContentRepositoryError.invalid("pack IDが重複しています")
-    }
-    manifestsCache = released
-    return released
+    let snapshot = StudyCatalogSnapshot(
+      schemaVersion: decoded.schemaVersion,
+      generatedAt: decoded.generatedAt,
+      categories: decoded.categories,
+      series: decoded.series,
+      packs: released)
+    catalogCache = snapshot
+    return snapshot
   }
 
   func prompts(for packID: StudyPackID) async throws -> [StudyPrompt] {
@@ -63,14 +65,19 @@ actor ContentRepository {
     guard let module = registry.module(for: manifest.moduleType) else {
       throw ContentRepositoryError.unsupported
     }
-    let location = try await requiredPackageLocation(manifest)
-    let prompts = try module.loadPrompts(manifest: manifest, packageRoot: location.rootURL)
-    let issues = module.validate(manifest: manifest, prompts: prompts)
-    guard issues.isEmpty else {
-      throw ContentRepositoryError.invalid(issues.joined(separator: ", "))
+    var lastError: Error?
+    for location in try await candidatePackageLocations(manifest) {
+      do {
+        let prompts = try module.loadPrompts(manifest: manifest, packageRoot: location.rootURL)
+        let issues = module.validate(manifest: manifest, prompts: prompts)
+        guard issues.isEmpty else {
+          throw ContentRepositoryError.invalid(issues.joined(separator: ", "))
+        }
+        promptCache[key] = prompts
+        return prompts
+      } catch { lastError = error }
     }
-    promptCache[key] = prompts
-    return prompts
+    throw lastError ?? ContentRepositoryError.missing(manifest.id.rawValue)
   }
 
   func vocabularyPackage(for packID: StudyPackID) async throws -> VocabularyPackage {
@@ -78,10 +85,16 @@ actor ContentRepository {
     guard manifest.moduleType == .vocabulary else { throw ContentRepositoryError.unsupported }
     let key = cacheKey(manifest)
     if let cached = vocabularyCache[key] { return cached }
-    let location = try await requiredPackageLocation(manifest)
-    let package = try VocabularyRepository(packageRoot: location.rootURL).load(manifest: manifest)
-    vocabularyCache[key] = package
-    return package
+    var lastError: Error?
+    for location in try await candidatePackageLocations(manifest) {
+      do {
+        let package = try VocabularyRepository(packageRoot: location.rootURL).load(
+          manifest: manifest)
+        vocabularyCache[key] = package
+        return package
+      } catch { lastError = error }
+    }
+    throw lastError ?? ContentRepositoryError.missing(manifest.id.rawValue)
   }
 
   func takkenQuestions(for packID: StudyPackID) async throws -> [TakkenQuestion] {
@@ -89,26 +102,40 @@ actor ContentRepository {
     guard manifest.moduleType == .takken else { throw ContentRepositoryError.unsupported }
     let key = cacheKey(manifest)
     if let cached = takkenCache[key] { return cached }
-    let location = try await requiredPackageLocation(manifest)
-    let questions = try TakkenQuestionRepository(packageRoot: location.rootURL).load(
-      manifest: manifest)
-    takkenCache[key] = questions
-    return questions
+    var lastError: Error?
+    for location in try await candidatePackageLocations(manifest) {
+      do {
+        let questions = try TakkenQuestionRepository(packageRoot: location.rootURL).load(
+          manifest: manifest)
+        takkenCache[key] = questions
+        return questions
+      } catch { lastError = error }
+    }
+    throw lastError ?? ContentRepositoryError.missing(manifest.id.rawValue)
   }
 
   func sampleIDs(for packID: StudyPackID, itemIDs: Set<String>) async throws -> Set<String> {
     let manifest = try await manifest(for: packID)
-    let location = try await requiredPackageLocation(manifest)
-    return try ContentSampleResolver(packageRoot: location.rootURL).sampleIDs(
-      manifest: manifest,
-      allItemIDs: itemIDs)
+    var lastError: Error?
+    for location in try await candidatePackageLocations(manifest) {
+      do {
+        return try ContentSampleResolver(packageRoot: location.rootURL).sampleIDs(
+          manifest: manifest, allItemIDs: itemIDs)
+      } catch { lastError = error }
+    }
+    throw lastError ?? ContentRepositoryError.missing(manifest.id.rawValue)
   }
 
   func text(resourcePath: String, for packID: StudyPackID) async throws -> String {
     let manifest = try await manifest(for: packID)
-    let location = try await requiredPackageLocation(manifest)
-    return try VerifiedContentLoader(packageRoot: location.rootURL).text(
-      resourcePath: resourcePath)
+    var lastError: Error?
+    for location in try await candidatePackageLocations(manifest) {
+      do {
+        return try VerifiedContentLoader(packageRoot: location.rootURL).text(
+          resourcePath: resourcePath)
+      } catch { lastError = error }
+    }
+    throw lastError ?? ContentRepositoryError.missing(resourcePath)
   }
 
   func packageLocation(for packID: StudyPackID) async throws -> ContentPackageLocation {
@@ -117,7 +144,7 @@ actor ContentRepository {
 
   func clearCache(for packID: StudyPackID? = nil) {
     guard let packID else {
-      manifestsCache = nil
+      catalogCache = nil
       promptCache.removeAll()
       vocabularyCache.removeAll()
       takkenCache.removeAll()
@@ -139,15 +166,26 @@ actor ContentRepository {
   private func requiredPackageLocation(
     _ manifest: StudyPackManifest
   ) async throws -> ContentPackageLocation {
-    guard
-      let location = try await source.packageLocation(
-        for: manifest.id,
-        contentVersion: manifest.contentVersion)
-    else { throw ContentRepositoryError.missing(manifest.id.rawValue) }
+    guard let location = try await candidatePackageLocations(manifest).first else {
+      throw ContentRepositoryError.missing(manifest.id.rawValue)
+    }
     return location
   }
 
+  private func candidatePackageLocations(
+    _ manifest: StudyPackManifest
+  ) async throws -> [ContentPackageLocation] {
+    let locations = try await source.packageLocations(
+      for: manifest.id, contentVersion: manifest.contentVersion)
+    guard !locations.isEmpty else {
+      throw ContentRepositoryError.missing(manifest.id.rawValue)
+    }
+    return locations
+  }
+
   private func cacheKey(_ manifest: StudyPackManifest) -> String {
-    "\(manifest.id.rawValue)::\(manifest.contentVersion)"
+    let component = manifest.components.sorted { $0.sortOrder < $1.sortOrder }.first?.id.rawValue
+      ?? "primary"
+    return "\(manifest.id.rawValue)::\(manifest.contentVersion)::\(component)"
   }
 }

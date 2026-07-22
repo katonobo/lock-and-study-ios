@@ -109,6 +109,8 @@ struct VocabularyUnlockChallengeProvider: UnlockChallengeProviding {
 
 @MainActor
 struct VocabularyExperience: StudyExperienceFactory {
+  let experienceID = StudyExperienceID.flashcardV1
+  let supportedContentSchemas: Set<ContentSchemaID> = [.flashcardItemsV1]
   let descriptor = StudyExperienceDescriptor(
     id: .vocabulary,
     title: "英単語3,000語",
@@ -143,6 +145,43 @@ struct VocabularyExperience: StudyExperienceFactory {
   }
   func makeUnlockChallengeView(snapshot: ExperienceUnlockBundleSnapshot, context: UnlockChallengeViewContext) -> AnyView {
     AnyView(VocabularyUnlockChallengeView(bundle: snapshot, context: context))
+  }
+
+  func makeUnlockAnswerRecord(
+    _ context: UnlockAnswerRecordContext
+  ) throws -> StudyAnswerRecord {
+    guard case .vocabulary(let value) = context.question else {
+      throw StudyExperienceRuntimeError.incompatibleQuestion(expected: "フラッシュカード")
+    }
+    return .init(
+      submissionID: context.submissionID,
+      experienceID: .vocabulary,
+      packID: context.bundle.challenge.packID,
+      moduleType: .vocabulary,
+      itemID: value.id,
+      prompt: value.prompt,
+      choices: value.choices,
+      selectedChoiceID: context.selectedChoiceID,
+      correctChoiceID: value.correctChoiceID,
+      shortExplanation: value.explanation,
+      longExplanation: "\(value.explanation)\n\(value.exampleEnglish)\n\(value.exampleJapanese)",
+      sourceNote: nil,
+      category: value.levelCode,
+      subcategory: nil,
+      contentVersion: value.contentVersion,
+      questionVersion: 1,
+      examYear: nil,
+      lawBasisDate: nil,
+      answeredAt: context.answeredAt,
+      mode: .unlock,
+      sessionID: context.bundle.id,
+      feedbackPlan: context.feedback,
+      learningRole: context.learningRole,
+      wasNewAtSubmission: context.wasNew,
+      wasDueAtSubmission: context.wasDue,
+      attemptNumber: context.attemptNumber,
+      wasFirstAttempt: context.attemptNumber == 1
+    )
   }
 
   func handleUnlockCompletion(_ context: UnlockCompletionContext) async throws {
@@ -195,6 +234,10 @@ struct VocabularyExperience: StudyExperienceFactory {
     )
     try await context.dependencies.learning.saveVocabularyPendingPreview(
       preview, for: context.manifest.id)
+  }
+
+  func clearTransientState(packID: StudyPackID, dependencies: DependencyContainer) async {
+    try? await dependencies.learning.saveVocabularyPendingPreview(nil, for: packID)
   }
 }
 

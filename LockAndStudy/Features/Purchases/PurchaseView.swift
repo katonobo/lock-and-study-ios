@@ -54,7 +54,12 @@ struct PurchaseView: View {
     Button { Task { await commerce.purchase(productID: product.id) } } label: {
       HStack { VStack(alignment: .leading) { HStack { Text(product.displayName).font(.headline); if recommended { Text("おすすめ").font(.caption.bold()).padding(5).background(LockAndStudyTheme.accent.opacity(0.2), in: Capsule()) } }; Text(product.description).font(.caption).foregroundStyle(.secondary); if product.isTrialEligible { Text("7日間無料体験の対象です").font(.caption).foregroundStyle(LockAndStudyTheme.brand) } }; Spacer(); Text(product.displayPrice).font(.headline) }
     }.buttonStyle(.bordered).disabled(isPurchasing)
-      .accessibilityIdentifier("purchase.product.\(product.kind.rawValue)")
+      .accessibilityIdentifier(productAccessibilityIdentifier(product))
+  }
+  private func productAccessibilityIdentifier(_ product: StoreProductPresentation) -> String {
+    let suffix = product.packID?.rawValue.split(separator: ".").first.map(String.init)
+      ?? product.kind.rawValue
+    return "purchase.product.\(suffix)"
   }
   private var isPurchasing: Bool { if case .purchasing = commerce.state { return true }; return false }
 }
