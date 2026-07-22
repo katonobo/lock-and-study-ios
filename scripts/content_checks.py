@@ -7,6 +7,7 @@ import os
 import plistlib
 import re
 import unicodedata
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -90,6 +91,11 @@ def validate_takken_v2(items: list[dict], manifest: dict) -> list[str]:
             errors.append(f"{item_id}: correctChoiceID does not exist")
         else:
             correct_index = choice_ids.index(correct_id)
+            supplied_index = item.get("correctIndex")
+            if not isinstance(supplied_index, int) or not 0 <= supplied_index < len(choices):
+                errors.append(f"{item_id}: correctIndex is missing or out of bounds")
+            elif supplied_index != correct_index:
+                errors.append(f"{item_id}: correctChoiceID and correctIndex disagree")
             if fmt == "true_false":
                 correct_text = choices[correct_index].get("text")
                 if correct_text in true_false_correct:
@@ -98,6 +104,11 @@ def validate_takken_v2(items: list[dict], manifest: dict) -> list[str]:
                     errors.append(f"{item_id}: true/false choices must use 正しい/誤り")
             if fmt in {"multiple_choice", "case_study"}:
                 four_choice_positions.append(correct_index)
+        rationale_map = item.get("wrongChoiceRationales") or {}
+        if not isinstance(rationale_map, dict):
+            errors.append(f"{item_id}: wrongChoiceRationales must be an object")
+        elif correct_id in rationale_map:
+            errors.append(f"{item_id}: correct choice must not have a wrong rationale")
         short = _normalized_text(item.get("shortExplanation", ""))
         long = _normalized_text(item.get("longExplanation", ""))
         if not short or not long or short == long:
@@ -141,6 +152,58 @@ def validate_takken_v2(items: list[dict], manifest: dict) -> list[str]:
         position_counts = [four_choice_positions.count(position) for position in range(4)]
         if min(position_counts) == 0 or max(position_counts) / len(four_choice_positions) > 0.40:
             errors.append("v2 four-choice answer positions are biased and shuffle is not declared")
+    return errors
+
+
+def validate_takken_v2_drafts(items: list[dict]) -> list[str]:
+    """Structural and isolation gate for unreviewed candidates, never an approval gate."""
+    errors: list[str] = []
+    if not 300 <= len(items) <= 500:
+        errors.append("Takken v2 Draft must contain 300-500 base/derived candidates")
+    ids = [item.get("id") for item in items]
+    if len(ids) != len(set(ids)):
+        errors.append("Takken v2 Draft contains duplicate item IDs")
+    concept_ids = {item.get("conceptID") for item in items}
+    if len(concept_ids) != 100 or None in concept_ids:
+        errors.append("Takken v2 Draft must preserve exactly 100 concepts")
+    formats = Counter(item.get("format") for item in items)
+    count = max(1, len(items))
+    target_ranges = {
+        "true_false": (0.25, 0.30),
+        "number_choice": (0.20, 0.25),
+        "wording_contrast": (0.20, 0.25),
+        "multiple_choice": (0.20, 0.25),
+        "case_study": (0.05, 0.10),
+    }
+    for fmt, (minimum, maximum) in target_ranges.items():
+        ratio = formats[fmt] / count
+        if not minimum <= ratio <= maximum:
+            errors.append(f"Takken v2 Draft {fmt} ratio {ratio:.1%} is outside target")
+    for item in items:
+        item_id = item.get("id", "<unknown>")
+        if item.get("reviewStatus") != "ai_draft":
+            errors.append(f"{item_id}: Draft reviewStatus must remain ai_draft")
+        if item.get("distractorReviewStatus") != "pending":
+            errors.append(f"{item_id}: Draft distractorReviewStatus must remain pending")
+        choices = item.get("choices")
+        if not isinstance(choices, list) or not choices:
+            errors.append(f"{item_id}: Draft choices are missing")
+            continue
+        choice_ids = [choice.get("id") for choice in choices if isinstance(choice, dict)]
+        if len(choice_ids) != len(choices) or len(choice_ids) != len(set(choice_ids)):
+            errors.append(f"{item_id}: Draft stable choice IDs are invalid")
+            continue
+        correct_id = item.get("correctChoiceID")
+        correct_index = item.get("correctIndex")
+        if correct_id not in choice_ids:
+            errors.append(f"{item_id}: Draft correctChoiceID does not exist")
+        elif not isinstance(correct_index, int) or not 0 <= correct_index < len(choices):
+            errors.append(f"{item_id}: Draft correctIndex is invalid")
+        elif choice_ids[correct_index] != correct_id:
+            errors.append(f"{item_id}: Draft correctChoiceID/index disagree")
+        rationales = item.get("wrongChoiceRationales") or {}
+        if correct_id in rationales:
+            errors.append(f"{item_id}: Draft correct choice has a wrong rationale")
     return errors
 
 
@@ -222,6 +285,10 @@ def check_unreviewed() -> list[str]:
         errors.append("Reviewed Takken content must remain 200 questions")
     if sum(map(len, drafts)) != 700:
         errors.append("Draft Takken content must remain 700 questions")
+    v2_candidates = load_json(
+        ROOT / "ContentSource/Drafts/takken_2026_free_100_v2_candidates.json"
+    )
+    errors.extend(validate_takken_v2_drafts(v2_candidates))
     release_names = {path.name for path in RELEASED.iterdir()}
     source_names = {path.name for path in (ROOT / "ContentSource/Reviewed").glob("*.json")} | {path.name for path in (ROOT / "ContentSource/Drafts").glob("*.json")}
     if release_names & source_names:

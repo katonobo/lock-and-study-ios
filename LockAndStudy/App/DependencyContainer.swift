@@ -27,10 +27,15 @@ final class DependencyContainer {
       learning = LearningDataStore(rootURL: learningRootURL)
     } else {
       #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestResetData") {
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("-LockAndStudyUITestResetData")
+          || arguments.contains("-LockAndStudyUITestPersistentLearningRoot")
+        {
           let root = FileManager.default.temporaryDirectory.appendingPathComponent(
             "LockAndStudy-UITests", isDirectory: true)
-          try? FileManager.default.removeItem(at: root)
+          if arguments.contains("-LockAndStudyUITestResetData") {
+            try? FileManager.default.removeItem(at: root)
+          }
           learning = LearningDataStore(rootURL: root)
         } else {
           learning = LearningDataStore()

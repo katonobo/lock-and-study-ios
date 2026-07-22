@@ -84,7 +84,13 @@ struct UnlockCompletionContext {
 
 enum UnlockAnswerSubmissionResult: Equatable {
   case recordedCorrect
-  case recordedIncorrect
+  case recordedIncorrect(remainingActiveSeconds: Int, attemptNumber: Int)
+  case expired
+  case failed(String)
+}
+
+enum UnlockReviewExposureResult: Equatable {
+  case updated(remainingActiveSeconds: Int)
   case expired
   case failed(String)
 }
@@ -200,12 +206,72 @@ struct ExperienceUnlockBundleSnapshot: Codable, Equatable, Identifiable, Sendabl
   var abortReason: String?
   var attemptCountsByQuestionID: [String: Int]? = nil
   var reviewRequiredUntilByQuestionID: [String: Date]? = nil
+  var reviewRemainingActiveSecondsByQuestionID: [String: TimeInterval]? = nil
+  var reviewLastActiveAtByQuestionID: [String: Date]? = nil
   var lastSelectedChoiceIDByQuestionID: [String: Int]? = nil
 
   var id: UUID { challenge.id }
   var isComplete: Bool { completedQuestionIDs.count >= challenge.questions.count }
   func isAnswering(at date: Date) -> Bool {
     date < challenge.expiresAt && abortReason == nil && completionState == .answering
+  }
+
+
+  @discardableResult
+  mutating func migrateLegacyReviewState(at migrationDate: Date) -> Bool {
+    guard let legacy = reviewRequiredUntilByQuestionID, !legacy.isEmpty else { return false }
+    var remaining = reviewRemainingActiveSecondsByQuestionID ?? [:]
+    let minimums = Dictionary(uniqueKeysWithValues: challenge.questions.compactMap {
+      snapshot -> (String, TimeInterval)? in
+      guard case .takken(let question) = snapshot else { return nil }
+      return (question.id.rawValue, TimeInterval(question.minimumReviewSeconds ?? 10))
+    })
+    for (questionID, deadline) in legacy where remaining[questionID] == nil {
+      let maximum = minimums[questionID] ?? 20
+      remaining[questionID] = min(maximum, max(0, deadline.timeIntervalSince(migrationDate)))
+    }
+    reviewRemainingActiveSecondsByQuestionID = remaining.isEmpty ? nil : remaining
+    reviewRequiredUntilByQuestionID = nil
+    reviewLastActiveAtByQuestionID = nil
+    return true
+  }
+
+  mutating func clearReviewState(for questionID: StudyItemID) {
+    reviewRequiredUntilByQuestionID?.removeValue(forKey: questionID.rawValue)
+    reviewRemainingActiveSecondsByQuestionID?.removeValue(forKey: questionID.rawValue)
+    reviewLastActiveAtByQuestionID?.removeValue(forKey: questionID.rawValue)
+    lastSelectedChoiceIDByQuestionID?.removeValue(forKey: questionID.rawValue)
+  }
+
+  @discardableResult
+  mutating func applyActiveReviewExposure(
+    _ elapsedSeconds: TimeInterval,
+    for questionID: StudyItemID
+  ) -> TimeInterval {
+    let key = questionID.rawValue
+    var remaining = reviewRemainingActiveSecondsByQuestionID ?? [:]
+    let value = max(0, (remaining[key] ?? 0) - max(0, elapsedSeconds))
+    if value > 0 { remaining[key] = value } else { remaining.removeValue(forKey: key) }
+    reviewRemainingActiveSecondsByQuestionID = remaining.isEmpty ? nil : remaining
+    return value
+  }
+
+  func hasLaterUncompletedQuestion(
+    after index: Int,
+    completedQuestionIDs: Set<StudyItemID>
+  ) -> Bool {
+    challenge.questions.indices.contains { candidate in
+      candidate > index && !completedQuestionIDs.contains(challenge.questions[candidate].id)
+    }
+  }
+
+  func nextUncompletedQuestionIndex(
+    after index: Int,
+    completedQuestionIDs: Set<StudyItemID>
+  ) -> Int? {
+    challenge.questions.indices.first { candidate in
+      candidate > index && !completedQuestionIDs.contains(challenge.questions[candidate].id)
+    }
   }
 }
 
@@ -220,6 +286,7 @@ protocol UnlockChallengeProviding: Sendable {
 struct UnlockChallengeViewContext {
   let bundle: ExperienceUnlockBundleSnapshot
   let submit: @MainActor (UnlockQuestionSnapshot, Int, StudyFeedbackPlan) async -> UnlockAnswerSubmissionResult
+  let updateReviewExposure: @MainActor (StudyItemID, Bool) async -> UnlockReviewExposureResult
   let complete: @MainActor () async -> Void
 }
 

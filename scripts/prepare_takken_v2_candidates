@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""Create non-release v2 review candidates from the released 100-question v1 set."""
+"""Create isolated Takken v2 AI drafts and a human review queue.
+
+The released 100 questions are read-only inputs. Generated candidates are deliberately
+marked ai_draft/pending and are never copied into the app's Release resources.
+"""
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -11,77 +16,338 @@ SOURCE = ROOT / "LockAndStudy/Resources/Content/Released/takken_2026_free_100_v1
 OUTPUT = ROOT / "ContentSource/Drafts/takken_2026_free_100_v2_candidates.json"
 QUEUE = ROOT / "Docs/TAKKEN_CONTENT_REVIEW_QUEUE.md"
 
+NUMBER_PATTERN = re.compile(
+    r"(?:\d+(?:\.\d+)?|[一二三四五六七八九十百千万億]+)"
+    r"(?:日|週間|か月|ヶ月|月|年|％|%|割|分の\d+|円|万円|億円|人|件|㎡)?"
+)
+WORDING_PATTERN = re.compile(
+    r"義務|任意|できる|できない|しなければならない|前|後|事前|事後|原則|例外"
+)
+ACTOR_PATTERN = re.compile(
+    r"宅建業者|宅地建物取引業者|宅建士|宅地建物取引士|免許権者|"
+    r"国土交通大臣|都道府県知事|保証協会|供託所"
+)
 
-def main() -> int:
-    items = json.loads(SOURCE.read_text(encoding="utf-8"))
-    candidates = []
-    for item in items:
-        candidate = dict(item)
-        candidate["conceptID"] = f"concept.{item['id']}"
-        candidate["variantID"] = "base." + item.get("format", "true_false")
-        choices = [
-            {"id": f"choice-{index}", "text": text, "rationale": None,
-             "misconceptionCode": None}
-            for index, text in enumerate(item["choices"])
-        ]
-        candidate["choices"] = choices
-        candidate["correctChoiceID"] = choices[item["correctIndex"]]["id"]
-        candidate["preview"] = {
-            "title": item.get("subCategory") or item["category"],
-            "rule": item.get("keyPoint") or item["shortExplanation"],
-            "contrast": None,
-            "mnemonic": None,
+DERIVED_FORMAT_COUNTS = {
+    "true_false": 20,
+    "number_choice": 80,
+    "wording_contrast": 80,
+    "multiple_choice": 90,
+    "case_study": 30,
+}
+
+
+def normalized_base(item: dict) -> dict:
+    candidate = dict(item)
+    concept_id = f"concept.{item['id']}"
+    choices = [
+        {
+            "id": f"choice-{index}",
+            "text": text,
+            "rationale": None,
+            "misconceptionCode": None,
         }
-        candidate["minimumReviewSeconds"] = 10
-        candidate["contrastNote"] = None
-        candidate["distractorReviewStatus"] = "pending"
-        candidate["reviewStatus"] = "ai_draft"
-        candidate["contentVersion"] = 2
-        candidates.append(candidate)
-    OUTPUT.write_text(
-        json.dumps(candidates, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        for index, text in enumerate(item["choices"])
+    ]
+    correct_index = item["correctIndex"]
+    candidate.update(
+        {
+            "conceptID": concept_id,
+            "variantID": "base." + item.get("format", "true_false"),
+            "choices": choices,
+            "correctChoiceID": choices[correct_index]["id"],
+            "preview": {
+                "title": item.get("subCategory") or item["category"],
+                "rule": item.get("keyPoint") or item.get("shortExplanation")
+                or item["explanation"],
+                "contrast": None,
+                "mnemonic": None,
+            },
+            "minimumReviewSeconds": 10,
+            "contrastNote": None,
+            "wrongChoiceRationales": {},
+            "distractorReviewStatus": "pending",
+            "reviewStatus": "ai_draft",
+            "contentVersion": 2,
+            "draftGenerationNotes": "Released v1 base normalized to v2 schema; legal wording unchanged.",
+            "reviewFocus": review_focus(item),
+        }
+    )
+    return candidate
 
-    formats = Counter(item.get("format", "unknown") for item in candidates)
-    correct_tf = Counter(
-        item["choices"][item["correctIndex"]]["text"]
-        for item in candidates if item.get("format") == "true_false")
-    same_explanations = sum(
-        item.get("shortExplanation") == item.get("longExplanation") for item in candidates)
+
+def review_focus(item: dict) -> list[str]:
+    text = " ".join(
+        str(item.get(key) or "")
+        for key in ("prompt", "shortExplanation", "longExplanation", "keyPoint")
+    )
+    focus = []
+    if NUMBER_PATTERN.search(text):
+        focus.append("数字・期限・割合")
+    if WORDING_PATTERN.search(text):
+        focus.append("義務/任意・前後・原則/例外")
+    if ACTOR_PATTERN.search(text):
+        focus.append("主体")
+    return focus or ["法令文言・正誤根拠"]
+
+
+def correct_rule(item: dict) -> str:
+    return (
+        item.get("keyPoint")
+        or item.get("shortExplanation")
+        or item.get("longExplanation")
+        or item["explanation"]
+    )
+
+
+def numeric_tokens(item: dict) -> list[str]:
+    text = " ".join(
+        str(item.get(key) or "")
+        for key in ("keyPoint", "longExplanation", "shortExplanation", "prompt")
+    )
+    return list(dict.fromkeys(NUMBER_PATTERN.findall(text)))
+
+
+def proposed_number_choices(item: dict, serial: int) -> list[str]:
+    tokens = numeric_tokens(item)
+    correct = tokens[0] if tokens else "［正しい数値・期限を入力］"
+    distractors = [token for token in tokens[1:] if token != correct]
+    placeholders = [
+        "［近い数値候補Aを入力］",
+        "［近い数値候補Bを入力］",
+        "［例外条件の数値候補を入力］",
+    ]
+    for placeholder in placeholders:
+        if len(distractors) >= 3:
+            break
+        if placeholder not in distractors:
+            distractors.append(placeholder)
+    values = [correct] + distractors[:3]
+    shift = serial % len(values)
+    return values[shift:] + values[:shift]
+
+
+def choices_with_rationales(texts: list[str], correct_index: int, fmt: str) -> list[dict]:
+    choices = []
+    for index, text in enumerate(texts):
+        is_correct = index == correct_index
+        choices.append(
+            {
+                "id": f"choice-{index}",
+                "text": text,
+                "rationale": None
+                if is_correct
+                else f"AI誤答根拠候補: {fmt}として主体・条件・期限の差を人間が確認する。",
+                "misconceptionCode": None if is_correct else "pending-human-review",
+            }
+        )
+    return choices
+
+
+def derived_candidate(item: dict, fmt: str, serial: int) -> dict:
+    concept_id = f"concept.{item['id']}"
+    rule = correct_rule(item)
+    subcategory = item.get("subCategory") or item["category"]
+    if fmt == "true_false":
+        prompt = (
+            f"【AI草稿・要校閲】{rule} このルールに『常に例外はない』という条件を"
+            "加えても、結論は変わらない。"
+        )
+        texts = ["正しい", "誤り"]
+        correct_index = 1
+    elif fmt == "number_choice":
+        prompt = (
+            f"【AI草稿・要校閲】{subcategory}の数字・期限・割合について、"
+            f"正しい候補を選んでください。基礎論点: {item['prompt']}"
+        )
+        texts = proposed_number_choices(item, serial)
+        token = numeric_tokens(item)
+        proposed_correct = token[0] if token else "［正しい数値・期限を入力］"
+        correct_index = texts.index(proposed_correct)
+    elif fmt == "wording_contrast":
+        prompt = (
+            f"【AI草稿・要校閲】{subcategory}について、主体・時期・義務の表現が"
+            "より正確なものを選んでください。"
+        )
+        texts = [rule, f"対照文候補（主体・時期・義務を要校閲）: {item['prompt']}"]
+        correct_index = 0
+    elif fmt == "multiple_choice":
+        prompt = (
+            f"【AI草稿・要校閲】{subcategory}について、法令上もっとも適切なものを"
+            "1つ選んでください。"
+        )
+        texts = [
+            rule,
+            f"主体を入れ替えた誤答候補: {item['prompt']}",
+            f"時期・期限を入れ替えた誤答候補: {item['prompt']}",
+            f"原則と例外を入れ替えた誤答候補: {item['prompt']}",
+        ]
+        correct_index = 0
+    else:
+        prompt = (
+            f"【AI草稿・要校閲】{subcategory}に関する取引場面です。関係者が"
+            f"『{item['prompt']}』と判断しました。最も適切な対応を選んでください。"
+        )
+        texts = [
+            rule,
+            "主体の権限を取り違えた対応候補",
+            "手続の時期を取り違えた対応候補",
+            "原則と例外を取り違えた対応候補",
+        ]
+        correct_index = 0
+
+    choices = choices_with_rationales(texts, correct_index, fmt)
+    wrong_rationales = {
+        choice["id"]: choice["rationale"]
+        for choice in choices
+        if choice["id"] != choices[correct_index]["id"]
+    }
+    candidate = dict(item)
+    candidate.update(
+        {
+            "id": f"{item['id']}.v2.{fmt}.{serial:03d}",
+            "conceptID": concept_id,
+            "variantID": f"draft.{fmt}.{serial:03d}",
+            "format": fmt,
+            "prompt": prompt,
+            "choices": choices,
+            "correctIndex": correct_index,
+            "correctChoiceID": choices[correct_index]["id"],
+            "shortExplanation": f"要点候補: {rule}",
+            "longExplanation": (
+                f"詳細解説候補: {item.get('longExplanation') or item['explanation']} "
+                "法令根拠、適用条件、例外を人間の校閲で追記する。"
+            ),
+            "preview": {
+                "title": subcategory,
+                "rule": rule,
+                "contrast": "主体・時期・義務・原則例外の差を確認する。",
+                "mnemonic": None,
+            },
+            "minimumReviewSeconds": 10,
+            "contrastNote": "基礎論点と派生設問の条件差を人間が確認する。",
+            "wrongChoiceRationales": wrong_rationales,
+            "distractorReviewStatus": "pending",
+            "reviewStatus": "ai_draft",
+            "contentVersion": 2,
+            "draftGenerationNotes": (
+                "AI-assisted structural draft. Proposed answer and all legal wording require human review."
+            ),
+            "reviewFocus": review_focus(item),
+        }
+    )
+    return candidate
+
+
+def prioritized_indices(items: list[dict], fmt: str) -> list[int]:
+    def score(pair: tuple[int, dict]) -> tuple[int, int]:
+        index, item = pair
+        focus = review_focus(item)
+        if fmt == "number_choice":
+            priority = 0 if "数字・期限・割合" in focus else 1
+        elif fmt == "wording_contrast":
+            priority = 0 if any(value in focus for value in ("義務/任意・前後・原則/例外", "主体")) else 1
+        elif fmt == "case_study":
+            priority = 0 if "主体" in focus else 1
+        else:
+            priority = 0
+        return (priority, (index * 37) % len(items))
+
+    return [index for index, _ in sorted(enumerate(items), key=score)]
+
+
+def build_candidates(items: list[dict]) -> list[dict]:
+    candidates = [normalized_base(item) for item in items]
+    for fmt, count in DERIVED_FORMAT_COUNTS.items():
+        order = prioritized_indices(items, fmt)
+        for serial, source_index in enumerate(order[:count], start=1):
+            candidates.append(derived_candidate(items[source_index], fmt, serial))
+    return candidates
+
+
+def write_review_queue(items: list[dict], candidates: list[dict]) -> None:
+    formats = Counter(item["format"] for item in candidates)
+    focus_counts = Counter(
+        focus for item in candidates for focus in item.get("reviewFocus", [])
+    )
     rows = [
         "# 宅建コンテンツ v2 校閲キュー",
         "",
-        "> この文書と候補JSONは校閲作業用です。法令内容を自動承認せず、Release Resourcesへコピーしません。",
+        "> 候補JSONはすべてAI草稿です。法令内容を自動承認せず、Release Resourcesへコピーしません。",
         "",
-        "## 現行100問の検出結果",
+        "## 生成結果",
         "",
-        f"- 全問題: {len(candidates)}問",
-        f"- ○×: {formats['true_false']}問",
-        f"- 4択: {formats['multiple_choice']}問",
-        f"- ○×正答: 正しい {correct_tf['正しい']} / 誤り {correct_tf['誤り']}",
-        f"- shortExplanation == longExplanation: {same_explanations}問",
+        f"- 元論点: {len(items)}",
+        f"- 候補合計: {len(candidates)}（base {len(items)} / 派生 {len(candidates) - len(items)}）",
+        "- reviewStatus: 全件 `ai_draft`",
+        "- distractorReviewStatus: 全件 `pending`",
+        "- Release targetへの収録: 0件",
         "",
-        "## 校閲条件",
+        "### 形式別",
         "",
-        "- [ ] conceptIDとvariantIDが論点単位で妥当",
-        "- [ ] 数値選択15%以上、文言比較15%以上、4択・事例25%以上へ派生を追加",
-        "- [ ] ○×の比率と正答偏りを品質基準内へ調整",
-        "- [ ] short/long解説を分け、longへ追加情報を記載",
-        "- [ ] 各誤答へ同一論点内のもっともらしい理由を記載",
-        "- [ ] distractorReviewStatusをcheckedへ更新",
-        "- [ ] 人間の校閲後だけreviewStatusをchecked/reviewed/releaseへ更新",
-        "",
-        "## 問題別キュー",
-        "",
-        "| ID | 論点候補 | 形式 | 小分野 | 解説差分 | 誤答校閲 |",
-        "|---|---|---|---|---|---|",
+        "| 形式 | 件数 | 比率 |",
+        "|---|---:|---:|",
     ]
+    for fmt in ("true_false", "number_choice", "wording_contrast", "multiple_choice", "case_study"):
+        count = formats[fmt]
+        rows.append(f"| {fmt} | {count} | {count / len(candidates):.1%} |")
+    rows.extend(
+        [
+            "",
+            "### 優先確認タグ",
+            "",
+            *[f"- {name}: {count}候補" for name, count in sorted(focus_counts.items())],
+            "",
+            "## 人間校閲の完了条件",
+            "",
+            "- [ ] 2026-04-01基準の法令・数字・主体・例外を確認",
+            "- [ ] 問題文をAI草稿表現から自然な本試験型表現へ修正",
+            "- [ ] correctChoiceIDとcorrectIndexを再確認",
+            "- [ ] 全誤答rationaleを法令根拠に基づき修正",
+            "- [ ] short/long explanationの役割を分離",
+            "- [ ] reviewer / reviewedAt / review notesを記録",
+            "- [ ] distractorReviewStatusを`checked`へ変更",
+            "- [ ] 最終承認後だけreviewStatusを`reviewed`へ変更",
+            "",
+            "## 候補別キュー",
+            "",
+            "| conceptID | variantID | 形式 | 確認する数字/主体/文言 | 正解候補 | 誤答根拠 | 法令基準日 | reviewer | reviewedAt | review notes |",
+            "|---|---|---|---|---|---|---|---|---|---|",
+        ]
+    )
     for item in candidates:
+        choices = item["choices"]
+        correct = next(
+            choice["text"] for choice in choices
+            if choice["id"] == item["correctChoiceID"]
+        )
+        focus = " / ".join(item.get("reviewFocus") or ["法令文言"])
+        wrong = "要校閲" if len(choices) > 1 else "不足"
         rows.append(
-            f"| {item['id']} | {item['conceptID']} | {item['format']} | "
-            f"{item.get('subCategory') or '未分類'} | 要修正 | 未校閲 |")
+            f"| {item['conceptID']} | {item['variantID']} | {item['format']} | "
+            f"{focus} | {correct.replace('|', '／')} | {wrong} | "
+            f"{item.get('lawBasisDate') or '2026-04-01'} |  |  |  |"
+        )
     QUEUE.write_text("\n".join(rows) + "\n", encoding="utf-8")
-    print(f"Created Draft candidate: {OUTPUT.relative_to(ROOT)}")
-    print(f"Created review queue: {QUEUE.relative_to(ROOT)}")
+
+
+def main() -> int:
+    items = json.loads(SOURCE.read_text(encoding="utf-8"))
+    candidates = build_candidates(items)
+    if len(candidates) != 400:
+        raise RuntimeError(f"expected 400 candidates, got {len(candidates)}")
+    if any(
+        item.get("reviewStatus") != "ai_draft"
+        or item.get("distractorReviewStatus") != "pending"
+        for item in candidates
+    ):
+        raise RuntimeError("generated content must remain unreviewed")
+    OUTPUT.write_text(
+        json.dumps(candidates, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    write_review_queue(items, candidates)
+    print(f"Created {len(candidates)} isolated Draft candidates: {OUTPUT.relative_to(ROOT)}")
+    print(f"Created human review queue: {QUEUE.relative_to(ROOT)}")
     return 0
 
 

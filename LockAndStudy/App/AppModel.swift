@@ -19,6 +19,8 @@ final class AppModel: ObservableObject {
   let experienceRegistry: StudyExperienceRegistry
   private var completedStudySessions: Set<UUID> = []
   private var startTask: Task<Void, Never>?
+  private let reviewClock = ContinuousClock()
+  private var activeReviewStartedAtByQuestionID: [String: ContinuousClock.Instant] = [:]
 
   init(dependencies: DependencyContainer? = nil) {
     let defaults = LockAndStudySharedConstants.defaults
@@ -44,6 +46,15 @@ final class AppModel: ObservableObject {
     #if DEBUG
       if ProcessInfo.processInfo.arguments.contains("-LockAndStudyUITestSelectedTakken") {
         selectedPackID = "takken2026.v1"
+      }
+      let arguments = ProcessInfo.processInfo.arguments
+      if arguments.contains("-LockAndStudyUITestUnlock2")
+        || arguments.contains("-LockAndStudyUITestUnlock3")
+      {
+        var policy = self.dependencies.policyStore.loadPolicy() ?? .initial(now: Date())
+        policy.accessPacePreset = arguments.contains("-LockAndStudyUITestUnlock3")
+          ? .extended30 : .bundled20
+        self.dependencies.policyStore.savePolicy(policy)
       }
     #endif
   }
@@ -81,7 +92,10 @@ final class AppModel: ObservableObject {
       await dependencies.commerce.refreshEntitlements()
       records = (try? await dependencies.learning.events()) ?? []
       if onboardingCompleted {
-        if let experienceBundle = try await dependencies.learning.loadExperienceUnlockBundle() {
+        if var experienceBundle = try await dependencies.learning.loadExperienceUnlockBundle() {
+          if prepareRestoredReviewState(&experienceBundle, at: Date()) {
+            try await dependencies.learning.saveExperienceUnlockBundle(experienceBundle)
+          }
           if experienceBundle.isAnswering(at: Date()) {
             unlockChallenge = experienceBundle
           } else if experienceBundle.isComplete && experienceBundle.completionState != .completed
@@ -323,10 +337,13 @@ final class AppModel: ObservableObject {
         return .expired
       }
       let answeredAt = Date()
-      if let requiredUntil = bundle.reviewRequiredUntilByQuestionID?[question.id.rawValue],
-        requiredUntil > answeredAt
-      {
-        let seconds = max(1, Int(ceil(requiredUntil.timeIntervalSince(answeredAt))))
+      _ = bundle.migrateLegacyReviewState(at: answeredAt)
+      let authoritativeRemaining = settleReviewExposure(
+        in: &bundle, questionID: question.id, keepActive: false, at: answeredAt)
+      if authoritativeRemaining > 0 {
+        try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+        unlockChallenge = bundle
+        let seconds = max(1, Int(ceil(authoritativeRemaining)))
         return .failed("解説をあと\(seconds)秒確認してから、再挑戦してください。")
       }
       let attemptNumber = (bundle.attemptCountsByQuestionID?[question.id.rawValue] ?? 0) + 1
@@ -345,7 +362,7 @@ final class AppModel: ObservableObject {
       var attempts = bundle.attemptCountsByQuestionID ?? [:]
       attempts[question.id.rawValue] = attemptNumber
       bundle.attemptCountsByQuestionID = attempts
-      var reviewRequired = bundle.reviewRequiredUntilByQuestionID ?? [:]
+      var reviewRemaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
       var lastSelections = bundle.lastSelectedChoiceIDByQuestionID ?? [:]
       if selectedChoiceID == question.correctChoiceID {
         guard Date() < bundle.challenge.expiresAt else {
@@ -353,27 +370,66 @@ final class AppModel: ObservableObject {
           return .expired
         }
         bundle.completedQuestionIDs.insert(question.id)
-        reviewRequired.removeValue(forKey: question.id.rawValue)
-        lastSelections.removeValue(forKey: question.id.rawValue)
+        bundle.clearReviewState(for: question.id)
+        reviewRemaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
+        lastSelections = bundle.lastSelectedChoiceIDByQuestionID ?? [:]
       } else if case .takken(let value) = question {
         let stagedSeconds = attemptNumber == 1 ? 10 : (attemptNumber == 2 ? 15 : 20)
         let minimumSeconds = max(value.minimumReviewSeconds ?? 10, stagedSeconds)
-        reviewRequired[question.id.rawValue] = answeredAt.addingTimeInterval(
-          TimeInterval(minimumSeconds))
+        reviewRemaining[question.id.rawValue] = TimeInterval(minimumSeconds)
         lastSelections[question.id.rawValue] = selectedChoiceID
       }
-      bundle.reviewRequiredUntilByQuestionID = reviewRequired
+      bundle.reviewRequiredUntilByQuestionID = nil
+      bundle.reviewRemainingActiveSecondsByQuestionID = reviewRemaining.isEmpty
+        ? nil : reviewRemaining
+      var reviewLastActive = bundle.reviewLastActiveAtByQuestionID ?? [:]
+      reviewLastActive.removeValue(forKey: question.id.rawValue)
+      bundle.reviewLastActiveAtByQuestionID = reviewLastActive.isEmpty ? nil : reviewLastActive
       bundle.lastSelectedChoiceIDByQuestionID = lastSelections
       try await dependencies.learning.saveExperienceUnlockBundle(bundle)
       unlockChallenge = bundle
       records = try await dependencies.learning.events()
-      return selectedChoiceID == question.correctChoiceID ? .recordedCorrect : .recordedIncorrect
+      if selectedChoiceID == question.correctChoiceID { return .recordedCorrect }
+      let remaining: Int
+      if case .takken = question {
+        remaining = max(0, Int(ceil(reviewRemaining[question.id.rawValue] ?? 0)))
+      } else {
+        remaining = feedbackWaitSeconds(feedback)
+      }
+      return .recordedIncorrect(
+        remainingActiveSeconds: remaining, attemptNumber: attemptNumber)
+    } catch {
+      return .failed(error.localizedDescription)
+    }
+  }
+
+  func updateUnlockReviewExposure(
+    questionID: StudyItemID,
+    isActive: Bool
+  ) async -> UnlockReviewExposureResult {
+    do {
+      guard var bundle = try await dependencies.learning.loadExperienceUnlockBundle(),
+        bundle.completionState == .answering,
+        bundle.challenge.questions.contains(where: { $0.id == questionID })
+      else { return .failed("解除問題の状態を確認できませんでした。") }
+      let now = Date()
+      guard now < bundle.challenge.expiresAt else {
+        try await expireUnlockBundle(&bundle, reason: "challenge-expired-during-review")
+        return .expired
+      }
+      _ = bundle.migrateLegacyReviewState(at: now)
+      let remaining = settleReviewExposure(
+        in: &bundle, questionID: questionID, keepActive: isActive, at: now)
+      try await dependencies.learning.saveExperienceUnlockBundle(bundle)
+      unlockChallenge = bundle
+      return .updated(remainingActiveSeconds: max(0, Int(ceil(remaining))))
     } catch {
       return .failed(error.localizedDescription)
     }
   }
 
   func completeUnlockChallenge() async {
+    activeReviewStartedAtByQuestionID.removeAll()
     guard var bundle = try? await dependencies.learning.loadExperienceUnlockBundle(),
       bundle.isComplete
     else { return }
@@ -452,6 +508,10 @@ final class AppModel: ObservableObject {
         await self?.submitUnlockAnswer(
           question: question, selectedChoiceID: choiceID, feedback: feedback)
           ?? .failed("解除問題を送信できませんでした。")
+      },
+      updateReviewExposure: { [weak self] questionID, isActive in
+        await self?.updateUnlockReviewExposure(questionID: questionID, isActive: isActive)
+          ?? .failed("解説確認時間を保存できませんでした。")
       },
       complete: { [weak self] in await self?.completeUnlockChallenge() }
     )
@@ -544,6 +604,7 @@ final class AppModel: ObservableObject {
   }
 
   func abortActiveUnlock(reason: String) async {
+    activeReviewStartedAtByQuestionID.removeAll()
     if var experienceBundle = try? await dependencies.learning.loadExperienceUnlockBundle() {
       experienceBundle.abortReason = reason
       experienceBundle.completionState = .aborted
@@ -612,6 +673,64 @@ final class AppModel: ObservableObject {
         learningRole: role, wasNewAtSubmission: wasNew, wasDueAtSubmission: wasDue,
         attemptNumber: attemptNumber, wasFirstAttempt: attemptNumber == 1
       )
+    }
+  }
+
+  private func prepareRestoredReviewState(
+    _ bundle: inout ExperienceUnlockBundleSnapshot,
+    at date: Date
+  ) -> Bool {
+    activeReviewStartedAtByQuestionID.removeAll()
+    var changed = bundle.migrateLegacyReviewState(at: date)
+    if bundle.reviewLastActiveAtByQuestionID != nil {
+      bundle.reviewLastActiveAtByQuestionID = nil
+      changed = true
+    }
+    return changed
+  }
+
+  private func settleReviewExposure(
+    in bundle: inout ExperienceUnlockBundleSnapshot,
+    questionID: StudyItemID,
+    keepActive: Bool,
+    at date: Date
+  ) -> TimeInterval {
+    let key = questionID.rawValue
+    var remaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
+    var value = max(0, remaining[key] ?? 0)
+    if let startedAt = activeReviewStartedAtByQuestionID.removeValue(forKey: key) {
+      value = bundle.applyActiveReviewExposure(elapsedSeconds(since: startedAt), for: questionID)
+      remaining = bundle.reviewRemainingActiveSecondsByQuestionID ?? [:]
+    }
+    if value > 0 {
+      remaining[key] = value
+    } else {
+      remaining.removeValue(forKey: key)
+    }
+    bundle.reviewRemainingActiveSecondsByQuestionID = remaining.isEmpty ? nil : remaining
+    var lastActive = bundle.reviewLastActiveAtByQuestionID ?? [:]
+    if keepActive, value > 0 {
+      activeReviewStartedAtByQuestionID[key] = reviewClock.now
+      lastActive[key] = date
+    } else {
+      lastActive.removeValue(forKey: key)
+    }
+    bundle.reviewLastActiveAtByQuestionID = lastActive.isEmpty ? nil : lastActive
+    return value
+  }
+
+  private func elapsedSeconds(since start: ContinuousClock.Instant) -> TimeInterval {
+    let components = start.duration(to: reviewClock.now).components
+    return TimeInterval(components.seconds)
+      + TimeInterval(components.attoseconds) / 1_000_000_000_000_000_000
+  }
+
+  private func feedbackWaitSeconds(_ feedback: StudyFeedbackPlan) -> Int {
+    switch feedback {
+    case .immediate: return 0
+    case .relearn6: return 6
+    case .relearn12: return 12
+    case .guided20: return 20
     }
   }
 

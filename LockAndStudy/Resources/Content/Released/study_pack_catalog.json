@@ -37,6 +37,8 @@
     "isEnabled": true,
     "sortOrder": 20,
     "expectedItemCount": 100,
+    "conceptCount": 100,
+    "variantCount": 100,
     "sampleDefinition": {"kind": "allReleased", "count": 100},
     "oneTimeProductID": "com.ameneko.lockandstudy.pack.takken2026.v1",
     "passEligible": true,
@@ -50,4 +52,3 @@
     "qualification": {"examYear": 2026, "lawBasisDate": "2026-04-01", "requiresAnnualReview": true}
   }
 ]
-

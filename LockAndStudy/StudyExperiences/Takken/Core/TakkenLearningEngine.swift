@@ -43,6 +43,21 @@ struct TakkenPendingPreview: Codable, Equatable, Sendable, Identifiable {
   }
 }
 
+struct TakkenPendingPreviewResolver: Sendable {
+  func visibleQuestion(
+    for preview: TakkenPendingPreview?,
+    in questions: [TakkenQuestion],
+    contentVersion: String,
+    at date: Date
+  ) -> TakkenQuestion? {
+    guard let preview, preview.isDisplayable(at: date),
+      preview.contentVersion == contentVersion
+    else { return nil }
+    return questions.first { $0.id == preview.sourceQuestionID }
+      ?? questions.first { $0.resolvedConceptID == preview.conceptID }
+  }
+}
+
 struct TakkenPresentedQuestion: Identifiable, Equatable, Sendable {
   let source: TakkenQuestion
   let presentedChoices: [StudyChoice]
@@ -136,8 +151,9 @@ struct TakkenQuestionSelectionEngine: Sendable {
     }
     eligible = filterForMode(eligible, request: request)
 
-    let recentItemIDs = Set(request.recentAnswers.suffix(10).map { $0.itemID.rawValue })
-    let recentFormats = request.recentAnswers.suffix(20).compactMap {
+    let presentationHistory = uniquePresentationHistory(request.recentAnswers)
+    let recentItemIDs = Set(presentationHistory.suffix(10).map { $0.itemID.rawValue })
+    let recentFormats = presentationHistory.suffix(20).compactMap {
       $0.questionFormat.flatMap(TakkenQuestionFormat.init(rawValue:))
     }
     let target = formatTargets(for: request.mode)
@@ -245,6 +261,20 @@ struct TakkenQuestionSelectionEngine: Sendable {
               .multipleChoice: 0.20, .caseStudy: 0.20]
     }
   }
+
+  private func uniquePresentationHistory(
+    _ answers: [StudyAnswerRecord]
+  ) -> [StudyAnswerRecord] {
+    var seen: Set<String> = []
+    return answers.sorted { lhs, rhs in
+      if lhs.answeredAt == rhs.answeredAt {
+        return (lhs.attemptNumber ?? 1) < (rhs.attemptNumber ?? 1)
+      }
+      return lhs.answeredAt < rhs.answeredAt
+    }.filter { answer in
+      seen.insert("\(answer.sessionID.uuidString)::\(answer.itemID.rawValue)").inserted
+    }
+  }
 }
 
 struct TakkenExplanationPresentation: Equatable, Sendable {
@@ -293,6 +323,22 @@ struct TakkenAnswerStateMachine: Equatable, Sendable {
     reviewRequiredUntil: Date?,
     now: Date
   ) {
+    self.init(
+      restoring: question,
+      selectedChoiceID: selectedChoiceID,
+      wrongAttemptCount: wrongAttemptCount,
+      reviewRemainingActiveSeconds: max(
+        0, reviewRequiredUntil?.timeIntervalSince(now) ?? 0),
+      now: now)
+  }
+
+  init(
+    restoring question: TakkenUnlockQuestionSnapshot,
+    selectedChoiceID: Int,
+    wrongAttemptCount: Int,
+    reviewRemainingActiveSeconds: TimeInterval,
+    now: Date
+  ) {
     self.wrongAttemptCount = max(1, wrongAttemptCount)
     let selected = question.choices.first { $0.id == selectedChoiceID }?.text ?? "未選択"
     let correct = question.choices.first { $0.id == question.correctChoiceID }?.text ?? "未設定"
@@ -310,9 +356,9 @@ struct TakkenAnswerStateMachine: Equatable, Sendable {
       selectedChoiceID: selectedChoiceID,
       correctChoiceID: question.correctChoiceID,
       wrongAttemptCount: self.wrongAttemptCount,
-      minimumReviewEndsAt: reviewRequiredUntil ?? now,
+      minimumReviewEndsAt: now.addingTimeInterval(max(0, reviewRemainingActiveSeconds)),
       explanation: explanation)
-    phase = state.minimumReviewEndsAt > now ? .reviewingWrong(state) : .readyToRetry(state)
+    phase = reviewRemainingActiveSeconds > 0 ? .reviewingWrong(state) : .readyToRetry(state)
   }
 
   mutating func record(
@@ -366,6 +412,57 @@ struct TakkenAnswerStateMachine: Equatable, Sendable {
         TimeInterval(max(question.minimumReviewSeconds ?? 10, staged))),
       explanation: explanation)
     phase = .reviewingWrong(state)
+  }
+
+  mutating func record(
+    selectedChoiceID: Int,
+    question: TakkenUnlockQuestionSnapshot,
+    authoritativeRemainingActiveSeconds: Int,
+    attemptNumber: Int,
+    at date: Date
+  ) {
+    let selected = question.choices.first { $0.id == selectedChoiceID }?.text ?? "未選択"
+    let correct = question.choices.first { $0.id == question.correctChoiceID }?.text ?? "未設定"
+    let explanation = TakkenExplanationPresentation(
+      selectedText: selected,
+      correctText: correct,
+      whyWrong: question.wrongChoiceRationales?[selectedChoiceID]
+        ?? question.shortExplanation,
+      rule: question.longExplanation,
+      contrast: question.contrastNote,
+      keyPoint: question.keyPoint,
+      sourceNote: question.sourceNote,
+      lawBasisDate: question.lawBasisDate)
+    if selectedChoiceID == question.correctChoiceID {
+      phase = .answeredCorrect(.init(
+        selectedChoiceID: selectedChoiceID, correctChoiceID: question.correctChoiceID,
+        wasRelearned: wrongAttemptCount > 0, explanation: explanation))
+      return
+    }
+    wrongAttemptCount = max(1, attemptNumber)
+    let remaining = max(0, authoritativeRemainingActiveSeconds)
+    let state = TakkenWrongReviewState(
+      selectedChoiceID: selectedChoiceID, correctChoiceID: question.correctChoiceID,
+      wrongAttemptCount: wrongAttemptCount,
+      minimumReviewEndsAt: date.addingTimeInterval(TimeInterval(remaining)),
+      explanation: explanation)
+    phase = remaining > 0 ? .reviewingWrong(state) : .readyToRetry(state)
+  }
+
+  mutating func updateReviewRemaining(activeSeconds: Int, at date: Date) {
+    let existing: TakkenWrongReviewState
+    switch phase {
+    case .reviewingWrong(let state), .readyToRetry(let state): existing = state
+    case .answering, .answeredCorrect: return
+    }
+    let remaining = max(0, activeSeconds)
+    let updated = TakkenWrongReviewState(
+      selectedChoiceID: existing.selectedChoiceID,
+      correctChoiceID: existing.correctChoiceID,
+      wrongAttemptCount: existing.wrongAttemptCount,
+      minimumReviewEndsAt: date.addingTimeInterval(TimeInterval(remaining)),
+      explanation: existing.explanation)
+    phase = remaining > 0 ? .reviewingWrong(updated) : .readyToRetry(updated)
   }
 
   mutating func update(at date: Date) {

@@ -215,6 +215,45 @@ final class LockAndStudyUITests: XCTestCase {
     XCTAssertFalse(selectedAnswer.exists)
   }
 
+  func testTakkenReviewTimeDoesNotAdvanceWhileBackgrounded() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", "-LockAndStudyUITestTakkenV5TrueFalse",
+      "-LockAndStudyUITestPersistentLearningRoot",
+    ])
+    openTakkenUnlock(app)
+    app.buttons["誤答"].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.review.remaining"].waitForExistence(timeout: 5))
+    Thread.sleep(forTimeInterval: 2)
+    XCUIDevice.shared.press(.home)
+    Thread.sleep(forTimeInterval: 10)
+    app.activate()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.review.remaining"].waitForExistence(timeout: 5))
+    XCTAssertFalse(app.buttons["takken.review.retry"].exists)
+    XCTAssertTrue(app.buttons["takken.review.retry"].waitForExistence(timeout: 10))
+  }
+
+  func testTakkenReviewRemainingRestoresAfterTermination() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", "-LockAndStudyUITestTakkenV5TrueFalse",
+      "-LockAndStudyUITestPersistentLearningRoot",
+    ])
+    openTakkenUnlock(app)
+    app.buttons["誤答"].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.review.remaining"].waitForExistence(timeout: 5))
+    Thread.sleep(forTimeInterval: 2)
+    app.terminate()
+    app.launchArguments.removeAll { $0 == "-LockAndStudyUITestResetData" }
+    app.launch()
+    XCTAssertTrue(app.descendants(matching: .any)["unlock.takken"].waitForExistence(timeout: 15))
+    XCTAssertTrue(
+      app.descendants(matching: .any)["takken.review.remaining"].waitForExistence(timeout: 5))
+    XCTAssertFalse(app.buttons["takken.review.retry"].exists)
+    XCTAssertTrue(app.buttons["takken.review.retry"].waitForExistence(timeout: 10))
+  }
+
   func testTakkenWrongAndCorrectChoicesAreIdentified() {
     let app = launchTakkenV5("-LockAndStudyUITestTakkenV5TrueFalse")
     app.buttons["誤答"].tap()
@@ -266,6 +305,60 @@ final class LockAndStudyUITests: XCTestCase {
     app.buttons["takken.review.retry"].tap()
     app.buttons["正解"].tap()
     XCTAssertTrue(app.buttons["takken.review.unlock"].waitForExistence(timeout: 5))
+  }
+
+  func testTakkenTwoQuestionUnlockUpdatesNextAndFinalActions() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", "-LockAndStudyUITestTakkenV5TrueFalse",
+      "-LockAndStudyUITestUnlock2",
+    ])
+    openTakkenUnlock(app)
+    let progress = app.descendants(matching: .any)["takken.unlock.progress"]
+    XCTAssertEqual(progress.value as? String, "0/2")
+    app.buttons["正解"].tap()
+    XCTAssertTrue(app.buttons["takken.review.next"].waitForExistence(timeout: 5))
+    XCTAssertFalse(app.buttons["takken.review.unlock"].exists)
+    XCTAssertEqual(progress.value as? String, "1/2")
+    app.buttons["takken.review.next"].tap()
+    app.buttons["正解"].tap()
+    XCTAssertTrue(app.buttons["takken.review.unlock"].waitForExistence(timeout: 5))
+    XCTAssertEqual(progress.value as? String, "2/2")
+  }
+
+  func testTakkenThreeQuestionUnlockProgressUpdatesAfterEveryCorrectAnswer() {
+    let app = launch(extraArguments: [
+      "-LockAndStudyUITestSelectedTakken", "-LockAndStudyUITestTakkenV5TrueFalse",
+      "-LockAndStudyUITestUnlock3",
+    ])
+    openTakkenUnlock(app)
+    let progress = app.descendants(matching: .any)["takken.unlock.progress"]
+    XCTAssertEqual(progress.value as? String, "0/3")
+    for completed in 1...3 {
+      app.buttons["正解"].tap()
+      XCTAssertEqual(progress.value as? String, "\(completed)/3")
+      if completed < 3 {
+        XCTAssertTrue(app.buttons["takken.review.next"].waitForExistence(timeout: 5))
+        app.buttons["takken.review.next"].tap()
+      }
+    }
+    XCTAssertTrue(app.buttons["takken.review.unlock"].waitForExistence(timeout: 5))
+  }
+
+  func testVocabularyTwoQuestionUnlockUsesNextThenUnlock() {
+    let app = launch(extraArguments: ["-LockAndStudyUITestUnlock2"])
+    XCTAssertTrue(app.buttons["vocabulary.start.unlock"].waitForExistence(timeout: 15))
+    app.buttons["vocabulary.start.unlock"].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["unlock.vocabulary"].waitForExistence(timeout: 15))
+    let progress = app.descendants(matching: .any)["vocabulary.unlock.progress"]
+    XCTAssertEqual(progress.value as? String, "0/2")
+    app.buttons["かもしれない"].tap()
+    XCTAssertTrue(app.buttons["次へ"].waitForExistence(timeout: 5))
+    XCTAssertEqual(progress.value as? String, "1/2")
+    app.buttons["次へ"].tap()
+    app.buttons["一つ"].tap()
+    XCTAssertTrue(app.buttons["解除する"].waitForExistence(timeout: 5))
+    XCTAssertEqual(progress.value as? String, "2/2")
   }
 
   func testTakkenQuestionDetailHidesAnswerInitially() {
@@ -412,6 +505,13 @@ final class LockAndStudyUITests: XCTestCase {
     XCTAssertTrue(
       app.descendants(matching: .any)["takken.study.session"].waitForExistence(timeout: 10))
     return app
+  }
+
+  private func openTakkenUnlock(_ app: XCUIApplication) {
+    XCTAssertTrue(app.buttons["takken.start.unlock"].waitForExistence(timeout: 15))
+    app.buttons["takken.start.unlock"].tap()
+    XCTAssertTrue(
+      app.descendants(matching: .any)["unlock.takken"].waitForExistence(timeout: 15))
   }
 
   private func assertTakkenFormatCanBeAnswered(argument: String, badge: String) {

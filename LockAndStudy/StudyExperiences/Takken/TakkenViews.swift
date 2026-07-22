@@ -54,7 +54,7 @@ struct TakkenFirstRunView: View {
           Image(systemName: "building.columns.fill").font(.system(size: 58)).foregroundStyle(
             LockAndStudyTheme.takken)
           Text("宅建2026の学習方針").font(.largeTitle.bold()).multilineTextAlignment(.center)
-          Text("現在は資格者レビュー済みの宅建業法100問を無料公開しています。追加900問と購入は準備中です。")
+          Text(context.manifest.description)
             .foregroundStyle(.secondary).multilineTextAlignment(.center)
           Picker("受験年度", selection: $settings.examYear) { Text("2026年度").tag(2026) }.pickerStyle(
             .segmented
@@ -104,7 +104,8 @@ private struct TakkenHomeView: View {
           HStack {
             Text("宅建2026").font(.title2.bold())
             Spacer()
-            Text("無料100問").font(.caption.bold()).foregroundStyle(.green)
+            Text(model.context.manifest.publishedCountLabel)
+              .font(.caption.bold()).foregroundStyle(.green)
           }
           LabeledContent("試験年度", value: "2026年度")
           LabeledContent(
@@ -529,7 +530,9 @@ private struct TakkenSettingsView: View {
         Text("Screen Timeと解除ルールはすべての教材で共通です。").font(.footnote).foregroundStyle(.secondary)
       }
       Section("販売状態") {
-        Label("無料100問を利用中", systemImage: "checkmark.circle.fill")
+        Label(
+          "\(model.context.manifest.publishedStructureDescription)を利用中",
+          systemImage: "checkmark.circle.fill")
         Text("全範囲版は準備中です。購入操作は表示しません。").foregroundStyle(.orange)
       }
     }.navigationTitle("宅建設定").accessibilityIdentifier("takken.settings")
@@ -647,10 +650,13 @@ struct TakkenUnlockChallengeView: View {
   let context: UnlockChallengeViewContext
   @Environment(\.scenePhase) private var scenePhase
   @State private var index: Int
+  @State private var completedQuestionIDs: Set<StudyItemID>
   @State private var machine = TakkenAnswerStateMachine()
+  @State private var reviewRemainingSeconds = 0
+  @State private var isReviewSyncing = false
+  @State private var pendingReviewActiveState: Bool?
   @State private var isSubmitting = false
   @State private var submissionError: String?
-  @State private var inactiveAt: Date?
   private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
   private let feedbackPlanner = TakkenFeedbackPlanner()
 
@@ -661,16 +667,23 @@ struct TakkenUnlockChallengeView: View {
       !bundle.completedQuestionIDs.contains($0.id)
     } ?? 0
     _index = State(initialValue: initialIndex)
+    _completedQuestionIDs = State(initialValue: bundle.completedQuestionIDs)
     if let snapshot = bundle.challenge.questions[safe: initialIndex],
       case .takken(let question) = snapshot,
       let selectedChoiceID = bundle.lastSelectedChoiceIDByQuestionID?[question.id.rawValue]
     {
+      let now = Date()
+      let remaining = bundle.reviewRemainingActiveSecondsByQuestionID?[question.id.rawValue]
+        ?? bundle.reviewRequiredUntilByQuestionID?[question.id.rawValue]
+          .map { max(0, $0.timeIntervalSince(now)) }
+        ?? 0
       _machine = State(initialValue: .init(
         restoring: question,
         selectedChoiceID: selectedChoiceID,
         wrongAttemptCount: bundle.attemptCountsByQuestionID?[question.id.rawValue] ?? 1,
-        reviewRequiredUntil: bundle.reviewRequiredUntilByQuestionID?[question.id.rawValue],
-        now: Date()))
+        reviewRemainingActiveSeconds: remaining,
+        now: now))
+      _reviewRemainingSeconds = State(initialValue: max(0, Int(ceil(remaining))))
     } else {
       _machine = State(initialValue: .init())
     }
@@ -681,8 +694,10 @@ struct TakkenUnlockChallengeView: View {
       ScrollView {
         VStack(spacing: 16) {
           ProgressView(
-            value: Double(bundle.completedQuestionIDs.count),
+            value: Double(completedQuestionIDs.count),
             total: Double(max(1, bundle.challenge.questions.count)))
+            .accessibilityValue("\(completedQuestionIDs.count)/\(bundle.challenge.questions.count)")
+            .accessibilityIdentifier("takken.unlock.progress")
           if let snapshot = bundle.challenge.questions[safe: index],
             case .takken(let question) = snapshot
           {
@@ -699,7 +714,7 @@ struct TakkenUnlockChallengeView: View {
             if !isAnswering {
               TakkenAnswerReviewCard(
                 phase: machine.phase,
-                remainingSeconds: machine.remainingSeconds(at: Date()),
+                remainingSeconds: reviewRemainingSeconds,
                 retry: { _ = machine.retry() },
                 nextTitle: isLast ? "解除する" : "次へ",
                 nextAction: advance)
@@ -709,11 +724,19 @@ struct TakkenUnlockChallengeView: View {
       }.navigationTitle("宅建で解除").navigationBarTitleDisplayMode(.inline)
     }
     .interactiveDismissDisabled()
-    .onReceive(timer) { now in
-      guard scenePhase == .active else { return }
-      machine.update(at: now)
+    .onReceive(timer) { _ in
+      guard scenePhase == .active, isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: true) }
     }
     .onChange(of: scenePhase, perform: handleScenePhase)
+    .onAppear {
+      guard scenePhase == .active, isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: true) }
+    }
+    .onDisappear {
+      guard isReviewingWrong else { return }
+      Task { await synchronizeReviewExposure(isActive: false) }
+    }
     .accessibilityIdentifier("unlock.takken")
     .answerSubmissionAlert(message: $submissionError, title: "解除問題")
   }
@@ -723,10 +746,12 @@ struct TakkenUnlockChallengeView: View {
     return false
   }
   private var isLast: Bool {
-    !bundle.challenge.questions.indices.contains { candidate in
-      candidate != index
-        && !bundle.completedQuestionIDs.contains(bundle.challenge.questions[candidate].id)
-    }
+    !bundle.hasLaterUncompletedQuestion(
+      after: index, completedQuestionIDs: completedQuestionIDs)
+  }
+  private var isReviewingWrong: Bool {
+    if case .reviewingWrong = machine.phase { return true }
+    return false
   }
 
   private func submit(
@@ -740,8 +765,19 @@ struct TakkenUnlockChallengeView: View {
     isSubmitting = true
     Task {
       switch await context.submit(snapshot, choiceID, plan) {
-      case .recordedCorrect, .recordedIncorrect:
+      case .recordedCorrect:
         machine.record(selectedChoiceID: choiceID, question: question, at: date)
+        completedQuestionIDs.insert(question.id)
+        reviewRemainingSeconds = 0
+      case .recordedIncorrect(let remainingActiveSeconds, let attemptNumber):
+        machine.record(
+          selectedChoiceID: choiceID,
+          question: question,
+          authoritativeRemainingActiveSeconds: remainingActiveSeconds,
+          attemptNumber: attemptNumber,
+          at: date)
+        reviewRemainingSeconds = remainingActiveSeconds
+        await synchronizeReviewExposure(isActive: scenePhase == .active)
       case .expired:
         submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
       case .failed(let message):
@@ -752,22 +788,49 @@ struct TakkenUnlockChallengeView: View {
   }
 
   private func advance() {
-    if let next = bundle.challenge.questions.indices.first(where: {
-      $0 > index && !bundle.completedQuestionIDs.contains(bundle.challenge.questions[$0].id)
-    }) {
+    if let next = bundle.nextUncompletedQuestionIndex(
+      after: index, completedQuestionIDs: completedQuestionIDs)
+    {
       index = next
       machine = .init()
+      reviewRemainingSeconds = 0
     } else {
       Task { await context.complete() }
     }
   }
 
   private func handleScenePhase(_ phase: ScenePhase) {
-    if phase == .active {
-      if let inactiveAt { machine.delayReview(by: Date().timeIntervalSince(inactiveAt)) }
-      inactiveAt = nil
-    } else if inactiveAt == nil {
-      inactiveAt = Date()
+    guard isReviewingWrong else { return }
+    Task { await synchronizeReviewExposure(isActive: phase == .active) }
+  }
+
+  @MainActor
+  private func synchronizeReviewExposure(isActive: Bool) async {
+    if isReviewSyncing {
+      pendingReviewActiveState = isActive
+      return
+    }
+    guard let question = bundle.challenge.questions[safe: index] else { return }
+    isReviewSyncing = true
+    var desiredActiveState = isActive
+    repeat {
+      pendingReviewActiveState = nil
+      switch await context.updateReviewExposure(question.id, desiredActiveState) {
+      case .updated(let remainingActiveSeconds):
+        reviewRemainingSeconds = remainingActiveSeconds
+        machine.updateReviewRemaining(activeSeconds: remainingActiveSeconds, at: Date())
+      case .expired:
+        submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
+      case .failed(let message):
+        submissionError = "解説確認時間を保存できませんでした。\n\(message)"
+      }
+      guard let pending = pendingReviewActiveState else { break }
+      desiredActiveState = pending
+    } while true
+    isReviewSyncing = false
+    if let pending = pendingReviewActiveState {
+      pendingReviewActiveState = nil
+      await synchronizeReviewExposure(isActive: pending)
     }
   }
 }

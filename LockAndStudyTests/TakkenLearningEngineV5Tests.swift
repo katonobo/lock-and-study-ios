@@ -225,7 +225,7 @@ final class TakkenLearningEngineV5Tests: XCTestCase {
     XCTAssertEqual(section.metrics.first { $0.id == "takken.relearned" }?.value, "1論点")
     XCTAssertEqual(section.metrics.first { $0.id == "takken.concepts" }?.value, "3論点")
     XCTAssertEqual(section.currentMetrics.first { $0.id == "takken.format.number_choice" }?.value, "1問・0%")
-    XCTAssertEqual(section.weakAreas.first?.answerCount, 4)
+    XCTAssertEqual(section.weakAreas.first?.answerCount, 3)
   }
 
   // MARK: - Fixtures

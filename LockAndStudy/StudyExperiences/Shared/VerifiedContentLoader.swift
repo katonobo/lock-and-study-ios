@@ -151,7 +151,7 @@ private struct SafeFallbackUnlockChallengeView: View {
         choiceID,
         choiceID == question.correctChoiceID ? .immediate : .relearn6
       ) {
-      case .recordedCorrect, .recordedIncorrect:
+      case .recordedCorrect, .recordedIncorrect(_, _):
         selected = choiceID
       case .expired:
         submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"

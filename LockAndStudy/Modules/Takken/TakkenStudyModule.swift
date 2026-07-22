@@ -124,16 +124,40 @@ struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
           rationale: rationaleMap?[choiceID] ?? rationaleMap?[text], misconceptionCode: nil)
       }
     }
-    correctIndex = try c.decodeIfPresent(Int.self, forKey: .correctIndex) ?? 0
+    let choiceIDs = choices.map(\.id)
+    guard choiceIDs.allSatisfy({ !$0.isEmpty }), Set(choiceIDs).count == choiceIDs.count else {
+      throw DecodingError.dataCorruptedError(
+        forKey: .choices, in: c, debugDescription: "choice IDが空または重複しています")
+    }
+    let decodedCorrectIndex = try c.decodeIfPresent(Int.self, forKey: .correctIndex)
+    if let decodedCorrectIndex, !choices.indices.contains(decodedCorrectIndex) {
+      throw DecodingError.dataCorruptedError(
+        forKey: .correctIndex, in: c, debugDescription: "正解indexが範囲外です")
+    }
     let decodedCorrectChoiceID = try c.decodeIfPresent(String.self, forKey: .correctChoiceID)
-      ?? choices[safe: correctIndex]?.id ?? "choice-0"
-    var hasCorrectChoice = false
-    for choice in choices where choice.id == decodedCorrectChoiceID { hasCorrectChoice = true }
-    guard hasCorrectChoice else {
+    if let decodedCorrectChoiceID, !choiceIDs.contains(decodedCorrectChoiceID) {
       throw DecodingError.dataCorruptedError(
         forKey: .correctChoiceID, in: c, debugDescription: "正解choice IDが存在しません")
     }
-    correctChoiceID = decodedCorrectChoiceID
+    guard decodedCorrectChoiceID != nil || decodedCorrectIndex != nil else {
+      throw DecodingError.dataCorruptedError(
+        forKey: .correctChoiceID, in: c, debugDescription: "正解choice IDまたはindexが必要です")
+    }
+    let indexedChoiceID = decodedCorrectIndex.map { choiceIDs[$0] }
+    if let decodedCorrectChoiceID, let indexedChoiceID,
+      decodedCorrectChoiceID != indexedChoiceID
+    {
+      throw DecodingError.dataCorruptedError(
+        forKey: .correctChoiceID, in: c,
+        debugDescription: "correctChoiceIDとcorrectIndexが一致しません")
+    }
+    correctChoiceID = decodedCorrectChoiceID ?? indexedChoiceID!
+    correctIndex = choiceIDs.firstIndex(of: correctChoiceID)!
+    if rationaleMap?[correctChoiceID] != nil {
+      throw DecodingError.dataCorruptedError(
+        forKey: .wrongChoiceRationales, in: c,
+        debugDescription: "正解choiceに誤答rationaleを設定できません")
+    }
     explanation = try c.decode(String.self, forKey: .explanation)
     shortExplanation = try c.decodeIfPresent(String.self, forKey: .shortExplanation)
     longExplanation = try c.decodeIfPresent(String.self, forKey: .longExplanation)
@@ -184,7 +208,9 @@ struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
     self.format = format
     self.prompt = prompt
     self.choices = choices
-    correctIndex = choices.firstIndex { $0.id == correctChoiceID } ?? 0
+    let resolvedCorrectIndex = choices.firstIndex { $0.id == correctChoiceID }
+    precondition(resolvedCorrectIndex != nil, "correctChoiceID must exist")
+    correctIndex = resolvedCorrectIndex!
     self.correctChoiceID = correctChoiceID
     self.explanation = explanation
     shortExplanation = explanation

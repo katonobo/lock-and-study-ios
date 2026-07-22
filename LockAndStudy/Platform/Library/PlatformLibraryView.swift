@@ -14,7 +14,7 @@ struct PlatformPackDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
           Text(manifest.title).font(.largeTitle.bold())
           Text(manifest.description)
-          LabeledContent("公開数", value: manifest.moduleType == .vocabulary ? "\(manifest.expectedItemCount)語" : "\(manifest.expectedItemCount)問")
+          LabeledContent("公開数", value: manifest.publishedCountLabel)
           LabeledContent("コンテンツ版", value: manifest.contentVersion)
           if let q = manifest.qualification { if let year = q.examYear { LabeledContent("試験年度", value: "\(year)年度") }; if let date = q.lawBasisDate { LabeledContent("法令基準日", value: date) } }
           if let summary { LabeledContent("学習済み", value: "\(summary.learnedItemCount)"); LabeledContent("正答率", value: "\(Int(summary.accuracy * 100))%") }

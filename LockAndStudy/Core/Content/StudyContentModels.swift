@@ -53,6 +53,8 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
   let isEnabled: Bool
   let sortOrder: Int
   let expectedItemCount: Int
+  let conceptCount: Int?
+  let variantCount: Int?
   let sampleDefinition: SampleDefinition
   let oneTimeProductID: String?
   let passEligible: Bool
@@ -65,6 +67,25 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
   let supersedesPackID: StudyPackID?
   let locale: String
   let qualification: QualificationMetadata?
+}
+
+extension StudyPackManifest {
+  var publishedCountLabel: String {
+    switch moduleType {
+    case .vocabulary: return "\(expectedItemCount)語"
+    case .takken:
+      guard let conceptCount else { return "\(expectedItemCount)問" }
+      if let variantCount, variantCount != conceptCount {
+        return "\(conceptCount)論点・\(variantCount)問"
+      }
+      return "\(conceptCount)論点"
+    }
+  }
+
+  var publishedStructureDescription: String {
+    guard moduleType == .takken, let conceptCount else { return publishedCountLabel }
+    return "宅建業法\(conceptCount)論点・校閲済み\(variantCount ?? expectedItemCount)問"
+  }
 }
 
 struct StudyChoice: Codable, Identifiable, Equatable, Sendable {

@@ -29,9 +29,9 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
     var questions = try repository.load(manifest: request.manifest)
     var settings = TakkenSettings.load()
     #if DEBUG
-      if let fixture = TakkenUITestFixtures.requestedQuestion() {
-        questions = [fixture]
-        settings.questionCount = 1
+    if let fixtures = TakkenUITestFixtures.requestedQuestions() {
+      questions = fixtures
+      settings.questionCount = fixtures.count
       }
     #endif
     let recentAnswers = try await request.learning.answers().filter { $0.experienceID == .takken }
@@ -48,9 +48,7 @@ struct TakkenUnlockChallengeProvider: UnlockChallengeProviding {
       if !preview.isUsableForRecall(
         contentVersion: request.manifest.contentVersion, now: request.now) || !candidateExists
       {
-        if preview.confirmedAt != nil {
-          try await request.learning.saveTakkenPendingPreview(nil)
-        }
+        try await request.learning.saveTakkenPendingPreview(nil)
         pendingPreview = nil
       }
     }
@@ -155,7 +153,7 @@ struct TakkenExperience: StudyExperienceFactory {
   let descriptor = StudyExperienceDescriptor(
     id: .takken,
     title: "宅建2026",
-    subtitle: "品質確認済み無料100問",
+    subtitle: "品質確認済み教材",
     systemImage: "building.columns.fill",
     tintName: "orange",
     supportedPackIDs: ["takken2026.v1"]
@@ -334,10 +332,9 @@ final class TakkenAppModel: ObservableObject {
   }
 
   func visiblePendingPreviewQuestion(at date: Date) -> TakkenQuestion? {
-    guard let preview = pendingPreview, preview.isDisplayable(at: date),
-      preview.contentVersion == context.manifest.contentVersion
-    else { return nil }
-    return questions.first { $0.resolvedConceptID == preview.conceptID }
+    TakkenPendingPreviewResolver().visibleQuestion(
+      for: pendingPreview, in: questions,
+      contentVersion: context.manifest.contentVersion, at: date)
   }
 
   func confirmPendingPreviewVisible(seconds: TimeInterval, now: Date = Date()) async {
@@ -365,10 +362,6 @@ final class TakkenAppModel: ObservableObject {
   func start(mode: StudyMode) {
     let sessionID = UUID()
     let now = Date()
-    let usablePreview = pendingPreview.flatMap { preview in
-      preview.isUsableForRecall(contentVersion: context.manifest.contentVersion, now: now)
-        ? preview : nil
-    }
     let queue = selectionEngine.select(.init(
       questions: questions,
       settings: settings,
@@ -378,20 +371,13 @@ final class TakkenAppModel: ObservableObject {
       mode: mode,
       count: settings.questionCount,
       sessionID: sessionID,
-      pendingPreview: usablePreview,
+      pendingPreview: nil,
       now: now
     ))
     guard !queue.isEmpty else { errorMessage = emptyMessage(for: mode); return }
     session = .init(id: sessionID, mode: mode, questions: queue)
     Task {
       do {
-        if let preview = usablePreview,
-          queue.first?.source.resolvedConceptID == preview.conceptID,
-          try await context.dependencies.learning.consumeTakkenPendingPreview(
-            id: preview.id, at: now)
-        {
-          pendingPreview = nil
-        }
         try await context.dependencies.learning.record(.init(
           kind: .studyStarted, packID: context.manifest.id, sessionID: sessionID))
       } catch {
@@ -509,6 +495,33 @@ final class TakkenAppModel: ObservableObject {
 
 #if DEBUG
   enum TakkenUITestFixtures {
+    static func requestedQuestions(
+      arguments: [String] = ProcessInfo.processInfo.arguments
+    ) -> [TakkenQuestion]? {
+      guard let base = requestedQuestion(arguments: arguments) else { return nil }
+      let count = arguments.contains("-LockAndStudyUITestUnlock3")
+        ? 3 : (arguments.contains("-LockAndStudyUITestUnlock2") ? 2 : 1)
+      return (0..<count).map { index in
+        guard index > 0 else { return base }
+        return TakkenQuestion(
+          id: "\(base.id)-\(index + 1)",
+          conceptID: "\(base.resolvedConceptID)-\(index + 1)",
+          variantID: base.resolvedVariantID,
+          format: base.resolvedFormat,
+          prompt: "UIテスト用の宅建問題\(index + 1)です。正しい選択肢を選んでください。",
+          choices: base.choices,
+          correctChoiceID: base.correctChoiceID,
+          category: base.category,
+          subCategory: base.subCategory,
+          difficulty: base.difficulty,
+          importance: base.importance,
+          explanation: base.explanation,
+          preview: base.preview,
+          minimumReviewSeconds: base.minimumReviewSeconds,
+          contrastNote: base.contrastNote)
+      }
+    }
+
     static func requestedQuestion(arguments: [String] = ProcessInfo.processInfo.arguments)
       -> TakkenQuestion?
     {

@@ -594,6 +594,7 @@ struct VocabularyUnlockChallengeView: View {
   let context: UnlockChallengeViewContext
   @Environment(\.scenePhase) private var scenePhase
   @State private var index: Int
+  @State private var completedQuestionIDs: Set<StudyItemID>
   @State private var selected: Int?
   @State private var attempts = 0
   @State private var waitRemaining = 0
@@ -609,6 +610,7 @@ struct VocabularyUnlockChallengeView: View {
     let first =
       bundle.challenge.questions.firstIndex { !bundle.completedQuestionIDs.contains($0.id) } ?? 0
     _index = State(initialValue: first)
+    _completedQuestionIDs = State(initialValue: bundle.completedQuestionIDs)
   }
 
   var body: some View {
@@ -616,8 +618,10 @@ struct VocabularyUnlockChallengeView: View {
       ScrollView {
         VStack(spacing: 16) {
           ProgressView(
-            value: Double(bundle.completedQuestionIDs.count),
+            value: Double(completedQuestionIDs.count),
             total: Double(max(1, bundle.challenge.questions.count)))
+            .accessibilityValue("\(completedQuestionIDs.count)/\(bundle.challenge.questions.count)")
+            .accessibilityIdentifier("vocabulary.unlock.progress")
           if let snapshot = bundle.challenge.questions[safe: index],
             case .vocabulary(let question) = snapshot
           {
@@ -669,10 +673,8 @@ struct VocabularyUnlockChallengeView: View {
     }
   }
   private var isLast: Bool {
-    !bundle.challenge.questions.indices.contains { candidate in
-      candidate != index
-        && !bundle.completedQuestionIDs.contains(bundle.challenge.questions[candidate].id)
-    }
+    !bundle.hasLaterUncompletedQuestion(
+      after: index, completedQuestionIDs: completedQuestionIDs)
   }
   private func submit(_ question: UnlockQuestionSnapshot, choiceID: Int) {
     let correct = choiceID == question.correctChoiceID
@@ -682,10 +684,11 @@ struct VocabularyUnlockChallengeView: View {
       switch await context.submit(question, choiceID, plan) {
       case .recordedCorrect:
         selected = choiceID
-      case .recordedIncorrect:
+        completedQuestionIDs.insert(question.id)
+      case .recordedIncorrect(let remainingActiveSeconds, let attemptNumber):
         selected = choiceID
-        attempts += 1
-        waitRemaining = planner.waitSeconds(for: plan)
+        attempts = attemptNumber
+        waitRemaining = remainingActiveSeconds
       case .expired:
         submissionError = "解除問題の有効時間が終了しました。新しい問題でやり直してください。"
       case .failed(let message):
@@ -695,9 +698,9 @@ struct VocabularyUnlockChallengeView: View {
     }
   }
   private func advance() {
-    if let next = bundle.challenge.questions.indices.first(where: {
-      $0 > index && !bundle.completedQuestionIDs.contains(bundle.challenge.questions[$0].id)
-    }) {
+    if let next = bundle.nextUncompletedQuestionIndex(
+      after: index, completedQuestionIDs: completedQuestionIDs)
+    {
       index = next
       selected = nil
       attempts = 0
