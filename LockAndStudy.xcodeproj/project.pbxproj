@@ -105,6 +105,7 @@
 		CB3AB4FB3D780DFDBC1BC9F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9634DE74BB84C2DBCE59CCE /* Assets.xcassets */; };
 		CBFCB5AC889A69CF66C73428 /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
 		CD5A09898B9ADC452E1F20D3 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BA037A666C8D37419D5FFE30 /* Localizable.xcstrings */; };
+		D2639CC49D1A24171EE620CD /* ContentTransactionHardeningV13Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D011687346BAAD9AD88BC33 /* ContentTransactionHardeningV13Tests.swift */; };
 		D2AF57A2065B065BA046D8A6 /* LegacyUnlockBundleMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E63A8009CB275DC4BDE407 /* LegacyUnlockBundleMigration.swift */; };
 		D2BBBDCAD0ACD89B32E771D2 /* LearningReportPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = D834EC7207776AECE638115A /* LearningReportPeriod.swift */; };
 		D3259C09970B645F543855C5 /* TakkenLearningEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF98BBBAE1C8568426AE3AC /* TakkenLearningEngine.swift */; };
@@ -118,6 +119,7 @@
 		E5D8D8632F0ACE0F1F5C2C04 /* CatalogLibraryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B925C48C0A630652BBA275E /* CatalogLibraryViews.swift */; };
 		E61C0CB793E565F2748CF3FF /* yojijukugo_samples_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 7F7140C1CE8C3C1E53C75D3D /* yojijukugo_samples_v1.json */; };
 		E7F9F777603FB78B4B666EE9 /* StudyContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98737A725F68857CDF65FFD8 /* StudyContentModels.swift */; };
+		E80C7FEF23C50EF809F72979 /* CertificationQuestionWire.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A9A8C21A462777C24E7177 /* CertificationQuestionWire.swift */; };
 		E8ACB4EEC1C2750F5D61927F /* manners_questions_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = DA5A6E81E7C8D60980B8E3F2 /* manners_questions_v1.json */; };
 		E98C76B2A7C0CA026C42AB5F /* TakkenFinalizationV6Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3F0F1C265434131E1347D /* TakkenFinalizationV6Tests.swift */; };
 		EA0066AF5BFF239D744A6323 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78362FCBBFB75B1257172434 /* RootView.swift */; };
@@ -206,6 +208,7 @@
 		277A8685DD63B58B9476AD84 /* takken_2026_free_100_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = takken_2026_free_100_v1.json; sourceTree = "<group>"; };
 		2B5364CD50E0C3D03AEDDE95 /* Collection+Safe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Safe.swift"; sourceTree = "<group>"; };
 		2BE0A366EC784825AD441E79 /* TakkenStudyModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenStudyModule.swift; sourceTree = "<group>"; };
+		2D011687346BAAD9AD88BC33 /* ContentTransactionHardeningV13Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentTransactionHardeningV13Tests.swift; sourceTree = "<group>"; };
 		2F587904E9E8FEF7CA8657C8 /* StudyExperienceHostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyExperienceHostView.swift; sourceTree = "<group>"; };
 		2FA2684C6B821D1F9649D83D /* takken2027_questions_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = takken2027_questions_v1.json; sourceTree = "<group>"; };
 		3177EA014819A28B300C176E /* AppRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRouter.swift; sourceTree = "<group>"; };
@@ -217,6 +220,7 @@
 		3EFF3ED639E65CC19BD33E3C /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3F3DA7CDC1C22F4543B40EA8 /* english3000_credits_v1.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = english3000_credits_v1.txt; sourceTree = "<group>"; };
 		4039A8C47CD5D7D3D3E5FB4D /* LockAndStudyDeviceActivityMonitorExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockAndStudyDeviceActivityMonitorExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		40A9A8C21A462777C24E7177 /* CertificationQuestionWire.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificationQuestionWire.swift; sourceTree = "<group>"; };
 		42D285ECB76C5343277EDC93 /* vocabulary_english3000_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = vocabulary_english3000_v1.json; sourceTree = "<group>"; };
 		4BD167345A6CDA06B3C5F557 /* ScreenTimeLockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTimeLockService.swift; sourceTree = "<group>"; };
 		4D1564A908AE1A0FF1F706AB /* PlatformHardeningV11Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformHardeningV11Tests.swift; sourceTree = "<group>"; };
@@ -333,6 +337,7 @@
 				EA6C993937583046ED9BF8B7 /* CommerceTests.swift */,
 				10A2FDD02695CD5C9DC00DE2 /* ContentAndStoreKitTests.swift */,
 				DFCC8C7A16D005A60099F866 /* ContentPlatformScalabilityV7Tests.swift */,
+				2D011687346BAAD9AD88BC33 /* ContentTransactionHardeningV13Tests.swift */,
 				D66ECF0AAA315C757C2D5E10 /* EmergencyUnlockTests.swift */,
 				00B9E7EC872B32CDEFE75214 /* LearningReportTests.swift */,
 				D6F235FC79B123FC718044A6 /* LearningTests.swift */,
@@ -575,6 +580,7 @@
 		7339944878F4DDB855B84866 /* Content */ = {
 			isa = PBXGroup;
 			children = (
+				40A9A8C21A462777C24E7177 /* CertificationQuestionWire.swift */,
 				324F5D76807C318F0B54DF88 /* ContentAccessService.swift */,
 				C55539332BF904738866B3A6 /* ContentAssetSource.swift */,
 				FE33240F1D18E090D0FB32E9 /* ContentFileValidation.swift */,
@@ -1053,6 +1059,7 @@
 				82A5F87CA7239C7298C5D0B9 /* AppModel.swift in Sources */,
 				13565A7D4033317B7CFE9B31 /* AppRouter.swift in Sources */,
 				E5D8D8632F0ACE0F1F5C2C04 /* CatalogLibraryViews.swift in Sources */,
+				E80C7FEF23C50EF809F72979 /* CertificationQuestionWire.swift in Sources */,
 				E3D3CC2B2976A45F1C72FBC3 /* Collection+Safe.swift in Sources */,
 				75BA03B28D46795243DE86C7 /* CommerceModels.swift in Sources */,
 				035B1A5CA4B375CE041E0E2B /* ContentAccessService.swift in Sources */,
@@ -1152,6 +1159,7 @@
 				09B44968BBDC4A73D58D632A /* CommerceTests.swift in Sources */,
 				8B2E9B5F62DD8C2CBEEA4D93 /* ContentAndStoreKitTests.swift in Sources */,
 				499ADC06D2F29FC9A1D4C0EC /* ContentPlatformScalabilityV7Tests.swift in Sources */,
+				D2639CC49D1A24171EE620CD /* ContentTransactionHardeningV13Tests.swift in Sources */,
 				1C58FDF3D58F841B64DEB956 /* EmergencyUnlockTests.swift in Sources */,
 				2B6282594D8C95709EFF2449 /* LearningReportTests.swift in Sources */,
 				D82E16DEB2D0B9DC7C0FAF09 /* LearningTests.swift in Sources */,

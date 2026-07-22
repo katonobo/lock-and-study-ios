@@ -13,12 +13,14 @@ Application Support/
   LockAndStudy/
     Content/
       Packs/
+        .activation-journals/
+          {packID}.json
         {packID}/
           active.json
           {contentVersion}/
 ```
 
-`active.json`はatomic writeで切り替える。利用中versionは削除せず、旧versionはrollback可能な期間を設ける。
+`active.json`はatomic writeで切り替える。利用中versionは削除せず、旧versionはrollback可能な期間を設ける。rollback成功後のpointerは`previousContentVersion = nil`となるため、同じ操作を繰り返して新版へ反転しない。新版へ戻す場合は`activate`を再実行する。
 
 ## リモートカタログの信頼モデル
 
@@ -41,6 +43,30 @@ download to a unique temporary directory
 ```
 
 一時directoryと最終directoryは同一volumeに置き、activationはrenameまたはatomic pointer replacementで行う。途中失敗時は旧active packageを維持する。起動時にactive pointerとpackageの整合性を確認し、不整合なら直前の検証済みversion、同梱sample、Safe Fallbackの順で復旧する。同一packへのinstall、activate、removeはstore actor内で直列化する。
+
+## Activation Journalとクラッシュ復旧
+
+`ContentPackageStore.activate`はpackage、sidecar manifest、migration documentを完全検証してから、pack単位のActivation Journalを永続化する。journalと`active.json`はどちらもatomic writeし、次の状態だけを順方向へ進める。
+
+```text
+prepared
+-> migrationApplied
+-> pointerCommitted
+-> journal削除
+```
+
+正常系はjournalを`prepared`で保存し、進捗移行、`migrationApplied`保存、pointer切替、`pointerCommitted`保存、package／pointer／migration checkpoint再検証、journal削除の順で行う。各公開操作とInstalled教材読込前に`recoverInterruptedActivations()`を実行するため、プロセス終了後に新しいStoreが生成されても次の規則で復旧する。
+
+| Journal状態 | Pointer状態 | 復旧結果 |
+| --- | --- | --- |
+| `prepared` | 旧版または未設定 | checkpointがあれば進捗をrollbackし、旧pointerを維持してjournal削除 |
+| `migrationApplied` | 旧版 | 進捗をrollbackし、旧版を維持してjournal削除 |
+| `migrationApplied` | 新版 | package、digest、checkpointを再検証し、正常ならcommit済みとしてjournal削除 |
+| `pointerCommitted` | 新版 | pointerとpackageを再検証し、正常ならjournal削除 |
+| `pointerCommitted` | 旧版・欠損・不正 | 進捗とpointerを旧状態へrollback |
+| 未知状態・package欠損・digest不一致 | 任意 | 新版を採用せず、復元可能な旧版へrollbackしてFail Closed |
+
+復旧は同じjournalへ複数回実行しても結果が変わらない。fault injectionではjournal作成直後、migration直後、pointer write直前／直後、journal削除直前を個別に停止させ、教材versionと進捗versionが一致することを確認する。
 
 ## UI状態
 
@@ -73,7 +99,7 @@ download to a unique temporary directory
 
 ## 進捗互換性
 
-履歴の主キーは`packID + itemID`を維持する。content更新のmigration documentは`preserve`、`resetChangedItems`、`migrate`を明示する。誤字修正は`preserve`、正解や論点変更は`resetChangedItems`、ID置換は`migrate`とする。migrationは署名対象に含め、適用前backup、冪等な適用、適用済みversion記録、失敗時rollbackを必須とする。年度資格教材は原則として別pack IDにする。
+履歴の主キーは`packID + itemID`を維持する。content更新のmigration documentは`preserve`、`resetChangedItems`、`migrate`を明示する。誤字修正は`preserve`、正解や論点変更は`resetChangedItems`、ID置換は`migrate`とする。個別`itemMigrations`は`defaultPolicy`を上書きする。未列挙項目はdefaultが`preserve`なら保持、`resetChangedItems`なら初期化、`migrate`なら文書不備として拒否する。migrationは署名対象に含め、適用前backup、冪等な適用、適用済みversion記録、失敗時rollbackを必須とする。年度資格教材は原則として別pack IDにする。
 
 ## JSONからSQLiteへの移行
 

@@ -109,21 +109,9 @@ struct CertificationQuestionsV1Validator: ContentFileValidating {
   let schemaID: ContentSchemaID = .certificationQuestionsV1
 
   func validate(data: Data, descriptor: ContentFileDescriptor, packageRoot: URL) throws {
-    let items = try JSONContentValidation.items(in: data)
+    let items = try CertificationQuestionWireDecoder().decode(data)
     guard items.count == descriptor.itemCount else {
       throw ContentRepositoryError.invalid("\(descriptor.path) の項目数が一致しません")
-    }
-    try JSONContentValidation.validateUniqueIDs(items, path: descriptor.path)
-    for item in items {
-      try JSONContentValidation.requireString("id", in: item, path: descriptor.path)
-      try JSONContentValidation.requireString("prompt", in: item, path: descriptor.path)
-      guard ["explanation", "shortExplanation", "longExplanation"].contains(where: {
-        (item[$0] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
-      }) else {
-        throw ContentRepositoryError.invalid("\(descriptor.path) に説明がない問題があります")
-      }
-      try JSONContentValidation.validateChoices(
-        key: "choices", correctIndexKey: "correctIndex", in: item, path: descriptor.path)
     }
   }
 }

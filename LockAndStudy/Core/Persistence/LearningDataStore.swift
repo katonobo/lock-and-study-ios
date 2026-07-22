@@ -1,7 +1,10 @@
 import Foundation
 
 enum LearningDataStoreError: LocalizedError, Equatable {
-  case unavailable, corrupted(String), unsupportedSchema(Int), deletionFailed([String])
+  case unavailable
+  case corrupted(String)
+  case unsupportedSchema(Int)
+  case deletionFailed([String])
   var errorDescription: String? {
     switch self {
     case .unavailable: return "学習データの保存場所を利用できません。"
@@ -31,9 +34,18 @@ private struct ProgressMigrationCheckpointDocument: Codable {
   let schemaVersion: Int
   var checkpoints: [String: ProgressMigrationCheckpoint]
 }
-private struct EventDocument: Codable { let schemaVersion: Int; var events: [LearningEvent] }
-private struct BundleDocument: Codable { let schemaVersion: Int; var bundle: UnlockLearningBundleSnapshot? }
-private struct ExperienceBundleDocument: Codable { let schemaVersion: Int; var bundle: ExperienceUnlockBundleSnapshot? }
+private struct EventDocument: Codable {
+  let schemaVersion: Int
+  var events: [LearningEvent]
+}
+private struct BundleDocument: Codable {
+  let schemaVersion: Int
+  var bundle: UnlockLearningBundleSnapshot?
+}
+private struct ExperienceBundleDocument: Codable {
+  let schemaVersion: Int
+  var bundle: ExperienceUnlockBundleSnapshot?
+}
 private struct UnlockSessionEnvelopeDocument: Codable {
   let schemaVersion: Int
   var envelope: UnlockChallengeSessionEnvelope?
@@ -48,16 +60,30 @@ private struct TakkenPendingPreviewDocument: Codable {
   var preview: TakkenPendingPreview?
   var previewsByPackID: [String: TakkenPendingPreview]?
 }
-private struct LegacyImportDocument: Codable { let schemaVersion: Int; var importedEventIDs: Set<UUID> }
-private struct ExportDocument: Codable { let schemaVersion: Int; let exportedAt: Date; let progress: [String: ItemProgress]; let events: [LearningEvent]; let answersByMonth: [String: [StudyAnswerRecord]] }
-private enum AnswerWriteStage: String, Codable { case prepared, answerWritten, progressWritten, completed }
+private struct LegacyImportDocument: Codable {
+  let schemaVersion: Int
+  var importedEventIDs: Set<UUID>
+}
+private struct ExportDocument: Codable {
+  let schemaVersion: Int
+  let exportedAt: Date
+  let progress: [String: ItemProgress]
+  let events: [LearningEvent]
+  let answersByMonth: [String: [StudyAnswerRecord]]
+}
+private enum AnswerWriteStage: String, Codable {
+  case prepared, answerWritten, progressWritten, completed
+}
 private struct AnswerTransaction: Codable {
   var stage: AnswerWriteStage
   let eventID: UUID
   var updatedAt: Date? = nil
   var completedAt: Date? = nil
 }
-private struct AnswerTransactionDocument: Codable { let schemaVersion: Int; var transactions: [String: AnswerTransaction] }
+private struct AnswerTransactionDocument: Codable {
+  let schemaVersion: Int
+  var transactions: [String: AnswerTransaction]
+}
 
 actor LearningDataStore: ContentProgressMigrationStoring {
   static let schemaVersion = 1
@@ -70,11 +96,19 @@ actor LearningDataStore: ContentProgressMigrationStoring {
 
   init(rootURL: URL? = nil, fileManager: FileManager = .default) {
     self.fileManager = fileManager
-    self.rootURL = rootURL ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("LockAndStudy", isDirectory: true)
-    encoder = SharedJSON.encoder(); encoder.outputFormatting = [.sortedKeys]
+    self.rootURL =
+      rootURL
+      ?? fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent("LockAndStudy", isDirectory: true)
+    encoder = SharedJSON.encoder()
+    encoder.outputFormatting = [.sortedKeys]
     decoder = SharedJSON.decoder()
-    try? fileManager.createDirectory(at: self.rootURL.appendingPathComponent("answers", isDirectory: true), withIntermediateDirectories: true)
-    try? fileManager.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: self.rootURL.path)
+    try? fileManager.createDirectory(
+      at: self.rootURL.appendingPathComponent("answers", isDirectory: true),
+      withIntermediateDirectories: true)
+    try? fileManager.setAttributes(
+      [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+      ofItemAtPath: self.rootURL.path)
   }
 
   func progress(for id: CompositeStudyItemID) throws -> ItemProgress {
@@ -83,9 +117,14 @@ actor LearningDataStore: ContentProgressMigrationStoring {
 
   func allProgress() throws -> [String: ItemProgress] {
     if let progressCache { return progressCache }
-    let doc: ProgressDocument = try load(progressURL, fallback: .init(schemaVersion: Self.schemaVersion, items: [:], appliedSubmissionIDs: []))
-    guard doc.schemaVersion == Self.schemaVersion else { throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion) }
-    progressCache = doc.items; return doc.items
+    let doc: ProgressDocument = try load(
+      progressURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, items: [:], appliedSubmissionIDs: []))
+    guard doc.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion)
+    }
+    progressCache = doc.items
+    return doc.items
   }
 
   func applyProgressMigration(
@@ -118,7 +157,8 @@ actor LearningDataStore: ContentProgressMigrationStoring {
     guard progress.schemaVersion == Self.schemaVersion else {
       throw LearningDataStoreError.unsupportedSchema(progress.schemaVersion)
     }
-    let beforeItems = checkpoints.checkpoints[key]?.beforeItems
+    let beforeItems =
+      checkpoints.checkpoints[key]?.beforeItems
       ?? progress.items.filter { $0.value.id.packID == packID }
     let migratedItems = try migratedProgressItems(
       current: progress.items,
@@ -170,6 +210,26 @@ actor LearningDataStore: ContentProgressMigrationStoring {
     try write(checkpoints, to: progressMigrationCheckpointsURL)
   }
 
+  func isProgressMigrationApplied(
+    packID: StudyPackID,
+    fromContentVersion: String,
+    toContentVersion: String,
+    documentDigest: String
+  ) async throws -> Bool {
+    let checkpoints: ProgressMigrationCheckpointDocument = try load(
+      progressMigrationCheckpointsURL,
+      fallback: .init(schemaVersion: Self.schemaVersion, checkpoints: [:]))
+    guard checkpoints.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(checkpoints.schemaVersion)
+    }
+    let key = progressMigrationKey(
+      packID: packID,
+      from: fromContentVersion,
+      to: toContentVersion)
+    guard let checkpoint = checkpoints.checkpoints[key] else { return false }
+    return checkpoint.state == .applied && checkpoint.documentDigest == documentDigest
+  }
+
   private func migratedProgressItems(
     current: [String: ItemProgress],
     originalPackItems: [String: ItemProgress],
@@ -178,7 +238,16 @@ actor LearningDataStore: ContentProgressMigrationStoring {
   ) throws -> [String: ItemProgress] {
     let mappingsByOldID = Dictionary(
       uniqueKeysWithValues: migration.itemMigrations.map { ($0.oldItemID, $0) })
-    if migration.defaultPolicy == .migrate {
+    var result = current
+    switch migration.defaultPolicy {
+    case .preserve:
+      break
+    case .resetChangedItems:
+      for (key, item) in originalPackItems
+      where mappingsByOldID[item.id.itemID] == nil {
+        result.removeValue(forKey: key)
+      }
+    case .migrate:
       let unmapped = originalPackItems.values.filter {
         mappingsByOldID[$0.id.itemID] == nil
       }
@@ -187,7 +256,6 @@ actor LearningDataStore: ContentProgressMigrationStoring {
       }
     }
 
-    var result = current
     for mapping in migration.itemMigrations {
       let oldID = CompositeStudyItemID(packID: packID, itemID: mapping.oldItemID)
       let newID = CompositeStudyItemID(packID: packID, itemID: mapping.newItemID)
@@ -280,14 +348,15 @@ actor LearningDataStore: ContentProgressMigrationStoring {
     }
 
     if transaction.stage == .progressWritten {
-      try record(.init(
-        id: transaction.eventID,
-        kind: .answerSubmitted,
-        occurredAt: answer.answeredAt,
-        packID: answer.packID,
-        sessionID: answer.sessionID,
-        detailCode: answer.isCorrect ? "correct" : "incorrect"
-      ))
+      try record(
+        .init(
+          id: transaction.eventID,
+          kind: .answerSubmitted,
+          occurredAt: answer.answeredAt,
+          packID: answer.packID,
+          sessionID: answer.sessionID,
+          detailCode: answer.isCorrect ? "correct" : "incorrect"
+        ))
       transaction.stage = .completed
       transaction.updatedAt = Date()
       transaction.completedAt = transaction.updatedAt
@@ -310,23 +379,36 @@ actor LearningDataStore: ContentProgressMigrationStoring {
   }
 
   func record(_ event: LearningEvent) throws {
-    var doc: EventDocument = try load(eventsURL, fallback: .init(schemaVersion: Self.schemaVersion, events: []))
-    guard doc.schemaVersion == Self.schemaVersion else { throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion) }
+    var doc: EventDocument = try load(
+      eventsURL, fallback: .init(schemaVersion: Self.schemaVersion, events: []))
+    guard doc.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion)
+    }
     guard !doc.events.contains(where: { $0.id == event.id }) else { return }
-    doc.events.append(event); if doc.events.count > 10_000 { doc.events.removeFirst(doc.events.count - 10_000) }
+    doc.events.append(event)
+    if doc.events.count > 10_000 { doc.events.removeFirst(doc.events.count - 10_000) }
     try write(doc, to: eventsURL)
   }
 
   func answers(monthKey: String) throws -> [StudyAnswerRecord] {
     let url = answersURL.appendingPathComponent("\(monthKey).ndjson")
-    guard let data = try? Data(contentsOf: url), let text = String(data: data, encoding: .utf8) else { return [] }
-    do { return try text.split(separator: "\n").map { try decoder.decode(StudyAnswerRecord.self, from: Data($0.utf8)) } }
-    catch { let backup = backupCorrupt(url); throw LearningDataStoreError.corrupted(backup.lastPathComponent) }
+    guard let data = try? Data(contentsOf: url), let text = String(data: data, encoding: .utf8)
+    else { return [] }
+    do {
+      return try text.split(separator: "\n").map {
+        try decoder.decode(StudyAnswerRecord.self, from: Data($0.utf8))
+      }
+    } catch {
+      let backup = backupCorrupt(url)
+      throw LearningDataStoreError.corrupted(backup.lastPathComponent)
+    }
   }
 
   func availableAnswerMonthKeys() throws -> [String] {
     let files = try fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)
-    return files.filter { $0.pathExtension == "ndjson" }.map { $0.deletingPathExtension().lastPathComponent }.sorted()
+    return files.filter { $0.pathExtension == "ndjson" }.map {
+      $0.deletingPathExtension().lastPathComponent
+    }.sorted()
   }
 
   func answers(from start: Date? = nil, through end: Date? = nil) throws -> [StudyAnswerRecord] {
@@ -339,15 +421,19 @@ actor LearningDataStore: ContentProgressMigrationStoring {
   }
 
   func events() throws -> [LearningEvent] {
-    let doc: EventDocument = try load(eventsURL, fallback: .init(schemaVersion: Self.schemaVersion, events: []))
-    guard doc.schemaVersion == Self.schemaVersion else { throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion) }
+    let doc: EventDocument = try load(
+      eventsURL, fallback: .init(schemaVersion: Self.schemaVersion, events: []))
+    guard doc.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion)
+    }
     return doc.events
   }
 
   @discardableResult
   func importLegacyProgress(_ export: LegacyProgressExport) throws -> Int {
     guard export.schemaVersion == 1,
-          LegacyMigrationMapping.allowed.keys.contains(export.sourceBundleID) else {
+      LegacyMigrationMapping.allowed.keys.contains(export.sourceBundleID)
+    else {
       throw LegacyMigrationError.unsupportedSource
     }
     var imports: LegacyImportDocument = try load(
@@ -361,8 +447,9 @@ actor LearningDataStore: ContentProgressMigrationStoring {
     var imported = 0
     for event in export.events where !imports.importedEventIDs.contains(event.id) {
       guard event.sourceBundleID == export.sourceBundleID,
-            event.correctCount >= 0, event.incorrectCount >= 0,
-            LegacyMigrationMapping.permits(sourceBundleID: export.sourceBundleID, packID: event.packID) else {
+        event.correctCount >= 0, event.incorrectCount >= 0,
+        LegacyMigrationMapping.permits(sourceBundleID: export.sourceBundleID, packID: event.packID)
+      else {
         throw LegacyMigrationError.invalidClaim
       }
       let id = CompositeStudyItemID(packID: event.packID, itemID: event.itemID)
@@ -381,23 +468,34 @@ actor LearningDataStore: ContentProgressMigrationStoring {
     }
     guard imported > 0 else { return 0 }
     // The merge operation only takes maxima, so retrying after an interrupted pair of writes is idempotent.
-    try write(ProgressDocument(schemaVersion: Self.schemaVersion, items: progress, appliedSubmissionIDs: nil), to: progressURL)
+    try write(
+      ProgressDocument(
+        schemaVersion: Self.schemaVersion, items: progress, appliedSubmissionIDs: nil),
+      to: progressURL)
     progressCache = progress
     try write(imports, to: legacyImportsURL)
-    try record(.init(kind: .contentMigrated, detailCode: "legacy-progress:\(export.exportID.uuidString)"))
+    try record(
+      .init(kind: .contentMigrated, detailCode: "legacy-progress:\(export.exportID.uuidString)"))
     return imported
   }
 
-  func saveUnlockBundle(_ bundle: UnlockLearningBundleSnapshot?) throws { try write(BundleDocument(schemaVersion: Self.schemaVersion, bundle: bundle), to: bundleURL) }
+  func saveUnlockBundle(_ bundle: UnlockLearningBundleSnapshot?) throws {
+    try write(BundleDocument(schemaVersion: Self.schemaVersion, bundle: bundle), to: bundleURL)
+  }
   func loadUnlockBundle(now: Date) throws -> UnlockLearningBundleSnapshot? {
-    let doc: BundleDocument = try load(bundleURL, fallback: .init(schemaVersion: Self.schemaVersion, bundle: nil))
-    guard doc.schemaVersion == Self.schemaVersion else { throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion) }
+    let doc: BundleDocument = try load(
+      bundleURL, fallback: .init(schemaVersion: Self.schemaVersion, bundle: nil))
+    guard doc.schemaVersion == Self.schemaVersion else {
+      throw LearningDataStoreError.unsupportedSchema(doc.schemaVersion)
+    }
     guard let bundle = doc.bundle, bundle.isRestorable(at: now) else { return nil }
     return bundle
   }
 
   func saveExperienceUnlockBundle(_ bundle: ExperienceUnlockBundleSnapshot?) throws {
-    try write(ExperienceBundleDocument(schemaVersion: Self.schemaVersion, bundle: bundle), to: experienceBundleURL)
+    try write(
+      ExperienceBundleDocument(schemaVersion: Self.schemaVersion, bundle: bundle),
+      to: experienceBundleURL)
     let envelope = try bundle.map { try LegacyUnlockBundleMigration().migrate($0) }
     try saveUnlockSessionEnvelope(envelope)
   }
@@ -587,9 +685,15 @@ actor LearningDataStore: ContentProgressMigrationStoring {
   func exportJSON() throws -> URL {
     var byMonth: [String: [StudyAnswerRecord]] = [:]
     let files = try fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)
-    for file in files where file.pathExtension == "ndjson" { byMonth[file.deletingPathExtension().lastPathComponent] = try answers(monthKey: file.deletingPathExtension().lastPathComponent) }
+    for file in files where file.pathExtension == "ndjson" {
+      byMonth[file.deletingPathExtension().lastPathComponent] = try answers(
+        monthKey: file.deletingPathExtension().lastPathComponent)
+    }
     let url = rootURL.appendingPathComponent("lockandstudy-learning-export.json")
-    try write(ExportDocument(schemaVersion: Self.schemaVersion, exportedAt: Date(), progress: try allProgress(), events: try events(), answersByMonth: byMonth), to: url)
+    try write(
+      ExportDocument(
+        schemaVersion: Self.schemaVersion, exportedAt: Date(), progress: try allProgress(),
+        events: try events(), answersByMonth: byMonth), to: url)
     return url
   }
 
@@ -602,8 +706,9 @@ actor LearningDataStore: ContentProgressMigrationStoring {
       throw LearningDataStoreError.deletionFailed(["学習データ一覧を取得できません"])
     }
     for url in candidates {
-      do { try fileManager.removeItem(at: url) }
-      catch { failures.append(url.path.replacingOccurrences(of: rootURL.path + "/", with: "")) }
+      do { try fileManager.removeItem(at: url) } catch {
+        failures.append(url.path.replacingOccurrences(of: rootURL.path + "/", with: ""))
+      }
     }
     do {
       try fileManager.createDirectory(at: answersURL, withIntermediateDirectories: true)
@@ -615,11 +720,14 @@ actor LearningDataStore: ContentProgressMigrationStoring {
       remaining = try fileManager.contentsOfDirectory(at: rootURL, includingPropertiesForKeys: nil)
         .filter { $0 != answersURL }
         .map(\.lastPathComponent)
-      let answerRemainders = try fileManager.contentsOfDirectory(at: answersURL, includingPropertiesForKeys: nil)
-        .map { "answers/\($0.lastPathComponent)" }
+      let answerRemainders = try fileManager.contentsOfDirectory(
+        at: answersURL, includingPropertiesForKeys: nil
+      )
+      .map { "answers/\($0.lastPathComponent)" }
       if !answerRemainders.isEmpty { failures.append(contentsOf: answerRemainders) }
     } catch {
-      throw LearningDataStoreError.deletionFailed(Array(Set(failures + ["削除後の存在確認に失敗しました"])).sorted())
+      throw LearningDataStoreError.deletionFailed(
+        Array(Set(failures + ["削除後の存在確認に失敗しました"])).sorted())
     }
     progressCache = nil
     answerSubmissionIDCache.removeAll()
@@ -650,7 +758,9 @@ actor LearningDataStore: ContentProgressMigrationStoring {
   private var progressURL: URL { rootURL.appendingPathComponent("progress.v1.json") }
   private var eventsURL: URL { rootURL.appendingPathComponent("events.v1.json") }
   private var bundleURL: URL { rootURL.appendingPathComponent("unlock-bundle.v1.json") }
-  private var experienceBundleURL: URL { rootURL.appendingPathComponent("experience-unlock-bundle.v2.json") }
+  private var experienceBundleURL: URL {
+    rootURL.appendingPathComponent("experience-unlock-bundle.v2.json")
+  }
   private var unlockSessionEnvelopeURL: URL {
     rootURL.appendingPathComponent("unlock-session-envelope.v3.json")
   }
@@ -660,14 +770,19 @@ actor LearningDataStore: ContentProgressMigrationStoring {
   private var takkenPendingPreviewURL: URL {
     rootURL.appendingPathComponent("takken-pending-preview.v1.json")
   }
-  private var answerTransactionsURL: URL { rootURL.appendingPathComponent("answer-transactions.v1.json") }
+  private var answerTransactionsURL: URL {
+    rootURL.appendingPathComponent("answer-transactions.v1.json")
+  }
   private var legacyImportsURL: URL { rootURL.appendingPathComponent("legacy-imports.v1.json") }
   private var progressMigrationCheckpointsURL: URL {
     rootURL.appendingPathComponent("progress-migration-checkpoints.v1.json")
   }
   private var exportURL: URL { rootURL.appendingPathComponent("lockandstudy-learning-export.json") }
   private var answersURL: URL { rootURL.appendingPathComponent("answers", isDirectory: true) }
-  private func month(_ date: Date) -> String { let c = Calendar(identifier: .gregorian).dateComponents([.year, .month], from: date); return String(format: "%04d-%02d", c.year ?? 0, c.month ?? 0) }
+  private func month(_ date: Date) -> String {
+    let c = Calendar(identifier: .gregorian).dateComponents([.year, .month], from: date)
+    return String(format: "%04d-%02d", c.year ?? 0, c.month ?? 0)
+  }
   private func append(_ answer: StudyAnswerRecord) throws {
     let data = try encoder.encode(answer) + Data([0x0A])
     let url = answersURL.appendingPathComponent("\(month(answer.answeredAt)).ndjson")
@@ -694,10 +809,25 @@ actor LearningDataStore: ContentProgressMigrationStoring {
   }
   private func load<T: Codable>(_ url: URL, fallback: T) throws -> T {
     guard fileManager.fileExists(atPath: url.path) else { return fallback }
-    do { return try decoder.decode(T.self, from: Data(contentsOf: url)) }
-    catch { let backup = backupCorrupt(url); throw LearningDataStoreError.corrupted(backup.lastPathComponent) }
+    do { return try decoder.decode(T.self, from: Data(contentsOf: url)) } catch {
+      let backup = backupCorrupt(url)
+      throw LearningDataStoreError.corrupted(backup.lastPathComponent)
+    }
   }
-  private func write<T: Encodable>(_ value: T, to url: URL) throws { try fileManager.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true); try encoder.encode(value).write(to: url, options: .atomic); protect(url) }
-  private func protect(_ url: URL) { try? fileManager.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: url.path) }
-  private func backupCorrupt(_ url: URL) -> URL { let backup = url.appendingPathExtension("corrupt-\(Int(Date().timeIntervalSince1970)).bak"); try? fileManager.moveItem(at: url, to: backup); return backup }
+  private func write<T: Encodable>(_ value: T, to url: URL) throws {
+    try fileManager.createDirectory(
+      at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try encoder.encode(value).write(to: url, options: .atomic)
+    protect(url)
+  }
+  private func protect(_ url: URL) {
+    try? fileManager.setAttributes(
+      [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+      ofItemAtPath: url.path)
+  }
+  private func backupCorrupt(_ url: URL) -> URL {
+    let backup = url.appendingPathExtension("corrupt-\(Int(Date().timeIntervalSince1970)).bak")
+    try? fileManager.moveItem(at: url, to: backup)
+    return backup
+  }
 }

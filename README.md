@@ -28,7 +28,7 @@ open LockAndStudy.xcodeproj
 ./scripts/verify
 ```
 
-`scripts/release_readiness` はリリース教材とv9〜v12のPlatform検査を共通runnerから実行します。`scripts/verify` も同じreadiness入口を使った後、利用可能なiPhone Simulatorを選び、Debug/Release build、Unit/UI/StoreKit Testを実行します。Xcode 26.5のStoreKitTest不具合を避けるため、インストール済みなら最新のiOS 26未満を優先します。特定端末を使う場合は `LOCKANDSTUDY_DESTINATION='platform=iOS Simulator,id=...'` を指定します。
+`scripts/release_readiness` はリリース教材とv9〜v13のPlatform検査を共通runnerから実行します。`scripts/verify` も同じreadiness入口を使った後、利用可能なiPhone Simulatorを選び、Debug/Release build、Unit/UI/StoreKit Testを実行します。Xcode 26.5のStoreKitTest不具合を避けるため、インストール済みなら最新のiOS 26未満を優先します。特定端末を使う場合は `LOCKANDSTUDY_DESTINATION='platform=iOS Simulator,id=...'` を指定します。
 
 正式App Iconは `AppIcon-Production.png` です。提出前は `LOCKANDSTUDY_REQUIRE_FINAL_ICON=1 ./scripts/release_readiness` を実行してください。画像の存在、1024×1024、alphaなしも検証します。
 

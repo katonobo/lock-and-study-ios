@@ -1,12 +1,8 @@
 import Foundation
 
-enum TakkenQuestionFormat: String, Codable, CaseIterable, Sendable {
-  case trueFalse = "true_false"
-  case numberChoice = "number_choice"
-  case wordingContrast = "wording_contrast"
-  case multipleChoice = "multiple_choice"
-  case caseStudy = "case_study"
+typealias TakkenQuestionFormat = CertificationQuestionFormat
 
+extension CertificationQuestionFormat {
   var displayName: String {
     switch self {
     case .trueFalse: return "○×"
@@ -23,6 +19,20 @@ struct TakkenChoice: Codable, Equatable, Sendable, Identifiable {
   let text: String
   let rationale: String?
   let misconceptionCode: String?
+
+  init(id: String, text: String, rationale: String?, misconceptionCode: String?) {
+    self.id = id
+    self.text = text
+    self.rationale = rationale
+    self.misconceptionCode = misconceptionCode
+  }
+
+  init(wire: CertificationChoiceWire) {
+    id = wire.id
+    text = wire.text
+    rationale = wire.rationale
+    misconceptionCode = wire.misconceptionCode
+  }
 }
 
 struct TakkenPreviewPayload: Codable, Equatable, Sendable {
@@ -30,6 +40,20 @@ struct TakkenPreviewPayload: Codable, Equatable, Sendable {
   let rule: String
   let contrast: String?
   let mnemonic: String?
+
+  init(title: String, rule: String, contrast: String?, mnemonic: String?) {
+    self.title = title
+    self.rule = rule
+    self.contrast = contrast
+    self.mnemonic = mnemonic
+  }
+
+  init(wire: CertificationPreviewWire) {
+    title = wire.title
+    rule = wire.rule
+    contrast = wire.contrast
+    mnemonic = wire.mnemonic
+  }
 }
 
 struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
@@ -82,11 +106,12 @@ struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
     format ?? (choices.count == 2 ? .trueFalse : .multipleChoice)
   }
   var resolvedPreview: TakkenPreviewPayload {
-    preview ?? .init(
-      title: subCategory ?? category,
-      rule: keyPoint ?? shortExplanation ?? explanation,
-      contrast: contrastNote,
-      mnemonic: nil)
+    preview
+      ?? .init(
+        title: subCategory ?? category,
+        rule: keyPoint ?? shortExplanation ?? explanation,
+        contrast: contrastNote,
+        mnemonic: nil)
   }
   var choiceTexts: [String] { choices.map(\.text) }
 
@@ -101,92 +126,52 @@ struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
   }
 
   init(from decoder: Decoder) throws {
-    let c = try decoder.container(keyedBy: CodingKeys.self)
-    id = try c.decode(String.self, forKey: .id)
-    conceptID = try c.decodeIfPresent(String.self, forKey: .conceptID)
-    variantID = try c.decodeIfPresent(String.self, forKey: .variantID)
-    examYear = try c.decodeIfPresent(Int.self, forKey: .examYear)
-    lawBasisDate = try c.decodeIfPresent(String.self, forKey: .lawBasisDate)
-    category = try c.decode(String.self, forKey: .category)
-    subCategory = try c.decodeIfPresent(String.self, forKey: .subCategory)
-    difficulty = try c.decode(String.self, forKey: .difficulty)
-    format = try c.decodeIfPresent(TakkenQuestionFormat.self, forKey: .format)
-    prompt = try c.decode(String.self, forKey: .prompt)
-    let rationaleMap = try c.decodeIfPresent([String: String].self, forKey: .wrongChoiceRationales)
-    if let stable = try? c.decode([TakkenChoice].self, forKey: .choices) {
-      choices = stable
-    } else {
-      let legacy = try c.decode([String].self, forKey: .choices)
-      choices = legacy.enumerated().map { index, text in
-        let choiceID = "choice-\(index)"
-        return .init(
-          id: choiceID, text: text,
-          rationale: rationaleMap?[choiceID] ?? rationaleMap?[text], misconceptionCode: nil)
-      }
-    }
-    let choiceIDs = choices.map(\.id)
-    guard choiceIDs.allSatisfy({ !$0.isEmpty }), Set(choiceIDs).count == choiceIDs.count else {
-      throw DecodingError.dataCorruptedError(
-        forKey: .choices, in: c, debugDescription: "choice IDが空または重複しています")
-    }
-    let decodedCorrectIndex = try c.decodeIfPresent(Int.self, forKey: .correctIndex)
-    if let decodedCorrectIndex, !choices.indices.contains(decodedCorrectIndex) {
-      throw DecodingError.dataCorruptedError(
-        forKey: .correctIndex, in: c, debugDescription: "正解indexが範囲外です")
-    }
-    let decodedCorrectChoiceID = try c.decodeIfPresent(String.self, forKey: .correctChoiceID)
-    if let decodedCorrectChoiceID, !choiceIDs.contains(decodedCorrectChoiceID) {
-      throw DecodingError.dataCorruptedError(
-        forKey: .correctChoiceID, in: c, debugDescription: "正解choice IDが存在しません")
-    }
-    guard decodedCorrectChoiceID != nil || decodedCorrectIndex != nil else {
-      throw DecodingError.dataCorruptedError(
-        forKey: .correctChoiceID, in: c, debugDescription: "正解choice IDまたはindexが必要です")
-    }
-    let indexedChoiceID = decodedCorrectIndex.map { choiceIDs[$0] }
-    if let decodedCorrectChoiceID, let indexedChoiceID,
-      decodedCorrectChoiceID != indexedChoiceID
-    {
-      throw DecodingError.dataCorruptedError(
-        forKey: .correctChoiceID, in: c,
-        debugDescription: "correctChoiceIDとcorrectIndexが一致しません")
-    }
-    correctChoiceID = decodedCorrectChoiceID ?? indexedChoiceID!
-    correctIndex = choiceIDs.firstIndex(of: correctChoiceID)!
-    if rationaleMap?[correctChoiceID] != nil {
-      throw DecodingError.dataCorruptedError(
-        forKey: .wrongChoiceRationales, in: c,
-        debugDescription: "正解choiceに誤答rationaleを設定できません")
-    }
-    explanation = try c.decode(String.self, forKey: .explanation)
-    shortExplanation = try c.decodeIfPresent(String.self, forKey: .shortExplanation)
-    longExplanation = try c.decodeIfPresent(String.self, forKey: .longExplanation)
-    keyPoint = try c.decodeIfPresent(String.self, forKey: .keyPoint)
-    preview = try c.decodeIfPresent(TakkenPreviewPayload.self, forKey: .preview)
-    minimumReviewSeconds = try c.decodeIfPresent(Int.self, forKey: .minimumReviewSeconds)
-    contrastNote = try c.decodeIfPresent(String.self, forKey: .contrastNote)
-    wrongChoiceRationales = rationaleMap
-    distractorReviewStatus = try c.decodeIfPresent(String.self, forKey: .distractorReviewStatus)
-    sourceNote = try c.decodeIfPresent(String.self, forKey: .sourceNote)
-    reviewStatus = try c.decodeIfPresent(String.self, forKey: .reviewStatus)
-    version = try c.decodeIfPresent(Int.self, forKey: .version)
-    packId = try c.decodeIfPresent(String.self, forKey: .packId)
-    tags = try c.decodeIfPresent([String].self, forKey: .tags) ?? []
-    unlockEligible = try c.decodeIfPresent(Bool.self, forKey: .unlockEligible) ?? true
-    last30DaysEligible = try c.decodeIfPresent(Bool.self, forKey: .last30DaysEligible) ?? false
-    weaknessEligible = try c.decodeIfPresent(Bool.self, forKey: .weaknessEligible) ?? true
-    estimatedSeconds = try c.decodeIfPresent(Int.self, forKey: .estimatedSeconds)
-    importance = try c.decodeIfPresent(String.self, forKey: .importance)
-    retired = try c.decodeIfPresent(Bool.self, forKey: .retired) ?? false
-    replacementId = try c.decodeIfPresent(String.self, forKey: .replacementId)
-    updatedAt = try c.decodeIfPresent(String.self, forKey: .updatedAt)
-    contentVersion = try c.decodeIfPresent(Int.self, forKey: .contentVersion)
-    requiresAnnualReview = try c.decodeIfPresent(Bool.self, forKey: .requiresAnnualReview) ?? false
-    requiresAnnualUpdate = try c.decodeIfPresent(Bool.self, forKey: .requiresAnnualUpdate) ?? false
-    volatileReason = try c.decodeIfPresent(String.self, forKey: .volatileReason)
-    statisticsYear = try c.decodeIfPresent(Int.self, forKey: .statisticsYear)
-    dataSourceLabel = try c.decodeIfPresent(String.self, forKey: .dataSourceLabel)
-    isPlaceholder = try c.decodeIfPresent(Bool.self, forKey: .isPlaceholder) ?? false
+    self.init(wire: try CertificationQuestionWire(from: decoder))
+  }
+
+  init(wire: CertificationQuestionWire) {
+    id = wire.id
+    conceptID = wire.conceptID
+    variantID = wire.variantID
+    examYear = wire.examYear
+    lawBasisDate = wire.lawBasisDate
+    category = wire.category
+    subCategory = wire.subCategory
+    difficulty = wire.difficulty
+    format = wire.format
+    prompt = wire.prompt
+    choices = wire.choices.map(TakkenChoice.init(wire:))
+    correctIndex = wire.correctIndex
+    correctChoiceID = wire.correctChoiceID
+    explanation = wire.explanation
+    shortExplanation = wire.shortExplanation
+    longExplanation = wire.longExplanation
+    keyPoint = wire.keyPoint
+    preview = wire.preview.map(TakkenPreviewPayload.init(wire:))
+    minimumReviewSeconds = wire.minimumReviewSeconds
+    contrastNote = wire.contrastNote
+    wrongChoiceRationales = wire.wrongChoiceRationales
+    distractorReviewStatus = wire.distractorReviewStatus
+    sourceNote = wire.sourceNote
+    reviewStatus = wire.reviewStatus
+    version = wire.version
+    packId = wire.packId
+    tags = wire.tags
+    unlockEligible = wire.unlockEligible
+    last30DaysEligible = wire.last30DaysEligible
+    weaknessEligible = wire.weaknessEligible
+    estimatedSeconds = wire.estimatedSeconds
+    importance = wire.importance
+    retired = wire.retired
+    replacementId = wire.replacementId
+    updatedAt = wire.updatedAt
+    contentVersion = wire.contentVersion
+    requiresAnnualReview = wire.requiresAnnualReview
+    requiresAnnualUpdate = wire.requiresAnnualUpdate
+    volatileReason = wire.volatileReason
+    statisticsYear = wire.statisticsYear
+    dataSourceLabel = wire.dataSourceLabel
+    isPlaceholder = wire.isPlaceholder
   }
 
   init(
@@ -275,7 +260,9 @@ struct TakkenStudyModule: StudyModule {
     if prompts.contains(where: {
       $0.prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         || $0.shortExplanation.isEmpty || !$0.choices.indices.contains($0.correctChoiceID)
-    }) { issues.append("問題本文・解説・正解位置が不正です") }
+    }) {
+      issues.append("問題本文・解説・正解位置が不正です")
+    }
     return issues
   }
 
@@ -292,10 +279,10 @@ struct TakkenQuestionRepository: Sendable {
     guard !manifest.contentFiles.isEmpty else {
       throw ContentRepositoryError.missing(manifest.title)
     }
-    let decoder = JSONDecoder()
+    let decoder = CertificationQuestionWireDecoder()
     var all: [TakkenQuestion] = []
     for descriptor in manifest.contentFiles {
-      let decoded = try decoder.decode([TakkenQuestion].self, from: loader.data(for: descriptor))
+      let decoded = try decoder.decode(loader.data(for: descriptor)).map(TakkenQuestion.init(wire:))
       guard decoded.count == descriptor.itemCount else {
         throw ContentRepositoryError.invalid("\(descriptor.path) の件数がmanifestと一致しません")
       }
@@ -314,11 +301,13 @@ struct TakkenQuestionRepository: Sendable {
     guard active.count == manifest.expectedItemCount else {
       throw ContentRepositoryError.invalid("宅建の公開合計件数が\(manifest.expectedItemCount)問ではありません")
     }
-    guard !active.contains(where: {
-      $0.isPlaceholder
-        || !(($0.reviewStatus == "checked") || ($0.reviewStatus == "reviewed")
-          || ($0.reviewStatus == "release"))
-    }) else {
+    guard
+      !active.contains(where: {
+        $0.isPlaceholder
+          || !(($0.reviewStatus == "checked") || ($0.reviewStatus == "reviewed")
+            || ($0.reviewStatus == "release"))
+      })
+    else {
       throw ContentRepositoryError.invalid("未校閲またはplaceholderの宅建問題が含まれています")
     }
     return active

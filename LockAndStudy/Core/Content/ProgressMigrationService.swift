@@ -11,6 +11,17 @@ protocol ContentProgressMigrationStoring: Sendable {
     fromContentVersion: String,
     toContentVersion: String
   ) async throws
+  func isProgressMigrationApplied(
+    packID: StudyPackID,
+    fromContentVersion: String,
+    toContentVersion: String,
+    documentDigest: String
+  ) async throws -> Bool
+}
+
+struct PreparedProgressMigration: Sendable {
+  let document: ProgressMigrationDocument
+  let documentDigest: String
 }
 
 struct ProgressMigrationService: Sendable {
@@ -20,19 +31,19 @@ struct ProgressMigrationService: Sendable {
     manifest: StudyPackManifest,
     packageRoot: URL,
     previousContentVersion: String?
-  ) async throws {
+  ) throws -> PreparedProgressMigration? {
     guard let previousContentVersion, previousContentVersion != manifest.contentVersion else {
-      return
+      return nil
     }
     guard let migrationPath = manifest.progressMigrationFile else {
-      return  // Stable item IDs preserve progress without a migration document.
+      return nil  // Stable item IDs preserve progress without a migration document.
     }
     guard let expectedDigest = manifest.progressMigrationSHA256,
       expectedDigest.count == 64
     else {
       throw ContentRepositoryError.invalid("進捗移行fileのSHA-256がありません")
     }
-    guard let progressStore else {
+    guard progressStore != nil else {
       throw ContentRepositoryError.invalid("進捗移行storeを利用できません")
     }
 
@@ -59,7 +70,17 @@ struct ProgressMigrationService: Sendable {
       throw ContentRepositoryError.invalid("進捗移行のcontent versionが一致しません")
     }
     try validateMappings(document.itemMigrations)
-    try await progressStore.applyProgressMigration(document, documentDigest: digest)
+    return .init(document: document, documentDigest: digest)
+  }
+
+  func apply(_ migration: PreparedProgressMigration?) async throws {
+    guard let migration else { return }
+    guard let progressStore else {
+      throw ContentRepositoryError.invalid("進捗移行storeを利用できません")
+    }
+    try await progressStore.applyProgressMigration(
+      migration.document,
+      documentDigest: migration.documentDigest)
   }
 
   func rollback(
@@ -71,6 +92,16 @@ struct ProgressMigrationService: Sendable {
       packID: packID,
       fromContentVersion: fromContentVersion,
       toContentVersion: toContentVersion)
+  }
+
+  func isApplied(_ migration: PreparedProgressMigration?) async throws -> Bool {
+    guard let migration else { return true }
+    guard let progressStore, let packID = migration.document.packID else { return false }
+    return try await progressStore.isProgressMigrationApplied(
+      packID: packID,
+      fromContentVersion: migration.document.fromContentVersion,
+      toContentVersion: migration.document.toContentVersion,
+      documentDigest: migration.documentDigest)
   }
 
   private func validateMappings(_ mappings: [ItemProgressMigration]) throws {
