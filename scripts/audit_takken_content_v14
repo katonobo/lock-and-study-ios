@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import json
+import sys
+
+sys.dont_write_bytecode = True
 
 from content_checks import audit_takken_v14, report, takken_v14_inventory
 

@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from collections import Counter
 from pathlib import Path
+
+sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "LockAndStudy/Resources/Content/Released/takken_2026_free_100_v1.json"

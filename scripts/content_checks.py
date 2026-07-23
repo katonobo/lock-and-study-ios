@@ -8,6 +8,7 @@ import plistlib
 import re
 import unicodedata
 from collections import Counter
+from datetime import date, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -206,6 +207,62 @@ def _normalized_text(value: str) -> str:
     return re.sub(r"\s+", "", unicodedata.normalize("NFKC", value or "")).lower()
 
 
+_NUMBER_ATOM = (
+    r"(?:[+-]?(?:\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+(?:\.\d+)?)|"
+    r"[〇零一二三四五六七八九十百千万億兆]+)"
+)
+_NUMBER_CHOICE_PATTERN = re.compile(
+    rf"^(?P<number>(?:{_NUMBER_ATOM}分の{_NUMBER_ATOM}|"
+    rf"{_NUMBER_ATOM}/{_NUMBER_ATOM}|{_NUMBER_ATOM}))"
+    r"(?P<unit>平方メートル|週間|か月|ヶ月|箇月|億円|万円|m2|"
+    r"日|月|年|%|割|円|人|件|戸|回)?$",
+    re.IGNORECASE,
+)
+_REVIEWED_AT_PATTERN = re.compile(
+    r"^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?"
+    r"(?:Z|[+-]\d{2}:\d{2})?)?$"
+)
+_DRAFT_MARKERS = (
+    "【AI草稿",
+    "AI誤答根拠候補",
+    "誤答候補",
+    "対照文候補",
+    "要校閲",
+    "要点候補",
+    "詳細解説候補",
+    "pending-human-review",
+    "人間が確認する",
+    "法令根拠、適用条件、例外を人間の校閲で追記する",
+)
+_BRACKETED_INPUT_PLACEHOLDER = re.compile(
+    r"(?:\[|［|【)[^\]］】]*(?:入力|記入)[^\]］】]*(?:\]|］|】)"
+)
+
+
+def _number_choice_unit(value: object) -> str | None:
+    """Return a normalized unit, an empty string for unitless numbers, or None."""
+    if not isinstance(value, str):
+        return None
+    normalized = re.sub(r"\s+", "", unicodedata.normalize("NFKC", value))
+    if not normalized or len(normalized) > 24:
+        return None
+    match = _NUMBER_CHOICE_PATTERN.fullmatch(normalized)
+    return None if match is None else (match.group("unit") or "").lower()
+
+
+def _is_real_iso_review_date(value: object) -> bool:
+    if not isinstance(value, str) or not _REVIEWED_AT_PATTERN.fullmatch(value):
+        return False
+    try:
+        if "T" in value:
+            datetime.fromisoformat(value.replace("Z", "+00:00"))
+        else:
+            date.fromisoformat(value)
+    except ValueError:
+        return False
+    return True
+
+
 def validate_takken_v2(
     items: list[dict], manifest: dict, *, release_pack: bool = True
 ) -> list[str]:
@@ -223,20 +280,6 @@ def validate_takken_v2(
         "multiple_choice": {4}, "case_study": {4},
     }
     allowed_review = {"reviewed", "release"}
-    unit_pattern = re.compile(r"(?:円|万円|億円|日|週間|か月|ヶ月|月|年|％|%|割|人|件|㎡|平方メートル)")
-    reviewed_at_pattern = re.compile(
-        r"^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?"
-        r"(?:Z|[+-]\d{2}:\d{2})?)?$"
-    )
-    draft_markers = (
-        "【AI草稿",
-        "AI誤答根拠候補",
-        "［正しい数値・期限を入力］",
-        "［近い数値候補",
-        "［例外条件の数値候補",
-        "pending-human-review",
-        "法令根拠、適用条件、例外を人間の校閲で追記する",
-    )
     checklist_keys = {"lawBasis", "subject", "timing", "numbers", "exceptions"}
 
     item_ids = [item.get("id") for item in items]
@@ -272,6 +315,10 @@ def validate_takken_v2(
             errors.append(f"{item_id}: duplicate stable choice ID")
         if any(not text for text in choice_texts) or len(choice_texts) != len(set(choice_texts)):
             errors.append(f"{item_id}: empty or duplicate choice text")
+        if fmt == "true_false" and set(choice_texts) != {"正しい", "誤り"}:
+            errors.append(
+                f"{item_id}: true/false choices must be exactly 正しい and 誤り"
+            )
         correct_id = item.get("correctChoiceID")
         if correct_id not in choice_ids:
             errors.append(f"{item_id}: correctChoiceID does not exist")
@@ -283,7 +330,7 @@ def validate_takken_v2(
             elif supplied_index != correct_index:
                 errors.append(f"{item_id}: correctChoiceID and correctIndex disagree")
             if fmt == "true_false":
-                correct_text = choices[correct_index].get("text")
+                correct_text = choice_texts[correct_index]
                 if correct_text in true_false_correct:
                     true_false_correct[correct_text] += 1
                 else:
@@ -330,10 +377,15 @@ def validate_takken_v2(
         review_note = item.get("reviewNote")
         if not isinstance(reviewer, str) or not reviewer.strip():
             errors.append(f"{item_id}: reviewer is required")
-        if not isinstance(reviewed_at, str) or not reviewed_at_pattern.fullmatch(reviewed_at):
-            errors.append(f"{item_id}: reviewedAt must be an ISO-8601 date or timestamp")
+        if not _is_real_iso_review_date(reviewed_at):
+            errors.append(
+                f"{item_id}: reviewedAt must be a real ISO-8601 date or timestamp"
+            )
         if not isinstance(review_note, str) or len(_normalized_text(review_note)) < 12:
             errors.append(f"{item_id}: a concrete reviewNote is required")
+        source_note = item.get("sourceNote")
+        if not isinstance(source_note, str) or len(_normalized_text(source_note)) < 8:
+            errors.append(f"{item_id}: a concrete sourceNote is required")
         checklist = item.get("legalReviewChecklist")
         if not isinstance(checklist, dict) or any(
             checklist.get(key) is not True for key in checklist_keys
@@ -348,20 +400,35 @@ def validate_takken_v2(
             {
                 "prompt": item.get("prompt"),
                 "choices": choices,
+                "wrongChoiceRationales": item.get("wrongChoiceRationales"),
                 "shortExplanation": item.get("shortExplanation"),
                 "longExplanation": item.get("longExplanation"),
+                "keyPoint": item.get("keyPoint"),
                 "preview": preview,
+                "contrastNote": item.get("contrastNote"),
+                "sourceNote": source_note,
             },
             ensure_ascii=False,
         )
-        for marker in draft_markers:
-            if marker in reviewable_text:
+        normalized_reviewable_text = unicodedata.normalize("NFKC", reviewable_text)
+        for marker in _DRAFT_MARKERS:
+            if unicodedata.normalize("NFKC", marker) in normalized_reviewable_text:
                 errors.append(f"{item_id}: unresolved draft marker remains: {marker}")
+        if _BRACKETED_INPUT_PLACEHOLDER.search(normalized_reviewable_text):
+            errors.append(f"{item_id}: unresolved bracketed input placeholder remains")
         if fmt == "number_choice":
-            units = [set(unit_pattern.findall(choice.get("text", ""))) for choice in choices]
-            nonempty_units = [unit for unit in units if unit]
-            if nonempty_units and any(unit != nonempty_units[0] for unit in nonempty_units):
-                errors.append(f"{item_id}: number-choice units are inconsistent")
+            units = [_number_choice_unit(choice.get("text")) for choice in choices]
+            if any(unit is None for unit in units):
+                errors.append(
+                    f"{item_id}: number-choice choices must be short numeric, ratio, "
+                    "period, or money answers"
+                )
+            else:
+                concrete_units = [unit for unit in units if unit]
+                if concrete_units and any(not unit for unit in units):
+                    errors.append(f"{item_id}: number-choice unit is missing")
+                if concrete_units and len(set(concrete_units)) != 1:
+                    errors.append(f"{item_id}: number-choice units are inconsistent")
 
     count = len(items)
     if release_pack:

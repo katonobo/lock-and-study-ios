@@ -1,3 +1,6 @@
 #!/usr/bin/env python3
+import sys
+sys.dont_write_bytecode = True
+
 from content_checks import check_legacy_identifiers, report
 raise SystemExit(report("Legacy identifier validation", check_legacy_identifiers()))
