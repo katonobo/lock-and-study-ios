@@ -1,41 +1,40 @@
 #!/usr/bin/env python3
-"""Export one deterministic concept-review batch; never overwrite prior reviewer work."""
+"""Export a deterministic v18 concept-review batch without overwriting reviewer work."""
+import argparse
 import sys
+from pathlib import Path
 
 sys.dont_write_bytecode = True
 
-from takken_concepts import CONCEPT_ROOT, MASTER_PATH, load_json, write_json
+from takken_concept_workflow import DEFAULT_BATCH_SIZE, export_review_batch
+from takken_concepts import MASTER_PATH, REVIEW_BATCH_ROOT, ROOT
 
 
-BATCH_COUNT = 10
-BATCH_SIZE = 38
+parser = argparse.ArgumentParser()
+parser.add_argument("batch", type=int)
+parser.add_argument("--concept-master", type=Path, default=MASTER_PATH)
+parser.add_argument("--output-directory", type=Path, default=REVIEW_BATCH_ROOT)
+parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE)
+arguments = parser.parse_args()
 
-if len(sys.argv) != 2 or not sys.argv[1].isdigit():
-    print("usage: ./scripts/export_takken_concept_review_batch <1-10>")
-    raise SystemExit(2)
-batch_number = int(sys.argv[1])
-if not 1 <= batch_number <= BATCH_COUNT:
-    print("batch number must be 1-10")
-    raise SystemExit(2)
-concepts = load_json(MASTER_PATH)["concepts"]
-if len(concepts) != BATCH_COUNT * BATCH_SIZE:
-    print("concept master must contain exactly 380 concepts")
-    raise SystemExit(1)
-start = (batch_number - 1) * BATCH_SIZE
-output = (
-    CONCEPT_ROOT
-    / "ReviewBatches"
-    / f"takken_2026_concept_review_batch_{batch_number:02d}.json"
+source = (
+    arguments.concept_master
+    if arguments.concept_master.is_absolute()
+    else ROOT / arguments.concept_master
 )
-if output.exists():
-    print(f"refusing to overwrite existing review batch: {output}")
+output_root = (
+    arguments.output_directory
+    if arguments.output_directory.is_absolute()
+    else ROOT / arguments.output_directory
+)
+try:
+    output = export_review_batch(
+        arguments.batch,
+        source_master_path=source,
+        output_root=output_root,
+        batch_size=arguments.batch_size,
+    )
+except (FileExistsError, ValueError) as error:
+    print(f"ERROR: {error}")
     raise SystemExit(1)
-document = {
-    "schemaVersion": 1,
-    "status": "ai_draft",
-    "batchNumber": batch_number,
-    "batchCount": BATCH_COUNT,
-    "concepts": concepts[start : start + BATCH_SIZE],
-}
-write_json(output, document)
-print(f"Exported {len(document['concepts'])} concepts: {output}")
+print(f"Exported concept review batch: {output}")

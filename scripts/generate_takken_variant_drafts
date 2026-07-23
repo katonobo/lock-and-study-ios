@@ -1,31 +1,69 @@
 #!/usr/bin/env python3
-"""Generate Golden variants; default requires reviewed concepts, draft override stays AI-only."""
+"""Generate AI variant drafts from an explicit reviewed Concept Master."""
+import argparse
 import sys
+from pathlib import Path
 
 sys.dont_write_bytecode = True
 
+from takken_concept_workflow import document_digest
 from takken_concepts import (
+    DRAFT_ROOT,
+    MASTER_PATH,
+    ROOT,
     VARIANTS_PATH,
     build_concept_assets,
+    build_variant_drafts_from_master,
     load_json,
     write_json,
 )
 
 
-allow_draft = sys.argv[1:] == ["--allow-draft-authoring"]
-if sys.argv[1:] and not allow_draft:
-    print("usage: ./scripts/generate_takken_variant_drafts [--allow-draft-authoring]")
-    raise SystemExit(2)
-assets = build_concept_assets()
-master = assets["master"]
-if not allow_draft and any(
-    value.get("reviewStatus") not in {"reviewed", "release"}
-    for value in master["concepts"]
-):
-    print("refusing variant generation: concept master is not fully human reviewed")
-    raise SystemExit(1)
-write_json(VARIANTS_PATH, assets["variants"])
-print(
-    f"Generated {len(assets['variants']['variants'])} AI-draft variants: "
-    f"{VARIANTS_PATH}"
+parser = argparse.ArgumentParser()
+parser.add_argument("--concept-master", type=Path)
+parser.add_argument("--output", type=Path)
+parser.add_argument(
+    "--allow-draft-authoring",
+    action="store_true",
+    help="v17 compatibility: regenerate isolated Generated AI draft only",
 )
+arguments = parser.parse_args()
+
+
+def absolute(path: Path) -> Path:
+    return path if path.is_absolute() else ROOT / path
+
+
+if arguments.allow_draft_authoring:
+    if arguments.concept_master or arguments.output:
+        parser.error("--allow-draft-authoring cannot be combined with reviewed input")
+    document = build_concept_assets()["variants"]
+    output = VARIANTS_PATH
+    source_label = MASTER_PATH
+else:
+    if arguments.concept_master is None:
+        parser.error("--concept-master is required (or use --allow-draft-authoring)")
+    master_path = absolute(arguments.concept_master)
+    master = load_json(master_path)
+    try:
+        document = build_variant_drafts_from_master(master)
+    except ValueError as error:
+        print(f"ERROR: {error}")
+        raise SystemExit(1)
+    output = (
+        absolute(arguments.output)
+        if arguments.output
+        else DRAFT_ROOT
+        / f"variant_drafts_from_master_{document_digest(master)[:16]}.json"
+    )
+    source_label = master_path
+if output.exists() and load_json(output) != document:
+    print(f"refusing to overwrite an existing variant draft: {output}")
+    raise SystemExit(1)
+write_json(output, document)
+print(
+    f"Generated {len(document['variants'])} AI-draft variants from "
+    f"{source_label}: {output}"
+)
+if document.get("shortages"):
+    print(f"Tier/format shortages: {len(document['shortages'])}")

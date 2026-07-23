@@ -1,25 +1,52 @@
 #!/usr/bin/env python3
-"""Select exactly one reviewed variant for each Golden concept, outside Release Resources."""
+"""Select a reviewed Free Sample with an explicit v18 distribution profile."""
+import argparse
 import sys
+from pathlib import Path
 
 sys.dont_write_bytecode = True
 
 from takken_concepts import (
+    FREE_SAMPLE_PROFILES_PATH,
     GOLDEN_PATH,
     MASTER_PATH,
     RELEASE_CANDIDATE_ROOT,
+    ROOT,
     VARIANTS_PATH,
-    free_sample_selection_errors,
     load_json,
-    write_json,
+    select_free_sample_with_profile,
+    write_json_new,
 )
 
 
-golden = load_json(GOLDEN_PATH)
-master = load_json(MASTER_PATH)
-variant_document = load_json(VARIANTS_PATH)
-variants = variant_document.get("variants") or []
-errors, selected = free_sample_selection_errors(variants, golden, master)
+parser = argparse.ArgumentParser()
+parser.add_argument("--profile", default="current-gyoho-100")
+parser.add_argument("--profiles", type=Path, default=FREE_SAMPLE_PROFILES_PATH)
+parser.add_argument("--variants", type=Path, default=VARIANTS_PATH)
+parser.add_argument("--golden", type=Path, default=GOLDEN_PATH)
+parser.add_argument("--concept-master", type=Path, default=MASTER_PATH)
+parser.add_argument("--output", type=Path)
+arguments = parser.parse_args()
+
+
+def absolute(path: Path) -> Path:
+    return path if path.is_absolute() else ROOT / path
+
+
+profiles = load_json(absolute(arguments.profiles))["profiles"]
+profile = next(
+    (value for value in profiles if value["profileID"] == arguments.profile), None
+)
+if profile is None:
+    print(f"unknown free sample profile: {arguments.profile}")
+    raise SystemExit(2)
+variant_document = load_json(absolute(arguments.variants))
+variants = variant_document.get("variants") or variant_document
+master = load_json(absolute(arguments.concept_master))
+golden = load_json(absolute(arguments.golden))
+errors, selected = select_free_sample_with_profile(
+    variants, master, golden, profile
+)
 if errors:
     for error in errors[:50]:
         print(f"ERROR: {error}")
@@ -27,28 +54,29 @@ if errors:
         print(f"ERROR: ... {len(errors) - 50} additional validation error(s) omitted")
     print("No Release or ReleaseCandidate file was written.")
     raise SystemExit(1)
-output = RELEASE_CANDIDATE_ROOT / "takken_2026_free_sample_v17_candidate.json"
-reasons = RELEASE_CANDIDATE_ROOT / "takken_2026_free_sample_v17_selection.json"
-if output.exists() or reasons.exists():
-    print("refusing to overwrite an existing free-sample candidate")
-    raise SystemExit(1)
-write_json(output, selected)
-write_json(
+output = (
+    absolute(arguments.output)
+    if arguments.output
+    else RELEASE_CANDIDATE_ROOT / f"{profile['profileID']}_candidate.json"
+)
+reasons = output.with_name(f"{output.stem}_selection.json")
+write_json_new(output, selected)
+write_json_new(
     reasons,
     {
         "schemaVersion": 1,
-        "selectionRule": (
-            "one reviewed variant per Golden concept; unlock eligible, short, "
-            "non-case formats first; stable variantID tie-break"
-        ),
+        "profile": profile,
         "selected": [
             {
                 "conceptID": value["conceptID"],
                 "variantID": value["variantID"],
-                "reason": "deterministic unlock-friendly representative",
+                "format": value["format"],
+                "category": value["category"],
+                "difficulty": value["difficulty"],
+                "unlockEligible": value["unlockEligible"],
             }
             for value in selected
         ],
     },
 )
-print(f"Generated deterministic 100-question candidate: {output}")
+print(f"Generated deterministic candidate using {profile['profileID']}: {output}")

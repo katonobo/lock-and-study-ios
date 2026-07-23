@@ -9,6 +9,15 @@ enum TakkenConceptMasteryState: String, Equatable, Sendable {
   case due
 }
 
+enum TakkenMisconceptionTagger {
+  static func tags(correct: Bool, misconceptionCode: String?) -> [String] {
+    guard !correct, let misconceptionCode, !misconceptionCode.isEmpty else {
+      return []
+    }
+    return ["misconception:\(misconceptionCode)"]
+  }
+}
+
 struct TakkenConceptMasterySnapshot: Equatable, Sendable {
   let conceptID: String
   let state: TakkenConceptMasteryState
@@ -54,16 +63,6 @@ struct TakkenConceptMasteryPolicy: Sendable {
     let correctVariants = Set(correctInitial.map {
       $0.variantID ?? $0.itemID.rawValue
     })
-    let weakCodes = Set(
-      relevant
-        .filter { !$0.isCorrect }
-        .flatMap { $0.tags ?? [] }
-        .compactMap { tag -> String? in
-          let prefix = "misconception:"
-          guard tag.hasPrefix(prefix) else { return nil }
-          return String(tag.dropFirst(prefix.count))
-        })
-
     let state: TakkenConceptMasteryState
     if let dueAt, dueAt <= now {
       state = .due
@@ -76,6 +75,8 @@ struct TakkenConceptMasteryPolicy: Sendable {
     } else {
       state = .learning
     }
+    let weakCodes = activeMisconceptionCodes(
+      answers: relevant, firstAttempts: initial)
     return .init(
       conceptID: conceptID,
       state: state,
@@ -138,6 +139,66 @@ struct TakkenConceptMasteryPolicy: Sendable {
       result += 1
     }
     return result
+  }
+
+  private func activeMisconceptionCodes(
+    answers: [StudyAnswerRecord],
+    firstAttempts: [StudyAnswerRecord]
+  ) -> Set<String> {
+    var latestWrongByCode: [String: StudyAnswerRecord] = [:]
+    for answer in answers where !answer.isCorrect {
+      for code in misconceptionCodes(answer) {
+        if let existing = latestWrongByCode[code],
+          !answerOrder(existing, answer)
+        {
+          continue
+        }
+        latestWrongByCode[code] = answer
+      }
+    }
+    return Set(latestWrongByCode.compactMap { code, wrong -> String? in
+      let correctAfterWrong = firstAttempts.filter {
+        $0.isCorrect && $0.answeredAt > wrong.answeredAt
+      }
+      let suitable = correctAfterWrong.filter {
+        isSuitable(questionFormat: $0.questionFormat, for: code)
+      }
+      let resolvedByTargetedRecall =
+        Set(suitable.map(\.sessionID)).count >= 2
+        && Set(suitable.map { $0.variantID ?? $0.itemID.rawValue }).count >= 2
+      let resolvedByMasteryAfterWrong =
+        correctStreak(correctAfterWrong) >= 2
+        && Set(correctAfterWrong.map(\.sessionID)).count >= 2
+        && Set(
+          correctAfterWrong.map { $0.variantID ?? $0.itemID.rawValue }
+        ).count >= 2
+      return resolvedByTargetedRecall || resolvedByMasteryAfterWrong ? nil : code
+    })
+  }
+
+  private func misconceptionCodes(_ answer: StudyAnswerRecord) -> Set<String> {
+    Set((answer.tags ?? []).compactMap { tag -> String? in
+      let prefix = "misconception:"
+      guard tag.hasPrefix(prefix) else { return nil }
+      return String(tag.dropFirst(prefix.count))
+    })
+  }
+
+  private func isSuitable(questionFormat: String?, for code: String) -> Bool {
+    guard let format = questionFormat.flatMap(TakkenQuestionFormat.init(rawValue:))
+    else { return false }
+    switch code {
+    case "number":
+      return format == .numberChoice
+    case "actor", "timing", "obligation", "procedure":
+      return format == .wordingContrast || format == .caseStudy
+    case "exception", "scope", "condition":
+      return format == .multipleChoice || format == .caseStudy
+    case "document", "terminology":
+      return format == .trueFalse || format == .wordingContrast
+    default:
+      return false
+    }
   }
 
   private func answerOrder(_ lhs: StudyAnswerRecord, _ rhs: StudyAnswerRecord) -> Bool {

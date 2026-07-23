@@ -36,4 +36,4 @@
 
 校閲担当者は、同じ正しい規則か、期限・主体・効果を独立学習すべきかを確認する。Reviewedへ進めるには、法令名＋条項、公的資料名＋URL・公開日、判例情報など追跡可能な根拠が必要である。「公式サイトを確認」「担当者が確認」だけでは受理しない。
 
-データは`ContentSource/TakkenConcepts/takken_2026_concept_master_draft_v1.json`、検証は`./scripts/validate_takken_concept_master`で行う。
+データはv18の責務分離により`ContentSource/TakkenConcepts/Generated/concept_master_ai_draft.json`へ移行した。検証は`./scripts/validate_takken_concept_master`で行う。

@@ -1,15 +1,47 @@
 #!/usr/bin/env python3
-"""Rebuild exactly 1,000 legacy-question classifications without touching Release."""
+"""Build inventory from an explicit Concept Master without regenerating its boundaries."""
+import argparse
 import sys
+from pathlib import Path
 
 sys.dont_write_bytecode = True
 
-from takken_concepts import INVENTORY_PATH, build_concept_assets, write_json
-
-
-assets = build_concept_assets()
-write_json(INVENTORY_PATH, assets["inventory"])
-print(
-    f"Built {len(assets['inventory']['items'])} legacy inventory entries: "
-    f"{INVENTORY_PATH}"
+from takken_concept_workflow import document_digest
+from takken_concepts import (
+    DRAFT_ROOT,
+    INVENTORY_PATH,
+    MASTER_PATH,
+    ROOT,
+    build_inventory_from_master,
+    load_json,
+    write_json,
 )
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--concept-master", type=Path, default=MASTER_PATH)
+parser.add_argument("--output", type=Path)
+arguments = parser.parse_args()
+
+
+def absolute(path: Path) -> Path:
+    return path if path.is_absolute() else ROOT / path
+
+
+master_path = absolute(arguments.concept_master)
+master = load_json(master_path)
+inventory = build_inventory_from_master(master)
+if arguments.output:
+    output = absolute(arguments.output)
+elif master_path == MASTER_PATH:
+    output = INVENTORY_PATH
+else:
+    output = (
+        DRAFT_ROOT
+        / f"legacy_inventory_from_master_{document_digest(master)[:16]}.json"
+    )
+if output.exists() and load_json(output) != inventory:
+    print(f"refusing to overwrite an existing inventory file: {output}")
+    raise SystemExit(1)
+write_json(output, inventory)
+print(f"Built {len(inventory['items'])} legacy inventory entries from {master_path}: {output}")

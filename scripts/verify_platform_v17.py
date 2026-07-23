@@ -130,6 +130,7 @@ def main() -> int:
         reviewer="v17-fixture",
         reviewedAt="2026-07-23",
         sourceNotes=["宅地建物取引業法第3条（2026-04-01確認）"],
+        reviewDecision="accept",
     )
     source_errors = validate_concept_master(reviewed_with_source, known_ids)
     if any("reviewed concept requires" in value for value in source_errors):
@@ -223,7 +224,7 @@ def main() -> int:
         errors,
         "270-item full pack",
         full_errors,
-        "at least 1,000 variants",
+        "planned total 1000",
     )
     expect_error(
         errors,

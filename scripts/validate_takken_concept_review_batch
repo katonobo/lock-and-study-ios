@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+"""Validate one edited v18 concept review batch."""
+import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+
+from takken_concept_workflow import validate_review_batch
+from takken_concepts import ROOT, load_json
+
+
+if len(sys.argv) != 2:
+    print("usage: ./scripts/validate_takken_concept_review_batch <file>")
+    raise SystemExit(2)
+path = Path(sys.argv[1])
+path = path if path.is_absolute() else ROOT / path
+errors = validate_review_batch(load_json(path))
+if errors:
+    for error in errors[:50]:
+        print(f"ERROR: {error}")
+    if len(errors) > 50:
+        print(f"ERROR: ... {len(errors) - 50} additional error(s) omitted")
+    raise SystemExit(1)
+print(f"Concept review batch validation passed: {path}")

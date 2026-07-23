@@ -45,7 +45,7 @@
 
 ## 未確認の出典一覧
 
-完全な一覧は`ContentSource/TakkenConcepts/takken_2026_source_research_queue_v1.json`に380件保存した。全件で次を維持している。
+完全な一覧はv18で`ContentSource/TakkenConcepts/Generated/source_research_queue_ai_draft.json`へ移行し、380件保存した。全件で次を維持している。
 
 - `status = pending`
 - `claimedSource = null`

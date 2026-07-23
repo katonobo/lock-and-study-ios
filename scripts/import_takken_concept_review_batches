@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+"""Atomically import a complete directory of reviewed concept batches."""
+import argparse
+import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+
+from takken_concept_workflow import import_review_batches
+from takken_concepts import MASTER_PATH, REVIEWED_MASTER_PATH, ROOT
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("directory", type=Path)
+parser.add_argument("--source-master", type=Path, default=MASTER_PATH)
+parser.add_argument("--output", type=Path, default=REVIEWED_MASTER_PATH)
+arguments = parser.parse_args()
+
+
+def absolute(path: Path) -> Path:
+    return path if path.is_absolute() else ROOT / path
+
+
+try:
+    output, changed = import_review_batches(
+        absolute(arguments.directory),
+        source_master_path=absolute(arguments.source_master),
+        output_path=absolute(arguments.output),
+    )
+except ValueError as error:
+    print(f"ERROR: {error}")
+    raise SystemExit(1)
+print(
+    f"{'Imported' if changed else 'Already imported (idempotent)'} "
+    f"reviewed Concept Master: {output}"
+)

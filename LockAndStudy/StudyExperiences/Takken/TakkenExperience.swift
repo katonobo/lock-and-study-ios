@@ -41,9 +41,62 @@ struct CertificationChallengeQuestion: Codable, Equatable, Identifiable, Sendabl
   let minimumReviewSeconds: Int?
   let contrastNote: String?
   let wrongChoiceRationales: [Int: String]?
+  let misconceptionCodesByChoiceID: [Int: String]?
 
   var resolvedConceptID: String { conceptID ?? id.rawValue }
   var resolvedVariantID: String { variantID ?? "legacy" }
+
+  static func make(
+    presented question: TakkenPresentedQuestion,
+    contentVersion: String
+  ) -> Self {
+    let sourceRationales = Dictionary(
+      uniqueKeysWithValues: question.presentedChoices.compactMap {
+        displayed -> (Int, String)? in
+        guard let sourceID = question.sourceChoiceID(for: displayed.id),
+          displayed.id != question.correctChoiceID,
+          let rationale = question.source.choices.first(where: {
+            $0.id == sourceID
+          })?.rationale
+            ?? question.source.wrongChoiceRationales?[sourceID]
+        else { return nil }
+        return (displayed.id, rationale)
+      })
+    let misconceptionCodes = Dictionary(
+      uniqueKeysWithValues: question.presentedChoices.compactMap {
+        displayed -> (Int, String)? in
+        guard let sourceID = question.sourceChoiceID(for: displayed.id),
+          displayed.id != question.correctChoiceID,
+          let code = question.source.choices.first(where: { $0.id == sourceID })?
+            .misconceptionCode
+        else { return nil }
+        return (displayed.id, code)
+      })
+    return .init(
+      id: .init(rawValue: question.source.id),
+      prompt: question.source.prompt,
+      choices: question.presentedChoices,
+      correctChoiceID: question.correctChoiceID,
+      shortExplanation: question.source.shortExplanation ?? question.source.explanation,
+      longExplanation: question.source.longExplanation ?? question.source.explanation,
+      keyPoint: question.source.keyPoint,
+      category: question.source.category,
+      subCategory: question.source.subCategory,
+      difficulty: question.source.difficulty,
+      format: question.source.resolvedFormat.rawValue,
+      examYear: question.source.examYear,
+      lawBasisDate: question.source.lawBasisDate,
+      sourceNote: question.source.sourceNote,
+      contentVersion: contentVersion,
+      questionVersion: question.source.version ?? 1,
+      conceptID: question.source.resolvedConceptID,
+      variantID: question.source.resolvedVariantID,
+      minimumReviewSeconds: question.source.minimumReviewSeconds,
+      contrastNote: question.source.contrastNote,
+      wrongChoiceRationales: sourceRationales.isEmpty ? nil : sourceRationales,
+      misconceptionCodesByChoiceID: misconceptionCodes.isEmpty
+        ? nil : misconceptionCodes)
+  }
 }
 
 struct CertificationUnlockSessionPayload: Codable, Equatable, Sendable {
@@ -147,38 +200,9 @@ struct CertificationUnlockSessionBuilder: Sendable {
         for: packID, id: preview.id, at: request.now)
     }
 
-    let snapshots = presented.map { question in
-      let sourceRationales = Dictionary(uniqueKeysWithValues: question.presentedChoices.compactMap {
-        displayed -> (Int, String)? in
-        guard let sourceID = question.sourceChoiceID(for: displayed.id),
-          displayed.id != question.correctChoiceID,
-          let rationale = question.source.choices.first(where: { $0.id == sourceID })?.rationale
-            ?? question.source.wrongChoiceRationales?[sourceID]
-        else { return nil }
-        return (displayed.id, rationale)
-      })
-      return CertificationChallengeQuestion(
-        id: .init(rawValue: question.source.id),
-        prompt: question.source.prompt,
-        choices: question.presentedChoices,
-        correctChoiceID: question.correctChoiceID,
-        shortExplanation: question.source.shortExplanation ?? question.source.explanation,
-        longExplanation: question.source.longExplanation ?? question.source.explanation,
-        keyPoint: question.source.keyPoint,
-        category: question.source.category,
-        subCategory: question.source.subCategory,
-        difficulty: question.source.difficulty,
-        format: question.source.resolvedFormat.rawValue,
-        examYear: question.source.examYear,
-        lawBasisDate: question.source.lawBasisDate,
-        sourceNote: question.source.sourceNote,
-        contentVersion: request.manifest.contentVersion,
-        questionVersion: question.source.version ?? 1,
-        conceptID: question.source.resolvedConceptID,
-        variantID: question.source.resolvedVariantID,
-        minimumReviewSeconds: question.source.minimumReviewSeconds,
-        contrastNote: question.source.contrastNote,
-        wrongChoiceRationales: sourceRationales.isEmpty ? nil : sourceRationales)
+    let snapshots = presented.map {
+      CertificationChallengeQuestion.make(
+        presented: $0, contentVersion: request.manifest.contentVersion)
     }
     let state = CertificationUnlockSessionPayload(
       pace: request.policy.accessPacePreset,
@@ -280,6 +304,9 @@ struct CertificationExperience: StudyExperienceFactory {
       for: .init(packID: envelope.packID, itemID: question.id))
     let attempt = (state.attemptCountsByQuestionID[key] ?? 0) + 1
     let correct = selectedChoiceID == question.correctChoiceID
+    let answerTags = TakkenMisconceptionTagger.tags(
+      correct: correct,
+      misconceptionCode: question.misconceptionCodesByChoiceID?[selectedChoiceID])
     let feedback = correct
       ? StudyFeedbackPlan.immediate
       : TakkenFeedbackPlanner().plan(wrongAttemptCount: attempt)
@@ -309,6 +336,7 @@ struct CertificationExperience: StudyExperienceFactory {
       difficulty: question.difficulty,
       questionFormat: question.format,
       keyPoint: question.keyPoint,
+      tags: answerTags,
       learningRole: AnswerLearningRole.classify(mode: .unlock, progress: priorProgress, at: answeredAt),
       wasNewAtSubmission: priorProgress.answerCount == 0,
       wasDueAtSubmission: priorProgress.dueAt.map { $0 <= answeredAt } ?? false,
@@ -651,14 +679,11 @@ final class TakkenAppModel: ObservableObject {
       packID: context.manifest.id, itemID: .init(rawValue: source.id))
     let priorProgress = progress[compositeID.storageKey] ?? .initial(compositeID)
     let selectedStableID = question.sourceChoiceID(for: selectedChoiceID) ?? "unknown"
-    var answerTags = source.tags
-    if !correct,
-      let misconceptionCode = source.choices.first(where: {
-        $0.id == selectedStableID
-      })?.misconceptionCode
-    {
-      answerTags.append("misconception:\(misconceptionCode)")
-    }
+    let misconceptionCode = source.choices.first(where: {
+      $0.id == selectedStableID
+    })?.misconceptionCode
+    let answerTags = source.tags + TakkenMisconceptionTagger.tags(
+      correct: correct, misconceptionCode: misconceptionCode)
     let record = StudyAnswerRecord(
       submissionID:
         "takken::\(sessionID.uuidString)::\(source.id)::attempt::\(ordinal)::choice::\(selectedStableID)",

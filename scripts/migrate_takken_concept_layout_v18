@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""One-time legacy v17 path migration; never touches Reviewed."""
+import sys
+
+sys.dont_write_bytecode = True
+
+from takken_concepts import migrate_legacy_layout
+
+
+migrated = migrate_legacy_layout()
+if not migrated:
+    print("Takken concept layout is already migrated.")
+else:
+    for source, destination in migrated:
+        print(f"Migrated {source} -> {destination}")

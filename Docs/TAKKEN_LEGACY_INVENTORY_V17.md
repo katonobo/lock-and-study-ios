@@ -8,7 +8,7 @@
 - 権利関係300問
 - 税・その他200問
 
-各旧問題を一度だけ`takken_2026_legacy_question_inventory_v1.json`へ登録し、元ファイル、digest、mappedConceptID、disposition、理由を保持した。旧問題そのものは削除していない。
+各旧問題を一度だけ`ContentSource/TakkenConcepts/Generated/legacy_inventory_ai_draft.json`へ登録し、元ファイル、digest、mappedConceptID、disposition、理由を保持した。旧問題そのものは削除していない。ファイルはv18でGenerated領域へ移行した。
 
 ## 初期AI分類
 

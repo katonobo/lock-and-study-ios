@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""Report v18 authoring workflow state without promoting human-review status."""
+import json
+import sys
+from collections import Counter
+
+sys.dont_write_bytecode = True
+
+from takken_concept_workflow import build_boundary_audit
+from takken_concepts import (
+    MASTER_PATH,
+    REVIEWED_MASTER_PATH,
+    VARIANTS_PATH,
+    audit_snapshot,
+    load_json,
+    protected_release_errors,
+    tier_variant_shortages,
+)
+
+
+snapshot, errors = audit_snapshot()
+master = load_json(MASTER_PATH)
+variants = load_json(VARIANTS_PATH)["variants"]
+boundary = build_boundary_audit(master)
+workflow = {
+    "workflowVersion": 18,
+    "generatedConceptCount": len(master["concepts"]),
+    "generatedReviewStatusDistribution": dict(
+        sorted(Counter(value["reviewStatus"] for value in master["concepts"]).items())
+    ),
+    "reviewedMasterExists": REVIEWED_MASTER_PATH.exists(),
+    "automaticReviewedOrReleasePromotionCount": sum(
+        value["reviewStatus"] in {"reviewed", "release"}
+        for value in master["concepts"]
+    ),
+    "boundaryWarningCount": boundary["warningCount"],
+    "boundaryWarningTypeDistribution": boundary["warningTypeDistribution"],
+    "generatedVariantCount": len(variants),
+    "generatedPlaceholderCount": sum(
+        value.get("isPlaceholder") is True for value in variants
+    ),
+    "generatedNumberChoiceCount": sum(
+        value.get("format") == "number_choice" for value in variants
+    ),
+    "variantShortageCount": len(tier_variant_shortages(master, variants)),
+    "unresolvedSourceResearchCount": snapshot["sourceResearch"]["pendingCount"],
+    "releaseProtectionErrors": protected_release_errors(),
+}
+errors.extend(workflow["releaseProtectionErrors"])
+print(
+    json.dumps(
+        {"platformV17Snapshot": snapshot, "workflowV18": workflow},
+        ensure_ascii=False,
+        indent=2,
+        sort_keys=True,
+    )
+)
+if errors:
+    for error in errors:
+        print(f"ERROR: {error}")
+    raise SystemExit(1)
+print("Takken v18 workflow, boundary, draft-state, and Release protection audit passed.")

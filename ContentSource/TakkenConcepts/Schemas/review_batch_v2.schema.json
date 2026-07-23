@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://katonobo.com/schemas/lock-and-study/takken-concept-review-batch-v2.json",
+  "title": "Lock and Study Takken Concept Review Batch v2",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "workflowVersion",
+    "batchNumber",
+    "sourceMasterDigest",
+    "sourceConceptIDs",
+    "sourceLegacyQuestionIDs",
+    "transferredLegacyQuestionIDsIn",
+    "transferredLegacyQuestionIDsOut",
+    "concepts"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 2 },
+    "workflowVersion": { "const": 18 },
+    "batchNumber": { "type": "integer", "minimum": 1 },
+    "sourceMasterDigest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "sourceConceptIDs": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^takken\\." },
+      "uniqueItems": true
+    },
+    "sourceLegacyQuestionIDs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "transferredLegacyQuestionIDsIn": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "transferredLegacyQuestionIDsOut": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "concepts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "conceptID",
+          "legacySourceIDs",
+          "sourceNotes",
+          "reviewStatus",
+          "reviewer",
+          "reviewedAt",
+          "reviewDecision"
+        ]
+      }
+    }
+  },
+  "additionalProperties": true
+}

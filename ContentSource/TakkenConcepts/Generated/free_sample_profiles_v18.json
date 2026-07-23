@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "workflowVersion": 18,
+  "profiles": [
+    {
+      "profileID": "current-gyoho-100",
+      "title": "現在の商品方針（宅建業法100問）",
+      "questionCount": 100,
+      "scope": "golden_questions",
+      "minimumDistinctConceptCount": 50,
+      "maximumQuestionsPerConcept": 2,
+      "categoryTargets": {
+        "宅建業法": 100
+      },
+      "formatTargets": {},
+      "difficultyTargets": {},
+      "minimumUnlockEligibleCount": 90,
+      "maximumCaseStudyCount": 0
+    },
+    {
+      "profileID": "all-fields-balanced-100",
+      "title": "全分野体験版100問",
+      "questionCount": 100,
+      "scope": "all_reviewed_concepts",
+      "minimumDistinctConceptCount": 80,
+      "maximumQuestionsPerConcept": 2,
+      "categoryTargets": {
+        "宅建業法": 30,
+        "権利関係": 30,
+        "法令上の制限": 20,
+        "税・その他": 20
+      },
+      "formatTargets": {
+        "true_false": 30,
+        "number_choice": 15,
+        "wording_contrast": 20,
+        "multiple_choice": 30,
+        "case_study": 5
+      },
+      "difficultyTargets": {},
+      "minimumUnlockEligibleCount": 75,
+      "maximumCaseStudyCount": 5
+    }
+  ]
+}

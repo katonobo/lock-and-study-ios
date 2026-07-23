@@ -11,6 +11,7 @@ import json
 import math
 import os
 import re
+import tempfile
 import unicodedata
 from collections import Counter, defaultdict
 from copy import deepcopy
@@ -21,17 +22,42 @@ import sys
 
 sys.dont_write_bytecode = True
 
-from content_checks import _has_traceable_source_note, validate_takken_v2
+from content_checks import (
+    _has_traceable_source_note,
+    _parsed_review_date,
+    validate_takken_v2,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
 CONCEPT_ROOT = ROOT / "ContentSource/TakkenConcepts"
-MASTER_PATH = CONCEPT_ROOT / "takken_2026_concept_master_draft_v1.json"
-GOLDEN_PATH = CONCEPT_ROOT / "takken_2026_golden_100_concepts_draft_v1.json"
-INVENTORY_PATH = CONCEPT_ROOT / "takken_2026_legacy_question_inventory_v1.json"
-VARIANTS_PATH = CONCEPT_ROOT / "takken_2026_golden_variants_draft_v1.json"
-RESEARCH_PATH = CONCEPT_ROOT / "takken_2026_source_research_queue_v1.json"
-RELEASE_CANDIDATE_ROOT = ROOT / "ContentSource/ReleaseCandidates"
+GENERATED_ROOT = CONCEPT_ROOT / "Generated"
+REVIEW_BATCH_ROOT = CONCEPT_ROOT / "ReviewBatches"
+REVIEWED_ROOT = CONCEPT_ROOT / "Reviewed"
+DRAFT_ROOT = CONCEPT_ROOT / "Drafts"
+CONCEPT_RELEASE_CANDIDATE_ROOT = CONCEPT_ROOT / "ReleaseCandidates"
+BACKUP_ROOT = CONCEPT_ROOT / "Backups"
+MASTER_PATH = GENERATED_ROOT / "concept_master_ai_draft.json"
+GOLDEN_PATH = GENERATED_ROOT / "golden_question_set_ai_draft.json"
+INVENTORY_PATH = GENERATED_ROOT / "legacy_inventory_ai_draft.json"
+VARIANTS_PATH = GENERATED_ROOT / "golden_variants_ai_draft.json"
+RESEARCH_PATH = GENERATED_ROOT / "source_research_queue_ai_draft.json"
+BOUNDARY_AUDIT_JSON_PATH = GENERATED_ROOT / "concept_boundary_audit_v18.json"
+BOUNDARY_AUDIT_MARKDOWN_PATH = GENERATED_ROOT / "concept_boundary_audit_v18.md"
+BOUNDARY_DECISIONS_PATH = REVIEW_BATCH_ROOT / "concept_boundary_decisions_v18.json"
+FREE_SAMPLE_PROFILES_PATH = GENERATED_ROOT / "free_sample_profiles_v18.json"
+REVIEWED_MASTER_PATH = REVIEWED_ROOT / "concept_master_reviewed.json"
+REVIEWED_INVENTORY_PATH = REVIEWED_ROOT / "legacy_inventory_reviewed.json"
+REVIEWED_RESEARCH_PATH = REVIEWED_ROOT / "source_research_reviewed.json"
+RELEASE_CANDIDATE_ROOT = CONCEPT_RELEASE_CANDIDATE_ROOT
+
+LEGACY_LAYOUT_PATHS = {
+    CONCEPT_ROOT / "takken_2026_concept_master_draft_v1.json": MASTER_PATH,
+    CONCEPT_ROOT / "takken_2026_golden_100_concepts_draft_v1.json": GOLDEN_PATH,
+    CONCEPT_ROOT / "takken_2026_legacy_question_inventory_v1.json": INVENTORY_PATH,
+    CONCEPT_ROOT / "takken_2026_golden_variants_draft_v1.json": VARIANTS_PATH,
+    CONCEPT_ROOT / "takken_2026_source_research_queue_v1.json": RESEARCH_PATH,
+}
 
 RELEASE_PATH = (
     ROOT / "LockAndStudy/Resources/Content/Released/takken_2026_free_100_v1.json"
@@ -208,6 +234,14 @@ ALLOWED_MISCONCEPTIONS = {
     "condition",
     "terminology",
 }
+ALLOWED_REVIEW_DECISIONS = {
+    "accept",
+    "merge",
+    "split",
+    "rename",
+    "retire",
+    "integrated_case",
+}
 FORMAT_ROUTE = {
     "true_false": "judgment",
     "number_choice": "number",
@@ -262,13 +296,46 @@ def question_digest(question: dict) -> str:
     ).hexdigest()
 
 
-def write_json(path: Path, value: object) -> None:
+def write_text_atomic(path: Path, value: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(
-        json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    descriptor, temporary_name = tempfile.mkstemp(
+        prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
     )
-    os.replace(temporary, path)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            handle.write(value)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def write_json(path: Path, value: object) -> None:
+    write_text_atomic(
+        path, json.dumps(value, ensure_ascii=False, indent=2) + "\n"
+    )
+
+
+def write_json_new(path: Path, value: object) -> None:
+    if path.exists():
+        raise FileExistsError(f"refusing to overwrite existing authoring file: {path}")
+    write_json(path, value)
+
+
+def migrate_legacy_layout() -> list[tuple[Path, Path]]:
+    """Copy legacy v17 draft paths once; never write or inspect Reviewed files."""
+    migrated: list[tuple[Path, Path]] = []
+    for legacy_path, generated_path in LEGACY_LAYOUT_PATHS.items():
+        if not legacy_path.exists() or generated_path.exists():
+            continue
+        generated_path.parent.mkdir(parents=True, exist_ok=True)
+        write_text_atomic(
+            generated_path, legacy_path.read_text(encoding="utf-8")
+        )
+        migrated.append((legacy_path, generated_path))
+    return migrated
 
 
 def protected_release_errors() -> list[str]:
@@ -458,6 +525,36 @@ def _fact_values(records: list[dict], pattern: str) -> list[str]:
     return values[:4]
 
 
+def confirmed_numeric_facts(concept: dict) -> list[dict]:
+    facts: list[dict] = []
+    for value in concept.get("numericFacts") or []:
+        if not isinstance(value, dict):
+            continue
+        fact = str(value.get("fact") or "")
+        unit = str(value.get("unit") or "")
+        if (
+            value.get("reviewStatus") != "reviewed"
+            or not str(value.get("value") or "").strip()
+            or not unit.strip()
+            or len(normalized(fact)) < 6
+            or re.search(r"(?:第?\s*(?:35|37)\s*条|8種制限)", fact)
+        ):
+            continue
+        facts.append(value)
+    return facts
+
+
+def has_placeholder_content(value: object) -> bool:
+    text = json.dumps(value, ensure_ascii=False)
+    return bool(
+        re.search(
+            r"AI草稿|AI下書き|要点候補|詳細解説候補|誤答候補|"
+            r"正しい数値.*入力|人間.*追記|pending-human",
+            text,
+        )
+    )
+
+
 def _recommended_formats(records: list[dict], tier: str) -> list[str]:
     text = " ".join(
         str(record["question"].get(key) or "")
@@ -465,8 +562,6 @@ def _recommended_formats(records: list[dict], tier: str) -> list[str]:
         for key in ("prompt", "keyPoint", "shortExplanation")
     )
     result = ["true_false"]
-    if re.search(r"\d|[一二三四五六七八九十百千万億].*(?:日|月|年|%|％|割|円)", text):
-        result.append("number_choice")
     if re.search(r"主体|者|前|後|義務|任意|できる|ならない|期限|期間", text):
         result.append("wording_contrast")
     if tier in {"A", "B"}:
@@ -475,7 +570,7 @@ def _recommended_formats(records: list[dict], tier: str) -> list[str]:
         result.append("case_study")
     result = list(dict.fromkeys(result))
     minimum = 3 if tier == "A" else (2 if tier == "B" else 1)
-    for fallback in ("wording_contrast", "multiple_choice", "number_choice"):
+    for fallback in ("wording_contrast", "multiple_choice", "case_study"):
         if len(result) >= minimum:
             break
         if fallback not in result:
@@ -612,7 +707,10 @@ def build_concept_assets() -> dict[str, dict]:
                 "mnemonic": None,
             },
             "confusionPoints": key_points[1:4],
-            "numericFacts": _fact_values(
+            # AI-extracted values are review hints only. A number_choice may be
+            # authored only from a human-reviewed numericFacts entry.
+            "numericFacts": [],
+            "numericFactCandidates": _fact_values(
                 records_for_concept,
                 r"\d|[一二三四五六七八九十百千万億].*(?:日|月|年|%|％|割|円)",
             ),
@@ -630,12 +728,18 @@ def build_concept_assets() -> dict[str, dict]:
             "legacySourceIDs": legacy_ids,
             "sourceNotes": [],
             "requiresSourceResearch": True,
-            "requiresAnnualReview": value["category"]
-            in {"法令上の制限", "税・その他"},
+            "requiresAnnualReview": True,
+            "annualReviewReason": (
+                "法令・判例・税制・統計への依存有無を人間が判定するまで毎年度確認する"
+            ),
             "reviewStatus": "ai_draft",
             "reviewer": None,
             "reviewedAt": None,
             "reviewNote": None,
+            "mergedFromConceptIDs": [],
+            "splitFromConceptID": None,
+            "supersedesConceptIDs": [],
+            "reviewDecision": None,
             "generationMetadata": {
                 "method": "semantic-draft-cluster-v17",
                 "confidence": "requires-human-concept-review",
@@ -667,6 +771,12 @@ def build_concept_assets() -> dict[str, dict]:
         "status": "ai_draft",
         "targetConceptCount": 380,
         "allowedConceptRange": {"minimum": 350, "maximum": 450},
+        "fullPackPlan": {
+            "plannedStandaloneVariantCount": 920,
+            "plannedIntegratedCaseCount": 80,
+            "plannedTotalQuestionCount": 1000,
+            "humanReviewRequired": True,
+        },
         "generationPolicy": {
             "method": "semantic similarity within subcategory",
             "maximumLegacyQuestionsPerConcept": 4,
@@ -691,6 +801,10 @@ def build_concept_assets() -> dict[str, dict]:
 def build_inventory(
     records: list[dict], master: dict, concept_for_legacy: dict[str, str]
 ) -> dict:
+    reviewed_mapping = all(
+        value.get("reviewStatus") in {"reviewed", "release"}
+        for value in master.get("concepts", [])
+    )
     prompt_owner: dict[str, str] = {}
     concept_members: dict[str, list[str]] = defaultdict(list)
     for record in records:
@@ -748,8 +862,12 @@ def build_inventory(
                 ),
                 "requiresSourceResearch": True,
                 "questionDigest": question_digest(question),
-                "mappingConfidence": "ai_clustered_requires_human_review",
-                "status": "ai_draft",
+                "mappingConfidence": (
+                    "human_reviewed_concept_boundary"
+                    if reviewed_mapping
+                    else "ai_clustered_requires_human_review"
+                ),
+                "status": "reviewed_mapping" if reviewed_mapping else "ai_draft",
             }
         )
     return {
@@ -757,32 +875,81 @@ def build_inventory(
         "packID": "takken2026.v1",
         "examYear": 2026,
         "lawBasisDate": "2026-04-01",
-        "status": "ai_draft",
+        "status": "reviewed_mapping" if reviewed_mapping else "ai_draft",
         "expectedLegacyQuestionCount": 1_000,
         "sourceFiles": [relative for _, relative in LEGACY_SOURCES],
         "items": sorted(items, key=lambda value: value["legacyQuestionID"]),
     }
 
 
+def concept_mapping(master: dict) -> dict[str, str]:
+    mapping: dict[str, str] = {}
+    for concept in master.get("concepts", []):
+        for legacy_id in concept.get("legacySourceIDs") or []:
+            if legacy_id in mapping:
+                raise ValueError(f"duplicate legacy ownership: {legacy_id}")
+            mapping[legacy_id] = concept["conceptID"]
+    return mapping
+
+
+def build_inventory_from_master(master: dict) -> dict:
+    records = load_legacy_records()
+    mapping = concept_mapping(master)
+    known_ids = {value["question"]["id"] for value in records}
+    if set(mapping) != known_ids:
+        raise ValueError("reviewed master must own all 1,000 legacy questions exactly once")
+    return build_inventory(records, master, mapping)
+
+
 def build_golden(master: dict, concept_for_legacy: dict[str, str]) -> dict:
     released = load_json(RELEASE_PATH)
-    golden_ids = [concept_for_legacy[item["id"]] for item in released]
-    if len(golden_ids) != 100 or len(set(golden_ids)) != 100:
-        raise ValueError("each current Release question must seed one distinct Golden concept")
-    by_id = {concept["conceptID"]: concept for concept in master["concepts"]}
+    concepts_by_id = {
+        value["conceptID"]: value for value in master.get("concepts", [])
+    }
+    golden_question_ids = [item["id"] for item in released]
+    if len(golden_question_ids) != 100 or len(set(golden_question_ids)) != 100:
+        raise ValueError("Golden Question Set must preserve exactly 100 Release IDs")
+    mappings = [
+        {
+            "questionID": question_id,
+            "conceptID": concept_for_legacy[question_id],
+            "mappingStatus": (
+                "human_reviewed"
+                if concepts_by_id[concept_for_legacy[question_id]].get("reviewStatus")
+                in {"reviewed", "release"}
+                else "ai_draft"
+            ),
+        }
+        for question_id in golden_question_ids
+    ]
+    golden_ids = [value["conceptID"] for value in mappings]
+    by_id = concepts_by_id
     concepts = []
-    for question, concept_id in zip(released, golden_ids):
+    for concept_id in dict.fromkeys(golden_ids):
         concept = deepcopy(by_id[concept_id])
         concept["goldenRole"] = "quality_reference"
-        concept["publicReleaseSourceID"] = question["id"]
+        concept["publicReleaseSourceIDs"] = [
+            value["questionID"]
+            for value in mappings
+            if value["conceptID"] == concept_id
+        ]
         concepts.append(concept)
     return {
         "schemaVersion": 1,
         "packID": "takken2026.v1",
         "examYear": 2026,
         "lawBasisDate": "2026-04-01",
-        "status": "ai_draft",
-        "expectedConceptCount": 100,
+        "status": (
+            "human_reviewed_mapping"
+            if all(
+                value["mappingStatus"] == "human_reviewed" for value in mappings
+            )
+            else "ai_draft"
+        ),
+        "expectedQuestionCount": 100,
+        "goldenQuestionIDs": golden_question_ids,
+        "conceptMappings": mappings,
+        "distinctConceptCount": len(set(golden_ids)),
         "expectedGoldenVariantRange": {"minimum": 250, "maximum": 300},
         "currentPublicFreeSample": {
             "itemCount": 100,
@@ -791,6 +958,46 @@ def build_golden(master: dict, concept_for_legacy: dict[str, str]) -> dict:
         },
         "concepts": concepts,
     }
+
+
+def golden_concept_ids(golden: dict) -> list[str]:
+    return list(
+        dict.fromkeys(
+            value.get("conceptID")
+            for value in golden.get("conceptMappings") or []
+            if isinstance(value.get("conceptID"), str)
+        )
+    )
+
+
+def validate_golden_question_set(golden: dict, master: dict) -> list[str]:
+    errors: list[str] = []
+    release_ids = [value["id"] for value in load_json(RELEASE_PATH)]
+    question_ids = golden.get("goldenQuestionIDs") or []
+    mappings = golden.get("conceptMappings") or []
+    mapped_question_ids = [value.get("questionID") for value in mappings]
+    master_ids = {value["conceptID"] for value in master.get("concepts", [])}
+    mapped_concepts = [value.get("conceptID") for value in mappings]
+    if (
+        len(question_ids) != 100
+        or len(set(question_ids)) != 100
+        or question_ids != release_ids
+    ):
+        errors.append("Golden Question Set must preserve the ordered Release 100 IDs")
+    if (
+        len(mappings) != 100
+        or len(set(mapped_question_ids)) != 100
+        or mapped_question_ids != question_ids
+    ):
+        errors.append("Golden Question Set requires one mapping for every question")
+    if any(value not in master_ids for value in mapped_concepts):
+        errors.append("Golden Question Set contains an unknown concept mapping")
+    distinct = len(set(mapped_concepts))
+    if golden.get("distinctConceptCount") != distinct:
+        errors.append("Golden distinctConceptCount must be derived from mappings")
+    if not 1 <= distinct <= 100:
+        errors.append("Golden Question Set must map to 1-100 distinct concepts")
+    return errors
 
 
 def _select_golden_candidates(candidates_by_concept: dict[str, list[dict]]) -> list[dict]:
@@ -868,8 +1075,8 @@ def build_golden_variants(
 ) -> dict:
     candidates = load_json(V2_CANDIDATE_PATH)
     released_ids = {
-        concept["publicReleaseSourceID"]: concept["conceptID"]
-        for concept in golden["concepts"]
+        value["questionID"]: value["conceptID"]
+        for value in golden["conceptMappings"]
     }
     candidates_by_concept: dict[str, list[dict]] = defaultdict(list)
     for index, candidate in enumerate(candidates):
@@ -877,11 +1084,19 @@ def build_golden_variants(
         new_concept_id = released_ids.get(old_concept_id)
         if new_concept_id is None:
             continue
+        concept = next(
+            value for value in master["concepts"] if value["conceptID"] == new_concept_id
+        )
+        if candidate.get("format") == "number_choice" and not confirmed_numeric_facts(
+            concept
+        ):
+            continue
         value = deepcopy(candidate)
         value["_sourceOrder"] = index
         value["_newConceptID"] = new_concept_id
         candidates_by_concept[new_concept_id].append(value)
-    if len(candidates_by_concept) != 100:
+    expected_concepts = {value["conceptID"] for value in golden["conceptMappings"]}
+    if set(candidates_by_concept) != expected_concepts:
         raise ValueError("v2 candidate pool does not cover all Golden concepts")
 
     selected = _select_golden_candidates(candidates_by_concept)
@@ -926,6 +1141,12 @@ def build_golden_variants(
             "既存素材から異なる記憶経路を選別したAI草稿。法令・出典・誤答理由の"
             "人手校閲前であり、Releaseへ昇格してはならない。"
         )
+        candidate["isPlaceholder"] = has_placeholder_content(candidate)
+        candidate["authoringContext"] = {
+            "conceptTitle": concept["title"],
+            "canonicalRule": concept["canonicalRule"],
+            "recommendedFormats": concept["recommendedFormats"],
+        }
         choice_ids = [choice["id"] for choice in candidate["choices"]]
         correct_id = candidate["correctChoiceID"]
         rationale_map = {}
@@ -943,6 +1164,7 @@ def build_golden_variants(
             choice["rationale"] = rationale
             rationale_map[choice["id"]] = rationale
         candidate["wrongChoiceRationales"] = rationale_map
+        candidate["isPlaceholder"] = has_placeholder_content(candidate)
         if correct_id not in choice_ids:
             raise ValueError(f"candidate correct choice missing: {candidate['id']}")
         candidate["correctIndex"] = choice_ids.index(correct_id)
@@ -958,6 +1180,204 @@ def build_golden_variants(
         ),
         "expectedVariantRange": {"minimum": 250, "maximum": 300},
         "variants": sorted(output, key=lambda value: (value["conceptID"], value["variantID"])),
+    }
+
+
+def _normalized_variant_choices(source: dict, fmt: str) -> tuple[list[dict], str]:
+    raw_choices = source.get("choices") or []
+    choices: list[dict] = []
+    for index, value in enumerate(raw_choices):
+        if isinstance(value, dict):
+            choice = deepcopy(value)
+            choice["id"] = str(choice.get("id") or f"choice-{index}")
+            choice["text"] = str(choice.get("text") or "")
+        else:
+            choice = {
+                "id": f"choice-{index}",
+                "text": str(value),
+                "rationale": None,
+                "misconceptionCode": None,
+            }
+        choices.append(choice)
+    correct_index = source.get("correctIndex")
+    if not isinstance(correct_index, int) or not 0 <= correct_index < len(choices):
+        source_correct_id = source.get("correctChoiceID")
+        correct_index = next(
+            (
+                index
+                for index, value in enumerate(choices)
+                if value["id"] == source_correct_id
+            ),
+            0,
+        )
+    correct_id = choices[correct_index]["id"]
+    for choice in choices:
+        if choice["id"] == correct_id:
+            choice["rationale"] = None
+            choice["misconceptionCode"] = None
+        else:
+            choice["misconceptionCode"] = (
+                choice.get("misconceptionCode") or FORMAT_MISCONCEPTION[fmt]
+            )
+            choice["rationale"] = choice.get("rationale") or (
+                "旧問題素材から移行した誤答候補であり、相違点はvariant校閲で確定する。"
+            )
+    return choices, correct_id
+
+
+def build_variant_drafts_from_master(master: dict) -> dict:
+    """Build deterministic AI drafts from the supplied reviewed concept boundaries."""
+    records = load_legacy_records()
+    known_ids = {value["question"]["id"] for value in records}
+    validation_errors = validate_concept_master(master, known_ids)
+    if validation_errors:
+        raise ValueError("; ".join(validation_errors[:20]))
+    if any(
+        value.get("reviewStatus") not in {"reviewed", "release"}
+        for value in master["concepts"]
+    ):
+        raise ValueError("concept master must be fully human reviewed")
+
+    legacy_by_id = {
+        value["question"]["id"]: value["question"] for value in records
+    }
+    v2_by_legacy: dict[str, list[dict]] = defaultdict(list)
+    for value in load_json(V2_CANDIDATE_PATH):
+        legacy_id = str(value.get("conceptID") or "").removeprefix("concept.")
+        v2_by_legacy[legacy_id].append(value)
+
+    output: list[dict] = []
+    for concept in sorted(master["concepts"], key=lambda value: value["conceptID"]):
+        allowed_formats = list(dict.fromkeys(concept["recommendedFormats"]))
+        if not confirmed_numeric_facts(concept):
+            allowed_formats = [
+                value for value in allowed_formats if value != "number_choice"
+            ]
+        candidates: list[tuple[str, str, dict]] = []
+        for legacy_id in sorted(concept["legacySourceIDs"]):
+            legacy = legacy_by_id[legacy_id]
+            candidates.append(
+                (
+                    str(legacy.get("format") or "true_false"),
+                    legacy_id,
+                    legacy,
+                )
+            )
+            candidates.extend(
+                (
+                    str(value.get("format") or "true_false"),
+                    legacy_id,
+                    value,
+                )
+                for value in v2_by_legacy.get(legacy_id, [])
+            )
+        selected_formats: set[str] = set()
+        selected_count = 0
+        for fmt, legacy_id, source in sorted(
+            candidates, key=lambda value: (value[0], value[1], str(value[2].get("id")))
+        ):
+            if (
+                fmt not in allowed_formats
+                or fmt in selected_formats
+                or selected_count >= concept["targetVariantCount"]
+            ):
+                continue
+            choices, correct_id = _normalized_variant_choices(source, fmt)
+            if len(choices) < 2:
+                continue
+            wrong = [value for value in choices if value["id"] != correct_id]
+            generic_rationale = any(
+                "variant校閲で確定" in str(value.get("rationale")) for value in wrong
+            )
+            variant_id = f"{FORMAT_ROUTE[fmt]}.01"
+            item_id = (
+                f"v18.{hashlib.sha256(concept['conceptID'].encode()).hexdigest()[:12]}."
+                f"{FORMAT_ROUTE[fmt]}"
+            )
+            rationale_map = {
+                value["id"]: value["rationale"] for value in wrong
+            }
+            output.append(
+                {
+                    "id": item_id,
+                    "conceptID": concept["conceptID"],
+                    "variantID": variant_id,
+                    "integratedConceptIDs": [],
+                    "sourceLegacyQuestionIDs": [legacy_id],
+                    "format": fmt,
+                    "recallRoute": FORMAT_ROUTE[fmt],
+                    "prompt": source.get("prompt") or concept["canonicalRule"],
+                    "choices": choices,
+                    "correctChoiceID": correct_id,
+                    "correctIndex": next(
+                        index
+                        for index, value in enumerate(choices)
+                        if value["id"] == correct_id
+                    ),
+                    "explanation": concept["canonicalRule"],
+                    "shortExplanation": concept["canonicalRule"],
+                    "longExplanation": (
+                        f"{concept['canonicalRule']} "
+                        "このAI草稿は問題単位の法令・誤答校閲前である。"
+                    ),
+                    "keyPoint": concept["title"],
+                    "preview": concept.get("preview"),
+                    "category": concept["category"],
+                    "subCategory": concept["subCategory"],
+                    "difficulty": "標準",
+                    "importance": {"A": "高", "B": "中", "C": "低"}[
+                        concept["importanceTier"]
+                    ],
+                    "estimatedSeconds": FORMAT_SECONDS[fmt],
+                    "unlockEligible": (
+                        fmt != "case_study" and FORMAT_SECONDS[fmt] <= 30
+                    ),
+                    "last30DaysEligible": True,
+                    "weaknessEligible": True,
+                    "wrongChoiceRationales": rationale_map,
+                    "sourceNote": None,
+                    "requiresSourceResearch": True,
+                    "reviewStatus": "ai_draft",
+                    "distractorReviewStatus": "pending",
+                    "reviewer": None,
+                    "reviewedAt": None,
+                    "reviewNote": None,
+                    "isPlaceholder": bool(
+                        source.get("isPlaceholder")
+                        or has_placeholder_content(source)
+                        or generic_rationale
+                    ),
+                    "authoringContext": {
+                        "sourceMasterStatus": master.get("status"),
+                        "conceptTitle": concept["title"],
+                        "canonicalRule": concept["canonicalRule"],
+                        "recommendedFormats": concept["recommendedFormats"],
+                        "numericFacts": confirmed_numeric_facts(concept),
+                    },
+                }
+            )
+            selected_formats.add(fmt)
+            selected_count += 1
+    variants = sorted(
+        output, key=lambda value: (value["conceptID"], value["variantID"])
+    )
+    return {
+        "schemaVersion": 1,
+        "packID": master["packID"],
+        "examYear": master.get("examYear"),
+        "lawBasisDate": master.get("lawBasisDate"),
+        "status": "ai_draft",
+        "sourceConceptMasterDigest": hashlib.sha256(
+            json.dumps(
+                master, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+            ).encode("utf-8")
+        ).hexdigest(),
+        "generationRule": (
+            "explicit reviewed Concept Master; human boundaries and format policy; "
+            "no fallback to Generated AI Master"
+        ),
+        "variants": variants,
+        "shortages": tier_variant_shortages(master, variants),
     }
 
 
@@ -1006,6 +1426,7 @@ def write_all_draft_assets() -> dict[str, dict]:
     write_json(GOLDEN_PATH, assets["golden"])
     write_json(VARIANTS_PATH, assets["variants"])
     write_json(RESEARCH_PATH, assets["research"])
+    write_json(FREE_SAMPLE_PROFILES_PATH, build_free_sample_profiles())
     return assets
 
 
@@ -1024,6 +1445,13 @@ def validate_concept_master(
     if len(concept_ids) != len(set(concept_ids)):
         errors.append("conceptID must be unique")
     concept_id_set = set(concept_ids)
+    plan = master.get("fullPackPlan") or {}
+    if (
+        plan.get("plannedStandaloneVariantCount") != 920
+        or plan.get("plannedIntegratedCaseCount") != 80
+        or plan.get("plannedTotalQuestionCount") != 1_000
+    ):
+        errors.append("concept master fullPackPlan must currently total 920 + 80 = 1000")
     legacy_owners: dict[str, str] = {}
     for concept in concepts:
         concept_id = concept.get("conceptID", "<unknown>")
@@ -1049,6 +1477,10 @@ def validate_concept_master(
         formats = concept.get("recommendedFormats") or []
         if not formats or not set(formats).issubset(ALLOWED_FORMATS):
             errors.append(f"{concept_id}: recommendedFormats are invalid")
+        if "number_choice" in formats and not confirmed_numeric_facts(concept):
+            errors.append(
+                f"{concept_id}: number_choice requires a human-reviewed numericFact"
+            )
         if tier == "A" and (counts[0] < 3 or len(set(formats)) < 3):
             errors.append(f"{concept_id}: A concept requires at least 3 useful formats")
         if tier == "C" and counts[2] > 2:
@@ -1056,6 +1488,17 @@ def validate_concept_master(
         for related in concept.get("relatedConceptIDs") or []:
             if related not in concept_id_set or related == concept_id:
                 errors.append(f"{concept_id}: unknown/self relatedConceptID {related}")
+        if not isinstance(concept.get("requiresAnnualReview"), bool):
+            errors.append(f"{concept_id}: requiresAnnualReview must be explicit")
+        if len(normalized(concept.get("annualReviewReason"))) < 8:
+            errors.append(f"{concept_id}: annualReviewReason is required")
+        for key in ("mergedFromConceptIDs", "supersedesConceptIDs"):
+            if not isinstance(concept.get(key, []), list):
+                errors.append(f"{concept_id}: {key} must be an array")
+        if concept.get("splitFromConceptID") is not None and not isinstance(
+            concept.get("splitFromConceptID"), str
+        ):
+            errors.append(f"{concept_id}: splitFromConceptID must be a string or null")
         legacy_ids = concept.get("legacySourceIDs") or []
         if not legacy_ids:
             errors.append(f"{concept_id}: legacySourceIDs must not be empty")
@@ -1072,8 +1515,11 @@ def validate_concept_master(
             notes = concept.get("sourceNotes") or []
             if not notes or not all(_has_traceable_source_note(value) for value in notes):
                 errors.append(f"{concept_id}: reviewed concept requires traceable sources")
-            if not concept.get("reviewer") or not concept.get("reviewedAt"):
+            reviewed_at = _parsed_review_date(concept.get("reviewedAt"))
+            if not concept.get("reviewer") or reviewed_at is None:
                 errors.append(f"{concept_id}: reviewed concept requires review metadata")
+            if concept.get("reviewDecision") not in ALLOWED_REVIEW_DECISIONS:
+                errors.append(f"{concept_id}: reviewed concept requires reviewDecision")
         elif concept.get("reviewStatus") != "ai_draft":
             errors.append(f"{concept_id}: unsupported concept reviewStatus")
     if known_legacy_ids is not None and set(legacy_owners) != known_legacy_ids:
@@ -1095,6 +1541,14 @@ def validate_legacy_inventory(
     if set(ids) != expected_ids:
         errors.append("legacy inventory must have orphan 0 and cover all 1,000 questions")
     concept_ids = {value["conceptID"] for value in master.get("concepts", [])}
+    expected_status = (
+        "reviewed_mapping"
+        if all(
+            value.get("reviewStatus") in {"reviewed", "release"}
+            for value in master.get("concepts", [])
+        )
+        else "ai_draft"
+    )
     by_id = {value.get("legacyQuestionID"): value for value in items}
     known_files = {relative for _, relative in LEGACY_SOURCES}
     for item in items:
@@ -1116,8 +1570,10 @@ def validate_legacy_inventory(
             normalized(item.get("reason"))
         ) < 12:
             errors.append(f"{item_id}: retirement/outdated reason is not concrete")
-        if item.get("status") != "ai_draft":
-            errors.append(f"{item_id}: inventory classification must remain ai_draft")
+        if item.get("status") != expected_status:
+            errors.append(
+                f"{item_id}: inventory status must be {expected_status} for this master"
+            )
     return errors
 
 
@@ -1142,8 +1598,17 @@ def validate_variant_quality(
         concept_id = variant.get("conceptID")
         if concept_id not in concepts:
             errors.append(f"{item_id}: unknown conceptID")
+            concept = {}
+        else:
+            concept = concepts[concept_id]
         if variant.get("format") not in ALLOWED_FORMATS:
             errors.append(f"{item_id}: unsupported format")
+        if variant.get("format") == "number_choice" and not confirmed_numeric_facts(
+            concept
+        ):
+            errors.append(
+                f"{item_id}: number_choice requires a human-reviewed numericFact"
+            )
         prompt_key = (concept_id, normalized(variant.get("prompt")))
         if prompt_key in prompt_owners:
             errors.append(
@@ -1168,6 +1633,8 @@ def validate_variant_quality(
         ):
             errors.append(f"{item_id}: unlock eligibility exceeds the 30-second policy")
         if require_reviewed:
+            if variant.get("isPlaceholder") is True:
+                errors.append(f"{item_id}: placeholder must not count as reviewed")
             if variant.get("reviewStatus") not in {"reviewed", "release"}:
                 errors.append(f"{item_id}: reviewed candidate contains ai_draft")
             if variant.get("distractorReviewStatus") != "checked":
@@ -1189,9 +1656,10 @@ def validate_variant_quality(
 
 
 def tier_variant_shortages(master: dict, variants: list[dict]) -> list[str]:
-    counts = Counter(value.get("conceptID") for value in variants)
+    countable = [value for value in variants if value.get("isPlaceholder") is not True]
+    counts = Counter(value.get("conceptID") for value in countable)
     formats: dict[str, set[str]] = defaultdict(set)
-    for value in variants:
+    for value in countable:
         formats[value.get("conceptID")].add(value.get("format"))
     shortages: list[str] = []
     for concept in master.get("concepts", []):
@@ -1206,16 +1674,32 @@ def tier_variant_shortages(master: dict, variants: list[dict]) -> list[str]:
     return shortages
 
 
-def format_balance_errors(variants: list[dict]) -> list[str]:
+def format_balance_errors(
+    variants: list[dict], master: dict | None = None, *, generated_draft: bool = False
+) -> list[str]:
     errors: list[str] = []
     count = max(1, len(variants))
-    ranges = {
-        "true_false": (0.25, 0.30),
-        "number_choice": (0.20, 0.25),
-        "wording_contrast": (0.20, 0.25),
-        "multiple_choice": (0.20, 0.25),
-        "case_study": (0.05, 0.10),
-    }
+    has_reviewed_numbers = bool(
+        master
+        and any(confirmed_numeric_facts(value) for value in master.get("concepts", []))
+    )
+    ranges = (
+        {
+            "true_false": (0.25, 0.30),
+            "number_choice": (0.20, 0.25),
+            "wording_contrast": (0.20, 0.25),
+            "multiple_choice": (0.20, 0.25),
+            "case_study": (0.05, 0.10),
+        }
+        if has_reviewed_numbers or not generated_draft
+        else {
+            "true_false": (0.25, 0.45),
+            "number_choice": (0.0, 0.0),
+            "wording_contrast": (0.20, 0.40),
+            "multiple_choice": (0.20, 0.40),
+            "case_study": (0.03, 0.15),
+        }
+    )
     counts = variant_counts(variants)
     for fmt, (minimum, maximum) in ranges.items():
         ratio = counts[fmt] / count
@@ -1229,16 +1713,14 @@ def format_balance_errors(variants: list[dict]) -> list[str]:
 def golden_candidate_errors(
     golden: dict, variants: list[dict], master: dict
 ) -> list[str]:
-    errors: list[str] = []
-    golden_ids = {value.get("conceptID") for value in golden.get("concepts", [])}
-    if len(golden.get("concepts", [])) != 100 or len(golden_ids) != 100:
-        errors.append("Golden candidate must contain exactly 100 concepts")
+    errors = validate_golden_question_set(golden, master)
+    golden_ids = set(golden_concept_ids(golden))
     if not 250 <= len(variants) <= 300:
         errors.append("Golden candidate must contain 250-300 variants")
     if {value.get("conceptID") for value in variants} != golden_ids:
         errors.append("Golden variants must cover every Golden concept")
     errors.extend(validate_variant_quality(variants, master, require_reviewed=True))
-    errors.extend(format_balance_errors(variants))
+    errors.extend(format_balance_errors(variants, master))
     manifest = {
         "qualification": {"examYear": 2026, "lawBasisDate": "2026-04-01"},
         "choiceOrderStrategy": "seeded_shuffle",
@@ -1247,7 +1729,14 @@ def golden_candidate_errors(
     shortages = [
         value
         for value in tier_variant_shortages(
-            {"concepts": golden.get("concepts", [])}, variants
+            {
+                "concepts": [
+                    value
+                    for value in master.get("concepts", [])
+                    if value["conceptID"] in golden_ids
+                ]
+            },
+            variants,
         )
     ]
     errors.extend(f"Golden shortage: {value}" for value in shortages)
@@ -1258,14 +1747,62 @@ def full_pack_candidate_errors(
     variants: list[dict], master: dict, inventory: dict
 ) -> list[str]:
     errors: list[str] = []
-    if len(variants) < 1_000:
-        errors.append("full pack must contain at least 1,000 variants")
+    plan = master.get("fullPackPlan") or {}
+    planned_standalone = plan.get("plannedStandaloneVariantCount")
+    planned_integrated = plan.get("plannedIntegratedCaseCount")
+    planned_total = plan.get("plannedTotalQuestionCount")
+    integrated = [
+        value for value in variants if value.get("integratedConceptIDs")
+    ]
+    standalone = [
+        value for value in variants if not value.get("integratedConceptIDs")
+    ]
+    if len(variants) != planned_total:
+        errors.append(f"full pack must contain planned total {planned_total}")
+    if len(standalone) != planned_standalone:
+        errors.append(
+            f"full pack standalone count must be {planned_standalone}"
+        )
+    if len(integrated) != planned_integrated:
+        errors.append(
+            f"full pack integrated case count must be {planned_integrated}"
+        )
     concepts = {value.get("conceptID") for value in variants}
     if not 350 <= len(concepts) <= 450:
         errors.append("full pack must cover 350-450 concepts")
     errors.extend(validate_variant_quality(variants, master, require_reviewed=True))
-    errors.extend(format_balance_errors(variants))
+    errors.extend(format_balance_errors(variants, master))
     errors.extend(tier_variant_shortages(master, variants))
+    master_ids = {value["conceptID"] for value in master.get("concepts", [])}
+    for value in integrated:
+        related = value.get("integratedConceptIDs") or []
+        if (
+            value.get("format") != "case_study"
+            or len(set(related)) < 2
+            or not set(related).issubset(master_ids)
+        ):
+            errors.append(
+                f"{value.get('id')}: integrated case requires 2+ known concept IDs"
+            )
+    represented_categories = {value.get("category") for value in variants}
+    expected_categories = {value.get("category") for value in master.get("concepts", [])}
+    if represented_categories != expected_categories:
+        errors.append("full pack must cover every master category")
+    represented_tiers = {
+        next(
+            (
+                concept.get("importanceTier")
+                for concept in master.get("concepts", [])
+                if concept.get("conceptID") == value.get("conceptID")
+            ),
+            None,
+        )
+        for value in variants
+    }
+    if not {"A", "B", "C"}.issubset(represented_tiers):
+        errors.append("full pack must cover every importance tier")
+    if len({value.get("format") for value in variants}) < 4:
+        errors.append("full pack must provide at least four useful formats")
     inventory_items = inventory.get("items") or []
     if len(inventory_items) != 1_000 or any(
         value.get("disposition") not in ALLOWED_DISPOSITIONS for value in inventory_items
@@ -1284,8 +1821,8 @@ def free_sample_selection_errors(
     for variant in variants:
         by_concept[variant["conceptID"]].append(variant)
     selected = []
-    for concept in golden["concepts"]:
-        candidates = by_concept[concept["conceptID"]]
+    for concept_id in golden_concept_ids(golden):
+        candidates = by_concept[concept_id]
         selected.append(
             min(
                 candidates,
@@ -1297,9 +1834,168 @@ def free_sample_selection_errors(
                 ),
             )
         )
-    if len(selected) != 100 or len({value["conceptID"] for value in selected}) != 100:
-        errors.append("free sample must contain exactly 100 distinct concepts")
+    if len(selected) != len(golden_concept_ids(golden)):
+        errors.append("default free sample must represent every Golden concept")
     return errors, sorted(selected, key=lambda value: value["conceptID"])
+
+
+def build_free_sample_profiles() -> dict:
+    return {
+        "schemaVersion": 1,
+        "workflowVersion": 18,
+        "profiles": [
+            {
+                "profileID": "current-gyoho-100",
+                "title": "現在の商品方針（宅建業法100問）",
+                "questionCount": 100,
+                "scope": "golden_questions",
+                "minimumDistinctConceptCount": 50,
+                "maximumQuestionsPerConcept": 2,
+                "categoryTargets": {"宅建業法": 100},
+                "formatTargets": {},
+                "difficultyTargets": {},
+                "minimumUnlockEligibleCount": 90,
+                "maximumCaseStudyCount": 0,
+            },
+            {
+                "profileID": "all-fields-balanced-100",
+                "title": "全分野体験版100問",
+                "questionCount": 100,
+                "scope": "all_reviewed_concepts",
+                "minimumDistinctConceptCount": 80,
+                "maximumQuestionsPerConcept": 2,
+                "categoryTargets": {
+                    "宅建業法": 30,
+                    "権利関係": 30,
+                    "法令上の制限": 20,
+                    "税・その他": 20,
+                },
+                "formatTargets": {
+                    "true_false": 30,
+                    "number_choice": 15,
+                    "wording_contrast": 20,
+                    "multiple_choice": 30,
+                    "case_study": 5,
+                },
+                "difficultyTargets": {},
+                "minimumUnlockEligibleCount": 75,
+                "maximumCaseStudyCount": 5,
+            },
+        ],
+    }
+
+
+def select_free_sample_with_profile(
+    variants: list[dict], master: dict, golden: dict, profile: dict
+) -> tuple[list[str], list[dict]]:
+    errors = validate_variant_quality(variants, master, require_reviewed=True)
+    if errors:
+        return errors, []
+    scope = profile.get("scope")
+    golden_ids = set(golden_concept_ids(golden))
+    pool = [
+        value
+        for value in variants
+        if scope != "golden_questions" or value.get("conceptID") in golden_ids
+    ]
+    question_count = profile.get("questionCount")
+    maximum_per_concept = profile.get("maximumQuestionsPerConcept")
+    if not isinstance(question_count, int) or question_count <= 0:
+        return ["free sample profile questionCount is invalid"], []
+    if not isinstance(maximum_per_concept, int) or maximum_per_concept <= 0:
+        return ["free sample profile maximumQuestionsPerConcept is invalid"], []
+
+    category_targets = profile.get("categoryTargets") or {}
+    format_targets = profile.get("formatTargets") or {}
+    difficulty_targets = profile.get("difficultyTargets") or {}
+    category_counts: Counter = Counter()
+    format_counts: Counter = Counter()
+    difficulty_counts: Counter = Counter()
+    concept_counts: Counter = Counter()
+    selected: list[dict] = []
+    remaining = sorted(pool, key=lambda value: (value["conceptID"], value["variantID"]))
+    while len(selected) < question_count:
+        eligible = [
+            value
+            for value in remaining
+            if concept_counts[value["conceptID"]] < maximum_per_concept
+            and (
+                not category_targets
+                or category_counts[value["category"]]
+                < category_targets.get(value["category"], 0)
+            )
+            and (
+                not format_targets
+                or format_counts[value["format"]]
+                < format_targets.get(value["format"], 0)
+            )
+            and (
+                not difficulty_targets
+                or difficulty_counts[value["difficulty"]]
+                < difficulty_targets.get(value["difficulty"], 0)
+            )
+            and (
+                value["format"] != "case_study"
+                or format_counts["case_study"]
+                < profile.get("maximumCaseStudyCount", question_count)
+            )
+        ]
+        if not eligible:
+            errors.append(
+                f"free sample profile cannot fill {question_count} questions "
+                f"(selected {len(selected)})"
+            )
+            break
+
+        def rank(value: dict) -> tuple:
+            category_deficit = category_targets.get(value["category"], 0) - category_counts[
+                value["category"]
+            ]
+            format_deficit = format_targets.get(value["format"], 0) - format_counts[
+                value["format"]
+            ]
+            difficulty_deficit = difficulty_targets.get(
+                value["difficulty"], 0
+            ) - difficulty_counts[value["difficulty"]]
+            return (
+                -category_deficit if category_targets else 0,
+                -format_deficit if format_targets else 0,
+                -difficulty_deficit if difficulty_targets else 0,
+                concept_counts[value["conceptID"]],
+                not value.get("unlockEligible", False),
+                value.get("estimatedSeconds", 999),
+                value["conceptID"],
+                value["variantID"],
+            )
+
+        chosen = min(eligible, key=rank)
+        selected.append(chosen)
+        remaining.remove(chosen)
+        category_counts[chosen["category"]] += 1
+        format_counts[chosen["format"]] += 1
+        difficulty_counts[chosen["difficulty"]] += 1
+        concept_counts[chosen["conceptID"]] += 1
+
+    for label, targets, counts in (
+        ("category", category_targets, category_counts),
+        ("format", format_targets, format_counts),
+        ("difficulty", difficulty_targets, difficulty_counts),
+    ):
+        if targets and any(counts[key] != target for key, target in targets.items()):
+            errors.append(f"free sample {label} targets were not satisfied")
+    if len(concept_counts) < profile.get("minimumDistinctConceptCount", 0):
+        errors.append("free sample distinct concept target was not satisfied")
+    if (
+        sum(value.get("unlockEligible") is True for value in selected)
+        < profile.get("minimumUnlockEligibleCount", 0)
+    ):
+        errors.append("free sample unlockEligible target was not satisfied")
+    if (
+        sum(value.get("format") == "case_study" for value in selected)
+        > profile.get("maximumCaseStudyCount", question_count)
+    ):
+        errors.append("free sample case-study maximum was exceeded")
+    return errors, selected
 
 
 def audit_snapshot() -> tuple[dict, list[str]]:
@@ -1315,11 +2011,10 @@ def audit_snapshot() -> tuple[dict, list[str]]:
     errors.extend(validate_concept_master(master, known_ids))
     errors.extend(validate_legacy_inventory(inventory, master, records))
     errors.extend(validate_variant_quality(variants, master, require_reviewed=False))
-    if len(golden.get("concepts", [])) != 100:
-        errors.append("Golden draft must contain exactly 100 concepts")
+    errors.extend(validate_golden_question_set(golden, master))
     if not 250 <= len(variants) <= 300:
         errors.append("Golden variant draft must contain 250-300 variants")
-    errors.extend(format_balance_errors(variants))
+    errors.extend(format_balance_errors(variants, master, generated_draft=True))
     if len(research.get("items") or []) != len(master.get("concepts") or []):
         errors.append("source research queue must cover every draft concept")
     if any(value.get("status") != "pending" for value in research.get("items") or []):
@@ -1368,7 +2063,8 @@ def audit_snapshot() -> tuple[dict, list[str]]:
             ),
         },
         "golden": {
-            "conceptCount": len(golden.get("concepts") or []),
+            "questionCount": len(golden.get("goldenQuestionIDs") or []),
+            "conceptCount": golden.get("distinctConceptCount"),
             "variantCount": len(variants),
             "formatDistribution": dict(sorted(variant_counts(variants).items())),
             "formatRatios": {

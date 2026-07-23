@@ -1,0 +1,486 @@
+# 宅建Concept Boundary Audit v18
+
+- Warning: 468件
+- Warningは自動merge / splitを行わない。
+
+| type | count |
+|---|---:|
+| `exact_canonical_rule` | 1 |
+| `exact_title` | 1 |
+| `high_prompt_similarity` | 1 |
+| `known_semantic_duplicate_candidate` | 3 |
+| `low_cluster_similarity` | 9 |
+| `multi_rule_title` | 274 |
+| `normalized_keypoint_match` | 3 |
+| `three_or_more_rules` | 176 |
+
+## Review candidates
+
+- `boundary.640f47dcda734675` exact_canonical_rule: takken.gyoho.broker.broker-document-37-006, takken.gyoho.contract-document-37.broker-document-37-003 — normalized canonicalRule is identical
+- `boundary.af145f532ddea9e3` exact_title: takken.gyoho.contract-document-37.disclosure-document-37-002, takken.gyoho.disclosure-35.disclosure-document-37-016 — normalized title is identical
+- `boundary.cf6a8d8591aee61c` high_prompt_similarity: takken.gyoho.disclosure-35.disclosure-001, takken.gyoho.disclosure-35.disclosure-document-37-002 — separate concepts have high semantic prompt similarity
+- `boundary.5277021dba645df2` known_semantic_duplicate_candidate: takken.gyoho.disclosure-35.disclosure-001, takken.gyoho.disclosure-35.disclosure-document-37-002 — known Golden pair requires an explicit accept/merge decision
+- `boundary.8fec96ed46d781d3` known_semantic_duplicate_candidate: takken.gyoho.broker.broker-document-37-006, takken.gyoho.contract-document-37.broker-document-37-003 — known Golden pair requires an explicit accept/merge decision
+- `boundary.ff106010b7da5fee` known_semantic_duplicate_candidate: takken.gyoho.contract-document-37.disclosure-document-37-002, takken.gyoho.disclosure-35.disclosure-document-37-016 — known Golden pair requires an explicit accept/merge decision
+- `boundary.2433f46c3926dfa0` low_cluster_similarity: takken.tax-other.land.core-rule-004 — cluster contains a low-similarity legacy pair
+- `boundary.274e0896affa6a5d` low_cluster_similarity: takken.regulation.cross-topic.city-plan-development-permission-001 — cluster contains a low-similarity legacy pair
+- `boundary.44311359a5a5044f` low_cluster_similarity: takken.rights.obligations.core-rule-013 — cluster contains a low-similarity legacy pair
+- `boundary.5598e9615dce5e0f` low_cluster_similarity: takken.tax-other.buildings.core-rule-003 — cluster contains a low-similarity legacy pair
+- `boundary.6f2b23c7201a84fe` low_cluster_similarity: takken.tax-other.buildings.core-rule-001 — cluster contains a low-similarity legacy pair
+- `boundary.7c0ce3a606f18778` low_cluster_similarity: takken.rights.contracts-sales.core-rule-010 — cluster contains a low-similarity legacy pair
+- `boundary.944f5b7d127a9653` low_cluster_similarity: takken.regulation.building-standards.floor-area-ratio-building-coverage-012 — cluster contains a low-similarity legacy pair
+- `boundary.a53301bb5ce355f5` low_cluster_similarity: takken.gyoho.license.license-renewal-003 — cluster contains a low-similarity legacy pair
+- `boundary.c962779c60658546` low_cluster_similarity: takken.rights.inheritance.inheritance-006 — cluster contains a low-similarity legacy pair
+- `boundary.00e8be64f3c0fa9f` multi_rule_title: takken.rights.property-rights.registration-002 — title contains 1 rule separator(s)
+- `boundary.00f18badf97f07f3` multi_rule_title: takken.gyoho.disclosure-35.disclosure-012 — title contains 1 rule separator(s)
+- `boundary.0155c7ab361b03af` multi_rule_title: takken.gyoho.disclosure-35.disclosure-document-37-002 — title contains 1 rule separator(s)
+- `boundary.0370676801c778ec` multi_rule_title: takken.gyoho.fees.fee-005 — title contains 1 rule separator(s)
+- `boundary.03c29c98f5aeaddc` multi_rule_title: takken.rights.property-rights.registration-015 — title contains 1 rule separator(s)
+- `boundary.050ce75f715f6e77` multi_rule_title: takken.rights.civil-general.limitation-period-015 — title contains 1 rule separator(s)
+- `boundary.05c8b75f534b2917` multi_rule_title: takken.gyoho.brokerage.exclusive-brokerage-007 — title contains 1 rule separator(s)
+- `boundary.05d3a460ac9b071f` multi_rule_title: takken.gyoho.contract-document-37.document-37-007 — title contains 1 rule separator(s)
+- `boundary.05ea12ad0fb18e47` multi_rule_title: takken.gyoho.license.city-plan-zoning-014 — title contains 1 rule separator(s)
+- `boundary.06540b3de1fc6a1e` multi_rule_title: takken.rights.leases.lease-rescission-014 — title contains 1 rule separator(s)
+- `boundary.0668409ce91cf1a0` multi_rule_title: takken.tax-other.tax-relief.tax-relief-003 — title contains 1 rule separator(s)
+- `boundary.09bf997a4e348af7` multi_rule_title: takken.rights.mortgage.guarantee-mortgage-002 — title contains 1 rule separator(s)
+- `boundary.0aaa3ede501312f0` multi_rule_title: takken.rights.inheritance.inheritance-003 — title contains 1 rule separator(s)
+- `boundary.0abb658856645ed6` multi_rule_title: takken.rights.obligations.rescission-003 — title contains 1 rule separator(s)
+- `boundary.0ac80978dd4350ca` multi_rule_title: takken.gyoho.broker.broker-009 — title contains 1 rule separator(s)
+- `boundary.0b08931f33bb172b` multi_rule_title: takken.gyoho.deposit.office-guarantee-011 — title contains 1 rule separator(s)
+- `boundary.0c2e9b18777ba877` multi_rule_title: takken.gyoho.broker.office-broker-014 — title contains 1 rule separator(s)
+- `boundary.0dfc5148df4fd447` multi_rule_title: takken.rights.obligations.core-rule-005 — title contains 1 rule separator(s)
+- `boundary.0e15f9c69eba1302` multi_rule_title: takken.rights.leases.lease-land-lease-016 — title contains 1 rule separator(s)
+- `boundary.0fc9eb822503db25` multi_rule_title: takken.regulation.city-planning.core-rule-005 — title contains 1 rule separator(s)
+- `boundary.1006532d02361da7` multi_rule_title: takken.tax-other.buildings.core-rule-002 — title contains 1 rule separator(s)
+- `boundary.10117bcad4dc398f` multi_rule_title: takken.regulation.agricultural-land.registration-agricultural-land-001 — title contains 1 rule separator(s)
+- `boundary.139b5e9576840396` multi_rule_title: takken.rights.contracts-sales.nonconformity-005 — title contains 1 rule separator(s)
+- `boundary.13b535e4b6c0a704` multi_rule_title: takken.regulation.city-planning.city-plan-zoning-004 — title contains 1 rule separator(s)
+- `boundary.151b04b578229e18` multi_rule_title: takken.gyoho.contract-document-37.document-37-011 — title contains 1 rule separator(s)
+- `boundary.158238c03046aec5` multi_rule_title: takken.gyoho.contract-document-37.document-37-001 — title contains 1 rule separator(s)
+- `boundary.164ead6dab0804ab` multi_rule_title: takken.rights.property-rights.co-ownership-009 — title contains 1 rule separator(s)
+- `boundary.168a7bba0d22c4c2` multi_rule_title: takken.regulation.cross-topic.city-plan-development-permission-001 — title contains 1 rule separator(s)
+- `boundary.16da1f89c6209769` multi_rule_title: takken.tax-other.registration-tax.license-inheritance-002 — title contains 1 rule separator(s)
+- `boundary.18e3a0fd17d85167` multi_rule_title: takken.rights.civil-general.deadline-018 — title contains 1 rule separator(s)
+- `boundary.1981e2f9b84b135a` multi_rule_title: takken.tax-other.housing-finance.core-rule-001 — title contains 1 rule separator(s)
+- `boundary.19ba0808a92f82cb` multi_rule_title: takken.rights.obligations.core-rule-013 — title contains 1 rule separator(s)
+- `boundary.1b454b1b951307f0` multi_rule_title: takken.regulation.embankment.embankment-007 — title contains 1 rule separator(s)
+- `boundary.1ba35994d59e4f16` multi_rule_title: takken.tax-other.advertising.advertising-002 — title contains 1 rule separator(s)
+- `boundary.1c22f8033ff3954f` multi_rule_title: takken.rights.leases.lease-land-lease-010 — title contains 1 rule separator(s)
+- `boundary.1dfebacb012b8b73` multi_rule_title: takken.tax-other.land.core-rule-004 — title contains 1 rule separator(s)
+- `boundary.1ebddded75a9bf17` multi_rule_title: takken.gyoho.disclosure-35.broker-disclosure-003 — title contains 1 rule separator(s)
+- `boundary.20a90dd143ca4092` multi_rule_title: takken.tax-other.statistics.tax-land-price-001 — title contains 1 rule separator(s)
+- `boundary.21419eebb3ac4523` multi_rule_title: takken.gyoho.brokerage.exclusive-brokerage-009 — title contains 1 rule separator(s)
+- `boundary.216fe923ee33ce2c` multi_rule_title: takken.gyoho.brokerage.brokerage-001 — title contains 1 rule separator(s)
+- `boundary.23f8bd3745408623` multi_rule_title: takken.rights.property-rights.registration-003 — title contains 1 rule separator(s)
+- `boundary.24fc18c6328c3089` multi_rule_title: takken.rights.obligations.core-rule-007 — title contains 1 rule separator(s)
+- `boundary.25335edca9549340` multi_rule_title: takken.gyoho.deposit.guarantee-008 — title contains 1 rule separator(s)
+- `boundary.25a00b794faf2111` multi_rule_title: takken.tax-other.income-tax.inheritance-period-004 — title contains 1 rule separator(s)
+- `boundary.25da181bb8206ae9` multi_rule_title: takken.regulation.cross-topic.road-access-floor-area-ratio-003 — title contains 1 rule separator(s)
+- `boundary.2693175a62e434e7` multi_rule_title: takken.rights.mortgage.mortgage-registration-003 — title contains 1 rule separator(s)
+- `boundary.28fe9492d9f12dde` multi_rule_title: takken.gyoho.contract-document-37.broker-document-37-003 — title contains 1 rule separator(s)
+- `boundary.297d63ae488da4e3` multi_rule_title: takken.regulation.building-standards.building-confirmation-019 — title contains 1 rule separator(s)
+- `boundary.2a587e6db3931831` multi_rule_title: takken.rights.property-rights.core-rule-012 — title contains 1 rule separator(s)
+- `boundary.2c34f6deadf4389c` multi_rule_title: takken.regulation.land-use.city-plan-notification-005 — title contains 1 rule separator(s)
+- `boundary.2e0f40879bb29ac4` multi_rule_title: takken.regulation.building-standards.core-rule-020 — title contains 1 rule separator(s)
+- `boundary.313d42a76260008e` multi_rule_title: takken.rights.civil-general.agency-008 — title contains 1 rule separator(s)
+- `boundary.31e8fe254d2dc9d7` multi_rule_title: takken.tax-other.acquisition-tax.tax-relief-004 — title contains 1 rule separator(s)
+- `boundary.32bcc6713b883586` multi_rule_title: takken.tax-other.tax-relief.license-registration-001 — title contains 1 rule separator(s)
+- `boundary.37c6026481ffcf68` multi_rule_title: takken.regulation.land-use.notification-001 — title contains 1 rule separator(s)
+- `boundary.381ab0c393d2faa5` multi_rule_title: takken.tax-other.advertising.advertising-003 — title contains 1 rule separator(s)
+- `boundary.381bc30379a34dcc` multi_rule_title: takken.regulation.city-planning.city-plan-001 — title contains 1 rule separator(s)
+- `boundary.396ab6c39fe631d6` multi_rule_title: takken.regulation.embankment.embankment-003 — title contains 1 rule separator(s)
+- `boundary.3a5dc5d976b32387` multi_rule_title: takken.regulation.land-readjustment.core-rule-004 — title contains 1 rule separator(s)
+- `boundary.3b2b9693ebfb8679` multi_rule_title: takken.tax-other.advertising.building-confirmation-advertising-004 — title contains 1 rule separator(s)
+- `boundary.3b4fa59ddd9afb30` multi_rule_title: takken.rights.civil-general.declaration-003 — title contains 1 rule separator(s)
+- `boundary.3b55dec47aa8d985` multi_rule_title: takken.regulation.building-standards.zoning-008 — title contains 1 rule separator(s)
+- `boundary.3b89262be17aa022` multi_rule_title: takken.gyoho.seller-restrictions.deposit-005 — title contains 1 rule separator(s)
+- `boundary.3c361b58b944c78e` multi_rule_title: takken.regulation.building-standards.building-confirmation-005 — title contains 1 rule separator(s)
+- `boundary.3c5f37032f001cf9` multi_rule_title: takken.rights.inheritance.inheritance-002 — title contains 1 rule separator(s)
+- `boundary.3d248a6fea77c0c8` multi_rule_title: takken.tax-other.buildings.core-rule-001 — title contains 1 rule separator(s)
+- `boundary.3dbae23fc6972bcf` multi_rule_title: takken.gyoho.office-records.period-009 — title contains 1 rule separator(s)
+- `boundary.3fe754d7f96daae1` multi_rule_title: takken.gyoho.disclosure-35.disclosure-deposit-011 — title contains 1 rule separator(s)
+- `boundary.403c8920a8183177` multi_rule_title: takken.tax-other.stamp-tax.tax-003 — title contains 1 rule separator(s)
+- `boundary.41be912b9cbc68b1` multi_rule_title: takken.tax-other.land.embankment-002 — title contains 1 rule separator(s)
+- `boundary.4339adf8b80e8193` multi_rule_title: takken.rights.property-rights.core-rule-007 — title contains 1 rule separator(s)
+- `boundary.43e8404ae30c4255` multi_rule_title: takken.gyoho.deposit.guarantee-depositing-007 — title contains 1 rule separator(s)
+- `boundary.43eadf4d6a159170` multi_rule_title: takken.gyoho.deposit.office-guarantee-004 — title contains 1 rule separator(s)
+- `boundary.44b5d1e333e9f98a` multi_rule_title: takken.gyoho.guarantee-association.guarantee-depositing-001 — title contains 1 rule separator(s)
+- `boundary.464f9cf9efba7e07` multi_rule_title: takken.tax-other.land-price-publication.land-price-001 — title contains 1 rule separator(s)
+- `boundary.46612ab6ebed58e4` multi_rule_title: takken.tax-other.appraisal.core-rule-002 — title contains 1 rule separator(s)
+- `boundary.48c8492e7b44177d` multi_rule_title: takken.rights.contracts-sales.deposit-nonconformity-004 — title contains 1 rule separator(s)
+- `boundary.4a13271120e4af3d` multi_rule_title: takken.rights.contracts-sales.lease-011 — title contains 1 rule separator(s)
+- `boundary.4a137f8390fc2eba` multi_rule_title: takken.regulation.land-use.mortgage-inheritance-006 — title contains 1 rule separator(s)
+- `boundary.4af24f0817c5919c` multi_rule_title: takken.rights.cross-topic.renewal-guarantee-003 — title contains 1 rule separator(s)
+- `boundary.4afe082a98424de4` multi_rule_title: takken.tax-other.land-price-publication.land-price-appraisal-003 — title contains 1 rule separator(s)
+- `boundary.4cb0aa578d0227b1` multi_rule_title: takken.regulation.building-standards.core-rule-015 — title contains 1 rule separator(s)
+- `boundary.4ce4e8b20cdc46c6` multi_rule_title: takken.tax-other.buildings.city-plan-005 — title contains 1 rule separator(s)
+- `boundary.4d04145b9e7786eb` multi_rule_title: takken.tax-other.acquisition-tax.tax-period-005 — title contains 1 rule separator(s)
+- `boundary.4d0b03d479ab3324` multi_rule_title: takken.tax-other.appraisal.appraisal-001 — title contains 1 rule separator(s)
+- `boundary.4d6cddded19fc14f` multi_rule_title: takken.gyoho.broker.broker-period-003 — title contains 1 rule separator(s)
+- `boundary.4d8599c62c814468` multi_rule_title: takken.gyoho.license.license-009 — title contains 1 rule separator(s)
+- `boundary.4e23b9ab54d98d6d` multi_rule_title: takken.regulation.agricultural-land.agricultural-land-002 — title contains 1 rule separator(s)
+- `boundary.4e8d5d12ec98aa50` multi_rule_title: takken.rights.leases.land-lease-building-lease-001 — title contains 1 rule separator(s)
+- `boundary.4f718cf03ac51df0` multi_rule_title: takken.regulation.city-planning.development-permission-006 — title contains 1 rule separator(s)
+- `boundary.4fe6be1f61b69812` multi_rule_title: takken.tax-other.statistics.land-price-statistics-004 — title contains 1 rule separator(s)
+- `boundary.51a82f2f32ee26a1` multi_rule_title: takken.regulation.city-planning.development-permission-notification-010 — title contains 1 rule separator(s)
+- `boundary.5355b5c47a1952dc` multi_rule_title: takken.rights.civil-general.core-rule-004 — title contains 1 rule separator(s)
+- `boundary.536085622e6694a1` multi_rule_title: takken.tax-other.stamp-tax.registration-tax-001 — title contains 1 rule separator(s)
+- `boundary.555eee6861ba04b4` multi_rule_title: takken.regulation.building-standards.city-plan-001 — title contains 1 rule separator(s)
+- `boundary.563a5a3d615cf78b` multi_rule_title: takken.tax-other.land.core-rule-005 — title contains 1 rule separator(s)
+- `boundary.56b637cd87a727bd` multi_rule_title: takken.rights.obligations.guarantee-009 — title contains 1 rule separator(s)
+- `boundary.57eaa87bc22b418c` multi_rule_title: takken.tax-other.fixed-asset-tax.tax-taxation-005 — title contains 1 rule separator(s)
+- `boundary.58234ab6b4a88b8e` multi_rule_title: takken.regulation.land-readjustment.core-rule-002 — title contains 1 rule separator(s)
+- `boundary.5aad348211d066d1` multi_rule_title: takken.rights.civil-general.agency-010 — title contains 1 rule separator(s)
+- `boundary.5b5c77b9dbc84dd5` multi_rule_title: takken.rights.civil-general.agency-cancellation-011 — title contains 1 rule separator(s)
+- `boundary.5be5cf6e01a57861` multi_rule_title: takken.rights.registration.mortgage-registration-002 — title contains 1 rule separator(s)
+- `boundary.5c68a7db4de52950` multi_rule_title: takken.tax-other.fixed-asset-tax.tax-taxation-001 — title contains 1 rule separator(s)
+- `boundary.5d2c2b70ae8e0c65` multi_rule_title: takken.regulation.land-readjustment.core-rule-003 — title contains 1 rule separator(s)
+- `boundary.5e51b64bf255c4b8` multi_rule_title: takken.gyoho.license.license-notification-011 — title contains 1 rule separator(s)
+- `boundary.5fc689d15f265de0` multi_rule_title: takken.rights.leases.renewal-lease-004 — title contains 1 rule separator(s)
+- `boundary.60f85f30ed52ab3d` multi_rule_title: takken.rights.contracts-sales.registration-rescission-003 — title contains 1 rule separator(s)
+- `boundary.615727825447846f` multi_rule_title: takken.gyoho.disclosure-35.disclosure-document-37-010 — title contains 1 rule separator(s)
+- `boundary.619ce86334656309` multi_rule_title: takken.regulation.city-planning.city-plan-development-permission-011 — title contains 1 rule separator(s)
+- `boundary.63bac8683452031d` multi_rule_title: takken.rights.obligations.core-rule-006 — title contains 1 rule separator(s)
+- `boundary.65b24b8ab57766c9` multi_rule_title: takken.rights.condominium.core-rule-004 — title contains 1 rule separator(s)
+- `boundary.67625f6eacac1057` multi_rule_title: takken.rights.mortgage.mortgage-010 — title contains 1 rule separator(s)
+- `boundary.6a88a6bebde9be15` multi_rule_title: takken.rights.obligations.depositing-012 — title contains 1 rule separator(s)
+- `boundary.6b58feaa35a1dd2a` multi_rule_title: takken.rights.leases.renewal-land-lease-002 — title contains 1 rule separator(s)
+- `boundary.6c27c4a8d6d181cd` multi_rule_title: takken.tax-other.housing-finance.license-cancellation-003 — title contains 1 rule separator(s)
+- `boundary.6d0200d9cb8c0a82` multi_rule_title: takken.gyoho.brokerage.exclusive-brokerage-006 — title contains 1 rule separator(s)
+- `boundary.6e1ce30c2d3a39ae` multi_rule_title: takken.rights.leases.lease-building-lease-012 — title contains 1 rule separator(s)
+- `boundary.6f1c65d01ff33402` multi_rule_title: takken.gyoho.supervision.license-broker-001 — title contains 1 rule separator(s)
+- `boundary.700bc8aaa4cc9be2` multi_rule_title: takken.rights.leases.land-lease-period-006 — title contains 1 rule separator(s)
+- `boundary.7058efd6e7864f56` multi_rule_title: takken.regulation.building-standards.zoning-floor-area-ratio-016 — title contains 1 rule separator(s)
+- `boundary.71ce6ef9a6490518` multi_rule_title: takken.rights.mortgage.mortgage-005 — title contains 1 rule separator(s)
+- `boundary.71d1c41ba7ad1030` multi_rule_title: takken.rights.civil-general.limitation-cancellation-016 — title contains 1 rule separator(s)
+- `boundary.722f4fcfe71a9685` multi_rule_title: takken.rights.mortgage.guarantee-mortgage-001 — title contains 1 rule separator(s)
+- `boundary.7245d4a84f80bc57` multi_rule_title: takken.regulation.agricultural-land.agricultural-land-003 — title contains 1 rule separator(s)
+- `boundary.742bf0a6c0106a3d` multi_rule_title: takken.regulation.building-standards.core-rule-003 — title contains 1 rule separator(s)
+- `boundary.75234bc1477129b1` multi_rule_title: takken.rights.registration.inheritance-registration-003 — title contains 1 rule separator(s)
+- `boundary.760409e824ea041b` multi_rule_title: takken.tax-other.housing-finance.period-004 — title contains 1 rule separator(s)
+- `boundary.774d5425db243f35` multi_rule_title: takken.tax-other.tax-relief.license-tax-002 — title contains 1 rule separator(s)
+- `boundary.783a66bcde0afef6` multi_rule_title: takken.rights.inheritance.core-rule-007 — title contains 1 rule separator(s)
+- `boundary.7894ddc3e4b92285` multi_rule_title: takken.gyoho.seller-restrictions.deposit-006 — title contains 1 rule separator(s)
+- `boundary.7920387fb41ba787` multi_rule_title: takken.gyoho.broker.renewal-broker-002 — title contains 1 rule separator(s)
+- `boundary.79ae9045a17b76ab` multi_rule_title: takken.gyoho.guarantee-association.guarantee-006 — title contains 1 rule separator(s)
+- `boundary.7b1f3c60b1e3288d` multi_rule_title: takken.gyoho.brokerage.exclusive-brokerage-003 — title contains 1 rule separator(s)
+- `boundary.7c5ee142aadc50e0` multi_rule_title: takken.rights.obligations.cancellation-001 — title contains 1 rule separator(s)
+- `boundary.7c6f0f7d53f672a7` multi_rule_title: takken.gyoho.contract-document-37.document-37-registration-009 — title contains 1 rule separator(s)
+- `boundary.7e6db5601840b264` multi_rule_title: takken.gyoho.office-records.broker-exclusive-003 — title contains 1 rule separator(s)
+- `boundary.7f35024b7d85cf69` multi_rule_title: takken.tax-other.advertising.advertising-006 — title contains 1 rule separator(s)
+- `boundary.817c62eebce9031c` multi_rule_title: takken.tax-other.acquisition-tax.tax-taxation-002 — title contains 1 rule separator(s)
+- `boundary.819ff6b1f1009a4e` multi_rule_title: takken.gyoho.fees.brokerage-fee-004 — title contains 1 rule separator(s)
+- `boundary.81a377ba522fad0b` multi_rule_title: takken.tax-other.stamp-tax.license-registration-002 — title contains 1 rule separator(s)
+- `boundary.82d4cb4d82c150ef` multi_rule_title: takken.tax-other.acquisition-tax.inheritance-tax-003 — title contains 1 rule separator(s)
+- `boundary.836574d2baaa0760` multi_rule_title: takken.rights.civil-general.declaration-cancellation-006 — title contains 1 rule separator(s)
+- `boundary.83b3e8af967886f1` multi_rule_title: takken.tax-other.cross-topic.renewal-tax-001 — title contains 1 rule separator(s)
+- `boundary.84621923e15e2bf1` multi_rule_title: takken.regulation.building-standards.zoning-007 — title contains 1 rule separator(s)
+- `boundary.84b770997231bb4e` multi_rule_title: takken.gyoho.contract-document-37.document-37-nonconformity-010 — title contains 1 rule separator(s)
+- `boundary.84fcd7a27d94907c` multi_rule_title: takken.tax-other.buildings.core-rule-003 — title contains 1 rule separator(s)
+- `boundary.852616d25a12c9e3` multi_rule_title: takken.rights.condominium.core-rule-006 — title contains 1 rule separator(s)
+- `boundary.862603c0702ff131` multi_rule_title: takken.regulation.agricultural-land.agricultural-land-007 — title contains 1 rule separator(s)
+- `boundary.8634ad371449dba7` multi_rule_title: takken.rights.civil-general.agency-012 — title contains 1 rule separator(s)
+- `boundary.868f7bc2d193c173` multi_rule_title: takken.tax-other.fixed-asset-tax.tax-taxation-003 — title contains 1 rule separator(s)
+- `boundary.86b463473c093398` multi_rule_title: takken.tax-other.registration-tax.license-registration-003 — title contains 1 rule separator(s)
+- `boundary.88b732c46d2b1c35` multi_rule_title: takken.gyoho.fees.brokerage-fee-007 — title contains 1 rule separator(s)
+- `boundary.891cf9d7a3dd530e` multi_rule_title: takken.rights.civil-general.declaration-cancellation-005 — title contains 1 rule separator(s)
+- `boundary.8abcf09fc47b5ea9` multi_rule_title: takken.rights.contracts-sales.core-rule-001 — title contains 1 rule separator(s)
+- `boundary.8b256b3f9e42de71` multi_rule_title: takken.tax-other.acquisition-tax.tax-001 — title contains 1 rule separator(s)
+- `boundary.8d1235fe8fb12481` multi_rule_title: takken.rights.property-rights.core-rule-006 — title contains 1 rule separator(s)
+- `boundary.8e43ffd23a60e1d6` multi_rule_title: takken.regulation.land-use.notification-deadline-002 — title contains 1 rule separator(s)
+- `boundary.8e976a833b72b824` multi_rule_title: takken.rights.property-rights.co-ownership-008 — title contains 1 rule separator(s)
+- `boundary.8ef4825670add138` multi_rule_title: takken.rights.condominium.co-ownership-003 — title contains 1 rule separator(s)
+- `boundary.9103b027aa67c0b9` multi_rule_title: takken.rights.leases.renewal-lease-011 — title contains 1 rule separator(s)
+- `boundary.91a67624f764f760` multi_rule_title: takken.tax-other.advertising.core-rule-005 — title contains 1 rule separator(s)
+- `boundary.92685fbcb7431516` multi_rule_title: takken.gyoho.broker.broker-007 — title contains 1 rule separator(s)
+- `boundary.93b3266f5c11ec52` multi_rule_title: takken.regulation.city-planning.core-rule-003 — title contains 1 rule separator(s)
+- `boundary.93d4b2f4ffd357e0` multi_rule_title: takken.gyoho.guarantee-association.guarantee-depositing-007 — title contains 1 rule separator(s)
+- `boundary.9583e79135f7ce22` multi_rule_title: takken.rights.inheritance.inheritance-001 — title contains 1 rule separator(s)
+- `boundary.965c5d1a71bef62f` multi_rule_title: takken.rights.inheritance.inheritance-period-005 — title contains 1 rule separator(s)
+- `boundary.983f1bcfabce697d` multi_rule_title: takken.regulation.building-standards.core-rule-009 — title contains 1 rule separator(s)
+- `boundary.9844e84befa9ea51` multi_rule_title: takken.rights.condominium.core-rule-001 — title contains 1 rule separator(s)
+- `boundary.986056e58a6613a6` multi_rule_title: takken.regulation.city-planning.development-permission-007 — title contains 1 rule separator(s)
+- `boundary.9b37cc314e5e8fb4` multi_rule_title: takken.gyoho.guarantee-association.license-broker-008 — title contains 1 rule separator(s)
+- `boundary.9c120f807e73d3a2` multi_rule_title: takken.gyoho.contract-document-37.document-37-013 — title contains 1 rule separator(s)
+- `boundary.9c785d1c9eccb60e` multi_rule_title: takken.tax-other.housing-finance.core-rule-006 — title contains 1 rule separator(s)
+- `boundary.9d068d2bcf374a92` multi_rule_title: takken.regulation.city-planning.core-rule-013 — title contains 1 rule separator(s)
+- `boundary.9fa3e6afd5b7364e` multi_rule_title: takken.tax-other.income-tax.tax-period-002 — title contains 1 rule separator(s)
+- `boundary.a1a7dc70bffa6e0c` multi_rule_title: takken.rights.mortgage.mortgage-008 — title contains 1 rule separator(s)
+- `boundary.a3280b293080fbe0` multi_rule_title: takken.rights.property-rights.core-rule-014 — title contains 1 rule separator(s)
+- `boundary.a378f75cc4c3fd16` multi_rule_title: takken.regulation.cross-topic.city-plan-development-permission-002 — title contains 1 rule separator(s)
+- `boundary.a521d358612633e0` multi_rule_title: takken.regulation.city-planning.city-plan-development-permission-009 — title contains 1 rule separator(s)
+- `boundary.a5e9479f15dba7fe` multi_rule_title: takken.gyoho.seller-restrictions.deposit-012 — title contains 1 rule separator(s)
+- `boundary.a60229e457cf5403` multi_rule_title: takken.gyoho.disclosure-35.disclosure-registration-008 — title contains 1 rule separator(s)
+- `boundary.a6467e6ff5141cc6` multi_rule_title: takken.rights.mortgage.mortgage-007 — title contains 1 rule separator(s)
+- `boundary.a6985366ffb67efb` multi_rule_title: takken.rights.property-rights.declaration-registration-001 — title contains 1 rule separator(s)
+- `boundary.a784edd630827c9a` multi_rule_title: takken.gyoho.seller-restrictions.deposit-rescission-008 — title contains 1 rule separator(s)
+- `boundary.a8e8583c0d236d02` multi_rule_title: takken.gyoho.office-records.advertising-011 — title contains 1 rule separator(s)
+- `boundary.a938eea6a73a46ae` multi_rule_title: takken.rights.property-rights.core-rule-004 — title contains 1 rule separator(s)
+- `boundary.ac306ea347d53f75` multi_rule_title: takken.rights.property-rights.co-ownership-010 — title contains 1 rule separator(s)
+- `boundary.acbbb1b72ce13420` multi_rule_title: takken.rights.leases.renewal-lease-007 — title contains 1 rule separator(s)
+- `boundary.ae5635e190038b44` multi_rule_title: takken.gyoho.contract-document-37.document-37-registration-008 — title contains 1 rule separator(s)
+- `boundary.aed5123525b7b0e3` multi_rule_title: takken.gyoho.license.license-period-001 — title contains 1 rule separator(s)
+- `boundary.b0e536095f57d906` multi_rule_title: takken.regulation.embankment.embankment-notification-005 — title contains 1 rule separator(s)
+- `boundary.b25eae2f9e609501` multi_rule_title: takken.rights.obligations.core-rule-008 — title contains 1 rule separator(s)
+- `boundary.b2d0c313ebdf4227` multi_rule_title: takken.gyoho.disclosure-35.disclosure-014 — title contains 1 rule separator(s)
+- `boundary.b519dc39268e4b7b` multi_rule_title: takken.tax-other.land-price-publication.land-price-appraisal-004 — title contains 1 rule separator(s)
+- `boundary.b5efe459cb183b3d` multi_rule_title: takken.gyoho.seller-restrictions.cooling-off-011 — title contains 1 rule separator(s)
+- `boundary.b909009b735025b8` multi_rule_title: takken.tax-other.fixed-asset-tax.tax-taxation-002 — title contains 1 rule separator(s)
+- `boundary.b9dea67587f09bfc` multi_rule_title: takken.rights.inheritance.inheritance-006 — title contains 1 rule separator(s)
+- `boundary.ba1c7146c7e01c42` multi_rule_title: takken.regulation.embankment.embankment-004 — title contains 1 rule separator(s)
+- `boundary.bab6657e8520177f` multi_rule_title: takken.regulation.land-readjustment.core-rule-001 — title contains 1 rule separator(s)
+- `boundary.baf537a0ac909b6e` multi_rule_title: takken.tax-other.land-price-publication.fee-land-price-002 — title contains 1 rule separator(s)
+- `boundary.bc37ee7960e32399` multi_rule_title: takken.regulation.land-use.notification-004 — title contains 1 rule separator(s)
+- `boundary.bcf749509a88d4c4` multi_rule_title: takken.tax-other.valuation-cross.license-land-price-001 — title contains 1 rule separator(s)
+- `boundary.bd75984242db493a` multi_rule_title: takken.regulation.land-use.city-plan-notification-003 — title contains 1 rule separator(s)
+- `boundary.be5f4a09bfadb7a6` multi_rule_title: takken.regulation.building-standards.floor-area-ratio-building-coverage-010 — title contains 1 rule separator(s)
+- `boundary.bf8054c9687141fe` multi_rule_title: takken.gyoho.office-records.office-010 — title contains 1 rule separator(s)
+- `boundary.c19cf38286c788d0` multi_rule_title: takken.gyoho.broker.renewal-broker-001 — title contains 1 rule separator(s)
+- `boundary.c1bcf606c0b61050` multi_rule_title: takken.tax-other.fixed-asset-tax.tax-004 — title contains 1 rule separator(s)
+- `boundary.c1d0d0a835f86db6` multi_rule_title: takken.tax-other.statistics.renewal-statistics-005 — title contains 1 rule separator(s)
+- `boundary.c1e85371d5ff536b` multi_rule_title: takken.gyoho.seller-restrictions.office-cooling-off-010 — title contains 1 rule separator(s)
+- `boundary.c1e999bba39d7b07` multi_rule_title: takken.gyoho.disclosure-35.disclosure-013 — title contains 1 rule separator(s)
+- `boundary.c2020c365fbfe724` multi_rule_title: takken.gyoho.fees.fee-advertising-006 — title contains 1 rule separator(s)
+- `boundary.c3781b6b60557de2` multi_rule_title: takken.regulation.embankment.embankment-001 — title contains 1 rule separator(s)
+- `boundary.c547328a37245c58` multi_rule_title: takken.regulation.agricultural-land.agricultural-land-005 — title contains 1 rule separator(s)
+- `boundary.c61dd3c06920e9ea` multi_rule_title: takken.gyoho.seller-restrictions.nonconformity-period-009 — title contains 1 rule separator(s)
+- `boundary.c6734a92d1ad4b24` multi_rule_title: takken.regulation.land-readjustment.core-rule-005 — title contains 1 rule separator(s)
+- `boundary.c7325e5d819dcea3` multi_rule_title: takken.gyoho.license.license-office-006 — title contains 1 rule separator(s)
+- `boundary.c76107f78cfc042e` multi_rule_title: takken.rights.contracts-sales.nonconformity-period-006 — title contains 1 rule separator(s)
+- `boundary.c8c50af3612b353b` multi_rule_title: takken.gyoho.office-records.office-broker-004 — title contains 1 rule separator(s)
+- `boundary.ca9a50dd7969e2ca` multi_rule_title: takken.rights.civil-general.cancellation-exception-002 — title contains 1 rule separator(s)
+- `boundary.cc40558e1ea04e0e` multi_rule_title: takken.gyoho.license.license-renewal-003 — title contains 1 rule separator(s)
+- `boundary.ccf86cf864906750` multi_rule_title: takken.gyoho.deposit.guarantee-depositing-012 — title contains 1 rule separator(s)
+- `boundary.cd29e54732a3d6c9` multi_rule_title: takken.rights.civil-general.declaration-agency-009 — title contains 1 rule separator(s)
+- `boundary.cd32e1875d0bf116` multi_rule_title: takken.rights.leases.renewal-land-lease-003 — title contains 1 rule separator(s)
+- `boundary.cd732c04d7b19b03` multi_rule_title: takken.regulation.building-standards.building-confirmation-road-access-018 — title contains 1 rule separator(s)
+- `boundary.ce576b895b466686` multi_rule_title: takken.rights.condominium.core-rule-002 — title contains 1 rule separator(s)
+- `boundary.d07abfad83a9fde8` multi_rule_title: takken.regulation.city-planning.city-plan-development-permission-016 — title contains 1 rule separator(s)
+- `boundary.d1b7701a47189655` multi_rule_title: takken.tax-other.income-tax.tax-001 — title contains 1 rule separator(s)
+- `boundary.d569c744adcee4a2` multi_rule_title: takken.tax-other.statistics.land-price-statistics-003 — title contains 1 rule separator(s)
+- `boundary.d5aafa69ea9d07d4` multi_rule_title: takken.regulation.agricultural-land.agricultural-land-004 — title contains 1 rule separator(s)
+- `boundary.d5bd73b7e607c8b5` multi_rule_title: takken.gyoho.broker.broker-period-004 — title contains 1 rule separator(s)
+- `boundary.d686cffde201bbfe` multi_rule_title: takken.tax-other.appraisal.land-price-appraisal-003 — title contains 1 rule separator(s)
+- `boundary.d7f65df3174c2d5f` multi_rule_title: takken.tax-other.housing-finance.core-rule-002 — title contains 1 rule separator(s)
+- `boundary.d8d0eba3cb60bf45` multi_rule_title: takken.regulation.building-standards.building-confirmation-004 — title contains 1 rule separator(s)
+- `boundary.d90aa878fd8a7d8a` multi_rule_title: takken.rights.obligations.core-rule-002 — title contains 1 rule separator(s)
+- `boundary.d9211ccced261f77` multi_rule_title: takken.gyoho.disclosure-35.disclosure-001 — title contains 1 rule separator(s)
+- `boundary.d99fc56213ecda2b` multi_rule_title: takken.gyoho.license.license-office-007 — title contains 1 rule separator(s)
+- `boundary.dd48df96f70dc8d0` multi_rule_title: takken.gyoho.supervision.license-004 — title contains 1 rule separator(s)
+- `boundary.ddb1b4ad55ae67c0` multi_rule_title: takken.gyoho.seller-restrictions.cooling-off-002 — title contains 1 rule separator(s)
+- `boundary.df91093e076ed801` multi_rule_title: takken.gyoho.supervision.license-disqualification-003 — title contains 1 rule separator(s)
+- `boundary.df9c92265db83b21` multi_rule_title: takken.rights.civil-general.agency-exception-001 — title contains 1 rule separator(s)
+- `boundary.e02ed7c51272cc40` multi_rule_title: takken.tax-other.advertising.core-rule-001 — title contains 1 rule separator(s)
+- `boundary.e22719375a74a112` multi_rule_title: takken.rights.cross-topic.land-lease-building-lease-001 — title contains 1 rule separator(s)
+- `boundary.e31da4b77ef46909` multi_rule_title: takken.rights.property-rights.core-rule-005 — title contains 1 rule separator(s)
+- `boundary.e3633c75aba9295f` multi_rule_title: takken.rights.leases.lease-land-lease-005 — title contains 1 rule separator(s)
+- `boundary.e4b2323a92a3cbf9` multi_rule_title: takken.regulation.building-standards.city-plan-road-access-002 — title contains 1 rule separator(s)
+- `boundary.e5e93effe6818291` multi_rule_title: takken.gyoho.brokerage.exclusive-brokerage-008 — title contains 1 rule separator(s)
+- `boundary.e7493745dd0c8bb3` multi_rule_title: takken.tax-other.income-tax.tax-taxation-003 — title contains 1 rule separator(s)
+- `boundary.e982030d4487911f` multi_rule_title: takken.gyoho.brokerage.brokerage-fee-011 — title contains 1 rule separator(s)
+- `boundary.ea0d3d4f2ba4c8ca` multi_rule_title: takken.rights.condominium.core-rule-007 — title contains 1 rule separator(s)
+- `boundary.ea9e0c24a75eb480` multi_rule_title: takken.regulation.city-planning.city-plan-012 — title contains 1 rule separator(s)
+- `boundary.ebb4306940fd2e01` multi_rule_title: takken.gyoho.seller-restrictions.deposit-013 — title contains 1 rule separator(s)
+- `boundary.ebbc50c006f8fdb6` multi_rule_title: takken.regulation.city-planning.development-permission-008 — title contains 1 rule separator(s)
+- `boundary.ec47a1221d6e7766` multi_rule_title: takken.tax-other.registration-tax.license-registration-001 — title contains 1 rule separator(s)
+- `boundary.ef5e74876a0eab81` multi_rule_title: takken.regulation.building-standards.floor-area-ratio-building-coverage-012 — title contains 1 rule separator(s)
+- `boundary.f0e74ff8377ecbae` multi_rule_title: takken.gyoho.license.license-disqualification-013 — title contains 1 rule separator(s)
+- `boundary.f1b0688d996d113b` multi_rule_title: takken.gyoho.disclosure-35.disclosure-009 — title contains 1 rule separator(s)
+- `boundary.f1fecf19357d094c` multi_rule_title: takken.rights.civil-general.limitation-cancellation-013 — title contains 1 rule separator(s)
+- `boundary.f38412abd466a8a7` multi_rule_title: takken.gyoho.guarantee-association.office-guarantee-002 — title contains 1 rule separator(s)
+- `boundary.f3cde08eef43df46` multi_rule_title: takken.tax-other.housing-finance.tax-005 — title contains 1 rule separator(s)
+- `boundary.f4456a20650ec4cc` multi_rule_title: takken.rights.property-rights.core-rule-013 — title contains 1 rule separator(s)
+- `boundary.f51fda2cf1a8980b` multi_rule_title: takken.gyoho.broker.broker-disclosure-005 — title contains 1 rule separator(s)
+- `boundary.f5d0b639c611245e` multi_rule_title: takken.gyoho.deposit.license-guarantee-001 — title contains 1 rule separator(s)
+- `boundary.f66ff11ce90f0ee1` multi_rule_title: takken.rights.obligations.guarantee-011 — title contains 1 rule separator(s)
+- `boundary.f70c5be23a38595c` multi_rule_title: takken.rights.leases.core-rule-013 — title contains 1 rule separator(s)
+- `boundary.f7639c2b28c0148a` multi_rule_title: takken.tax-other.land.embankment-001 — title contains 1 rule separator(s)
+- `boundary.f7fad730db0512f3` multi_rule_title: takken.regulation.city-planning.city-plan-zoning-002 — title contains 1 rule separator(s)
+- `boundary.f8c1d7b62a03a7a9` multi_rule_title: takken.gyoho.office-records.office-006 — title contains 1 rule separator(s)
+- `boundary.f956419774da66be` multi_rule_title: takken.tax-other.gift-tax.registration-tax-001 — title contains 1 rule separator(s)
+- `boundary.fb8082f6288174aa` multi_rule_title: takken.regulation.building-standards.core-rule-013 — title contains 1 rule separator(s)
+- `boundary.fb96ac38be40c757` multi_rule_title: takken.rights.contracts-sales.core-rule-010 — title contains 1 rule separator(s)
+- `boundary.fbe86832e785aef3` multi_rule_title: takken.regulation.agricultural-land.city-plan-agricultural-land-006 — title contains 1 rule separator(s)
+- `boundary.fd62f46f32d8fc76` multi_rule_title: takken.regulation.embankment.agricultural-land-embankment-002 — title contains 1 rule separator(s)
+- `boundary.fe682e08aab85828` multi_rule_title: takken.rights.contracts-sales.fee-007 — title contains 1 rule separator(s)
+- `boundary.fee2e40748be7e8f` multi_rule_title: takken.tax-other.statistics.renewal-statistics-002 — title contains 1 rule separator(s)
+- `boundary.ff6d3047e6cc7599` multi_rule_title: takken.rights.mortgage.mortgage-006 — title contains 1 rule separator(s)
+- `boundary.016c77728ba5288c` normalized_keypoint_match: takken.gyoho.contract-document-37.disclosure-document-37-002, takken.gyoho.disclosure-35.disclosure-document-37-016 — normalized preview rule/keyPoint is identical
+- `boundary.317991f12e8bb689` normalized_keypoint_match: takken.gyoho.license.license-009, takken.gyoho.supervision.license-004 — normalized preview rule/keyPoint is identical
+- `boundary.767d8acf0605240d` normalized_keypoint_match: takken.gyoho.disclosure-35.disclosure-001, takken.gyoho.disclosure-35.disclosure-document-37-002 — normalized preview rule/keyPoint is identical
+- `boundary.030e87240845537f` three_or_more_rules: takken.rights.leases.core-rule-013 — concept may contain three or more independent rules
+- `boundary.036269220d401582` three_or_more_rules: takken.regulation.land-use.mortgage-inheritance-006 — concept may contain three or more independent rules
+- `boundary.037a4bdff06c0812` three_or_more_rules: takken.tax-other.stamp-tax.registration-tax-001 — concept may contain three or more independent rules
+- `boundary.0385ccb50c31f0d4` three_or_more_rules: takken.regulation.embankment.agricultural-land-embankment-002 — concept may contain three or more independent rules
+- `boundary.03a18332e9d4ad75` three_or_more_rules: takken.regulation.city-planning.city-plan-zoning-004 — concept may contain three or more independent rules
+- `boundary.06c769a395d4e1d5` three_or_more_rules: takken.tax-other.acquisition-tax.tax-taxation-002 — concept may contain three or more independent rules
+- `boundary.0708ab7b0b643122` three_or_more_rules: takken.tax-other.buildings.core-rule-003 — concept may contain three or more independent rules
+- `boundary.08aae79efd8f3646` three_or_more_rules: takken.rights.leases.lease-land-lease-016 — concept may contain three or more independent rules
+- `boundary.09970c0906704c53` three_or_more_rules: takken.tax-other.tax-relief.license-tax-002 — concept may contain three or more independent rules
+- `boundary.0a01ac71f93d06e7` three_or_more_rules: takken.gyoho.disclosure-35.disclosure-registration-008 — concept may contain three or more independent rules
+- `boundary.0a279035eaf20f81` three_or_more_rules: takken.regulation.agricultural-land.city-plan-agricultural-land-006 — concept may contain three or more independent rules
+- `boundary.0c1d0072470ecda9` three_or_more_rules: takken.tax-other.land-price-publication.land-price-appraisal-003 — concept may contain three or more independent rules
+- `boundary.0cded693ec0a1619` three_or_more_rules: takken.tax-other.stamp-tax.license-registration-002 — concept may contain three or more independent rules
+- `boundary.0fd8c7f983f5c749` three_or_more_rules: takken.tax-other.income-tax.tax-period-002 — concept may contain three or more independent rules
+- `boundary.108c4f1effe3036e` three_or_more_rules: takken.regulation.agricultural-land.agricultural-land-002 — concept may contain three or more independent rules
+- `boundary.111a7a2a132cc735` three_or_more_rules: takken.rights.cross-topic.land-lease-building-lease-001 — concept may contain three or more independent rules
+- `boundary.131803ebf3e58b90` three_or_more_rules: takken.tax-other.land.embankment-001 — concept may contain three or more independent rules
+- `boundary.149d3bd411c90d82` three_or_more_rules: takken.tax-other.buildings.core-rule-001 — concept may contain three or more independent rules
+- `boundary.14b5a2328a44ff9f` three_or_more_rules: takken.rights.contracts-sales.nonconformity-005 — concept may contain three or more independent rules
+- `boundary.18562cd022c6f5f6` three_or_more_rules: takken.tax-other.statistics.renewal-statistics-005 — concept may contain three or more independent rules
+- `boundary.18a12d6c09f28bc0` three_or_more_rules: takken.regulation.city-planning.core-rule-003 — concept may contain three or more independent rules
+- `boundary.1910845841df23d1` three_or_more_rules: takken.gyoho.broker.renewal-broker-001 — concept may contain three or more independent rules
+- `boundary.1acea096017c9dd8` three_or_more_rules: takken.rights.condominium.core-rule-004 — concept may contain three or more independent rules
+- `boundary.1ae571582781f298` three_or_more_rules: takken.rights.civil-general.declaration-cancellation-006 — concept may contain three or more independent rules
+- `boundary.1b5ec2eacc17a87d` three_or_more_rules: takken.rights.mortgage.mortgage-005 — concept may contain three or more independent rules
+- `boundary.1bbfa18d1fb3687b` three_or_more_rules: takken.regulation.building-standards.core-rule-003 — concept may contain three or more independent rules
+- `boundary.1d2356e7c0c0700d` three_or_more_rules: takken.rights.leases.lease-land-lease-010 — concept may contain three or more independent rules
+- `boundary.1d864e23e19ca101` three_or_more_rules: takken.gyoho.guarantee-association.guarantee-depositing-001 — concept may contain three or more independent rules
+- `boundary.1e3c007103a702a1` three_or_more_rules: takken.regulation.cross-topic.road-access-floor-area-ratio-003 — concept may contain three or more independent rules
+- `boundary.1ea70b2e78578794` three_or_more_rules: takken.gyoho.brokerage.brokerage-001 — concept may contain three or more independent rules
+- `boundary.21ce09d8dd402687` three_or_more_rules: takken.gyoho.broker.broker-period-003 — concept may contain three or more independent rules
+- `boundary.27bda8b6e2358a35` three_or_more_rules: takken.rights.civil-general.agency-cancellation-011 — concept may contain three or more independent rules
+- `boundary.289898bb28aa7c8e` three_or_more_rules: takken.tax-other.advertising.advertising-002 — concept may contain three or more independent rules
+- `boundary.2e74263300d56248` three_or_more_rules: takken.regulation.land-readjustment.core-rule-004 — concept may contain three or more independent rules
+- `boundary.2e7454122e8ab11c` three_or_more_rules: takken.tax-other.acquisition-tax.tax-period-005 — concept may contain three or more independent rules
+- `boundary.2e74c8763fe59c42` three_or_more_rules: takken.tax-other.income-tax.tax-001 — concept may contain three or more independent rules
+- `boundary.2e7c7b2235ac21f6` three_or_more_rules: takken.rights.civil-general.agency-012 — concept may contain three or more independent rules
+- `boundary.300ddd30a57d6664` three_or_more_rules: takken.gyoho.broker.renewal-broker-002 — concept may contain three or more independent rules
+- `boundary.31d5e89aa8bd546b` three_or_more_rules: takken.rights.civil-general.agency-exception-001 — concept may contain three or more independent rules
+- `boundary.3236a18aa7478261` three_or_more_rules: takken.gyoho.disclosure-35.disclosure-document-37-002 — concept may contain three or more independent rules
+- `boundary.336480643bd31690` three_or_more_rules: takken.tax-other.advertising.building-confirmation-advertising-004 — concept may contain three or more independent rules
+- `boundary.33f76cd9e8d229b9` three_or_more_rules: takken.tax-other.registration-tax.license-registration-003 — concept may contain three or more independent rules
+- `boundary.341e1bfbba403305` three_or_more_rules: takken.gyoho.office-records.broker-exclusive-003 — concept may contain three or more independent rules
+- `boundary.3529b803aaffd31e` three_or_more_rules: takken.regulation.city-planning.development-permission-notification-010 — concept may contain three or more independent rules
+- `boundary.35797e06de2cb2f9` three_or_more_rules: takken.rights.leases.renewal-lease-011 — concept may contain three or more independent rules
+- `boundary.363c38690b4abdad` three_or_more_rules: takken.gyoho.disclosure-35.disclosure-document-37-010 — concept may contain three or more independent rules
+- `boundary.3698ce7b5ba162e6` three_or_more_rules: takken.gyoho.contract-document-37.document-37-registration-009 — concept may contain three or more independent rules
+- `boundary.385b6c86d96ea95b` three_or_more_rules: takken.regulation.building-standards.city-plan-001 — concept may contain three or more independent rules
+- `boundary.3a5bcd6c778645c1` three_or_more_rules: takken.gyoho.supervision.license-broker-001 — concept may contain three or more independent rules
+- `boundary.3d11b12086e4403c` three_or_more_rules: takken.gyoho.supervision.license-disqualification-003 — concept may contain three or more independent rules
+- `boundary.42bf6998e93b710b` three_or_more_rules: takken.gyoho.deposit.office-guarantee-011 — concept may contain three or more independent rules
+- `boundary.446d48da2eae842c` three_or_more_rules: takken.tax-other.statistics.tax-land-price-001 — concept may contain three or more independent rules
+- `boundary.476164303c4bb715` three_or_more_rules: takken.rights.cross-topic.renewal-guarantee-003 — concept may contain three or more independent rules
+- `boundary.49360292f11330dd` three_or_more_rules: takken.gyoho.brokerage.exclusive-brokerage-008 — concept may contain three or more independent rules
+- `boundary.49a34e3dc395a487` three_or_more_rules: takken.regulation.building-standards.building-confirmation-004 — concept may contain three or more independent rules
+- `boundary.4ab4c596a3220597` three_or_more_rules: takken.gyoho.fees.brokerage-fee-007 — concept may contain three or more independent rules
+- `boundary.4c8b5414b50c54b8` three_or_more_rules: takken.rights.mortgage.mortgage-006 — concept may contain three or more independent rules
+- `boundary.4d34f7b485d69257` three_or_more_rules: takken.tax-other.statistics.land-price-statistics-003 — concept may contain three or more independent rules
+- `boundary.4e79d21c7ff1ad02` three_or_more_rules: takken.rights.civil-general.deadline-018 — concept may contain three or more independent rules
+- `boundary.53b467062ecf0c1a` three_or_more_rules: takken.tax-other.tax-relief.tax-relief-003 — concept may contain three or more independent rules
+- `boundary.53c1e8249f628a8c` three_or_more_rules: takken.rights.obligations.core-rule-008 — concept may contain three or more independent rules
+- `boundary.543e43a8f095c703` three_or_more_rules: takken.rights.property-rights.registration-015 — concept may contain three or more independent rules
+- `boundary.54fb253716e3e0c4` three_or_more_rules: takken.rights.leases.land-lease-period-006 — concept may contain three or more independent rules
+- `boundary.560f5a9f6eb968aa` three_or_more_rules: takken.rights.contracts-sales.lease-011 — concept may contain three or more independent rules
+- `boundary.576b47a2ea49a0b9` three_or_more_rules: takken.tax-other.advertising.advertising-003 — concept may contain three or more independent rules
+- `boundary.5936480054423a40` three_or_more_rules: takken.tax-other.fixed-asset-tax.tax-taxation-001 — concept may contain three or more independent rules
+- `boundary.59bd4c83f97a4455` three_or_more_rules: takken.regulation.land-use.city-plan-notification-005 — concept may contain three or more independent rules
+- `boundary.5a3163c1d35a0253` three_or_more_rules: takken.tax-other.land.embankment-002 — concept may contain three or more independent rules
+- `boundary.5ac12a56f2246bc7` three_or_more_rules: takken.rights.civil-general.cancellation-exception-002 — concept may contain three or more independent rules
+- `boundary.5c0a0aba8cb4a8f3` three_or_more_rules: takken.rights.mortgage.mortgage-007 — concept may contain three or more independent rules
+- `boundary.5d0894d54263d745` three_or_more_rules: takken.rights.leases.renewal-lease-007 — concept may contain three or more independent rules
+- `boundary.5d878f0e4be492c0` three_or_more_rules: takken.rights.obligations.core-rule-007 — concept may contain three or more independent rules
+- `boundary.5dc8efd56ce5affd` three_or_more_rules: takken.gyoho.broker.broker-disclosure-005 — concept may contain three or more independent rules
+- `boundary.60340544f03855c5` three_or_more_rules: takken.gyoho.deposit.guarantee-008 — concept may contain three or more independent rules
+- `boundary.60a8afc11722baf1` three_or_more_rules: takken.gyoho.supervision.license-004 — concept may contain three or more independent rules
+- `boundary.6456a23773dd3850` three_or_more_rules: takken.regulation.building-standards.building-confirmation-road-access-018 — concept may contain three or more independent rules
+- `boundary.647e065091e22117` three_or_more_rules: takken.rights.civil-general.limitation-period-015 — concept may contain three or more independent rules
+- `boundary.665e4249b60da88f` three_or_more_rules: takken.tax-other.housing-finance.core-rule-002 — concept may contain three or more independent rules
+- `boundary.669313136d2d9f86` three_or_more_rules: takken.gyoho.office-records.advertising-011 — concept may contain three or more independent rules
+- `boundary.669c02b519e96a3b` three_or_more_rules: takken.regulation.embankment.embankment-notification-005 — concept may contain three or more independent rules
+- `boundary.68061bafda644016` three_or_more_rules: takken.gyoho.seller-restrictions.cooling-off-002 — concept may contain three or more independent rules
+- `boundary.69b804b93fa6da79` three_or_more_rules: takken.regulation.building-standards.city-plan-road-access-002 — concept may contain three or more independent rules
+- `boundary.6a09955d02ac17fa` three_or_more_rules: takken.gyoho.seller-restrictions.deposit-006 — concept may contain three or more independent rules
+- `boundary.6af92a37e238da03` three_or_more_rules: takken.rights.property-rights.co-ownership-010 — concept may contain three or more independent rules
+- `boundary.6baee7bb45b1bbc1` three_or_more_rules: takken.rights.contracts-sales.core-rule-001 — concept may contain three or more independent rules
+- `boundary.6da79c4b0d38757f` three_or_more_rules: takken.rights.property-rights.core-rule-012 — concept may contain three or more independent rules
+- `boundary.6f2e00b333d73d39` three_or_more_rules: takken.gyoho.license.license-notification-011 — concept may contain three or more independent rules
+- `boundary.710867c9da579637` three_or_more_rules: takken.regulation.land-use.city-plan-notification-003 — concept may contain three or more independent rules
+- `boundary.711b5307f9e148af` three_or_more_rules: takken.regulation.building-standards.core-rule-015 — concept may contain three or more independent rules
+- `boundary.723226bcd93f225a` three_or_more_rules: takken.regulation.agricultural-land.agricultural-land-005 — concept may contain three or more independent rules
+- `boundary.73c09586a6571a63` three_or_more_rules: takken.rights.condominium.core-rule-002 — concept may contain three or more independent rules
+- `boundary.7ac0a039f0675a13` three_or_more_rules: takken.regulation.city-planning.city-plan-development-permission-009 — concept may contain three or more independent rules
+- `boundary.7d51c8815887cc5c` three_or_more_rules: takken.tax-other.housing-finance.tax-005 — concept may contain three or more independent rules
+- `boundary.7d52617437ef598d` three_or_more_rules: takken.tax-other.acquisition-tax.inheritance-tax-003 — concept may contain three or more independent rules
+- `boundary.7e3089fec7a96566` three_or_more_rules: takken.rights.civil-general.declaration-agency-009 — concept may contain three or more independent rules
+- `boundary.7ece50a36652d3db` three_or_more_rules: takken.rights.condominium.core-rule-001 — concept may contain three or more independent rules
+- `boundary.7fd7964c650e94ab` three_or_more_rules: takken.tax-other.gift-tax.registration-tax-001 — concept may contain three or more independent rules
+- `boundary.814b3a2ea7c2a7e7` three_or_more_rules: takken.rights.mortgage.mortgage-registration-003 — concept may contain three or more independent rules
+- `boundary.81c200df55c62d2b` three_or_more_rules: takken.gyoho.guarantee-association.office-guarantee-002 — concept may contain three or more independent rules
+- `boundary.820fc1bc6b2fcb6a` three_or_more_rules: takken.regulation.building-standards.building-confirmation-005 — concept may contain three or more independent rules
+- `boundary.825d8ed71401d5c7` three_or_more_rules: takken.tax-other.buildings.core-rule-002 — concept may contain three or more independent rules
+- `boundary.82a7c99de7ede8d7` three_or_more_rules: takken.gyoho.office-records.period-009 — concept may contain three or more independent rules
+- `boundary.82d02e8e460d7872` three_or_more_rules: takken.regulation.land-use.notification-deadline-002 — concept may contain three or more independent rules
+- `boundary.83c90485e26e89dd` three_or_more_rules: takken.tax-other.income-tax.inheritance-period-004 — concept may contain three or more independent rules
+- `boundary.8a57f5bc1375e0e6` three_or_more_rules: takken.gyoho.guarantee-association.license-broker-008 — concept may contain three or more independent rules
+- `boundary.8aa74c3f718dc5b9` three_or_more_rules: takken.regulation.land-use.notification-001 — concept may contain three or more independent rules
+- `boundary.8b1372536c982aa5` three_or_more_rules: takken.rights.property-rights.declaration-registration-001 — concept may contain three or more independent rules
+- `boundary.8b393cc6296ee040` three_or_more_rules: takken.regulation.city-planning.core-rule-005 — concept may contain three or more independent rules
+- `boundary.8b63d0b3a90c691c` three_or_more_rules: takken.tax-other.appraisal.appraisal-001 — concept may contain three or more independent rules
+- `boundary.8b88797cb3298260` three_or_more_rules: takken.rights.civil-general.limitation-cancellation-013 — concept may contain three or more independent rules
+- `boundary.8f38f581ccb1d48b` three_or_more_rules: takken.regulation.agricultural-land.agricultural-land-003 — concept may contain three or more independent rules
+- `boundary.8f7895db022f6ec9` three_or_more_rules: takken.gyoho.disclosure-35.disclosure-012 — concept may contain three or more independent rules
+- `boundary.914deea4483ad669` three_or_more_rules: takken.rights.condominium.core-rule-007 — concept may contain three or more independent rules
+- `boundary.9368ceb00f0f09b3` three_or_more_rules: takken.tax-other.registration-tax.license-inheritance-002 — concept may contain three or more independent rules
+- `boundary.93a00eba466d9ffb` three_or_more_rules: takken.rights.contracts-sales.deposit-nonconformity-004 — concept may contain three or more independent rules
+- `boundary.9771473107f331ef` three_or_more_rules: takken.regulation.embankment.embankment-001 — concept may contain three or more independent rules
+- `boundary.98ce59c62315f42b` three_or_more_rules: takken.gyoho.license.license-office-007 — concept may contain three or more independent rules
+- `boundary.99c77ecddaf6716b` three_or_more_rules: takken.gyoho.license.license-renewal-003 — concept may contain three or more independent rules
+- `boundary.99e070800c437933` three_or_more_rules: takken.gyoho.seller-restrictions.deposit-013 — concept may contain three or more independent rules
+- `boundary.9a3f6bb2caf8f9ee` three_or_more_rules: takken.tax-other.appraisal.core-rule-002 — concept may contain three or more independent rules
+- `boundary.9b4b52df306f97e1` three_or_more_rules: takken.tax-other.valuation-cross.license-land-price-001 — concept may contain three or more independent rules
+- `boundary.9c2b8474901b9ee0` three_or_more_rules: takken.tax-other.registration-tax.license-registration-001 — concept may contain three or more independent rules
+- `boundary.9e716401312d614e` three_or_more_rules: takken.regulation.land-readjustment.core-rule-001 — concept may contain three or more independent rules
+- `boundary.9e78c35c3e8d63de` three_or_more_rules: takken.rights.civil-general.declaration-003 — concept may contain three or more independent rules
+- `boundary.a255b5ccc1bbff86` three_or_more_rules: takken.regulation.building-standards.core-rule-013 — concept may contain three or more independent rules
+- `boundary.a297ae44458ddcdb` three_or_more_rules: takken.regulation.cross-topic.city-plan-development-permission-001 — concept may contain three or more independent rules
+- `boundary.a3408fd4858a7497` three_or_more_rules: takken.gyoho.contract-document-37.document-37-nonconformity-010 — concept may contain three or more independent rules
+- `boundary.a3e0f419521fc802` three_or_more_rules: takken.gyoho.seller-restrictions.cooling-off-011 — concept may contain three or more independent rules
+- `boundary.a521059f7d55761d` three_or_more_rules: takken.tax-other.statistics.land-price-statistics-004 — concept may contain three or more independent rules
+- `boundary.a72b5f8c12249fee` three_or_more_rules: takken.regulation.building-standards.core-rule-009 — concept may contain three or more independent rules
+- `boundary.b0cc910dd1b0df06` three_or_more_rules: takken.rights.property-rights.registration-003 — concept may contain three or more independent rules
+- `boundary.b0d272cc1c52770b` three_or_more_rules: takken.gyoho.broker.office-broker-014 — concept may contain three or more independent rules
+- `boundary.b378de2783865f41` three_or_more_rules: takken.regulation.building-standards.zoning-floor-area-ratio-016 — concept may contain three or more independent rules
+- `boundary.b5c10b5910014fec` three_or_more_rules: takken.tax-other.cross-topic.renewal-tax-001 — concept may contain three or more independent rules
+- `boundary.b72aa65a5a53393f` three_or_more_rules: takken.tax-other.advertising.core-rule-005 — concept may contain three or more independent rules
+- `boundary.b7570e862d4870cf` three_or_more_rules: takken.regulation.city-planning.city-plan-development-permission-011 — concept may contain three or more independent rules
+- `boundary.ba8c61a9b0a061af` three_or_more_rules: takken.tax-other.fixed-asset-tax.tax-taxation-003 — concept may contain three or more independent rules
+- `boundary.bddce6972d96c87d` three_or_more_rules: takken.tax-other.land-price-publication.land-price-001 — concept may contain three or more independent rules
+- `boundary.c0e790ee63bf85cb` three_or_more_rules: takken.tax-other.tax-relief.license-registration-001 — concept may contain three or more independent rules
+- `boundary.c1cd1fcc58330168` three_or_more_rules: takken.rights.inheritance.inheritance-003 — concept may contain three or more independent rules
+- `boundary.c4c28bb9ac72796c` three_or_more_rules: takken.regulation.cross-topic.city-plan-development-permission-002 — concept may contain three or more independent rules
+- `boundary.c4f8fb422f94889c` three_or_more_rules: takken.tax-other.housing-finance.core-rule-001 — concept may contain three or more independent rules
+- `boundary.c8a948b1d9aa0261` three_or_more_rules: takken.gyoho.disclosure-35.disclosure-009 — concept may contain three or more independent rules
+- `boundary.c9814092e00cd085` three_or_more_rules: takken.rights.registration.inheritance-registration-003 — concept may contain three or more independent rules
+- `boundary.c9aca82088c431bd` three_or_more_rules: takken.rights.obligations.core-rule-002 — concept may contain three or more independent rules
+- `boundary.caf896658fff81ff` three_or_more_rules: takken.rights.property-rights.registration-002 — concept may contain three or more independent rules
+- `boundary.ccbda703c6eeff28` three_or_more_rules: takken.tax-other.fixed-asset-tax.tax-taxation-002 — concept may contain three or more independent rules
+- `boundary.cea9ea1a749bebc3` three_or_more_rules: takken.tax-other.buildings.city-plan-005 — concept may contain three or more independent rules
+- `boundary.cfa9afde086df41d` three_or_more_rules: takken.rights.obligations.guarantee-011 — concept may contain three or more independent rules
+- `boundary.d4a58d9a9403a809` three_or_more_rules: takken.tax-other.housing-finance.core-rule-006 — concept may contain three or more independent rules
+- `boundary.d554ecd43e16d71c` three_or_more_rules: takken.regulation.city-planning.city-plan-zoning-002 — concept may contain three or more independent rules
+- `boundary.d5d6e0402701d2af` three_or_more_rules: takken.regulation.city-planning.development-permission-006 — concept may contain three or more independent rules
+- `boundary.d6540773b36e6407` three_or_more_rules: takken.gyoho.brokerage.brokerage-fee-011 — concept may contain three or more independent rules
+- `boundary.d6d4b5b24a7e3532` three_or_more_rules: takken.regulation.building-standards.zoning-007 — concept may contain three or more independent rules
+- `boundary.d7adc71b503fd9fd` three_or_more_rules: takken.gyoho.office-records.office-006 — concept may contain three or more independent rules
+- `boundary.db46bb53ae4f9043` three_or_more_rules: takken.gyoho.contract-document-37.document-37-registration-008 — concept may contain three or more independent rules
+- `boundary.dcc65550ec214e26` three_or_more_rules: takken.gyoho.guarantee-association.guarantee-depositing-007 — concept may contain three or more independent rules
+- `boundary.df448f4288e180d3` three_or_more_rules: takken.rights.leases.lease-rescission-014 — concept may contain three or more independent rules
+- `boundary.df46affb7ba8ffeb` three_or_more_rules: takken.rights.mortgage.mortgage-010 — concept may contain three or more independent rules
+- `boundary.e2e07678a356666e` three_or_more_rules: takken.rights.obligations.cancellation-001 — concept may contain three or more independent rules
+- `boundary.e481b7de3fd466c5` three_or_more_rules: takken.regulation.land-readjustment.core-rule-002 — concept may contain three or more independent rules
+- `boundary.e5e36f48cc114cba` three_or_more_rules: takken.regulation.city-planning.development-permission-008 — concept may contain three or more independent rules
+- `boundary.e7b22d2a0d7f35be` three_or_more_rules: takken.regulation.embankment.embankment-003 — concept may contain three or more independent rules
+- `boundary.e7e26514be84a9c7` three_or_more_rules: takken.gyoho.deposit.guarantee-depositing-007 — concept may contain three or more independent rules
+- `boundary.e8576d291901a2e3` three_or_more_rules: takken.gyoho.license.license-office-006 — concept may contain three or more independent rules
+- `boundary.e9e706e1c30a6b25` three_or_more_rules: takken.rights.inheritance.inheritance-001 — concept may contain three or more independent rules
+- `boundary.ea4a9cee1397015c` three_or_more_rules: takken.rights.obligations.core-rule-013 — concept may contain three or more independent rules
+- `boundary.ec0d55de4d5771c6` three_or_more_rules: takken.rights.leases.lease-land-lease-005 — concept may contain three or more independent rules
+- `boundary.f4cb179d43409f1f` three_or_more_rules: takken.gyoho.seller-restrictions.office-cooling-off-010 — concept may contain three or more independent rules
+- `boundary.f71d09c0677d224e` three_or_more_rules: takken.tax-other.land.core-rule-004 — concept may contain three or more independent rules
+- `boundary.f779ee6c605b9034` three_or_more_rules: takken.gyoho.disclosure-35.disclosure-deposit-011 — concept may contain three or more independent rules
+- `boundary.f8d5efe600d51208` three_or_more_rules: takken.regulation.building-standards.floor-area-ratio-building-coverage-012 — concept may contain three or more independent rules
+- `boundary.f93738078fa6fc1e` three_or_more_rules: takken.gyoho.brokerage.exclusive-brokerage-007 — concept may contain three or more independent rules
+- `boundary.fb4323f6dabb1400` three_or_more_rules: takken.gyoho.deposit.license-guarantee-001 — concept may contain three or more independent rules
+- `boundary.fca8b8f0fb44896d` three_or_more_rules: takken.rights.contracts-sales.fee-007 — concept may contain three or more independent rules
+- `boundary.fe9922569a757af9` three_or_more_rules: takken.regulation.city-planning.city-plan-012 — concept may contain three or more independent rules

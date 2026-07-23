@@ -147,7 +147,8 @@ struct LegacyUnlockBundleMigration: Sendable {
         conceptID: value.conceptID, variantID: value.variantID,
         minimumReviewSeconds: value.minimumReviewSeconds,
         contrastNote: value.contrastNote,
-        wrongChoiceRationales: value.wrongChoiceRationales)
+        wrongChoiceRationales: value.wrongChoiceRationales,
+        misconceptionCodesByChoiceID: nil)
     }
     let state = CertificationUnlockSessionPayload(
       pace: bundle.challenge.pace,
@@ -312,7 +313,8 @@ extension CertificationChallengeQuestion {
       variantID: value.variantID,
       minimumReviewSeconds: value.minimumReviewSeconds,
       contrastNote: value.contrastNote,
-      wrongChoiceRationales: value.wrongChoiceRationales)
+      wrongChoiceRationales: value.wrongChoiceRationales,
+      misconceptionCodesByChoiceID: nil)
   }
 }
 

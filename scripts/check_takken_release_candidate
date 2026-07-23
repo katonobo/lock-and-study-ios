@@ -9,13 +9,16 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 from content_checks import ROOT, catalog, validate_takken_v2
-from takken_concepts import MASTER_PATH, load_json
+from takken_concepts import REVIEWED_MASTER_PATH, load_json
 
 
 def main() -> int:
     if len(sys.argv) < 2:
         print("usage: ./scripts/check_takken_release_candidate <reviewed.json> [...]")
         return 2
+    if not REVIEWED_MASTER_PATH.exists():
+        print("reviewed Concept Master must be imported before candidate validation")
+        return 1
     reviewed_root = (ROOT / "ContentSource/Reviewed").resolve()
     files: list[Path] = []
     for value in sys.argv[1:]:
@@ -38,7 +41,9 @@ def main() -> int:
     manifest["contentQualityProfile"] = "takken-v2"
     manifest["choiceOrderStrategy"] = "seeded_shuffle"
     errors = validate_takken_v2(items, manifest)
-    concept_ids = {value["conceptID"] for value in load_json(MASTER_PATH)["concepts"]}
+    concept_ids = {
+        value["conceptID"] for value in load_json(REVIEWED_MASTER_PATH)["concepts"]
+    }
     unknown = sorted(
         {
             item.get("conceptID")

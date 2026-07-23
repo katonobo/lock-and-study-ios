@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://katonobo.com/schemas/lock-and-study/takken-free-sample-profile-v1.json",
+  "title": "Lock and Study Takken Free Sample Profile v1",
+  "type": "object",
+  "required": [
+    "profileID",
+    "questionCount",
+    "minimumDistinctConceptCount",
+    "maximumQuestionsPerConcept",
+    "categoryTargets",
+    "formatTargets",
+    "difficultyTargets",
+    "minimumUnlockEligibleCount",
+    "maximumCaseStudyCount"
+  ],
+  "properties": {
+    "profileID": { "type": "string", "minLength": 1 },
+    "questionCount": { "type": "integer", "minimum": 1 },
+    "minimumDistinctConceptCount": { "type": "integer", "minimum": 1 },
+    "maximumQuestionsPerConcept": { "type": "integer", "minimum": 1 },
+    "categoryTargets": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "formatTargets": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "difficultyTargets": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "minimumUnlockEligibleCount": { "type": "integer", "minimum": 0 },
+    "maximumCaseStudyCount": { "type": "integer", "minimum": 0 }
+  },
+  "additionalProperties": true
+}

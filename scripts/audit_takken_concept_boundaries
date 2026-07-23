@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+"""Write warning-only Concept Boundary audit artifacts; never auto merge/split."""
+import argparse
+import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+
+from takken_concept_workflow import write_boundary_audit
+from takken_concepts import MASTER_PATH, ROOT
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--concept-master", type=Path, default=MASTER_PATH)
+arguments = parser.parse_args()
+source = (
+    arguments.concept_master
+    if arguments.concept_master.is_absolute()
+    else ROOT / arguments.concept_master
+)
+audit, created = write_boundary_audit(source)
+print(
+    f"Concept boundary audit: {audit['warningCount']} warning(s); "
+    f"decision template {'created' if created else 'preserved'}."
+)

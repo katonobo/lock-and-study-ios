@@ -15,6 +15,7 @@
 		0C143D774B63E9B8F340382F /* LockAndStudyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A79975337CC2A0F9348BD4A /* LockAndStudyUITests.swift */; };
 		0DF34DBCF6802BB05692FECB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D6009FFC70F6B9E6C861D7E9 /* PrivacyInfo.xcprivacy */; };
 		0F100E2D141C5997D3FB15F8 /* ShieldActionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5506B298B08A2A671BFABE38 /* ShieldActionExtension.swift */; };
+		132EC87F8A9104340FF5FBFC /* TakkenConceptWorkflowV18Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11D5EAF64684CB5B3C1F4C6 /* TakkenConceptWorkflowV18Tests.swift */; };
 		13565A7D4033317B7CFE9B31 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3177EA014819A28B300C176E /* AppRouter.swift */; };
 		1AB3C7861EB686D334C406E5 /* takken2027_questions_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 2FA2684C6B821D1F9649D83D /* takken2027_questions_v1.json */; };
 		1C58FDF3D58F841B64DEB956 /* EmergencyUnlockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66ECF0AAA315C757C2D5E10 /* EmergencyUnlockTests.swift */; };
@@ -272,6 +273,7 @@
 		AD9F67380D89054BE98C9310 /* EmergencyUnlockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyUnlockService.swift; sourceTree = "<group>"; };
 		AEC3A0448978244375469A22 /* ManagementCodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagementCodeTests.swift; sourceTree = "<group>"; };
 		AFAAD12E85FA2D52431CB5EF /* EmergencyUnlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyUnlockView.swift; sourceTree = "<group>"; };
+		B11D5EAF64684CB5B3C1F4C6 /* TakkenConceptWorkflowV18Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenConceptWorkflowV18Tests.swift; sourceTree = "<group>"; };
 		B2623E6B63CF1F38F3D80D4F /* TakkenReportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenReportProvider.swift; sourceTree = "<group>"; };
 		B4A3F0F1C265434131E1347D /* TakkenFinalizationV6Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenFinalizationV6Tests.swift; sourceTree = "<group>"; };
 		B547AEE612A9D5CE29DCD992 /* ValidatedCatalogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatedCatalogStore.swift; sourceTree = "<group>"; };
@@ -354,6 +356,7 @@
 				59604B79ADE3C33041A1C436 /* PlatformFoundationV9Tests.swift */,
 				4D1564A908AE1A0FF1F706AB /* PlatformHardeningV11Tests.swift */,
 				8A012B7648676480E9E54FEE /* TakkenConceptMasterV17Tests.swift */,
+				B11D5EAF64684CB5B3C1F4C6 /* TakkenConceptWorkflowV18Tests.swift */,
 				756F394EF9D2995DE19E5724 /* TakkenContentImprovementV14Tests.swift */,
 				F995DD7EF80186CA1387D082 /* TakkenExperienceTests.swift */,
 				B4A3F0F1C265434131E1347D /* TakkenFinalizationV6Tests.swift */,
@@ -1180,6 +1183,7 @@
 				AEC1B9249F5742219F2A6926 /* PlatformFoundationV9Tests.swift in Sources */,
 				830EC94B00B2215BCDFBE03E /* PlatformHardeningV11Tests.swift in Sources */,
 				4F8B26867F5EF0D7CFED6B7C /* TakkenConceptMasterV17Tests.swift in Sources */,
+				132EC87F8A9104340FF5FBFC /* TakkenConceptWorkflowV18Tests.swift in Sources */,
 				A742188D71B7EB4B1E99764F /* TakkenContentImprovementV14Tests.swift in Sources */,
 				9473F6BDD997046634552AC0 /* TakkenExperienceTests.swift in Sources */,
 				E98C76B2A7C0CA026C42AB5F /* TakkenFinalizationV6Tests.swift in Sources */,

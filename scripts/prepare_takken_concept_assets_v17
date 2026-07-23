@@ -4,10 +4,30 @@ import sys
 
 sys.dont_write_bytecode = True
 
-from takken_concepts import audit_snapshot, write_all_draft_assets
+import hashlib
+
+from takken_concepts import (
+    GENERATED_ROOT,
+    REVIEWED_ROOT,
+    VARIANTS_PATH,
+    audit_snapshot,
+    write_all_draft_assets,
+)
 
 
+def reviewed_digests() -> dict[str, str]:
+    return {
+        str(path.relative_to(REVIEWED_ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in REVIEWED_ROOT.rglob("*")
+        if path.is_file()
+    }
+
+
+before_reviewed = reviewed_digests()
 write_all_draft_assets()
+if reviewed_digests() != before_reviewed:
+    print("ERROR: Generated draft preparation changed Reviewed files")
+    raise SystemExit(1)
 snapshot, errors = audit_snapshot()
 if errors:
     for error in errors:
@@ -19,3 +39,6 @@ print(
     f"{snapshot['legacyInventory']['count']} legacy mappings, "
     f"{snapshot['golden']['variantCount']} Golden variants."
 )
+print(f"Generated output directory: {GENERATED_ROOT}")
+print(f"Generated variant output: {VARIANTS_PATH}")
+print(f"Reviewed directory preserved: {REVIEWED_ROOT}")

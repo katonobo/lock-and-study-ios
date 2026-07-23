@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://katonobo.com/schemas/lock-and-study/takken-concept-master-v1.json",
-  "title": "Lock and Study Takken Concept Master v1",
+  "title": "Lock and Study Takken Concept Master v1 / workflow v18",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -10,6 +10,7 @@
     "lawBasisDate",
     "status",
     "allowedConceptRange",
+    "fullPackPlan",
     "concepts"
   ],
   "properties": {
@@ -24,7 +25,23 @@
       "properties": {
         "minimum": { "const": 350 },
         "maximum": { "const": 450 }
-      }
+      },
+      "additionalProperties": false
+    },
+    "fullPackPlan": {
+      "type": "object",
+      "required": [
+        "plannedStandaloneVariantCount",
+        "plannedIntegratedCaseCount",
+        "plannedTotalQuestionCount"
+      ],
+      "properties": {
+        "plannedStandaloneVariantCount": { "type": "integer", "minimum": 0 },
+        "plannedIntegratedCaseCount": { "type": "integer", "minimum": 0 },
+        "plannedTotalQuestionCount": { "type": "integer", "minimum": 1 },
+        "humanReviewRequired": { "type": "boolean" }
+      },
+      "additionalProperties": false
     },
     "concepts": {
       "type": "array",
@@ -40,22 +57,36 @@
           "canonicalRule",
           "learningObjectives",
           "importanceTier",
+          "importanceScore",
+          "frequencyScore",
           "recommendedFormats",
           "minimumVariantCount",
           "targetVariantCount",
           "maximumVariantCount",
-          "unlockPolicy",
-          "preview",
           "legacySourceIDs",
+          "numericFacts",
           "sourceNotes",
           "requiresSourceResearch",
-          "reviewStatus"
+          "requiresAnnualReview",
+          "annualReviewReason",
+          "reviewStatus",
+          "mergedFromConceptIDs",
+          "splitFromConceptID",
+          "supersedesConceptIDs",
+          "reviewDecision"
         ],
         "properties": {
           "conceptID": { "type": "string", "pattern": "^takken\\." },
+          "category": { "type": "string", "minLength": 1 },
+          "subCategory": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "canonicalRule": { "type": "string", "minLength": 1 },
           "importanceTier": { "enum": ["A", "B", "C"] },
+          "importanceScore": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "frequencyScore": { "type": "integer", "minimum": 1, "maximum": 5 },
           "recommendedFormats": {
             "type": "array",
+            "minItems": 1,
             "items": {
               "enum": [
                 "true_false",
@@ -67,9 +98,97 @@
             },
             "uniqueItems": true
           },
-          "reviewStatus": { "enum": ["ai_draft", "reviewed", "release"] }
-        }
+          "minimumVariantCount": { "type": "integer", "minimum": 0 },
+          "targetVariantCount": { "type": "integer", "minimum": 0 },
+          "maximumVariantCount": { "type": "integer", "minimum": 0 },
+          "legacySourceIDs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          },
+          "numericFacts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["fact", "value", "unit", "reviewStatus"],
+              "properties": {
+                "fact": { "type": "string", "minLength": 1 },
+                "value": { "type": ["integer", "number", "string"] },
+                "unit": { "type": "string", "minLength": 1 },
+                "reviewStatus": { "const": "reviewed" },
+                "sourceNote": { "type": "string", "minLength": 1 },
+                "reviewer": { "type": "string", "minLength": 1 },
+                "reviewedAt": { "type": "string", "format": "date" }
+              },
+              "additionalProperties": true
+            }
+          },
+          "sourceNotes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "requiresSourceResearch": { "type": "boolean" },
+          "requiresAnnualReview": { "type": "boolean" },
+          "annualReviewReason": { "type": "string", "minLength": 8 },
+          "reviewStatus": { "enum": ["ai_draft", "reviewed", "release"] },
+          "reviewer": { "type": ["string", "null"] },
+          "reviewedAt": { "type": ["string", "null"], "format": "date" },
+          "reviewNote": { "type": ["string", "null"] },
+          "mergedFromConceptIDs": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          },
+          "splitFromConceptID": { "type": ["string", "null"] },
+          "supersedesConceptIDs": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          },
+          "reviewDecision": {
+            "type": ["string", "null"],
+            "enum": [
+              null,
+              "accept",
+              "merge",
+              "split",
+              "rename",
+              "retire",
+              "integrated_case"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "reviewStatus": { "enum": ["reviewed", "release"] }
+              }
+            },
+            "then": {
+              "required": ["reviewer", "reviewedAt", "reviewDecision"],
+              "properties": {
+                "sourceNotes": { "minItems": 1 },
+                "reviewer": { "type": "string", "minLength": 1 },
+                "reviewedAt": { "type": "string", "format": "date" },
+                "reviewDecision": {
+                  "enum": [
+                    "accept",
+                    "merge",
+                    "split",
+                    "rename",
+                    "retire",
+                    "integrated_case"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "additionalProperties": true
       }
     }
-  }
+  },
+  "additionalProperties": true
 }
