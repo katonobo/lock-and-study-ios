@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""Rebuild exactly 1,000 legacy-question classifications without touching Release."""
+import sys
+
+sys.dont_write_bytecode = True
+
+from takken_concepts import INVENTORY_PATH, build_concept_assets, write_json
+
+
+assets = build_concept_assets()
+write_json(INVENTORY_PATH, assets["inventory"])
+print(
+    f"Built {len(assets['inventory']['items'])} legacy inventory entries: "
+    f"{INVENTORY_PATH}"
+)

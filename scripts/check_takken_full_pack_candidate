@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""Validate one or more reviewed variant documents as a future 1,000+ full pack."""
+import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+
+from takken_concepts import (
+    INVENTORY_PATH,
+    MASTER_PATH,
+    ROOT,
+    full_pack_candidate_errors,
+    load_json,
+)
+
+
+if len(sys.argv) < 2:
+    print("usage: ./scripts/check_takken_full_pack_candidate <variants.json> [...]")
+    raise SystemExit(2)
+variants = []
+for value in sys.argv[1:]:
+    path = (ROOT / value).resolve()
+    document = load_json(path)
+    variants.extend(document.get("variants") or document)
+master = load_json(MASTER_PATH)
+inventory = load_json(INVENTORY_PATH)
+errors = full_pack_candidate_errors(variants, master, inventory)
+if errors:
+    for error in errors[:50]:
+        print(f"ERROR: {error}")
+    if len(errors) > 50:
+        print(f"ERROR: ... {len(errors) - 50} additional validation error(s) omitted")
+    raise SystemExit(1)
+print("Takken full-pack candidate validation passed.")

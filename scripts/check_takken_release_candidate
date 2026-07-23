@@ -9,6 +9,7 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 from content_checks import ROOT, catalog, validate_takken_v2
+from takken_concepts import MASTER_PATH, load_json
 
 
 def main() -> int:
@@ -37,6 +38,19 @@ def main() -> int:
     manifest["contentQualityProfile"] = "takken-v2"
     manifest["choiceOrderStrategy"] = "seeded_shuffle"
     errors = validate_takken_v2(items, manifest)
+    concept_ids = {value["conceptID"] for value in load_json(MASTER_PATH)["concepts"]}
+    unknown = sorted(
+        {
+            item.get("conceptID")
+            for item in items
+            if item.get("conceptID") not in concept_ids
+        }
+    )
+    if unknown:
+        errors.append(
+            "v17 concept masterに存在しないconceptID: "
+            + ", ".join(str(value) for value in unknown[:5])
+        )
     if errors:
         print("Takken v2 package-level release gate failed:")
         for error in errors:

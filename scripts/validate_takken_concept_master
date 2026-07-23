@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Validate the v17 concept master and its complete legacy-source ownership."""
+import sys
+
+sys.dont_write_bytecode = True
+
+from takken_concepts import (
+    MASTER_PATH,
+    load_json,
+    load_legacy_records,
+    validate_concept_master,
+)
+
+
+master = load_json(MASTER_PATH)
+known_ids = {record["question"]["id"] for record in load_legacy_records()}
+errors = validate_concept_master(master, known_ids)
+if errors:
+    for error in errors:
+        print(f"ERROR: {error}")
+    raise SystemExit(1)
+print(f"Takken concept master validation passed: {len(master['concepts'])} concepts.")

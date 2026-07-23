@@ -185,13 +185,13 @@ struct TakkenQuestionSelectionRequest: Sendable {
 }
 
 struct TakkenQuestionSelectionEngine: Sendable {
-  private let difficultyRank = ["基礎": 0, "標準": 1, "応用": 2]
-  private let importanceRank = ["高": 2, "中": 1, "低": 0]
+  private let masteryPolicy = TakkenConceptMasteryPolicy()
 
   func select(_ request: TakkenQuestionSelectionRequest) -> [TakkenPresentedQuestion] {
     guard request.count > 0 else { return [] }
     var eligible = request.questions.filter { question in
       (request.mode != .unlock || question.unlockEligible)
+        && (request.mode != .unlock || (question.estimatedSeconds ?? 30) <= 30)
         && (request.settings.selectedCategories.isEmpty
           || request.settings.selectedCategories.contains(question.category))
         && (request.settings.selectedDifficulties.isEmpty
@@ -205,17 +205,24 @@ struct TakkenQuestionSelectionEngine: Sendable {
 
     let presentationHistory = uniquePresentationHistory(request.recentAnswers)
     let recentItemIDs = Set(presentationHistory.suffix(10).map { $0.itemID.rawValue })
-    let recentFormats = presentationHistory.suffix(20).compactMap {
-      $0.questionFormat.flatMap(TakkenQuestionFormat.init(rawValue:))
+    let recentVariantKeys = Set(presentationHistory.suffix(20).map {
+      "\($0.conceptID ?? $0.itemID.rawValue)::\($0.variantID ?? $0.itemID.rawValue)"
+    })
+    let recentFormat = presentationHistory.last?.questionFormat.flatMap {
+      TakkenQuestionFormat(rawValue: $0)
     }
-    let target = formatTargets(for: request.mode)
+    let grouped = Dictionary(grouping: eligible, by: \.resolvedConceptID)
     var selected: [TakkenQuestion] = []
     var selectedConcepts: Set<String> = []
 
     if let preview = request.pendingPreview {
-      let candidates = eligible.filter { $0.resolvedConceptID == preview.conceptID }
-      let preferred = candidates.first { $0.resolvedVariantID != preview.preferredVariantID }
-        ?? candidates.first
+      let candidates = grouped[preview.conceptID] ?? []
+      let mastery = mastery(
+        conceptID: preview.conceptID, request: request)
+      let preferred = bestVariant(
+        from: candidates, mastery: mastery, request: request,
+        recentItemIDs: recentItemIDs, recentVariantKeys: recentVariantKeys,
+        recentFormat: recentFormat, avoiding: preview.preferredVariantID)
       if let preferred {
         selected.append(preferred)
         selectedConcepts.insert(preferred.resolvedConceptID)
@@ -223,27 +230,28 @@ struct TakkenQuestionSelectionEngine: Sendable {
     }
 
     while selected.count < request.count {
-      let pool = eligible.filter { candidate in
-        !selected.contains(where: { $0.id == candidate.id })
-          && !selectedConcepts.contains(candidate.resolvedConceptID)
-      }
-      guard let next = pool.min(by: { lhs, rhs in
-        ranking(
-          lhs, request: request, recentItemIDs: recentItemIDs,
-          formatHistory: recentFormats + selected.map(\.resolvedFormat), target: target)
-          < ranking(
-            rhs, request: request, recentItemIDs: recentItemIDs,
-            formatHistory: recentFormats + selected.map(\.resolvedFormat), target: target)
+      let conceptPool = grouped.keys.filter { !selectedConcepts.contains($0) }
+      guard let conceptID = conceptPool.min(by: { lhs, rhs in
+        conceptRank(
+          conceptID: lhs, questions: grouped[lhs] ?? [], request: request,
+          recentFormat: recentFormat)
+          < conceptRank(
+            conceptID: rhs, questions: grouped[rhs] ?? [], request: request,
+            recentFormat: recentFormat)
       }) else { break }
+      let mastery = mastery(conceptID: conceptID, request: request)
+      guard let next = bestVariant(
+        from: grouped[conceptID] ?? [], mastery: mastery, request: request,
+        recentItemIDs: recentItemIDs, recentVariantKeys: recentVariantKeys,
+        recentFormat: recentFormat, avoiding: nil)
+      else {
+        selectedConcepts.insert(conceptID)
+        continue
+      }
       selected.append(next)
-      selectedConcepts.insert(next.resolvedConceptID)
+      selectedConcepts.insert(conceptID)
     }
 
-    if selected.count < request.count {
-      let remaining = eligible.filter { candidate in !selected.contains { $0.id == candidate.id } }
-        .sorted { stableTie($0, request: request) < stableTie($1, request: request) }
-      selected.append(contentsOf: remaining.prefix(request.count - selected.count))
-    }
     return selected.prefix(request.count).map {
       TakkenPresentedQuestion.make(source: $0, sessionID: request.sessionID)
     }
@@ -253,40 +261,137 @@ struct TakkenQuestionSelectionEngine: Sendable {
     _ questions: [TakkenQuestion], request: TakkenQuestionSelectionRequest
   ) -> [TakkenQuestion] {
     let filtered = questions.filter { question in
-      let value = progress(question, request: request)
+      let snapshot = mastery(conceptID: question.resolvedConceptID, request: request)
       switch request.mode {
-      case .mistakes: return value.incorrectCount > 0
+      case .mistakes: return snapshot.incorrectCount > 0
       case .weakness:
         return question.weaknessEligible
-          && value.incorrectCount >= max(1, value.correctCount)
-      case .newItems: return value.answerCount == 0
-      case .review: return value.dueAt.map { $0 <= request.now } ?? false
+          && (snapshot.state == .relearning || !snapshot.weakMisconceptionCodes.isEmpty)
+      case .newItems: return snapshot.state == .unlearned
+      case .review:
+        return snapshot.state == .due
+          || progress(question, request: request).dueAt.map { $0 <= request.now } == true
       default: return true
       }
     }
     return filtered.isEmpty && request.mode == .unlock ? questions : filtered
   }
 
-  private func ranking(
-    _ question: TakkenQuestion,
+  private func conceptRank(
+    conceptID: String,
+    questions: [TakkenQuestion],
+    request: TakkenQuestionSelectionRequest,
+    recentFormat: TakkenQuestionFormat?
+  ) -> (Int, Int, Int, Int, UInt64) {
+    let snapshot = mastery(conceptID: conceptID, request: request)
+    let itemDue = questions.contains {
+      progress($0, request: request).dueAt.map { $0 <= request.now } == true
+    }
+    let priority: Int
+    if snapshot.state == .due || itemDue {
+      priority = 0
+    } else if snapshot.state == .relearning {
+      priority = 1
+    } else if snapshot.state == .unlearned {
+      switch importancePriority(questions) {
+      case 0: priority = 2
+      case 1: priority = 3
+      default: priority = 6
+      }
+    } else if snapshot.state == .learning || snapshot.state == .stabilizing {
+      priority = 4
+    } else {
+      priority = 5
+    }
+    let formatPenalty =
+      recentFormat.map { recent in
+        questions.contains { $0.resolvedFormat != recent } ? 0 : 1
+      } ?? 0
+    let answeredPenalty = snapshot.answerCount > 0 ? 1 : 0
+    let importance = importancePriority(questions)
+    return (
+      priority, formatPenalty, answeredPenalty, importance,
+      TakkenStableRandom.seed("\(request.sessionID.uuidString)::\(conceptID)"))
+  }
+
+  private func bestVariant(
+    from questions: [TakkenQuestion],
+    mastery: TakkenConceptMasterySnapshot,
     request: TakkenQuestionSelectionRequest,
     recentItemIDs: Set<String>,
-    formatHistory: [TakkenQuestionFormat],
-    target: [TakkenQuestionFormat: Double]
-  ) -> (Int, Int, Int, Int, UInt64) {
-    let value = progress(question, request: request)
-    let priority: Int
-    if value.dueAt.map({ $0 <= request.now }) == true { priority = 0 }
-    else if value.incorrectCount > value.correctCount { priority = 1 }
-    else if value.answerCount == 0 { priority = 2 }
-    else { priority = 3 }
-    let recentPenalty = recentItemIDs.contains(question.id) ? 1 : 0
-    let count = formatHistory.filter { $0 == question.resolvedFormat }.count
-    let desired = target[question.resolvedFormat] ?? 0
-    let formatPenalty = Int((Double(count + 1) / Double(max(1, formatHistory.count + 1)) - desired) * 1_000)
-    let difficulty = difficultyRank[question.difficulty] ?? 99
-    let importance = -(importanceRank[question.importance ?? ""] ?? 0)
-    return (priority, recentPenalty, formatPenalty, importance + difficulty, stableTie(question, request: request))
+    recentVariantKeys: Set<String>,
+    recentFormat: TakkenQuestionFormat?,
+    avoiding variantID: String?
+  ) -> TakkenQuestion? {
+    questions.min { lhs, rhs in
+      variantRank(
+        lhs, mastery: mastery, request: request, recentItemIDs: recentItemIDs,
+        recentVariantKeys: recentVariantKeys, recentFormat: recentFormat,
+        avoiding: variantID
+      ).lexicographicallyPrecedes(
+        variantRank(
+          rhs, mastery: mastery, request: request, recentItemIDs: recentItemIDs,
+          recentVariantKeys: recentVariantKeys, recentFormat: recentFormat,
+          avoiding: variantID))
+    }
+  }
+
+  private func variantRank(
+    _ question: TakkenQuestion,
+    mastery: TakkenConceptMasterySnapshot,
+    request: TakkenQuestionSelectionRequest,
+    recentItemIDs: Set<String>,
+    recentVariantKeys: Set<String>,
+    recentFormat: TakkenQuestionFormat?,
+    avoiding variantID: String?
+  ) -> [UInt64] {
+    let variantKey = "\(question.resolvedConceptID)::\(question.resolvedVariantID)"
+    return [
+      UInt64(variantID == question.resolvedVariantID ? 1 : 0),
+      UInt64(recentVariantKeys.contains(variantKey) ? 1 : 0),
+      UInt64(recentItemIDs.contains(question.id) ? 1 : 0),
+      UInt64(recentFormat == question.resolvedFormat ? 1 : 0),
+      UInt64(weaknessPenalty(question.resolvedFormat, codes: mastery.weakMisconceptionCodes)),
+      UInt64(request.mode == .unlock ? max(0, question.estimatedSeconds ?? 30) : 0),
+      stableTie(question, request: request),
+    ]
+  }
+
+  private func weaknessPenalty(
+    _ format: TakkenQuestionFormat,
+    codes: Set<String>
+  ) -> Int {
+    guard !codes.isEmpty else { return 0 }
+    var preferred: Set<TakkenQuestionFormat> = []
+    if codes.contains("number") { preferred.insert(.numberChoice) }
+    if !codes.isDisjoint(with: ["actor", "timing", "obligation", "procedure"]) {
+      preferred.formUnion([.wordingContrast, .caseStudy])
+    }
+    if !codes.isDisjoint(with: ["exception", "scope", "condition"]) {
+      preferred.formUnion([.multipleChoice, .caseStudy])
+    }
+    if !codes.isDisjoint(with: ["document", "terminology"]) {
+      preferred.formUnion([.trueFalse, .wordingContrast])
+    }
+    return preferred.contains(format) ? 0 : 1
+  }
+
+  private func importancePriority(_ questions: [TakkenQuestion]) -> Int {
+    questions.map {
+      switch $0.importance {
+      case "高": return 0
+      case "中": return 1
+      case "低": return 2
+      default: return 3
+      }
+    }.min() ?? 3
+  }
+
+  private func mastery(
+    conceptID: String, request: TakkenQuestionSelectionRequest
+  ) -> TakkenConceptMasterySnapshot {
+    masteryPolicy.snapshot(
+      conceptID: conceptID, answers: request.recentAnswers, now: request.now)
   }
 
   private func progress(
@@ -301,17 +406,6 @@ struct TakkenQuestionSelectionEngine: Sendable {
     _ question: TakkenQuestion, request: TakkenQuestionSelectionRequest
   ) -> UInt64 {
     TakkenStableRandom.seed("\(request.sessionID.uuidString)::\(question.id)")
-  }
-
-  private func formatTargets(for mode: StudyMode) -> [TakkenQuestionFormat: Double] {
-    switch mode {
-    case .unlock:
-      return [.trueFalse: 0.30, .numberChoice: 0.30, .wordingContrast: 0.25,
-              .multipleChoice: 0.075, .caseStudy: 0.075]
-    default:
-      return [.trueFalse: 0.20, .numberChoice: 0.20, .wordingContrast: 0.20,
-              .multipleChoice: 0.20, .caseStudy: 0.20]
-    }
   }
 
   private func uniquePresentationHistory(

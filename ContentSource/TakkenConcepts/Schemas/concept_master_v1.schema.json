@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://katonobo.com/schemas/lock-and-study/takken-concept-master-v1.json",
+  "title": "Lock and Study Takken Concept Master v1",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "packID",
+    "examYear",
+    "lawBasisDate",
+    "status",
+    "allowedConceptRange",
+    "concepts"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "packID": { "const": "takken2026.v1" },
+    "examYear": { "const": 2026 },
+    "lawBasisDate": { "const": "2026-04-01" },
+    "status": { "enum": ["ai_draft", "reviewed", "release"] },
+    "allowedConceptRange": {
+      "type": "object",
+      "required": ["minimum", "maximum"],
+      "properties": {
+        "minimum": { "const": 350 },
+        "maximum": { "const": 450 }
+      }
+    },
+    "concepts": {
+      "type": "array",
+      "minItems": 350,
+      "maxItems": 450,
+      "items": {
+        "type": "object",
+        "required": [
+          "conceptID",
+          "category",
+          "subCategory",
+          "title",
+          "canonicalRule",
+          "learningObjectives",
+          "importanceTier",
+          "recommendedFormats",
+          "minimumVariantCount",
+          "targetVariantCount",
+          "maximumVariantCount",
+          "unlockPolicy",
+          "preview",
+          "legacySourceIDs",
+          "sourceNotes",
+          "requiresSourceResearch",
+          "reviewStatus"
+        ],
+        "properties": {
+          "conceptID": { "type": "string", "pattern": "^takken\\." },
+          "importanceTier": { "enum": ["A", "B", "C"] },
+          "recommendedFormats": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "true_false",
+                "number_choice",
+                "wording_contrast",
+                "multiple_choice",
+                "case_study"
+              ]
+            },
+            "uniqueItems": true
+          },
+          "reviewStatus": { "enum": ["ai_draft", "reviewed", "release"] }
+        }
+      }
+    }
+  }
+}

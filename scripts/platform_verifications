@@ -9,3 +9,4 @@ cd "$(dirname "$0")/.."
 ./scripts/verify_platform_v12
 ./scripts/verify_platform_v13
 ./scripts/verify_platform_v14
+./scripts/verify_platform_v17

@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""Require 100 reviewed concepts and 250-300 reviewed Golden variants."""
+import sys
+from pathlib import Path
+
+sys.dont_write_bytecode = True
+
+from takken_concepts import (
+    GOLDEN_PATH,
+    MASTER_PATH,
+    ROOT,
+    VARIANTS_PATH,
+    golden_candidate_errors,
+    load_json,
+)
+
+
+if len(sys.argv) not in {1, 4}:
+    print(
+        "usage: ./scripts/check_takken_golden_candidate "
+        "[<golden.json> <variants.json> <master.json>]"
+    )
+    raise SystemExit(2)
+paths = (
+    (GOLDEN_PATH, VARIANTS_PATH, MASTER_PATH)
+    if len(sys.argv) == 1
+    else tuple((ROOT / value).resolve() for value in sys.argv[1:])
+)
+golden, variant_document, master = (load_json(path) for path in paths)
+variants = variant_document.get("variants") or variant_document
+errors = golden_candidate_errors(golden, variants, master)
+if errors:
+    for error in errors[:50]:
+        print(f"ERROR: {error}")
+    if len(errors) > 50:
+        print(f"ERROR: ... {len(errors) - 50} additional validation error(s) omitted")
+    raise SystemExit(1)
+print("Takken Golden candidate validation passed.")

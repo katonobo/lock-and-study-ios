@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+"""Select exactly one reviewed variant for each Golden concept, outside Release Resources."""
+import sys
+
+sys.dont_write_bytecode = True
+
+from takken_concepts import (
+    GOLDEN_PATH,
+    MASTER_PATH,
+    RELEASE_CANDIDATE_ROOT,
+    VARIANTS_PATH,
+    free_sample_selection_errors,
+    load_json,
+    write_json,
+)
+
+
+golden = load_json(GOLDEN_PATH)
+master = load_json(MASTER_PATH)
+variant_document = load_json(VARIANTS_PATH)
+variants = variant_document.get("variants") or []
+errors, selected = free_sample_selection_errors(variants, golden, master)
+if errors:
+    for error in errors[:50]:
+        print(f"ERROR: {error}")
+    if len(errors) > 50:
+        print(f"ERROR: ... {len(errors) - 50} additional validation error(s) omitted")
+    print("No Release or ReleaseCandidate file was written.")
+    raise SystemExit(1)
+output = RELEASE_CANDIDATE_ROOT / "takken_2026_free_sample_v17_candidate.json"
+reasons = RELEASE_CANDIDATE_ROOT / "takken_2026_free_sample_v17_selection.json"
+if output.exists() or reasons.exists():
+    print("refusing to overwrite an existing free-sample candidate")
+    raise SystemExit(1)
+write_json(output, selected)
+write_json(
+    reasons,
+    {
+        "schemaVersion": 1,
+        "selectionRule": (
+            "one reviewed variant per Golden concept; unlock eligible, short, "
+            "non-case formats first; stable variantID tie-break"
+        ),
+        "selected": [
+            {
+                "conceptID": value["conceptID"],
+                "variantID": value["variantID"],
+                "reason": "deterministic unlock-friendly representative",
+            }
+            for value in selected
+        ],
+    },
+)
+print(f"Generated deterministic 100-question candidate: {output}")

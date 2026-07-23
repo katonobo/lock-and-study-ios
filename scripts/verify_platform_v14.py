@@ -127,7 +127,8 @@ def main() -> int:
     for required in [
         "reviewer is required",
         "reviewedAt must be a real ISO-8601",
-        "a concrete sourceNote is required",
+        "a traceable sourceNote is required",
+        "reviewedAt must not be in the future",
         "legalReviewChecklist",
         "wrongChoiceRationales must cover every distractor exactly",
         "true/false choices must be exactly 正しい and 誤り",
@@ -322,7 +323,34 @@ def main() -> int:
         "a reviewed item without sourceNote",
         missing_source_example,
         production_manifest,
-        "a concrete sourceNote is required",
+        "a traceable sourceNote is required",
+    )
+    for generic_source in (
+        "独自作成。公式過去問の丸写しではない。",
+        "担当者が確認しました。",
+        "公式サイトを確認。",
+        "AI下書きのため要確認",
+        "監修前の資料",
+    ):
+        generic_source_example = json.loads(
+            json.dumps(reviewed_example, ensure_ascii=False)
+        )
+        generic_source_example["sourceNote"] = generic_source
+        expect_gate_rejection(
+            errors,
+            f"the untraceable source note {generic_source}",
+            generic_source_example,
+            production_manifest,
+            "a traceable sourceNote is required",
+        )
+    future_review_example = json.loads(json.dumps(reviewed_example, ensure_ascii=False))
+    future_review_example["reviewedAt"] = "2999-01-01"
+    expect_gate_rejection(
+        errors,
+        "a future reviewedAt date",
+        future_review_example,
+        production_manifest,
+        "reviewedAt must not be in the future",
     )
     for invalid_date in ("2026-99-99", "2026-02-30"):
         invalid_date_example = json.loads(

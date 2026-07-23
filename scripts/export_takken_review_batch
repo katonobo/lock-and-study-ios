@@ -17,6 +17,10 @@ BATCH_COUNT = 8
 
 
 def main() -> int:
+    print(
+        "DEPRECATED: v17ではconcept reviewを先に行い、"
+        "./scripts/export_takken_concept_review_batch を使用してください。"
+    )
     if len(sys.argv) != 2 or not sys.argv[1].isdigit():
         print("usage: ./scripts/export_takken_review_batch <1-8>")
         return 2

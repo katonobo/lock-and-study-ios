@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""Print concept/category/tier/inventory/variant/source-research coverage."""
+import json
+import sys
+
+sys.dont_write_bytecode = True
+
+from takken_concepts import audit_snapshot
+
+
+snapshot, errors = audit_snapshot()
+print(json.dumps(snapshot, ensure_ascii=False, indent=2))
+if errors:
+    for error in errors:
+        print(f"ERROR: {error}")
+    raise SystemExit(1)
+print("Takken concept coverage audit passed.")

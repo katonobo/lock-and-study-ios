@@ -224,15 +224,36 @@ _REVIEWED_AT_PATTERN = re.compile(
 )
 _DRAFT_MARKERS = (
     "【AI草稿",
+    "AI下書き",
     "AI誤答根拠候補",
     "誤答候補",
     "対照文候補",
     "要校閲",
+    "要確認",
+    "監修前",
     "要点候補",
     "詳細解説候補",
     "pending-human-review",
     "人間が確認する",
     "法令根拠、適用条件、例外を人間の校閲で追記する",
+)
+_UNTRACEABLE_SOURCE_NOTES = {
+    _normalized_text("独自作成。公式過去問の丸写しではない。"),
+    _normalized_text("担当者が確認しました。"),
+    _normalized_text("公式サイトを確認。"),
+}
+_LEGAL_SOURCE_PATTERN = re.compile(
+    r"(?:法|政令|省令|施行令|施行規則|条例|告示).{0,24}"
+    r"第[〇零一二三四五六七八九十百千万\d]+条"
+)
+_PUBLIC_SOURCE_PATTERN = re.compile(
+    r"(?:https?://|e-gov|国土交通省|総務省|国税庁|裁判所).{0,80}"
+    r"(?:\d{4}[-/年]\d{1,2}(?:[-/月]\d{1,2}日?)?|第\d+号|判決|決定)",
+    re.IGNORECASE,
+)
+_CASE_SOURCE_PATTERN = re.compile(
+    r"(?:最高裁|高等裁判所|地方裁判所|判例).{0,80}"
+    r"(?:\d{4}年\d{1,2}月\d{1,2}日|第\d+号|判決|決定)"
 )
 _BRACKETED_INPUT_PLACEHOLDER = re.compile(
     r"(?:\[|［|【)[^\]］】]*(?:入力|記入)[^\]］】]*(?:\]|］|】)"
@@ -250,17 +271,39 @@ def _number_choice_unit(value: object) -> str | None:
     return None if match is None else (match.group("unit") or "").lower()
 
 
-def _is_real_iso_review_date(value: object) -> bool:
+def _parsed_review_date(value: object) -> date | None:
     if not isinstance(value, str) or not _REVIEWED_AT_PATTERN.fullmatch(value):
-        return False
+        return None
     try:
         if "T" in value:
-            datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return datetime.fromisoformat(value.replace("Z", "+00:00")).date()
         else:
-            date.fromisoformat(value)
+            return date.fromisoformat(value)
     except ValueError:
+        return None
+
+
+def _is_real_iso_review_date(value: object) -> bool:
+    return _parsed_review_date(value) is not None
+
+
+def _has_traceable_source_note(value: object) -> bool:
+    if not isinstance(value, str):
         return False
-    return True
+    normalized = unicodedata.normalize("NFKC", value).strip()
+    compact = _normalized_text(normalized)
+    if len(compact) < 8 or compact in _UNTRACEABLE_SOURCE_NOTES:
+        return False
+    if any(
+        marker in compact
+        for marker in map(_normalized_text, ("AI下書き", "監修前", "要確認"))
+    ):
+        return False
+    return bool(
+        _LEGAL_SOURCE_PATTERN.search(normalized)
+        or _PUBLIC_SOURCE_PATTERN.search(normalized)
+        or _CASE_SOURCE_PATTERN.search(normalized)
+    )
 
 
 def validate_takken_v2(
@@ -377,15 +420,18 @@ def validate_takken_v2(
         review_note = item.get("reviewNote")
         if not isinstance(reviewer, str) or not reviewer.strip():
             errors.append(f"{item_id}: reviewer is required")
-        if not _is_real_iso_review_date(reviewed_at):
+        parsed_review_date = _parsed_review_date(reviewed_at)
+        if parsed_review_date is None:
             errors.append(
                 f"{item_id}: reviewedAt must be a real ISO-8601 date or timestamp"
             )
+        elif parsed_review_date > date.today():
+            errors.append(f"{item_id}: reviewedAt must not be in the future")
         if not isinstance(review_note, str) or len(_normalized_text(review_note)) < 12:
             errors.append(f"{item_id}: a concrete reviewNote is required")
         source_note = item.get("sourceNote")
-        if not isinstance(source_note, str) or len(_normalized_text(source_note)) < 8:
-            errors.append(f"{item_id}: a concrete sourceNote is required")
+        if not _has_traceable_source_note(source_note):
+            errors.append(f"{item_id}: a traceable sourceNote is required")
         checklist = item.get("legalReviewChecklist")
         if not isinstance(checklist, dict) or any(
             checklist.get(key) is not True for key in checklist_keys

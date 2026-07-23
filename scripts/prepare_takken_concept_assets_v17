@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""Regenerate all deterministic v17 AI-draft authoring assets."""
+import sys
+
+sys.dont_write_bytecode = True
+
+from takken_concepts import audit_snapshot, write_all_draft_assets
+
+
+write_all_draft_assets()
+snapshot, errors = audit_snapshot()
+if errors:
+    for error in errors:
+        print(f"ERROR: {error}")
+    raise SystemExit(1)
+print(
+    "Generated Takken v17 draft assets: "
+    f"{snapshot['conceptMaster']['count']} concepts, "
+    f"{snapshot['legacyInventory']['count']} legacy mappings, "
+    f"{snapshot['golden']['variantCount']} Golden variants."
+)

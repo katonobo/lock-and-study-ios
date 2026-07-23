@@ -30,6 +30,24 @@ struct TakkenReportProvider: StudyExperienceReportProviding {
     let reviewedSessionConcepts = Set(sessionConcepts.keys).subtracting(newSessionConcepts)
     let firstAttempts = initialAttempts(answers)
     let concepts = Dictionary(grouping: answers, by: conceptID)
+    let allConceptIDs = Set(allAnswers.map(conceptID))
+    let masteryPolicy = TakkenConceptMasteryPolicy()
+    let mastery = allConceptIDs.map {
+      masteryPolicy.snapshot(
+        conceptID: $0, answers: allAnswers, now: now, calendar: calendar)
+    }
+    let priorAnswers = allAnswers.filter { $0.answeredAt < period.startInclusive }
+    let previouslyMastered = Set(allConceptIDs.filter {
+      let state = masteryPolicy.snapshot(
+        conceptID: $0, answers: priorAnswers, now: period.startInclusive,
+        calendar: calendar
+      ).state
+      return state == .mastered || state == .due
+    })
+    let newlyMastered = mastery.filter {
+      ($0.state == .mastered || $0.state == .due)
+        && !previouslyMastered.contains($0.conceptID)
+    }.count
     let understoodConcepts = concepts.values.filter { values in
       values.sorted(by: answerOrder).last?.isCorrect == true
     }.count
@@ -65,6 +83,28 @@ struct TakkenReportProvider: StudyExperienceReportProviding {
         systemImage: "target"),
       metric("takken.unique", "解いた問題", Set(answers.map(\.itemID)).count, "問", "list.number"),
       metric("takken.concepts", "学んだ論点", concepts.count, "論点", "square.stack.3d.up"),
+      metric(
+        "takken.mastered", "定着済み",
+        mastery.filter { $0.state == .mastered }.count, "論点", "checkmark.seal.fill"),
+      metric(
+        "takken.stabilizing", "定着途中",
+        mastery.filter { $0.state == .learning || $0.state == .stabilizing }.count,
+        "論点", "chart.line.uptrend.xyaxis"),
+      metric(
+        "takken.relearningActive", "学び直し中",
+        mastery.filter { $0.state == .relearning }.count,
+        "論点", "arrow.triangle.2.circlepath"),
+      metric(
+        "takken.dueConcepts", "復習期限到来",
+        mastery.filter { $0.state == .due }.count,
+        "論点", "calendar.badge.exclamationmark"),
+      metric(
+        "takken.multiVariant", "別形式でも正解",
+        mastery.filter { $0.distinctVariantCount >= 2 }.count,
+        "論点", "rectangle.3.group"),
+      metric(
+        "takken.newlyMastered", "今週新しく定着",
+        newlyMastered, "論点", "star.circle.fill"),
       LearningReportMetric(
         id: "takken.initialAccuracy", label: "初回正答率",
         value: "\(accuracy(firstAttempts))%", systemImage: "scope"),

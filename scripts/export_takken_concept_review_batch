@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""Export one deterministic concept-review batch; never overwrite prior reviewer work."""
+import sys
+
+sys.dont_write_bytecode = True
+
+from takken_concepts import CONCEPT_ROOT, MASTER_PATH, load_json, write_json
+
+
+BATCH_COUNT = 10
+BATCH_SIZE = 38
+
+if len(sys.argv) != 2 or not sys.argv[1].isdigit():
+    print("usage: ./scripts/export_takken_concept_review_batch <1-10>")
+    raise SystemExit(2)
+batch_number = int(sys.argv[1])
+if not 1 <= batch_number <= BATCH_COUNT:
+    print("batch number must be 1-10")
+    raise SystemExit(2)
+concepts = load_json(MASTER_PATH)["concepts"]
+if len(concepts) != BATCH_COUNT * BATCH_SIZE:
+    print("concept master must contain exactly 380 concepts")
+    raise SystemExit(1)
+start = (batch_number - 1) * BATCH_SIZE
+output = (
+    CONCEPT_ROOT
+    / "ReviewBatches"
+    / f"takken_2026_concept_review_batch_{batch_number:02d}.json"
+)
+if output.exists():
+    print(f"refusing to overwrite existing review batch: {output}")
+    raise SystemExit(1)
+document = {
+    "schemaVersion": 1,
+    "status": "ai_draft",
+    "batchNumber": batch_number,
+    "batchCount": BATCH_COUNT,
+    "concepts": concepts[start : start + BATCH_SIZE],
+}
+write_json(output, document)
+print(f"Exported {len(document['concepts'])} concepts: {output}")

@@ -180,7 +180,8 @@ struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
     correctChoiceID: String, category: String = "宅建業法", subCategory: String? = "テスト",
     difficulty: String = "標準", importance: String? = "中",
     explanation: String = "正しいルールを確認します。", preview: TakkenPreviewPayload? = nil,
-    minimumReviewSeconds: Int? = nil, contrastNote: String? = nil
+    minimumReviewSeconds: Int? = nil, contrastNote: String? = nil,
+    unlockEligible: Bool = true, estimatedSeconds: Int? = nil
   ) {
     self.id = id
     self.conceptID = conceptID
@@ -211,10 +212,10 @@ struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
     version = 2
     packId = "takken2026.v1"
     tags = []
-    unlockEligible = true
+    self.unlockEligible = unlockEligible
     last30DaysEligible = false
     weaknessEligible = true
-    estimatedSeconds = nil
+    self.estimatedSeconds = estimatedSeconds
     self.importance = importance
     retired = false
     replacementId = nil

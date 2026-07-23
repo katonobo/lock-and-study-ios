@@ -651,6 +651,14 @@ final class TakkenAppModel: ObservableObject {
       packID: context.manifest.id, itemID: .init(rawValue: source.id))
     let priorProgress = progress[compositeID.storageKey] ?? .initial(compositeID)
     let selectedStableID = question.sourceChoiceID(for: selectedChoiceID) ?? "unknown"
+    var answerTags = source.tags
+    if !correct,
+      let misconceptionCode = source.choices.first(where: {
+        $0.id == selectedStableID
+      })?.misconceptionCode
+    {
+      answerTags.append("misconception:\(misconceptionCode)")
+    }
     let record = StudyAnswerRecord(
       submissionID:
         "takken::\(sessionID.uuidString)::\(source.id)::attempt::\(ordinal)::choice::\(selectedStableID)",
@@ -678,7 +686,7 @@ final class TakkenAppModel: ObservableObject {
       difficulty: source.difficulty,
       questionFormat: source.resolvedFormat.rawValue,
       keyPoint: source.keyPoint,
-      tags: source.tags,
+      tags: Array(Set(answerTags)).sorted(),
       learningRole: .classify(mode: mode, progress: priorProgress, at: answeredAt),
       wasNewAtSubmission: priorProgress.answerCount == 0,
       wasDueAtSubmission: priorProgress.dueAt.map { $0 <= answeredAt } ?? false,
