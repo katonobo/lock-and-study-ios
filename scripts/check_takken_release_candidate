@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+"""Validate one or more human-reviewed JSON files as one future Takken v2 pack."""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+from content_checks import ROOT, catalog, validate_takken_v2
+
+
+def main() -> int:
+    if len(sys.argv) < 2:
+        print("usage: ./scripts/check_takken_release_candidate <reviewed.json> [...]")
+        return 2
+    reviewed_root = (ROOT / "ContentSource/Reviewed").resolve()
+    files: list[Path] = []
+    for value in sys.argv[1:]:
+        path = (ROOT / value).resolve()
+        if path.parent != reviewed_root or path.suffix != ".json":
+            print(f"reviewed input must be directly under ContentSource/Reviewed: {value}")
+            return 2
+        files.append(path)
+
+    items: list[dict] = []
+    for path in files:
+        value = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(value, list):
+            print(f"reviewed input must be a JSON array: {path.relative_to(ROOT)}")
+            return 2
+        items.extend(value)
+
+    manifest = next(pack for pack in catalog() if pack.get("id") == "takken2026.v1")
+    manifest = dict(manifest)
+    manifest["contentQualityProfile"] = "takken-v2"
+    manifest["choiceOrderStrategy"] = "seeded_shuffle"
+    errors = validate_takken_v2(items, manifest)
+    if errors:
+        print("Takken v2 package-level release gate failed:")
+        for error in errors:
+            print(f"- {error}")
+        return 1
+    print(f"Takken v2 package-level release gate passed: {len(items)} questions")
+    print("This command validates only; it does not modify Release Resources or the catalog.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

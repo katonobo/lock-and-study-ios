@@ -345,6 +345,7 @@ final class ContentTransactionHardeningV13Tests: XCTestCase {
     object["id"] = "certification.\(label).v13"
     object["contentVersion"] = "v13-\(label)"
     object["expectedItemCount"] = 1
+    object["sampleDefinition"] = ["kind": "allReleased", "count": 1]
     object["experienceID"] = "certification.v1"
     object["experienceType"] = "certification.v1"
     let descriptor: [String: Any] = [

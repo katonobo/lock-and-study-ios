@@ -276,39 +276,32 @@ struct TakkenQuestionRepository: Sendable {
   init(packageRoot: URL) { loader = .init(packageRoot: packageRoot) }
 
   func load(manifest: StudyPackManifest) throws -> [TakkenQuestion] {
-    guard !manifest.contentFiles.isEmpty else {
+    let policy = CertificationQuestionPackagePolicy()
+    let descriptors = policy.descriptors(in: manifest)
+    guard !descriptors.isEmpty else {
       throw ContentRepositoryError.missing(manifest.title)
     }
     let decoder = CertificationQuestionWireDecoder()
-    var all: [TakkenQuestion] = []
-    for descriptor in manifest.contentFiles {
-      let decoded = try decoder.decode(loader.data(for: descriptor)).map(TakkenQuestion.init(wire:))
+    var all: [CertificationQuestionWire] = []
+    for descriptor in descriptors {
+      let decoded = try decoder.decode(loader.data(for: descriptor))
       guard decoded.count == descriptor.itemCount else {
         throw ContentRepositoryError.invalid("\(descriptor.path) の件数がmanifestと一致しません")
       }
       all.append(contentsOf: decoded)
     }
-    guard Set(all.map(\.id)).count == all.count else {
-      throw ContentRepositoryError.invalid("宅建問題IDが重複しています")
-    }
-    let active = all.filter { !$0.retired }.sorted {
+    let active = try policy.validatedActiveQuestions(
+      all,
+      manifest: manifest,
+      packageRoot: loader.packageRoot
+    )
+    .map(TakkenQuestion.init(wire:))
+    .sorted {
       if $0.category != $1.category { return $0.category < $1.category }
       if ($0.subCategory ?? "") != ($1.subCategory ?? "") {
         return ($0.subCategory ?? "") < ($1.subCategory ?? "")
       }
       return $0.id < $1.id
-    }
-    guard active.count == manifest.expectedItemCount else {
-      throw ContentRepositoryError.invalid("宅建の公開合計件数が\(manifest.expectedItemCount)問ではありません")
-    }
-    guard
-      !active.contains(where: {
-        $0.isPlaceholder
-          || !(($0.reviewStatus == "checked") || ($0.reviewStatus == "reviewed")
-            || ($0.reviewStatus == "release"))
-      })
-    else {
-      throw ContentRepositoryError.invalid("未校閲またはplaceholderの宅建問題が含まれています")
     }
     return active
   }

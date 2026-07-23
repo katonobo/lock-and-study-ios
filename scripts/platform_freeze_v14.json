@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "groups": [
+    {
+      "id": "lock-core",
+      "roots": ["LockAndStudy/Core/Lock"],
+      "fileCount": 5,
+      "sha256": "eaab1586f7168fe474373dba356900d795dd342f07702cfeacdcf5e66a4923e8"
+    },
+    {
+      "id": "catalog-commerce",
+      "roots": [
+        "LockAndStudy/Core/Commerce",
+        "LockAndStudy/Core/Content/StudyCatalog.swift",
+        "LockAndStudy/Core/Content/StudyContentModels.swift"
+      ],
+      "fileCount": 4,
+      "sha256": "369782472d72b7e38379de76214a541c4caef4da91d7c62e712415c15b2ad4f2"
+    },
+    {
+      "id": "experience-runtime",
+      "roots": ["LockAndStudy/StudyExperiences/Shared"],
+      "fileCount": 3,
+      "sha256": "d61ad4294a1fd626e44c4379603c5bc7a14217710a9f8a2d31eb329b926a3ecf"
+    },
+    {
+      "id": "content-transaction",
+      "roots": [
+        "LockAndStudy/Core/Content/ContentAssetSource.swift",
+        "LockAndStudy/Core/Content/ContentRepository.swift",
+        "LockAndStudy/Core/Content/ProgressMigrationService.swift",
+        "LockAndStudy/Core/Persistence/LearningDataStore.swift"
+      ],
+      "fileCount": 4,
+      "sha256": "817ff50f1f652a523f49639af8cd46085a3bfe98be6f3015e85c71691cd14444"
+    }
+  ]
+}

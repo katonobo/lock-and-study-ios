@@ -206,8 +206,10 @@ def _normalized_text(value: str) -> str:
     return re.sub(r"\s+", "", unicodedata.normalize("NFKC", value or "")).lower()
 
 
-def validate_takken_v2(items: list[dict], manifest: dict) -> list[str]:
-    """Strict gate for future Takken v2 Release candidates; current v1 remains auditable."""
+def validate_takken_v2(
+    items: list[dict], manifest: dict, *, release_pack: bool = True
+) -> list[str]:
+    """Strict human-review gate; optionally enforce final free-pack count and mix."""
     errors: list[str] = []
     formats = {name: 0 for name in (
         "true_false", "number_choice", "wording_contrast", "multiple_choice", "case_study"
@@ -220,8 +222,28 @@ def validate_takken_v2(items: list[dict], manifest: dict) -> list[str]:
         "true_false": {2}, "number_choice": {2, 3, 4}, "wording_contrast": {2},
         "multiple_choice": {4}, "case_study": {4},
     }
-    allowed_review = {"checked", "reviewed", "release"}
+    allowed_review = {"reviewed", "release"}
     unit_pattern = re.compile(r"(?:円|万円|億円|日|週間|か月|ヶ月|月|年|％|%|割|人|件|㎡|平方メートル)")
+    reviewed_at_pattern = re.compile(
+        r"^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?"
+        r"(?:Z|[+-]\d{2}:\d{2})?)?$"
+    )
+    draft_markers = (
+        "【AI草稿",
+        "AI誤答根拠候補",
+        "［正しい数値・期限を入力］",
+        "［近い数値候補",
+        "［例外条件の数値候補",
+        "pending-human-review",
+        "法令根拠、適用条件、例外を人間の校閲で追記する",
+    )
+    checklist_keys = {"lawBasis", "subject", "timing", "numbers", "exceptions"}
+
+    item_ids = [item.get("id") for item in items]
+    if any(not isinstance(item_id, str) or not item_id.strip() for item_id in item_ids):
+        errors.append("v2 item ID must be nonempty")
+    if len(item_ids) != len(set(item_ids)):
+        errors.append("v2 item IDs must be unique across the candidate pack")
 
     for item in items:
         item_id = item.get("id", "<unknown>")
@@ -284,12 +306,57 @@ def validate_takken_v2(items: list[dict], manifest: dict) -> list[str]:
         if item.get("distractorReviewStatus") != "checked":
             errors.append(f"{item_id}: distractor review is required")
         wrong_choices = [choice for choice in choices if choice.get("id") != correct_id]
-        if any(not str(choice.get("rationale") or "").strip() for choice in wrong_choices):
-            errors.append(f"{item_id}: every distractor needs a human-reviewed rationale")
+        wrong_ids = {choice.get("id") for choice in wrong_choices}
+        if isinstance(rationale_map, dict) and set(rationale_map) != wrong_ids:
+            errors.append(f"{item_id}: wrongChoiceRationales must cover every distractor exactly")
+        for choice in wrong_choices:
+            choice_id = choice.get("id")
+            choice_rationale = str(choice.get("rationale") or "").strip()
+            mapped_rationale = str(
+                rationale_map.get(choice_id, "") if isinstance(rationale_map, dict) else ""
+            ).strip()
+            if len(_normalized_text(choice_rationale)) < 12:
+                errors.append(f"{item_id}/{choice_id}: distractor rationale is not concrete")
+            if len(_normalized_text(mapped_rationale)) < 12:
+                errors.append(f"{item_id}/{choice_id}: rationale map entry is not concrete")
+            if choice_rationale and mapped_rationale and choice_rationale != mapped_rationale:
+                errors.append(f"{item_id}/{choice_id}: distractor rationales disagree")
         if item.get("isPlaceholder") is not False or item.get("reviewStatus") == "ai_draft":
             errors.append(f"{item_id}: placeholder/AI draft cannot enter Release")
         if item.get("examYear") != expected_year or item.get("lawBasisDate") != expected_basis:
             errors.append(f"{item_id}: year/law basis differs from manifest")
+        reviewer = item.get("reviewer")
+        reviewed_at = item.get("reviewedAt")
+        review_note = item.get("reviewNote")
+        if not isinstance(reviewer, str) or not reviewer.strip():
+            errors.append(f"{item_id}: reviewer is required")
+        if not isinstance(reviewed_at, str) or not reviewed_at_pattern.fullmatch(reviewed_at):
+            errors.append(f"{item_id}: reviewedAt must be an ISO-8601 date or timestamp")
+        if not isinstance(review_note, str) or len(_normalized_text(review_note)) < 12:
+            errors.append(f"{item_id}: a concrete reviewNote is required")
+        checklist = item.get("legalReviewChecklist")
+        if not isinstance(checklist, dict) or any(
+            checklist.get(key) is not True for key in checklist_keys
+        ):
+            errors.append(f"{item_id}: legalReviewChecklist must confirm all five checks")
+        preview = item.get("preview")
+        if not isinstance(preview, dict) or any(
+            not str(preview.get(key) or "").strip() for key in ("title", "rule")
+        ):
+            errors.append(f"{item_id}: preview title/rule is required")
+        reviewable_text = json.dumps(
+            {
+                "prompt": item.get("prompt"),
+                "choices": choices,
+                "shortExplanation": item.get("shortExplanation"),
+                "longExplanation": item.get("longExplanation"),
+                "preview": preview,
+            },
+            ensure_ascii=False,
+        )
+        for marker in draft_markers:
+            if marker in reviewable_text:
+                errors.append(f"{item_id}: unresolved draft marker remains: {marker}")
         if fmt == "number_choice":
             units = [set(unit_pattern.findall(choice.get("text", ""))) for choice in choices]
             nonempty_units = [unit for unit in units if unit]
@@ -297,25 +364,49 @@ def validate_takken_v2(items: list[dict], manifest: dict) -> list[str]:
                 errors.append(f"{item_id}: number-choice units are inconsistent")
 
     count = len(items)
-    if count:
-        ratio = lambda name: formats[name] / count
-        if ratio("true_false") > 0.50:
-            errors.append("v2 true_false must be at most 50%")
-        if ratio("number_choice") < 0.15:
-            errors.append("v2 number_choice must be at least 15%")
-        if ratio("wording_contrast") < 0.15:
-            errors.append("v2 wording_contrast must be at least 15%")
-        if (formats["multiple_choice"] + formats["case_study"]) / count < 0.25:
-            errors.append("v2 multiple_choice + case_study must be at least 25%")
-    tf_count = sum(true_false_correct.values())
-    if tf_count:
-        true_ratio = true_false_correct["正しい"] / tf_count
-        if not 0.40 <= true_ratio <= 0.60:
-            errors.append("v2 true_false correct-answer ratio must be 40-60%")
-    if four_choice_positions and manifest.get("choiceOrderStrategy") != "seeded_shuffle":
-        position_counts = [four_choice_positions.count(position) for position in range(4)]
-        if min(position_counts) == 0 or max(position_counts) / len(four_choice_positions) > 0.40:
-            errors.append("v2 four-choice answer positions are biased and shuffle is not declared")
+    if release_pack:
+        if not 250 <= count <= 300:
+            errors.append("Takken v2 free Release must contain 250-300 reviewed questions")
+        if len({item.get("conceptID") for item in items}) != 100:
+            errors.append("Takken v2 free Release must preserve exactly 100 reviewed concepts")
+        target_ranges = {
+            "true_false": (0.25, 0.30),
+            "number_choice": (0.20, 0.25),
+            "wording_contrast": (0.20, 0.25),
+            "multiple_choice": (0.20, 0.25),
+            "case_study": (0.05, 0.10),
+        }
+        for name, (minimum, maximum) in target_ranges.items():
+            ratio = formats[name] / max(1, count)
+            if not minimum <= ratio <= maximum:
+                errors.append(
+                    f"Takken v2 Release {name} ratio {ratio:.1%} is outside "
+                    f"{minimum:.0%}-{maximum:.0%}"
+                )
+    if release_pack:
+        tf_count = sum(true_false_correct.values())
+        if tf_count:
+            true_ratio = true_false_correct["正しい"] / tf_count
+            if not 0.40 <= true_ratio <= 0.60:
+                errors.append("v2 true_false correct-answer ratio must be 40-60%")
+        if four_choice_positions and manifest.get("choiceOrderStrategy") != "seeded_shuffle":
+            position_counts = [four_choice_positions.count(position) for position in range(4)]
+            if (
+                min(position_counts) == 0
+                or max(position_counts) / len(four_choice_positions) > 0.40
+            ):
+                errors.append(
+                    "v2 four-choice answer positions are biased and shuffle is not declared"
+                )
+    return errors
+
+
+def validate_takken_v2_review_batch(items: list[dict], manifest: dict) -> list[str]:
+    """Review staging accepts 1-100 items but applies every per-question human gate."""
+    errors: list[str] = []
+    if not 1 <= len(items) <= 100:
+        errors.append("Takken human-review batch must contain 1-100 questions")
+    errors.extend(validate_takken_v2(items, manifest, release_pack=False))
     return errors
 
 
@@ -425,27 +516,52 @@ def validate_content() -> list[str]:
     if samples.get("questionIDSetSHA256") != "fbf68cfb9c4f564436fcd4b78c4e7e35e27bd1078113d02f2c4a4bedfede4667":
         errors.append("free English official ID digest mismatch")
 
-    takken = load_json(RELEASED / "takken_2026_free_100_v1.json")
-    if len(takken) != 100 or by_id.get("takken2026.v1", {}).get("expectedItemCount") != 100:
-        errors.append("released Takken sample must contain exactly 100 questions")
-    if by_id.get("takken2026.v1", {}).get("saleReady") is not False:
-        errors.append("Takken 2026 sale must remain disabled until full review")
-    takken_ids = [item.get("id") for item in takken]
-    if len(takken_ids) != len(set(takken_ids)):
-        errors.append("duplicate Takken item ID")
-    for item in takken:
-        choices = item.get("choices", [])
-        if item.get("isPlaceholder") is not False or item.get("reviewStatus") != "checked":
-            errors.append(f"released Takken question not checked: {item.get('id')}")
-        if not item.get("prompt", "").strip() or not item.get("explanation", "").strip():
-            errors.append(f"empty Takken prompt/explanation: {item.get('id')}")
-        if not isinstance(item.get("correctIndex"), int) or not 0 <= item["correctIndex"] < len(choices):
-            errors.append(f"invalid Takken correctIndex: {item.get('id')}")
-        if item.get("examYear") != 2026 or item.get("lawBasisDate") != "2026-04-01":
-            errors.append(f"invalid Takken year/law basis: {item.get('id')}")
     takken_manifest = by_id.get("takken2026.v1", {})
     if takken_manifest.get("contentQualityProfile") == "takken-v2":
-        errors.extend(validate_takken_v2(takken, takken_manifest))
+        question_components = [
+            component
+            for component in takken_manifest.get("components", [])
+            if component.get("contentSchemaID") == "certification.questions.v1"
+        ]
+        descriptors = [
+            descriptor
+            for component in question_components
+            for descriptor in component.get("contentFiles", [])
+        ] or takken_manifest.get("contentFiles", [])
+        takken = []
+        for descriptor in descriptors:
+            value = load_json(RELEASED / descriptor.get("path", ""))
+            if isinstance(value, list):
+                takken.extend(value)
+            elif isinstance(value, dict):
+                takken.extend(
+                    question
+                    for level in value.get("levels", [])
+                    for question in level.get("questions", [])
+                )
+        active_takken = [item for item in takken if item.get("retired") is not True]
+        if len(active_takken) != takken_manifest.get("expectedItemCount"):
+            errors.append("released Takken v2 active total differs from expectedItemCount")
+        errors.extend(validate_takken_v2(active_takken, takken_manifest))
+    else:
+        takken = load_json(RELEASED / "takken_2026_free_100_v1.json")
+        if len(takken) != 100 or takken_manifest.get("expectedItemCount") != 100:
+            errors.append("released Takken sample must contain exactly 100 questions")
+        if takken_manifest.get("saleReady") is not False:
+            errors.append("Takken 2026 sale must remain disabled until full review")
+        takken_ids = [item.get("id") for item in takken]
+        if len(takken_ids) != len(set(takken_ids)):
+            errors.append("duplicate Takken item ID")
+        for item in takken:
+            choices = item.get("choices", [])
+            if item.get("isPlaceholder") is not False or item.get("reviewStatus") != "checked":
+                errors.append(f"released Takken question not checked: {item.get('id')}")
+            if not item.get("prompt", "").strip() or not item.get("explanation", "").strip():
+                errors.append(f"empty Takken prompt/explanation: {item.get('id')}")
+            if not isinstance(item.get("correctIndex"), int) or not 0 <= item["correctIndex"] < len(choices):
+                errors.append(f"invalid Takken correctIndex: {item.get('id')}")
+            if item.get("examYear") != 2026 or item.get("lawBasisDate") != "2026-04-01":
+                errors.append(f"invalid Takken year/law basis: {item.get('id')}")
     release_text = json.dumps(snapshot, ensure_ascii=False).lower()
     if "fixture" in release_text:
         errors.append("test fixture reference found in production catalog")
@@ -545,6 +661,110 @@ def check_unreviewed() -> list[str]:
     source_names = {path.name for path in (ROOT / "ContentSource/Reviewed").glob("*.json")} | {path.name for path in (ROOT / "ContentSource/Drafts").glob("*.json")}
     if release_names & source_names:
         errors.append("reviewed/draft file included in Release Resources")
+    return errors
+
+
+def takken_v14_inventory() -> dict:
+    paths = {
+        "releasedFree": RELEASED / "takken_2026_free_100_v1.json",
+        "legacyReviewed": ROOT
+        / "ContentSource/Reviewed/takken_2026_gyoho_reviewed_200_v1.json",
+        "horeiDraft": ROOT / "ContentSource/Drafts/takken_2026_horei_draft_200_v1.json",
+        "kenriDraft": ROOT / "ContentSource/Drafts/takken_2026_kenri_draft_300_v1.json",
+        "taxDraft": ROOT / "ContentSource/Drafts/takken_2026_tax_draft_200_v1.json",
+        "v2Candidates": ROOT
+        / "ContentSource/Drafts/takken_2026_free_100_v2_candidates.json",
+    }
+    inventory: dict[str, dict] = {}
+    for label, path in paths.items():
+        items = load_json(path)
+        inventory[label] = {
+            "path": str(path.relative_to(ROOT)),
+            "count": len(items),
+            "formats": dict(sorted(Counter(item.get("format") for item in items).items())),
+            "reviewStatuses": dict(
+                sorted(Counter(item.get("reviewStatus") for item in items).items())
+            ),
+        }
+    inventory["reviewPlan"] = {"batchSize": 50, "batchCount": 8}
+    return inventory
+
+
+def audit_takken_v14() -> list[str]:
+    """Freeze-safe baseline: no automated promotion, and every content pool stays isolated."""
+    errors: list[str] = []
+    inventory = takken_v14_inventory()
+    expected = {
+        "releasedFree": (100, {"true_false": 95, "multiple_choice": 5}, {"checked": 100}),
+        "legacyReviewed": (
+            200,
+            {"true_false": 145, "multiple_choice": 55},
+            {"checked": 200},
+        ),
+        "horeiDraft": (200, {"true_false": 150, "multiple_choice": 50}, {"ai_draft": 200}),
+        "kenriDraft": (300, {"true_false": 210, "multiple_choice": 90}, {"ai_draft": 300}),
+        "taxDraft": (200, {"true_false": 150, "multiple_choice": 50}, {"ai_draft": 200}),
+        "v2Candidates": (
+            400,
+            {
+                "true_false": 115,
+                "number_choice": 80,
+                "wording_contrast": 80,
+                "multiple_choice": 95,
+                "case_study": 30,
+            },
+            {"ai_draft": 400},
+        ),
+    }
+    for label, (count, formats, statuses) in expected.items():
+        actual = inventory[label]
+        if actual["count"] != count:
+            errors.append(f"{label}: expected {count} items, got {actual['count']}")
+        if actual["formats"] != dict(sorted(formats.items())):
+            errors.append(f"{label}: format baseline changed")
+        if actual["reviewStatuses"] != statuses:
+            errors.append(f"{label}: review-status baseline changed")
+
+    candidates = load_json(
+        ROOT / "ContentSource/Drafts/takken_2026_free_100_v2_candidates.json"
+    )
+    errors.extend(validate_takken_v2_drafts(candidates))
+    if any(
+        item.get("reviewer")
+        or item.get("reviewedAt")
+        or item.get("reviewStatus") != "ai_draft"
+        or item.get("distractorReviewStatus") != "pending"
+        for item in candidates
+    ):
+        errors.append("v2 candidate source must remain an unapproved, pending review queue")
+
+    snapshot = catalog_snapshot()
+    takken_manifest = next(
+        (pack for pack in snapshot.get("packs", []) if pack.get("id") == "takken2026.v1"),
+        {},
+    )
+    if takken_manifest.get("expectedItemCount") != 100:
+        errors.append("Takken Release count changed before v14 human-review completion")
+    if takken_manifest.get("saleReady") is not False:
+        errors.append("Takken saleReady must remain false before all paid content is reviewed")
+    if takken_manifest.get("contentQualityProfile") == "takken-v2":
+        errors.append("Takken v2 quality profile was declared before reviewed content was released")
+
+    release_paths = {
+        descriptor.get("path")
+        for pack in snapshot.get("packs", [])
+        for descriptor in pack.get("contentFiles", [])
+    }
+    protected_names = {
+        "takken_2026_gyoho_reviewed_200_v1.json",
+        "takken_2026_horei_draft_200_v1.json",
+        "takken_2026_kenri_draft_300_v1.json",
+        "takken_2026_tax_draft_200_v1.json",
+        "takken_2026_free_100_v2_candidates.json",
+    }
+    leaked = sorted(release_paths & protected_names)
+    if leaked:
+        errors.append(f"unapproved Takken sources leaked into Release manifest: {leaked}")
     return errors
 
 

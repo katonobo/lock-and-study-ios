@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+"""Export one deterministic 50-question v2 batch for a human reviewer."""
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+from content_checks import ROOT
+
+
+SOURCE = ROOT / "ContentSource/Drafts/takken_2026_free_100_v2_candidates.json"
+BATCH_SIZE = 50
+BATCH_COUNT = 8
+
+
+def main() -> int:
+    if len(sys.argv) != 2 or not sys.argv[1].isdigit():
+        print("usage: ./scripts/export_takken_review_batch <1-8>")
+        return 2
+    batch_number = int(sys.argv[1])
+    if not 1 <= batch_number <= BATCH_COUNT:
+        print("batch number must be 1-8")
+        return 2
+    items = json.loads(SOURCE.read_text(encoding="utf-8"))
+    if len(items) != BATCH_SIZE * BATCH_COUNT:
+        print(f"candidate queue must contain exactly {BATCH_SIZE * BATCH_COUNT} items")
+        return 1
+    start = (batch_number - 1) * BATCH_SIZE
+    batch = items[start : start + BATCH_SIZE]
+    target = ROOT / "ContentSource/Drafts" / (
+        f"takken_2026_v2_review_batch_{batch_number:02d}.json"
+    )
+    if target.exists():
+        print(f"refusing to overwrite: {target.relative_to(ROOT)}")
+        return 1
+    target.write_text(json.dumps(batch, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"Exported batch {batch_number}/8: {target.relative_to(ROOT)}")
+    print("Edit this file only after human legal review, then run promote_takken_reviewed.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

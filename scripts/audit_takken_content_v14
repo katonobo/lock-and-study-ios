@@ -1,0 +1,8 @@
+#!/usr/bin/env python3
+import json
+
+from content_checks import audit_takken_v14, report, takken_v14_inventory
+
+
+print(json.dumps(takken_v14_inventory(), ensure_ascii=False, indent=2))
+raise SystemExit(report("Takken v14 content isolation and review-queue audit", audit_takken_v14()))

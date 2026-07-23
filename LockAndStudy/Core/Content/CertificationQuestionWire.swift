@@ -215,6 +215,44 @@ struct CertificationQuestionWireDecoder: Sendable {
   }
 }
 
+/// One source of truth for invariants that only become visible after all question files are joined.
+struct CertificationQuestionPackagePolicy: Sendable {
+  private let approvedReviewStatuses: Set<String> = ["checked", "reviewed", "release"]
+
+  func descriptors(in manifest: StudyPackManifest) -> [ContentFileDescriptor] {
+    let components = manifest.components.filter {
+      $0.contentSchemaID == .certificationQuestionsV1
+    }
+    return components.isEmpty ? manifest.contentFiles : components.flatMap(\.contentFiles)
+  }
+
+  func validatedActiveQuestions(
+    _ questions: [CertificationQuestionWire],
+    manifest: StudyPackManifest,
+    packageRoot: URL
+  ) throws -> [CertificationQuestionWire] {
+    guard Set(questions.map(\.id)).count == questions.count else {
+      throw ContentRepositoryError.invalid("資格問題IDが複数ファイル間で重複しています")
+    }
+    let active = questions.filter { !$0.retired }
+    guard active.count == manifest.expectedItemCount else {
+      throw ContentRepositoryError.invalid(
+        "資格問題の公開合計件数が\(manifest.expectedItemCount)問ではありません")
+    }
+    guard
+      !active.contains(where: {
+        $0.isPlaceholder || !approvedReviewStatuses.contains($0.reviewStatus ?? "")
+      })
+    else {
+      throw ContentRepositoryError.invalid("未校閲またはplaceholderの資格問題が含まれています")
+    }
+    _ = try ContentSampleResolver(packageRoot: packageRoot).sampleIDs(
+      manifest: manifest,
+      allItemIDs: Set(active.map(\.id)))
+    return active
+  }
+}
+
 extension KeyedDecodingContainer where Key == CertificationQuestionWire.CodingKeys {
   fileprivate func decodeRequiredNonemptyString(_ key: Key) throws -> String {
     let value = try decode(String.self, forKey: key)

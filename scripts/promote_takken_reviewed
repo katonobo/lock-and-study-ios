@@ -6,7 +6,7 @@ import json
 import sys
 from pathlib import Path
 
-from content_checks import ROOT, validate_takken_v2
+from content_checks import ROOT, validate_takken_v2_review_batch
 
 
 def main() -> int:
@@ -25,7 +25,7 @@ def main() -> int:
         "choiceOrderStrategy": "seeded_shuffle",
         "qualification": {"examYear": 2026, "lawBasisDate": "2026-04-01"},
     }
-    errors = validate_takken_v2(items, manifest)
+    errors = validate_takken_v2_review_batch(items, manifest)
     if errors:
         print("Takken v2 review gate failed:")
         for error in errors:

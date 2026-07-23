@@ -9,22 +9,51 @@ protocol ContentFileValidating: Sendable {
   ) throws
 }
 
+struct ValidatedContentFile: Sendable {
+  let descriptor: ContentFileDescriptor
+  let data: Data
+}
+
+/// Runs after every file has passed its schema validator so cross-file invariants fail at stage time.
+protocol ContentSchemaPackageValidating: Sendable {
+  var schemaID: ContentSchemaID { get }
+  func validate(
+    manifest: StudyPackManifest,
+    files: [ValidatedContentFile],
+    packageRoot: URL
+  ) throws
+}
+
 struct ContentFileValidatorRegistry: Sendable {
   private let validators: [ContentSchemaID: any ContentFileValidating]
+  private let packageValidators: [ContentSchemaID: any ContentSchemaPackageValidating]
 
-  init(validators: [any ContentFileValidating]) {
+  init(
+    validators: [any ContentFileValidating],
+    packageValidators: [any ContentSchemaPackageValidating] = []
+  ) {
     self.validators = Dictionary(uniqueKeysWithValues: validators.map { ($0.schemaID, $0) })
+    self.packageValidators = Dictionary(
+      uniqueKeysWithValues: packageValidators.map { ($0.schemaID, $0) })
   }
 
   func validator(for schemaID: ContentSchemaID) -> (any ContentFileValidating)? {
     validators[schemaID]
   }
 
-  static let standard = ContentFileValidatorRegistry(validators: [
-    FlashcardItemsV1Validator(),
-    CertificationQuestionsV1Validator(),
-    SampleIndexV1Validator(),
-  ])
+  func packageValidator(
+    for schemaID: ContentSchemaID
+  ) -> (any ContentSchemaPackageValidating)? {
+    packageValidators[schemaID]
+  }
+
+  static let standard = ContentFileValidatorRegistry(
+    validators: [
+      FlashcardItemsV1Validator(),
+      CertificationQuestionsV1Validator(),
+      SampleIndexV1Validator(),
+    ],
+    packageValidators: [CertificationQuestionsV1PackageValidator()])
 }
 
 struct ContentPackageValidator: Sendable {
@@ -36,11 +65,13 @@ struct ContentPackageValidator: Sendable {
 
   func validate(manifest: StudyPackManifest, packageRoot: URL) throws {
     let loader = VerifiedContentLoader(packageRoot: packageRoot)
+    var validatedFiles: [ContentSchemaID: [ValidatedContentFile]] = [:]
     for component in manifest.components {
       guard let validator = registry.validator(for: component.contentSchemaID) else {
         throw ContentRepositoryError.invalid(
           "未登録content schemaです: \(component.contentSchemaID.rawValue)")
       }
+      validatedFiles[component.contentSchemaID, default: []] += []
       for descriptor in component.contentFiles {
         let data = try loader.data(for: descriptor)
         guard !data.isEmpty else {
@@ -53,7 +84,15 @@ struct ContentPackageValidator: Sendable {
           data: data,
           descriptor: descriptor,
           packageRoot: packageRoot)
+        validatedFiles[component.contentSchemaID, default: []].append(
+          .init(descriptor: descriptor, data: data))
       }
+    }
+    for (schemaID, files) in validatedFiles {
+      try registry.packageValidator(for: schemaID)?.validate(
+        manifest: manifest,
+        files: files,
+        packageRoot: packageRoot)
     }
   }
 }
@@ -113,6 +152,26 @@ struct CertificationQuestionsV1Validator: ContentFileValidating {
     guard items.count == descriptor.itemCount else {
       throw ContentRepositoryError.invalid("\(descriptor.path) の項目数が一致しません")
     }
+  }
+}
+
+struct CertificationQuestionsV1PackageValidator: ContentSchemaPackageValidating {
+  let schemaID: ContentSchemaID = .certificationQuestionsV1
+
+  func validate(
+    manifest: StudyPackManifest,
+    files: [ValidatedContentFile],
+    packageRoot: URL
+  ) throws {
+    guard !files.isEmpty else {
+      throw ContentRepositoryError.missing(manifest.title)
+    }
+    let decoder = CertificationQuestionWireDecoder()
+    let questions = try files.flatMap { try decoder.decode($0.data) }
+    _ = try CertificationQuestionPackagePolicy().validatedActiveQuestions(
+      questions,
+      manifest: manifest,
+      packageRoot: packageRoot)
   }
 }
 
