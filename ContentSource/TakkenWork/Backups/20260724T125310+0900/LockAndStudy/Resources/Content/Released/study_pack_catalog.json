@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-22T00:00:00Z",
+  "categories": [
+    {
+      "schemaVersion": 1,
+      "id": "language.english",
+      "title": "英語",
+      "subtitle": "語彙と英語力",
+      "systemImage": "character.book.closed.fill",
+      "sortOrder": 10,
+      "isVisible": true,
+      "themeToken": "indigo"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "qualification",
+      "title": "資格",
+      "subtitle": "試験・検定対策",
+      "systemImage": "building.columns.fill",
+      "sortOrder": 20,
+      "isVisible": true,
+      "themeToken": "orange"
+    }
+  ],
+  "series": [
+    {
+      "schemaVersion": 1,
+      "id": "english.vocabulary",
+      "categoryID": "language.english",
+      "title": "英単語",
+      "subtitle": "語彙を継続的に学ぶ",
+      "description": "暗記、発音、例文、SRS、120秒予習で英単語を学ぶシリーズです。",
+      "sortOrder": 10,
+      "editionPolicy": "evergreen",
+      "defaultExperienceID": "flashcard.v1",
+      "isVisible": true
+    },
+    {
+      "schemaVersion": 1,
+      "id": "qualification.takken",
+      "categoryID": "qualification",
+      "title": "宅地建物取引士",
+      "subtitle": "年度別の宅建試験対策",
+      "description": "法令基準日を明示した年度別の宅建試験対策シリーズです。",
+      "sortOrder": 20,
+      "editionPolicy": "annual",
+      "defaultExperienceID": "certification.v1",
+      "isVisible": true
+    }
+  ],
+  "packs": [
+    {
+      "schemaVersion": 2,
+      "id": "english3000.v1",
+      "categoryID": "language.english",
+      "seriesID": "english.vocabulary",
+      "experienceID": "flashcard.v1",
+      "editionID": "v1",
+      "editionPolicy": "evergreen",
+      "storeState": "forSale",
+      "deliveryMode": "bundled",
+      "passAccessPolicy": "included",
+      "moduleType": "vocabulary",
+      "experienceType": "vocabulary.v1",
+      "title": "英単語3,000語",
+      "subtitle": "5レベル・無料250語",
+      "description": "英語から日本語を選ぶ四択と例文、発音、間隔反復で学びます。",
+      "contentVersion": "mvp-3000-ja-v4.0.0",
+      "minimumAppVersion": "1.0",
+      "releaseStatus": "release",
+      "isEnabled": true,
+      "sortOrder": 10,
+      "expectedItemCount": 3000,
+      "sampleDefinition": {"kind": "fixed", "count": 250, "catalogFile": "vocabulary_free_sample_250_v1.json"},
+      "oneTimeProductID": "com.ameneko.lockandstudy.pack.english3000.v1",
+      "passEligible": true,
+      "saleReady": true,
+      "contentFiles": [
+        {"path": "vocabulary_english3000_v1.json", "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1", "itemCount": 3000, "byteCount": 5791310},
+        {"path": "vocabulary_free_sample_250_v1.json", "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b", "itemCount": 250, "byteCount": 58291}
+      ],
+      "components": [
+        {
+          "id": "vocabulary",
+          "title": "英単語",
+          "experienceID": "flashcard.v1",
+          "contentSchemaID": "flashcard.items.v1",
+          "sortOrder": 0,
+          "contentFiles": [
+            {"path": "vocabulary_english3000_v1.json", "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1", "itemCount": 3000, "byteCount": 5791310}
+          ],
+          "metadataFile": "english3000_metadata_v1.json"
+        },
+        {
+          "id": "sample-index",
+          "title": "固定無料サンプル索引",
+          "experienceID": "content.sample-index.v1",
+          "contentSchemaID": "sample.index.v1",
+          "sortOrder": 1,
+          "contentFiles": [
+            {"path": "vocabulary_free_sample_250_v1.json", "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b", "itemCount": 250, "byteCount": 58291}
+          ]
+        }
+      ],
+      "metadataFile": "english3000_metadata_v1.json",
+      "creditsFile": "english3000_credits_v1.txt",
+      "locale": "ja-JP",
+      "presentation": {
+        "flashcard": {
+          "subjectName": "英単語",
+          "itemSingularName": "英単語",
+          "itemPluralName": "英単語",
+          "itemCountUnit": "語",
+          "homeTitle": "今日の英単語",
+          "firstRunTitle": "英単語の学習コース",
+          "firstRunDescription": "5レベルから最初の範囲を選びます。無料250語は各レベル50語で、あとから変更できます。",
+          "startButtonTitle": "英単語を始める",
+          "searchPlaceholder": "英単語・意味を検索",
+          "catalogTitle": "単語帳",
+          "frontLabel": "英単語",
+          "backLabel": "意味",
+          "unlockTitle": "英単語で解除",
+          "supportsSpeech": true,
+          "supportsExamples": true,
+          "supportsReverseDirection": false,
+          "emptyStateCopy": {
+            "noDueReview": "期限が来た復習はありません。",
+            "noMistakes": "復習する誤答はまだありません。",
+            "noWeakItems": "苦手として判定された単語はまだありません。",
+            "noNewItems": "このコースの新出単語は一巡しました。期限到来復習を続けられます。",
+            "noAvailableItems": "利用できる問題がありません。"
+          },
+          "courseDefinitions": [
+            {"code":"L0","title":"基礎・A1","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L1","title":"中学1年","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L2","title":"中学2年","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L3","title":"中学3年","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L4","title":"高校基礎","subtitle":null,"sampleLabel":"無料50語"}
+          ]
+        },
+        "certification": null
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "id": "takken2026.v1",
+      "categoryID": "qualification",
+      "seriesID": "qualification.takken",
+      "experienceID": "certification.v1",
+      "editionID": "2026",
+      "editionYear": 2026,
+      "editionPolicy": "annual",
+      "storeState": "forSale",
+      "deliveryMode": "bundled",
+      "passAccessPolicy": "included",
+      "moduleType": "takken",
+      "experienceType": "certification.takken.v1",
+      "title": "宅建2026",
+      "subtitle": "無料公開100問",
+      "description": "現在は品質確認済みの宅建業法100問を無料公開しています。全範囲版は準備中です。",
+      "contentVersion": "takken-2026-free-v1",
+      "minimumAppVersion": "1.0",
+      "releaseStatus": "release",
+      "isEnabled": true,
+      "sortOrder": 20,
+      "expectedItemCount": 100,
+      "conceptCount": 100,
+      "variantCount": 100,
+      "sampleDefinition": {"kind": "allReleased", "count": 100},
+      "oneTimeProductID": "com.ameneko.lockandstudy.pack.takken2026.v1",
+      "passEligible": true,
+      "saleReady": false,
+      "contentFiles": [
+        {"path": "takken_2026_free_100_v1.json", "sha256": "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af", "itemCount": 100, "byteCount": 108995}
+      ],
+      "components": [
+        {
+          "id": "questions",
+          "title": "宅建問題",
+          "experienceID": "certification.v1",
+          "contentSchemaID": "certification.questions.v1",
+          "sortOrder": 0,
+          "contentFiles": [
+            {"path": "takken_2026_free_100_v1.json", "sha256": "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af", "itemCount": 100, "byteCount": 108995}
+          ],
+          "metadataFile": "takken2026_metadata_v1.json"
+        }
+      ],
+      "metadataFile": "takken2026_metadata_v1.json",
+      "creditsFile": "takken2026_credits_v1.txt",
+      "locale": "ja-JP",
+      "qualification": {"examYear": 2026, "lawBasisDate": "2026-04-01", "requiresAnnualReview": true},
+      "presentation": {
+        "flashcard": null,
+        "certification": {
+          "subjectName": "宅建2026",
+          "homeTitle": "今日の宅建",
+          "firstRunTitle": "宅建学習の初期設定",
+          "firstRunDescription": "学ぶ分野と1回の問題数を選びます。あとから設定で変更できます。",
+          "startButtonTitle": "宅建学習を始める",
+          "unlockTitle": "宅建問題でロックを開く",
+          "freeContentLabel": "無料宅建問題",
+          "categoryDefinitions": [
+            {"code":"宅建業法","title":"宅建業法"}
+          ],
+          "formatDefinitions": [
+            {"code":"true_false","title":"○×"},
+            {"code":"number_choice","title":"数値選択"},
+            {"code":"wording_contrast","title":"文言比較"},
+            {"code":"multiple_choice","title":"四択"},
+            {"code":"case_study","title":"事例問題"}
+          ],
+          "showsEditionYear": true,
+          "showsLawBasisDate": true,
+          "supportsFinalSprint": true
+        }
+      }
+    }
+  ]
+}

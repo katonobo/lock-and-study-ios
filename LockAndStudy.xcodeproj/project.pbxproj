@@ -18,6 +18,7 @@
 		132EC87F8A9104340FF5FBFC /* TakkenConceptWorkflowV18Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11D5EAF64684CB5B3C1F4C6 /* TakkenConceptWorkflowV18Tests.swift */; };
 		13565A7D4033317B7CFE9B31 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3177EA014819A28B300C176E /* AppRouter.swift */; };
 		1AB3C7861EB686D334C406E5 /* takken2027_questions_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 2FA2684C6B821D1F9649D83D /* takken2027_questions_v1.json */; };
+		1C0196A4055C56E7F9DB8ED1 /* takken_2026_questions_v20.json in Resources */ = {isa = PBXBuildFile; fileRef = B935717AE7484889E0EF8D31 /* takken_2026_questions_v20.json */; };
 		1C58FDF3D58F841B64DEB956 /* EmergencyUnlockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66ECF0AAA315C757C2D5E10 /* EmergencyUnlockTests.swift */; };
 		1D2518A1083A7EFB1703242E /* LockPolicyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637ABE5B9E39BA13BE35BF3F /* LockPolicyStore.swift */; };
 		1EC6BFC6066C3BA95B3923FA /* LockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB950C209CD7EF2261125E6A /* LockPolicy.swift */; };
@@ -105,6 +106,7 @@
 		BE7DCCB84ACA4215262A51AC /* StudyExperienceHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F587904E9E8FEF7CA8657C8 /* StudyExperienceHostView.swift */; };
 		C30BC2874B21A4016C61DC2C /* study_pack_catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = BA10848279A29FDC4027C45A /* study_pack_catalog.json */; };
 		C73DA41286439F48D0BFDB0E /* vocabulary_free_sample_250_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = C6C30B7842E5A9CF6618495D /* vocabulary_free_sample_250_v1.json */; };
+		C7CB20EB01B190520200AB00 /* takken_2026_free_sample_100_v20.json in Resources */ = {isa = PBXBuildFile; fileRef = E31CB05523FB9BD69FEB734D /* takken_2026_free_sample_100_v20.json */; };
 		CAA00DCD5AAA296C1586D16C /* ManagementCodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC3A0448978244375469A22 /* ManagementCodeTests.swift */; };
 		CB3AB4FB3D780DFDBC1BC9F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9634DE74BB84C2DBCE59CCE /* Assets.xcassets */; };
 		CBFCB5AC889A69CF66C73428 /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
@@ -278,6 +280,7 @@
 		B4A3F0F1C265434131E1347D /* TakkenFinalizationV6Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenFinalizationV6Tests.swift; sourceTree = "<group>"; };
 		B547AEE612A9D5CE29DCD992 /* ValidatedCatalogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatedCatalogStore.swift; sourceTree = "<group>"; };
 		B75A0487F6EB0087CD449B28 /* VocabularyExperience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyExperience.swift; sourceTree = "<group>"; };
+		B935717AE7484889E0EF8D31 /* takken_2026_questions_v20.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = takken_2026_questions_v20.json; sourceTree = "<group>"; };
 		BA037A666C8D37419D5FFE30 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		BA10848279A29FDC4027C45A /* study_pack_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = study_pack_catalog.json; sourceTree = "<group>"; };
 		BB950C209CD7EF2261125E6A /* LockPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockPolicy.swift; sourceTree = "<group>"; };
@@ -302,6 +305,7 @@
 		DA5A6E81E7C8D60980B8E3F2 /* manners_questions_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manners_questions_v1.json; sourceTree = "<group>"; };
 		DAEF0802E477B496A5E664CD /* DeviceActivityMonitorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceActivityMonitorExtension.swift; sourceTree = "<group>"; };
 		DFCC8C7A16D005A60099F866 /* ContentPlatformScalabilityV7Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPlatformScalabilityV7Tests.swift; sourceTree = "<group>"; };
+		E31CB05523FB9BD69FEB734D /* takken_2026_free_sample_100_v20.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = takken_2026_free_sample_100_v20.json; sourceTree = "<group>"; };
 		E555E9D988204E317D236852 /* LockAndStudyShieldActionExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockAndStudyShieldActionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E710BB9EA03E205FD3A89607 /* StudySessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySessionView.swift; sourceTree = "<group>"; };
 		EA6C993937583046ED9BF8B7 /* CommerceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommerceTests.swift; sourceTree = "<group>"; };
@@ -699,6 +703,8 @@
 				8D05A8487A9D68222CEC0AE5 /* english3000_metadata_v1.json */,
 				BA10848279A29FDC4027C45A /* study_pack_catalog.json */,
 				277A8685DD63B58B9476AD84 /* takken_2026_free_100_v1.json */,
+				E31CB05523FB9BD69FEB734D /* takken_2026_free_sample_100_v20.json */,
+				B935717AE7484889E0EF8D31 /* takken_2026_questions_v20.json */,
 				7889412D6DB09D61362CF630 /* takken2026_credits_v1.txt */,
 				39E6AEA2E412FDC3AF36B580 /* takken2026_metadata_v1.json */,
 				42D285ECB76C5343277EDC93 /* vocabulary_english3000_v1.json */,
@@ -1056,6 +1062,8 @@
 				4AA867658561F145B8EA9603 /* takken2026_credits_v1.txt in Resources */,
 				B8B6AECAF7B797642B899462 /* takken2026_metadata_v1.json in Resources */,
 				65C07F72B63F9E77DC816A11 /* takken_2026_free_100_v1.json in Resources */,
+				C7CB20EB01B190520200AB00 /* takken_2026_free_sample_100_v20.json in Resources */,
+				1C0196A4055C56E7F9DB8ED1 /* takken_2026_questions_v20.json in Resources */,
 				B7BCC7D6831907F02030B2A6 /* vocabulary_english3000_v1.json in Resources */,
 				C73DA41286439F48D0BFDB0E /* vocabulary_free_sample_250_v1.json in Resources */,
 			);

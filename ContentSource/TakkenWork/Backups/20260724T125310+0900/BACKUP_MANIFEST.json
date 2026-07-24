@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-07-24T12:53:10+09:00",
+  "sourceCommit": "945f8c8ea63c886bb1b98ece7f30c0a4598d98b5",
+  "reason": "Pre-replacement backup for Takken 2026 v26 review-candidate payload",
+  "packageExpectedPathsAbsentBeforeReplacement": [
+    "LockAndStudy/Resources/Content/Released/takken_2026_questions_v20.json",
+    "LockAndStudy/Resources/Content/Released/takken_2026_free_sample_100_v20.json"
+  ],
+  "files": [
+    {
+      "path": "LockAndStudy/Resources/Content/Released/study_pack_catalog.json",
+      "sha256": "05571a3a05926f1c2ef28caef70f9991a3b2a4df550737345b8a47ff74e44685",
+      "byteCount": 9061
+    },
+    {
+      "path": "LockAndStudy/Resources/Content/Released/takken2026_metadata_v1.json",
+      "sha256": "39b43f05f1cfe42c787731f710532156cb40d65be8266295e23144d7792f3f66",
+      "byteCount": 139
+    },
+    {
+      "path": "LockAndStudy/Resources/Content/Released/takken_2026_free_100_v1.json",
+      "sha256": "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af",
+      "byteCount": 108995
+    },
+    {
+      "path": "LockAndStudy/Resources/Content/Released/takken2026_credits_v1.txt",
+      "sha256": "753afb82e7d9eb63341660ac5085c2431121f59e3e32e710ef087d0a944592a6",
+      "byteCount": 153
+    }
+  ]
+}

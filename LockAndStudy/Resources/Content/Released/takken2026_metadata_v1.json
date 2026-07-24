@@ -1,2 +1,22 @@
-{"schemaVersion":1,"examYear":2026,"lawBasisDate":"2026-04-01","releasedQuestionCount":100,"requiresAnnualReview":true,"saleReady":false}
-
+{
+  "schemaVersion": 2,
+  "contentVersion": "takken-2026-v26.0-review-candidate",
+  "examYear": 2026,
+  "lawBasisDate": "2026-04-01",
+  "releasedQuestionCount": 1000,
+  "freeQuestionCount": 100,
+  "paidQuestionCount": 900,
+  "conceptCount": 380,
+  "requiresAnnualReview": true,
+  "annualUpdateQuestionCount": 83,
+  "sourceRegistryCheckedAt": "2026-07-24",
+  "contentQualityProfile": "takken-v26-distinct-variant-review-candidate",
+  "saleReady": false,
+  "externalLegalReviewRequired": true,
+  "questionSHA256": "af7f5b6e27e964d3cf6485497e302cdefed79b56cb70690444bb8178ce5a3263",
+  "freeSampleSHA256": "52021360421a97d68d66399c0423fa0809c8d620c4e240985e3f6792c04be34e",
+  "notes": [
+    "App test replacement candidate. Not approved for paid release.",
+    "All 1,000 questions remain ai_review_candidate until external qualified legal review."
+  ]
+}

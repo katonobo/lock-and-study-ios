@@ -72,8 +72,8 @@ V2_CANDIDATE_PATH = (
 PROTECTED_RELEASE_SHA256 = (
     "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af"
 )
-PROTECTED_CATALOG_SHA256 = (
-    "05571a3a05926f1c2ef28caef70f9991a3b2a4df550737345b8a47ff74e44685"
+V26_CANDIDATE_CATALOG_SHA256 = (
+    "22aa841e6007a05fac5065058ec27e04e5d5c4cb4a85f3cfec0cab1d20876c0f"
 )
 
 LEGACY_SOURCES = (
@@ -341,9 +341,9 @@ def migrate_legacy_layout() -> list[tuple[Path, Path]]:
 def protected_release_errors() -> list[str]:
     errors: list[str] = []
     if sha256(RELEASE_PATH) != PROTECTED_RELEASE_SHA256:
-        errors.append("current Release 100 question SHA changed")
-    if sha256(CATALOG_PATH) != PROTECTED_CATALOG_SHA256:
-        errors.append("production catalog SHA changed")
+        errors.append("protected legacy Release 100 question SHA changed")
+    if sha256(CATALOG_PATH) != V26_CANDIDATE_CATALOG_SHA256:
+        errors.append("v26 candidate production catalog SHA changed")
     catalog = load_json(CATALOG_PATH)
     pack = next(
         (
@@ -353,8 +353,13 @@ def protected_release_errors() -> list[str]:
         ),
         {},
     )
-    if pack.get("expectedItemCount") != 100:
-        errors.append("takken2026.v1 expectedItemCount must remain 100")
+    if pack.get("expectedItemCount") != 1_000:
+        errors.append("takken2026.v1 v26 candidate expectedItemCount must remain 1000")
+    if (
+        pack.get("contentQualityProfile")
+        != "takken-v26-distinct-variant-review-candidate"
+    ):
+        errors.append("takken2026.v1 v26 candidate quality profile changed")
     if pack.get("saleReady") is not False:
         errors.append("takken2026.v1 saleReady must remain false")
     return errors
