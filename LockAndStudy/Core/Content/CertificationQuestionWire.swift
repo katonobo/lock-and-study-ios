@@ -66,6 +66,7 @@ struct CertificationQuestionWire: Decodable, Equatable, Sendable {
   let statisticsYear: Int?
   let dataSourceLabel: String?
   let isPlaceholder: Bool
+  let legalReviewChecklist: [String: Bool]?
 
   fileprivate enum CodingKeys: String, CodingKey {
     case id, conceptID, variantID, examYear, lawBasisDate, category, subCategory, difficulty
@@ -75,6 +76,7 @@ struct CertificationQuestionWire: Decodable, Equatable, Sendable {
     case tags, unlockEligible, last30DaysEligible, weaknessEligible, estimatedSeconds, importance
     case retired, replacementId, updatedAt, contentVersion, requiresAnnualReview
     case requiresAnnualUpdate, volatileReason, statisticsYear, dataSourceLabel, isPlaceholder
+    case legalReviewChecklist
   }
 
   init(from decoder: Decoder) throws {
@@ -188,6 +190,8 @@ struct CertificationQuestionWire: Decodable, Equatable, Sendable {
     statisticsYear = try container.decodeIfPresent(Int.self, forKey: .statisticsYear)
     dataSourceLabel = try container.decodeIfPresent(String.self, forKey: .dataSourceLabel)
     isPlaceholder = try container.decodeIfPresent(Bool.self, forKey: .isPlaceholder) ?? false
+    legalReviewChecklist = try container.decodeIfPresent(
+      [String: Bool].self, forKey: .legalReviewChecklist)
   }
 }
 
@@ -218,6 +222,11 @@ struct CertificationQuestionWireDecoder: Sendable {
 /// One source of truth for invariants that only become visible after all question files are joined.
 struct CertificationQuestionPackagePolicy: Sendable {
   private let approvedReviewStatuses: Set<String> = ["checked", "reviewed", "release"]
+  private let trustMode: ContentTrustMode
+
+  init(trustMode: ContentTrustMode = .production) {
+    self.trustMode = trustMode
+  }
 
   func descriptors(in manifest: StudyPackManifest) -> [ContentFileDescriptor] {
     let components = manifest.components.filter {
@@ -239,17 +248,111 @@ struct CertificationQuestionPackagePolicy: Sendable {
       throw ContentRepositoryError.invalid(
         "資格問題の公開合計件数が\(manifest.expectedItemCount)問ではありません")
     }
-    guard
-      !active.contains(where: {
-        $0.isPlaceholder || !approvedReviewStatuses.contains($0.reviewStatus ?? "")
-      })
-    else {
-      throw ContentRepositoryError.invalid("未校閲またはplaceholderの資格問題が含まれています")
+    switch trustMode {
+    case .production:
+      guard
+        !active.contains(where: {
+          $0.isPlaceholder || !approvedReviewStatuses.contains($0.reviewStatus ?? "")
+        })
+      else {
+        throw ContentRepositoryError.invalid("未校閲またはplaceholderの資格問題が含まれています")
+      }
+    case .internalReviewCandidate:
+      try validateInternalReviewCandidate(
+        active,
+        manifest: manifest,
+        packageRoot: packageRoot)
     }
     _ = try ContentSampleResolver(packageRoot: packageRoot).sampleIDs(
       manifest: manifest,
       allItemIDs: Set(active.map(\.id)))
     return active
+  }
+
+  private func validateInternalReviewCandidate(
+    _ questions: [CertificationQuestionWire],
+    manifest: StudyPackManifest,
+    packageRoot: URL
+  ) throws {
+    guard InternalContentReviewBuild.isEnabled else {
+      throw ContentRepositoryError.invalid("内部Review教材は専用build以外では利用できません")
+    }
+    guard manifest.saleReady == false else {
+      throw ContentRepositoryError.invalid("内部Review教材を販売可能にはできません")
+    }
+    guard manifest.contentQualityProfile == CandidateContract.qualityProfile else {
+      throw ContentRepositoryError.invalid("内部Review教材のquality profileが一致しません")
+    }
+    guard
+      questions.allSatisfy({
+        $0.reviewStatus == "ai_review_candidate"
+          && !$0.isPlaceholder
+          && $0.legalReviewChecklist.map {
+            Set($0.keys) == CandidateContract.legalChecklistKeys
+              && $0.values.allSatisfy { !$0 }
+          } == true
+      })
+    else {
+      throw ContentRepositoryError.invalid(
+        "内部Review教材のstatus、placeholder、法令校閲状態が不正です")
+    }
+
+    let questionDescriptors = descriptors(in: manifest)
+    guard questionDescriptors == [CandidateContract.questions] else {
+      throw ContentRepositoryError.invalid("内部Review教材の問題SHAまたはdescriptorが一致しません")
+    }
+    let sampleDescriptors = manifest.components
+      .filter { $0.contentSchemaID == .sampleIndexV1 }
+      .flatMap(\.contentFiles)
+    guard sampleDescriptors == [CandidateContract.freeSample],
+      manifest.sampleDefinition.catalogFile == CandidateContract.freeSample.path,
+      manifest.sampleDefinition.count == CandidateContract.freeSample.itemCount
+    else {
+      throw ContentRepositoryError.invalid("内部Review教材の無料100問SHAが一致しません")
+    }
+    guard let metadataPath = manifest.metadataFile else {
+      throw ContentRepositoryError.invalid("内部Review教材のmetadataがありません")
+    }
+    let metadataURL = try ContentPackageLocation(
+      kind: .bundled,
+      rootURL: packageRoot
+    ).fileURL(for: metadataPath)
+    let metadata = try JSONDecoder().decode(
+      CandidateMetadata.self,
+      from: Data(contentsOf: metadataURL))
+    guard metadata.saleReady == false,
+      metadata.externalLegalReviewRequired == true,
+      metadata.contentQualityProfile == CandidateContract.qualityProfile,
+      metadata.questionSHA256 == CandidateContract.questions.sha256,
+      metadata.freeSampleSHA256 == CandidateContract.freeSample.sha256
+    else {
+      throw ContentRepositoryError.invalid("内部Review教材のmetadata契約が不正です")
+    }
+  }
+
+  private enum CandidateContract {
+    static let qualityProfile = "takken-v26-distinct-variant-review-candidate"
+    static let legalChecklistKeys: Set<String> = [
+      "lawBasis", "subject", "timing", "numbers", "exceptions",
+    ]
+    static let questions = ContentFileDescriptor(
+      path: "takken_2026_questions_v26_candidate.json",
+      sha256: "af7f5b6e27e964d3cf6485497e302cdefed79b56cb70690444bb8178ce5a3263",
+      itemCount: 1_000,
+      byteCount: 5_233_717)
+    static let freeSample = ContentFileDescriptor(
+      path: "takken_2026_free_sample_100_v26_candidate.json",
+      sha256: "52021360421a97d68d66399c0423fa0809c8d620c4e240985e3f6792c04be34e",
+      itemCount: 100,
+      byteCount: 552_726)
+  }
+
+  private struct CandidateMetadata: Decodable {
+    let contentQualityProfile: String
+    let saleReady: Bool
+    let externalLegalReviewRequired: Bool
+    let questionSHA256: String
+    let freeSampleSHA256: String
   }
 }
 

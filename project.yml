@@ -58,6 +58,49 @@ targets:
       - target: LockAndStudyDeviceActivityMonitorExtension
         embed: true
 
+  LockAndStudyContentReview:
+    type: application
+    platform: iOS
+    sources:
+      - path: LockAndStudy
+        excludes:
+          - LockAndStudy.entitlements
+          - Resources/LockAndStudy.storekit
+      - path: ContentSource/TakkenWork/ReviewCandidates
+        buildPhase: resources
+    entitlements:
+      path: LockAndStudy/LockAndStudy.entitlements
+      properties:
+        com.apple.developer.family-controls: true
+        com.apple.security.application-groups:
+          - group.com.ameneko.lockandstudy
+          - group.com.ameneko.lockandstudy.migration
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ameneko.lockandstudy
+        PRODUCT_NAME: LockAndStudyContentReview
+        PRODUCT_MODULE_NAME: LockAndStudyContentReview
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) LOCKANDSTUDY_INTERNAL_CONTENT_REVIEW"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: ロックンスタディ Internal Review
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.education
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_LockAndStudyPrivacyPolicyURL: "$(PRIVACY_POLICY_URL)"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        STRING_CATALOG_GENERATE_SYMBOLS: YES
+    dependencies:
+      - target: LockAndStudyShieldConfigurationExtension
+        embed: true
+      - target: LockAndStudyShieldActionExtension
+        embed: true
+      - target: LockAndStudyDeviceActivityMonitorExtension
+        embed: true
+
   LockAndStudyShieldConfigurationExtension:
     type: app-extension
     platform: iOS
@@ -142,6 +185,8 @@ targets:
     sources:
       - path: LockAndStudyTests
       - path: LockAndStudy/Resources/LockAndStudy.storekit
+      - path: ContentSource/TakkenWork/ReviewCandidates
+        buildPhase: resources
     dependencies:
       - target: LockAndStudy
     settings:
@@ -161,6 +206,31 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         TEST_TARGET_NAME: LockAndStudy
 
+  LockAndStudyContentReviewTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: LockAndStudyContentReviewTests
+    dependencies:
+      - target: LockAndStudyContentReview
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ameneko.lockandstudy.contentreview.tests
+        GENERATE_INFOPLIST_FILE: YES
+
+  LockAndStudyContentReviewUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: LockAndStudyContentReviewUITests
+    dependencies:
+      - target: LockAndStudyContentReview
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ameneko.lockandstudy.contentreview.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: LockAndStudyContentReview
+
 schemes:
   LockAndStudy:
     build:
@@ -179,5 +249,23 @@ schemes:
       targets:
         - LockAndStudyTests
         - LockAndStudyUITests
+    archive:
+      config: Release
+
+  LockAndStudyContentReview:
+    build:
+      targets:
+        LockAndStudyContentReview: all
+        LockAndStudyShieldConfigurationExtension: all
+        LockAndStudyShieldActionExtension: all
+        LockAndStudyDeviceActivityMonitorExtension: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      targets:
+        - LockAndStudyContentReviewTests
+        - LockAndStudyContentReviewUITests
     archive:
       config: Release

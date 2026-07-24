@@ -25,7 +25,8 @@ final class DependencyContainer {
     learningRootURL: URL? = nil,
     contentSource: (any ContentAssetSource)? = nil,
     catalogDataOverride: Data? = nil,
-    contentFileValidators: ContentFileValidatorRegistry = .standard
+    contentFileValidators: ContentFileValidatorRegistry? = nil,
+    trustMode: ContentTrustMode = InternalContentReviewBuild.trustMode
   ) {
     lockController = LockController()
     commerce = StoreKitCommerceService()
@@ -51,14 +52,16 @@ final class DependencyContainer {
       #endif
     }
     let bundled = BundledContentSource()
-    let catalogSource: any ContentAssetSource = catalogDataOverride.map {
-      CatalogDataOverrideSource(data: $0, packageSource: bundled)
-    } ?? bundled
+    let resolvedValidators = contentFileValidators ?? .configured(trustMode: trustMode)
+    let catalogSource: any ContentAssetSource =
+      catalogDataOverride.map {
+        CatalogDataOverrideSource(data: $0, packageSource: bundled)
+      } ?? bundled
     let packageRoot = learningRootURL?.appendingPathComponent(
       "InstalledContent", isDirectory: true)
     let packageStore = ContentPackageStore(
       rootURL: packageRoot,
-      validatorRegistry: contentFileValidators,
+      validatorRegistry: resolvedValidators,
       progressStore: learning)
     contentPackages = packageStore
     let productionSource: any ContentAssetSource
@@ -79,7 +82,9 @@ final class DependencyContainer {
       rootURL: learningRootURL?.appendingPathComponent("CatalogState", isDirectory: true))
     content = ContentRepository(
       source: productionSource,
-      contentFileValidators: contentFileValidators,
+      registry: .configured(trustMode: trustMode),
+      contentFileValidators: resolvedValidators,
+      trustMode: trustMode,
       validatedCatalogStore: catalogStore)
     learningRevision = LearningDataRevision()
     unlockSessions = UnlockChallengeSessionCoordinator(store: learning)

@@ -30,9 +30,10 @@ struct MyLibraryView: View {
     var ids: Set<StudyPackID> = [model.activeUnlockPackID]
     ids.formUnion(commerce.entitlement.ownedPacks.map(\.packID))
     if commerce.entitlement.activePass?.permitsAccess == true {
-      ids.formUnion(model.normalManifests.filter {
-        $0.passAccessPolicy.permitsAccess(storeState: $0.storeState)
-      }.map(\.id))
+      ids.formUnion(
+        model.normalManifests.filter {
+          $0.passAccessPolicy.permitsAccess(storeState: $0.storeState)
+        }.map(\.id))
     }
     return model.normalManifests.filter { ids.contains($0.id) }.sorted { lhs, rhs in
       if lhs.id == model.activeUnlockPackID { return true }
@@ -62,7 +63,9 @@ struct CategoryListView: View {
                 in: RoundedRectangle(cornerRadius: 14))
             VStack(alignment: .leading, spacing: 3) {
               Text(category.title).font(.headline).foregroundStyle(.primary)
-              if let subtitle = category.subtitle { Text(subtitle).font(.caption).foregroundStyle(.secondary) }
+              if let subtitle = category.subtitle {
+                Text(subtitle).font(.caption).foregroundStyle(.secondary)
+              }
               Text("\(packCount(category.id))教材")
                 .font(.caption.bold())
                 .foregroundStyle(CatalogTheme.color(for: category.themeToken))
@@ -292,6 +295,7 @@ struct PackSelectionCard: View {
       && commerce.entitlement.activePass?.permitsAccess == true
   }
   private var accessLabel: String {
+    if InternalContentReviewBuild.isEnabled { return "内部レビュー全問" }
     if isOwned { return "買い切り所有" }
     if includedByPass { return "Study Pass" }
     if manifest.storeState == .archivedOwnedOnly { return "販売終了" }

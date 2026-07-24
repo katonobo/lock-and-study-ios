@@ -232,9 +232,17 @@ struct TakkenQuestion: Codable, Equatable, Identifiable, Sendable {
 
 struct TakkenStudyModule: StudyModule {
   let moduleType = StudyModuleType.takken
+  let trustMode: ContentTrustMode
+
+  init(trustMode: ContentTrustMode = .production) {
+    self.trustMode = trustMode
+  }
 
   func loadPrompts(manifest: StudyPackManifest, packageRoot: URL) throws -> [StudyPrompt] {
-    let questions = try TakkenQuestionRepository(packageRoot: packageRoot).load(manifest: manifest)
+    let questions = try TakkenQuestionRepository(
+      packageRoot: packageRoot,
+      trustMode: trustMode
+    ).load(manifest: manifest)
     let sampleIDs = try ContentSampleResolver(packageRoot: packageRoot).sampleIDs(
       manifest: manifest,
       allItemIDs: Set(questions.map(\.id)))
@@ -274,10 +282,18 @@ struct TakkenStudyModule: StudyModule {
 
 struct TakkenQuestionRepository: Sendable {
   let loader: VerifiedContentLoader
-  init(packageRoot: URL) { loader = .init(packageRoot: packageRoot) }
+  let trustMode: ContentTrustMode
+
+  init(
+    packageRoot: URL,
+    trustMode: ContentTrustMode = .production
+  ) {
+    loader = .init(packageRoot: packageRoot)
+    self.trustMode = trustMode
+  }
 
   func load(manifest: StudyPackManifest) throws -> [TakkenQuestion] {
-    let policy = CertificationQuestionPackagePolicy()
+    let policy = CertificationQuestionPackagePolicy(trustMode: trustMode)
     let descriptors = policy.descriptors(in: manifest)
     guard !descriptors.isEmpty else {
       throw ContentRepositoryError.missing(manifest.title)

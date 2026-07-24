@@ -7,9 +7,11 @@ struct RootView: View {
     rootContent
       .fullScreenCover(isPresented: $model.isMaterialSelectionPresented) {
         StudyMaterialSelectionView()
+          .internalContentReviewBanner()
       }
       .fullScreenCover(item: $model.studySession) { session in
         StudySessionView(presentation: session)
+          .internalContentReviewBanner()
       }
       .alert(
         "お知らせ",
@@ -20,6 +22,7 @@ struct RootView: View {
       } message: {
         Text(model.alertMessage ?? "")
       }
+      .internalContentReviewBanner()
   }
 
   @ViewBuilder private var rootContent: some View {
@@ -75,8 +78,9 @@ struct RootView: View {
       let context = model.experienceContext(for: presentation)
     {
       StudyExperienceHostView(
-        factory: factory, context: context, requiresFirstRun: presentation.requiresFirstRun)
-        .id(presentation.id)
+        factory: factory, context: context, requiresFirstRun: presentation.requiresFirstRun
+      )
+      .id(presentation.id)
     } else {
       VStack(spacing: 12) {
         Image(systemName: "exclamationmark.triangle").font(.largeTitle)

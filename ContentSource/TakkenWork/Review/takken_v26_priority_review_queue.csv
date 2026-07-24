@@ -1,0 +1,1001 @@
+﻿priority,questionID,isFree,category,subCategory,format,conceptID,reason
+P0,takken2026.v26.gyoho.0001,True,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.001,無料見本のため最優先
+P1,takken2026.v26.gyoho.0002,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.001,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0003,False,宅建業法,37条書面,case_study,official.gyoho.c80882.001,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0004,False,宅建業法,37条書面,true_false,official.gyoho.c80882.002,通常全問校閲
+P1,takken2026.v26.gyoho.0005,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.002,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0006,False,宅建業法,37条書面,case_study,official.gyoho.c80882.002,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0007,True,宅建業法,37条書面,true_false,official.gyoho.c80882.003,無料見本のため最優先
+P2,takken2026.v26.gyoho.0008,False,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.003,通常全問校閲
+P1,takken2026.v26.gyoho.0009,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.003,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0010,False,宅建業法,37条書面,true_false,official.gyoho.c80882.004,通常全問校閲
+P0,takken2026.v26.gyoho.0011,True,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.004,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0012,False,宅建業法,37条書面,case_study,official.gyoho.c80882.004,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0013,False,宅建業法,37条書面,true_false,official.gyoho.c80882.005,通常全問校閲
+P2,takken2026.v26.gyoho.0014,False,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.005,通常全問校閲
+P1,takken2026.v26.gyoho.0015,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.005,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0016,True,宅建業法,37条書面,true_false,official.gyoho.c80882.006,無料見本のため最優先
+P1,takken2026.v26.gyoho.0017,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.006,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0018,False,宅建業法,37条書面,case_study,official.gyoho.c80882.006,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0019,False,宅建業法,37条書面,true_false,official.gyoho.c80882.007,通常全問校閲
+P0,takken2026.v26.gyoho.0020,True,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.007,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0021,False,宅建業法,37条書面,case_study,official.gyoho.c80882.007,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0022,False,宅建業法,37条書面,true_false,official.gyoho.c80882.008,通常全問校閲
+P2,takken2026.v26.gyoho.0023,False,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.008,通常全問校閲
+P1,takken2026.v26.gyoho.0024,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.008,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0025,False,宅建業法,37条書面,true_false,official.gyoho.c80882.009,通常全問校閲
+P2,takken2026.v26.gyoho.0026,False,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.009,通常全問校閲
+P1,takken2026.v26.gyoho.0027,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.009,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0028,False,宅建業法,37条書面,true_false,official.gyoho.c80882.010,通常全問校閲
+P2,takken2026.v26.gyoho.0029,False,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.010,通常全問校閲
+P1,takken2026.v26.gyoho.0030,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.010,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0031,False,宅建業法,37条書面,true_false,official.gyoho.c80882.011,通常全問校閲
+P2,takken2026.v26.gyoho.0032,False,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.011,通常全問校閲
+P2,takken2026.v26.gyoho.0033,False,宅建業法,37条書面,true_false,official.gyoho.c80882.012,通常全問校閲
+P2,takken2026.v26.gyoho.0034,False,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.012,通常全問校閲
+P1,takken2026.v26.gyoho.0035,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.012,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0036,False,宅建業法,37条書面,true_false,official.gyoho.c80882.013,通常全問校閲
+P2,takken2026.v26.gyoho.0037,False,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.013,通常全問校閲
+P1,takken2026.v26.gyoho.0038,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.013,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0039,False,宅建業法,37条書面,true_false,official.gyoho.c80882.014,通常全問校閲
+P2,takken2026.v26.gyoho.0040,False,宅建業法,37条書面,wording_contrast,official.gyoho.c80882.014,通常全問校閲
+P1,takken2026.v26.gyoho.0041,False,宅建業法,37条書面,multiple_choice,official.gyoho.c80882.014,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0042,False,宅建業法,8種制限,true_false,official.gyoho.9cf105.015,通常全問校閲
+P1,takken2026.v26.gyoho.0043,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.015,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0044,False,宅建業法,8種制限,case_study,official.gyoho.9cf105.015,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0045,False,宅建業法,8種制限,true_false,official.gyoho.9cf105.016,通常全問校閲
+P1,takken2026.v26.gyoho.0046,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.016,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0047,True,宅建業法,8種制限,case_study,official.gyoho.9cf105.016,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0048,False,宅建業法,8種制限,wording_contrast,official.gyoho.9cf105.017,通常全問校閲
+P2,takken2026.v26.gyoho.0049,False,宅建業法,8種制限,number_choice,official.gyoho.9cf105.017,通常全問校閲
+P1,takken2026.v26.gyoho.0050,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.017,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0051,False,宅建業法,8種制限,wording_contrast,official.gyoho.9cf105.018,通常全問校閲
+P0,takken2026.v26.gyoho.0052,True,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.018,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0053,False,宅建業法,8種制限,case_study,official.gyoho.9cf105.018,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0054,False,宅建業法,8種制限,true_false,official.gyoho.9cf105.019,通常全問校閲
+P2,takken2026.v26.gyoho.0055,False,宅建業法,8種制限,wording_contrast,official.gyoho.9cf105.019,通常全問校閲
+P1,takken2026.v26.gyoho.0056,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.019,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0057,False,宅建業法,8種制限,wording_contrast,official.gyoho.9cf105.020,通常全問校閲
+P1,takken2026.v26.gyoho.0058,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.020,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0059,False,宅建業法,8種制限,case_study,official.gyoho.9cf105.020,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0060,False,宅建業法,8種制限,true_false,official.gyoho.9cf105.021,通常全問校閲
+P0,takken2026.v26.gyoho.0061,True,宅建業法,8種制限,number_choice,official.gyoho.9cf105.021,無料見本のため最優先
+P1,takken2026.v26.gyoho.0062,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.021,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0063,False,宅建業法,8種制限,wording_contrast,official.gyoho.9cf105.022,通常全問校閲
+P2,takken2026.v26.gyoho.0064,False,宅建業法,8種制限,number_choice,official.gyoho.9cf105.022,通常全問校閲
+P1,takken2026.v26.gyoho.0065,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.022,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0066,False,宅建業法,8種制限,case_study,official.gyoho.9cf105.022,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0067,False,宅建業法,8種制限,wording_contrast,official.gyoho.9cf105.023,通常全問校閲
+P1,takken2026.v26.gyoho.0068,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.023,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0069,False,宅建業法,8種制限,case_study,official.gyoho.9cf105.023,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0070,False,宅建業法,8種制限,true_false,official.gyoho.9cf105.024,通常全問校閲
+P2,takken2026.v26.gyoho.0071,False,宅建業法,8種制限,number_choice,official.gyoho.9cf105.024,通常全問校閲
+P1,takken2026.v26.gyoho.0072,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.024,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0073,True,宅建業法,8種制限,number_choice,official.gyoho.9cf105.025,無料見本のため最優先
+P1,takken2026.v26.gyoho.0074,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.025,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0075,False,宅建業法,8種制限,case_study,official.gyoho.9cf105.025,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0076,False,宅建業法,8種制限,true_false,official.gyoho.9cf105.026,通常全問校閲
+P2,takken2026.v26.gyoho.0077,False,宅建業法,8種制限,number_choice,official.gyoho.9cf105.026,通常全問校閲
+P1,takken2026.v26.gyoho.0078,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.026,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0079,False,宅建業法,8種制限,true_false,official.gyoho.9cf105.027,通常全問校閲
+P2,takken2026.v26.gyoho.0080,False,宅建業法,8種制限,wording_contrast,official.gyoho.9cf105.027,通常全問校閲
+P2,takken2026.v26.gyoho.0081,False,宅建業法,8種制限,true_false,official.gyoho.9cf105.028,通常全問校閲
+P1,takken2026.v26.gyoho.0082,False,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.028,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0083,False,宅建業法,8種制限,case_study,official.gyoho.9cf105.028,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0084,False,宅建業法,8種制限,true_false,official.gyoho.9cf105.029,通常全問校閲
+P2,takken2026.v26.gyoho.0085,False,宅建業法,8種制限,number_choice,official.gyoho.9cf105.029,通常全問校閲
+P2,takken2026.v26.gyoho.0086,False,宅建業法,8種制限,wording_contrast,official.gyoho.9cf105.030,通常全問校閲
+P0,takken2026.v26.gyoho.0087,True,宅建業法,8種制限,multiple_choice,official.gyoho.9cf105.030,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0088,False,宅建業法,8種制限,case_study,official.gyoho.9cf105.030,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0089,False,宅建業法,事務所・案内所・標識・帳簿,wording_contrast,official.gyoho.f7dfba.031,通常全問校閲
+P1,takken2026.v26.gyoho.0090,False,宅建業法,事務所・案内所・標識・帳簿,multiple_choice,official.gyoho.f7dfba.031,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0091,False,宅建業法,事務所・案内所・標識・帳簿,case_study,official.gyoho.f7dfba.031,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0092,False,宅建業法,事務所・案内所・標識・帳簿,true_false,official.gyoho.f7dfba.032,通常全問校閲
+P2,takken2026.v26.gyoho.0093,False,宅建業法,事務所・案内所・標識・帳簿,wording_contrast,official.gyoho.f7dfba.032,通常全問校閲
+P0,takken2026.v26.gyoho.0094,True,宅建業法,事務所・案内所・標識・帳簿,number_choice,official.gyoho.f7dfba.033,無料見本のため最優先
+P1,takken2026.v26.gyoho.0095,False,宅建業法,事務所・案内所・標識・帳簿,multiple_choice,official.gyoho.f7dfba.033,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0096,False,宅建業法,事務所・案内所・標識・帳簿,case_study,official.gyoho.f7dfba.033,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0097,False,宅建業法,事務所・案内所・標識・帳簿,number_choice,official.gyoho.f7dfba.034,通常全問校閲
+P1,takken2026.v26.gyoho.0098,False,宅建業法,事務所・案内所・標識・帳簿,multiple_choice,official.gyoho.f7dfba.034,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0099,False,宅建業法,事務所・案内所・標識・帳簿,case_study,official.gyoho.f7dfba.034,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0100,False,宅建業法,事務所・案内所・標識・帳簿,true_false,official.gyoho.f7dfba.035,通常全問校閲
+P2,takken2026.v26.gyoho.0101,False,宅建業法,事務所・案内所・標識・帳簿,wording_contrast,official.gyoho.f7dfba.035,通常全問校閲
+P0,takken2026.v26.gyoho.0102,True,宅建業法,事務所・案内所・標識・帳簿,true_false,official.gyoho.f7dfba.036,無料見本のため最優先
+P2,takken2026.v26.gyoho.0103,False,宅建業法,事務所・案内所・標識・帳簿,wording_contrast,official.gyoho.f7dfba.036,通常全問校閲
+P1,takken2026.v26.gyoho.0104,False,宅建業法,事務所・案内所・標識・帳簿,multiple_choice,official.gyoho.f7dfba.036,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0105,False,宅建業法,事務所・案内所・標識・帳簿,true_false,official.gyoho.f7dfba.037,通常全問校閲
+P2,takken2026.v26.gyoho.0106,False,宅建業法,事務所・案内所・標識・帳簿,number_choice,official.gyoho.f7dfba.037,通常全問校閲
+P1,takken2026.v26.gyoho.0107,False,宅建業法,事務所・案内所・標識・帳簿,multiple_choice,official.gyoho.f7dfba.037,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0108,False,宅建業法,事務所・案内所・標識・帳簿,true_false,official.gyoho.f7dfba.038,通常全問校閲
+P1,takken2026.v26.gyoho.0109,False,宅建業法,事務所・案内所・標識・帳簿,multiple_choice,official.gyoho.f7dfba.038,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0110,False,宅建業法,事務所・案内所・標識・帳簿,case_study,official.gyoho.f7dfba.038,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0111,False,宅建業法,事務所・案内所・標識・帳簿,true_false,official.gyoho.f7dfba.039,通常全問校閲
+P2,takken2026.v26.gyoho.0112,False,宅建業法,事務所・案内所・標識・帳簿,number_choice,official.gyoho.f7dfba.039,通常全問校閲
+P1,takken2026.v26.gyoho.0113,False,宅建業法,事務所・案内所・標識・帳簿,multiple_choice,official.gyoho.f7dfba.039,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0114,True,宅建業法,事務所・案内所・標識・帳簿,wording_contrast,official.gyoho.f7dfba.040,無料見本のため最優先
+P2,takken2026.v26.gyoho.0115,False,宅建業法,事務所・案内所・標識・帳簿,number_choice,official.gyoho.f7dfba.040,通常全問校閲
+P1,takken2026.v26.gyoho.0116,False,宅建業法,事務所・案内所・標識・帳簿,multiple_choice,official.gyoho.f7dfba.040,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0117,False,宅建業法,事務所・案内所・標識・帳簿,case_study,official.gyoho.f7dfba.040,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0118,False,宅建業法,事務所・案内所・標識・帳簿,true_false,official.gyoho.f7dfba.041,通常全問校閲
+P2,takken2026.v26.gyoho.0119,False,宅建業法,事務所・案内所・標識・帳簿,wording_contrast,official.gyoho.f7dfba.041,通常全問校閲
+P1,takken2026.v26.gyoho.0120,False,宅建業法,事務所・案内所・標識・帳簿,multiple_choice,official.gyoho.f7dfba.041,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0121,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.042,通常全問校閲
+P1,takken2026.v26.gyoho.0122,False,宅建業法,保証協会,multiple_choice,official.gyoho.12b28b.042,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0123,False,宅建業法,保証協会,case_study,official.gyoho.12b28b.042,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0124,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.043,通常全問校閲
+P1,takken2026.v26.gyoho.0125,False,宅建業法,保証協会,multiple_choice,official.gyoho.12b28b.043,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0126,False,宅建業法,保証協会,case_study,official.gyoho.12b28b.043,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0127,False,宅建業法,保証協会,number_choice,official.gyoho.12b28b.044,通常全問校閲
+P1,takken2026.v26.gyoho.0128,False,宅建業法,保証協会,multiple_choice,official.gyoho.12b28b.044,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0129,False,宅建業法,保証協会,case_study,official.gyoho.12b28b.044,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0130,False,宅建業法,保証協会,true_false,official.gyoho.12b28b.045,通常全問校閲
+P2,takken2026.v26.gyoho.0131,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.045,通常全問校閲
+P2,takken2026.v26.gyoho.0132,False,宅建業法,保証協会,true_false,official.gyoho.12b28b.046,通常全問校閲
+P2,takken2026.v26.gyoho.0133,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.046,通常全問校閲
+P2,takken2026.v26.gyoho.0134,False,宅建業法,保証協会,true_false,official.gyoho.12b28b.047,通常全問校閲
+P2,takken2026.v26.gyoho.0135,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.047,通常全問校閲
+P2,takken2026.v26.gyoho.0136,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.048,通常全問校閲
+P1,takken2026.v26.gyoho.0137,False,宅建業法,保証協会,multiple_choice,official.gyoho.12b28b.048,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0138,False,宅建業法,保証協会,case_study,official.gyoho.12b28b.048,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0139,False,宅建業法,保証協会,true_false,official.gyoho.12b28b.049,通常全問校閲
+P2,takken2026.v26.gyoho.0140,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.049,通常全問校閲
+P1,takken2026.v26.gyoho.0141,False,宅建業法,保証協会,multiple_choice,official.gyoho.12b28b.049,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0142,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.050,通常全問校閲
+P1,takken2026.v26.gyoho.0143,False,宅建業法,保証協会,multiple_choice,official.gyoho.12b28b.050,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0144,False,宅建業法,保証協会,case_study,official.gyoho.12b28b.050,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0145,False,宅建業法,保証協会,true_false,official.gyoho.12b28b.051,通常全問校閲
+P2,takken2026.v26.gyoho.0146,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.051,通常全問校閲
+P1,takken2026.v26.gyoho.0147,False,宅建業法,保証協会,multiple_choice,official.gyoho.12b28b.051,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0148,False,宅建業法,保証協会,wording_contrast,official.gyoho.12b28b.052,通常全問校閲
+P0,takken2026.v26.gyoho.0149,True,宅建業法,保証協会,number_choice,official.gyoho.12b28b.052,無料見本のため最優先
+P1,takken2026.v26.gyoho.0150,False,宅建業法,保証協会,multiple_choice,official.gyoho.12b28b.052,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0151,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.12b28b.053,近年改正・周辺法令確認
+P0,takken2026.v26.gyoho.0152,True,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.12b28b.053,無料見本のため最優先 / 近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0153,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.12b28b.053,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0154,False,宅建業法,免許制度,true_false,official.gyoho.38fe90.054,通常全問校閲
+P2,takken2026.v26.gyoho.0155,False,宅建業法,免許制度,wording_contrast,official.gyoho.38fe90.054,通常全問校閲
+P2,takken2026.v26.gyoho.0156,False,宅建業法,免許制度,wording_contrast,official.gyoho.38fe90.055,通常全問校閲
+P1,takken2026.v26.gyoho.0157,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.055,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0158,False,宅建業法,免許制度,case_study,official.gyoho.38fe90.055,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0159,True,宅建業法,免許制度,wording_contrast,official.gyoho.38fe90.056,無料見本のため最優先
+P1,takken2026.v26.gyoho.0160,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.056,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0161,False,宅建業法,免許制度,case_study,official.gyoho.38fe90.056,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0162,False,宅建業法,免許制度,true_false,official.gyoho.38fe90.057,通常全問校閲
+P1,takken2026.v26.gyoho.0163,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.057,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0164,False,宅建業法,免許制度,case_study,official.gyoho.38fe90.057,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0165,False,宅建業法,免許制度,true_false,official.gyoho.38fe90.058,通常全問校閲
+P2,takken2026.v26.gyoho.0166,False,宅建業法,免許制度,wording_contrast,official.gyoho.38fe90.058,通常全問校閲
+P1,takken2026.v26.gyoho.0167,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.058,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0168,False,宅建業法,免許制度,true_false,official.gyoho.38fe90.059,通常全問校閲
+P2,takken2026.v26.gyoho.0169,False,宅建業法,免許制度,wording_contrast,official.gyoho.38fe90.059,通常全問校閲
+P2,takken2026.v26.gyoho.0170,False,宅建業法,免許制度,true_false,official.gyoho.38fe90.060,通常全問校閲
+P2,takken2026.v26.gyoho.0171,False,宅建業法,免許制度,wording_contrast,official.gyoho.38fe90.060,通常全問校閲
+P1,takken2026.v26.gyoho.0172,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.060,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0173,False,宅建業法,免許制度,true_false,official.gyoho.38fe90.061,通常全問校閲
+P1,takken2026.v26.gyoho.0174,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.061,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0175,False,宅建業法,免許制度,case_study,official.gyoho.38fe90.061,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0176,False,宅建業法,免許制度,true_false,official.gyoho.38fe90.062,通常全問校閲
+P1,takken2026.v26.gyoho.0177,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.062,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0178,False,宅建業法,免許制度,case_study,official.gyoho.38fe90.062,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0179,True,宅建業法,免許制度,true_false,official.gyoho.38fe90.063,無料見本のため最優先
+P1,takken2026.v26.gyoho.0180,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.063,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0181,False,宅建業法,免許制度,case_study,official.gyoho.38fe90.063,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0182,False,宅建業法,免許制度,true_false,official.gyoho.38fe90.064,通常全問校閲
+P2,takken2026.v26.gyoho.0183,False,宅建業法,免許制度,wording_contrast,official.gyoho.38fe90.064,通常全問校閲
+P1,takken2026.v26.gyoho.0184,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.064,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0185,False,宅建業法,免許制度,number_choice,official.gyoho.38fe90.065,通常全問校閲
+P1,takken2026.v26.gyoho.0186,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.065,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0187,False,宅建業法,免許制度,case_study,official.gyoho.38fe90.065,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0188,True,宅建業法,免許制度,true_false,official.gyoho.38fe90.066,無料見本のため最優先
+P2,takken2026.v26.gyoho.0189,False,宅建業法,免許制度,number_choice,official.gyoho.38fe90.066,通常全問校閲
+P1,takken2026.v26.gyoho.0190,False,宅建業法,免許制度,multiple_choice,official.gyoho.38fe90.066,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0191,False,宅建業法,免許制度,true_false,official.gyoho.38fe90.067,通常全問校閲
+P2,takken2026.v26.gyoho.0192,False,宅建業法,免許制度,wording_contrast,official.gyoho.38fe90.067,通常全問校閲
+P2,takken2026.v26.gyoho.0193,False,宅建業法,営業保証金,true_false,official.gyoho.3c8b8e.068,通常全問校閲
+P1,takken2026.v26.gyoho.0194,False,宅建業法,営業保証金,multiple_choice,official.gyoho.3c8b8e.068,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0195,True,宅建業法,営業保証金,case_study,official.gyoho.3c8b8e.068,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0196,False,宅建業法,営業保証金,true_false,official.gyoho.3c8b8e.069,通常全問校閲
+P2,takken2026.v26.gyoho.0197,False,宅建業法,営業保証金,wording_contrast,official.gyoho.3c8b8e.069,通常全問校閲
+P2,takken2026.v26.gyoho.0198,False,宅建業法,営業保証金,number_choice,official.gyoho.3c8b8e.070,通常全問校閲
+P0,takken2026.v26.gyoho.0199,True,宅建業法,営業保証金,multiple_choice,official.gyoho.3c8b8e.070,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0200,False,宅建業法,営業保証金,case_study,official.gyoho.3c8b8e.070,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0201,False,宅建業法,営業保証金,true_false,official.gyoho.3c8b8e.071,通常全問校閲
+P2,takken2026.v26.gyoho.0202,False,宅建業法,営業保証金,wording_contrast,official.gyoho.3c8b8e.071,通常全問校閲
+P1,takken2026.v26.gyoho.0203,False,宅建業法,営業保証金,multiple_choice,official.gyoho.3c8b8e.071,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0204,False,宅建業法,営業保証金,true_false,official.gyoho.3c8b8e.072,通常全問校閲
+P2,takken2026.v26.gyoho.0205,False,宅建業法,営業保証金,wording_contrast,official.gyoho.3c8b8e.072,通常全問校閲
+P2,takken2026.v26.gyoho.0206,False,宅建業法,営業保証金,true_false,official.gyoho.3c8b8e.073,通常全問校閲
+P2,takken2026.v26.gyoho.0207,False,宅建業法,営業保証金,wording_contrast,official.gyoho.3c8b8e.073,通常全問校閲
+P1,takken2026.v26.gyoho.0208,False,宅建業法,営業保証金,multiple_choice,official.gyoho.3c8b8e.073,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0209,False,宅建業法,営業保証金,true_false,official.gyoho.3c8b8e.074,通常全問校閲
+P2,takken2026.v26.gyoho.0210,False,宅建業法,営業保証金,wording_contrast,official.gyoho.3c8b8e.074,通常全問校閲
+P1,takken2026.v26.gyoho.0211,False,宅建業法,営業保証金,multiple_choice,official.gyoho.3c8b8e.074,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0212,False,宅建業法,営業保証金,true_false,official.gyoho.3c8b8e.075,通常全問校閲
+P2,takken2026.v26.gyoho.0213,False,宅建業法,営業保証金,wording_contrast,official.gyoho.3c8b8e.075,通常全問校閲
+P2,takken2026.v26.gyoho.0214,False,宅建業法,営業保証金,wording_contrast,official.gyoho.3c8b8e.076,通常全問校閲
+P0,takken2026.v26.gyoho.0215,True,宅建業法,営業保証金,number_choice,official.gyoho.3c8b8e.076,無料見本のため最優先
+P1,takken2026.v26.gyoho.0216,False,宅建業法,営業保証金,multiple_choice,official.gyoho.3c8b8e.076,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0217,True,宅建業法,営業保証金,number_choice,official.gyoho.3c8b8e.077,無料見本のため最優先
+P1,takken2026.v26.gyoho.0218,False,宅建業法,営業保証金,multiple_choice,official.gyoho.3c8b8e.077,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0219,False,宅建業法,営業保証金,case_study,official.gyoho.3c8b8e.077,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0220,False,宅建業法,営業保証金,true_false,official.gyoho.3c8b8e.078,通常全問校閲
+P1,takken2026.v26.gyoho.0221,False,宅建業法,営業保証金,multiple_choice,official.gyoho.3c8b8e.078,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0222,False,宅建業法,営業保証金,case_study,official.gyoho.3c8b8e.078,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0223,False,宅建業法,営業保証金,true_false,official.gyoho.3c8b8e.079,通常全問校閲
+P1,takken2026.v26.gyoho.0224,False,宅建業法,営業保証金,multiple_choice,official.gyoho.3c8b8e.079,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0225,False,宅建業法,営業保証金,case_study,official.gyoho.3c8b8e.079,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0226,False,宅建業法,報酬規制,true_false,official.gyoho.eec76a.080,通常全問校閲
+P2,takken2026.v26.gyoho.0227,False,宅建業法,報酬規制,wording_contrast,official.gyoho.eec76a.080,通常全問校閲
+P1,takken2026.v26.gyoho.0228,False,宅建業法,報酬規制,multiple_choice,official.gyoho.eec76a.080,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0229,False,宅建業法,報酬規制,true_false,official.gyoho.eec76a.081,通常全問校閲
+P2,takken2026.v26.gyoho.0230,False,宅建業法,報酬規制,number_choice,official.gyoho.eec76a.081,通常全問校閲
+P1,takken2026.v26.gyoho.0231,False,宅建業法,報酬規制,multiple_choice,official.gyoho.eec76a.081,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0232,False,宅建業法,報酬規制,true_false,official.gyoho.eec76a.082,通常全問校閲
+P0,takken2026.v26.gyoho.0233,True,宅建業法,報酬規制,number_choice,official.gyoho.eec76a.082,無料見本のため最優先
+P1,takken2026.v26.gyoho.0234,False,宅建業法,報酬規制,multiple_choice,official.gyoho.eec76a.082,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0235,False,宅建業法,報酬規制,true_false,official.gyoho.eec76a.083,通常全問校閲
+P0,takken2026.v26.gyoho.0236,True,宅建業法,報酬規制,multiple_choice,official.gyoho.eec76a.083,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0237,False,宅建業法,報酬規制,case_study,official.gyoho.eec76a.083,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0238,False,宅建業法,報酬規制,true_false,official.gyoho.eec76a.084,通常全問校閲
+P1,takken2026.v26.gyoho.0239,False,宅建業法,報酬規制,multiple_choice,official.gyoho.eec76a.084,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0240,False,宅建業法,報酬規制,case_study,official.gyoho.eec76a.084,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0241,False,宅建業法,報酬規制,true_false,official.gyoho.eec76a.085,通常全問校閲
+P2,takken2026.v26.gyoho.0242,False,宅建業法,報酬規制,number_choice,official.gyoho.eec76a.085,通常全問校閲
+P1,takken2026.v26.gyoho.0243,False,宅建業法,報酬規制,multiple_choice,official.gyoho.eec76a.085,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0244,False,宅建業法,報酬規制,true_false,official.gyoho.eec76a.086,通常全問校閲
+P2,takken2026.v26.gyoho.0245,False,宅建業法,報酬規制,wording_contrast,official.gyoho.eec76a.086,通常全問校閲
+P2,takken2026.v26.gyoho.0246,False,宅建業法,媒介契約,wording_contrast,official.gyoho.b484e7.087,通常全問校閲
+P1,takken2026.v26.gyoho.0247,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.087,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0248,False,宅建業法,媒介契約,case_study,official.gyoho.b484e7.087,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0249,False,宅建業法,報酬規制,number_choice,official.gyoho.b484e7.088,通常全問校閲
+P1,takken2026.v26.gyoho.0250,False,宅建業法,報酬規制,multiple_choice,official.gyoho.b484e7.088,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0251,True,宅建業法,報酬規制,case_study,official.gyoho.b484e7.088,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0252,False,宅建業法,媒介契約,true_false,official.gyoho.b484e7.089,通常全問校閲
+P2,takken2026.v26.gyoho.0253,False,宅建業法,媒介契約,wording_contrast,official.gyoho.b484e7.089,通常全問校閲
+P1,takken2026.v26.gyoho.0254,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.089,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0255,False,宅建業法,媒介契約,true_false,official.gyoho.b484e7.090,通常全問校閲
+P1,takken2026.v26.gyoho.0256,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.090,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0257,False,宅建業法,媒介契約,case_study,official.gyoho.b484e7.090,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0258,False,宅建業法,媒介契約,number_choice,official.gyoho.b484e7.091,通常全問校閲
+P1,takken2026.v26.gyoho.0259,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.091,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0260,False,宅建業法,媒介契約,case_study,official.gyoho.b484e7.091,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0261,False,宅建業法,媒介契約,true_false,official.gyoho.b484e7.092,通常全問校閲
+P2,takken2026.v26.gyoho.0262,False,宅建業法,媒介契約,number_choice,official.gyoho.b484e7.092,通常全問校閲
+P1,takken2026.v26.gyoho.0263,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.092,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0264,False,宅建業法,媒介契約,case_study,official.gyoho.b484e7.092,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0265,False,宅建業法,媒介契約,number_choice,official.gyoho.b484e7.093,通常全問校閲
+P0,takken2026.v26.gyoho.0266,True,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.093,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0267,False,宅建業法,媒介契約,case_study,official.gyoho.b484e7.093,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0268,True,宅建業法,媒介契約,number_choice,official.gyoho.b484e7.094,無料見本のため最優先
+P1,takken2026.v26.gyoho.0269,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.094,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0270,False,宅建業法,媒介契約,case_study,official.gyoho.b484e7.094,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0271,False,宅建業法,媒介契約,true_false,official.gyoho.b484e7.095,通常全問校閲
+P2,takken2026.v26.gyoho.0272,False,宅建業法,媒介契約,number_choice,official.gyoho.b484e7.095,通常全問校閲
+P0,takken2026.v26.gyoho.0273,True,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.095,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0274,False,宅建業法,媒介契約,true_false,official.gyoho.b484e7.096,通常全問校閲
+P2,takken2026.v26.gyoho.0275,False,宅建業法,媒介契約,wording_contrast,official.gyoho.b484e7.096,通常全問校閲
+P1,takken2026.v26.gyoho.0276,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.096,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0277,False,宅建業法,媒介契約,true_false,official.gyoho.b484e7.097,通常全問校閲
+P2,takken2026.v26.gyoho.0278,False,宅建業法,媒介契約,wording_contrast,official.gyoho.b484e7.097,通常全問校閲
+P2,takken2026.v26.gyoho.0279,False,宅建業法,媒介契約,true_false,official.gyoho.b484e7.098,通常全問校閲
+P1,takken2026.v26.gyoho.0280,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.098,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0281,True,宅建業法,媒介契約,case_study,official.gyoho.b484e7.098,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0282,False,宅建業法,媒介契約,true_false,official.gyoho.b484e7.099,通常全問校閲
+P2,takken2026.v26.gyoho.0283,False,宅建業法,媒介契約,wording_contrast,official.gyoho.b484e7.099,通常全問校閲
+P1,takken2026.v26.gyoho.0284,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.099,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0285,False,宅建業法,媒介契約,true_false,official.gyoho.b484e7.100,通常全問校閲
+P1,takken2026.v26.gyoho.0286,False,宅建業法,媒介契約,multiple_choice,official.gyoho.b484e7.100,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0287,False,宅建業法,媒介契約,case_study,official.gyoho.b484e7.100,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0288,True,宅建業法,宅建士制度,true_false,official.gyoho.29995a.101,無料見本のため最優先
+P2,takken2026.v26.gyoho.0289,False,宅建業法,宅建士制度,wording_contrast,official.gyoho.29995a.101,通常全問校閲
+P1,takken2026.v26.gyoho.0290,False,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.101,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0291,False,宅建業法,宅建士制度,true_false,official.gyoho.29995a.102,通常全問校閲
+P2,takken2026.v26.gyoho.0292,False,宅建業法,宅建士制度,wording_contrast,official.gyoho.29995a.102,通常全問校閲
+P2,takken2026.v26.gyoho.0293,False,宅建業法,宅建士制度,true_false,official.gyoho.29995a.103,通常全問校閲
+P2,takken2026.v26.gyoho.0294,False,宅建業法,宅建士制度,number_choice,official.gyoho.29995a.103,通常全問校閲
+P2,takken2026.v26.gyoho.0295,False,宅建業法,宅建士制度,true_false,official.gyoho.29995a.104,通常全問校閲
+P2,takken2026.v26.gyoho.0296,False,宅建業法,宅建士制度,wording_contrast,official.gyoho.29995a.104,通常全問校閲
+P2,takken2026.v26.gyoho.0297,False,宅建業法,宅建士制度,wording_contrast,official.gyoho.29995a.105,通常全問校閲
+P1,takken2026.v26.gyoho.0298,False,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.105,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0299,False,宅建業法,宅建士制度,case_study,official.gyoho.29995a.105,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0300,False,宅建業法,宅建士制度,wording_contrast,official.gyoho.29995a.106,通常全問校閲
+P1,takken2026.v26.gyoho.0301,False,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.106,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0302,False,宅建業法,宅建士制度,case_study,official.gyoho.29995a.106,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0303,False,宅建業法,宅建士制度,true_false,official.gyoho.29995a.107,通常全問校閲
+P1,takken2026.v26.gyoho.0304,False,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.107,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0305,False,宅建業法,宅建士制度,case_study,official.gyoho.29995a.107,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0306,False,宅建業法,宅建士制度,wording_contrast,official.gyoho.29995a.108,通常全問校閲
+P1,takken2026.v26.gyoho.0307,False,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.108,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0308,False,宅建業法,宅建士制度,case_study,official.gyoho.29995a.108,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0309,False,宅建業法,宅建士制度,wording_contrast,official.gyoho.29995a.109,通常全問校閲
+P2,takken2026.v26.gyoho.0310,False,宅建業法,宅建士制度,number_choice,official.gyoho.29995a.109,通常全問校閲
+P1,takken2026.v26.gyoho.0311,False,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.109,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0312,False,宅建業法,宅建士制度,number_choice,official.gyoho.29995a.110,通常全問校閲
+P1,takken2026.v26.gyoho.0313,False,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.110,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0314,False,宅建業法,宅建士制度,case_study,official.gyoho.29995a.110,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0315,False,宅建業法,宅建士制度,true_false,official.gyoho.29995a.111,通常全問校閲
+P2,takken2026.v26.gyoho.0316,False,宅建業法,宅建士制度,wording_contrast,official.gyoho.29995a.111,通常全問校閲
+P2,takken2026.v26.gyoho.0317,False,宅建業法,宅建士制度,true_false,official.gyoho.29995a.112,通常全問校閲
+P0,takken2026.v26.gyoho.0318,True,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.112,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0319,False,宅建業法,宅建士制度,case_study,official.gyoho.29995a.112,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0320,False,宅建業法,宅建士制度,true_false,official.gyoho.29995a.113,通常全問校閲
+P1,takken2026.v26.gyoho.0321,False,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.113,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0322,False,宅建業法,宅建士制度,case_study,official.gyoho.29995a.113,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0323,False,宅建業法,宅建士制度,wording_contrast,official.gyoho.29995a.114,通常全問校閲
+P0,takken2026.v26.gyoho.0324,True,宅建業法,宅建士制度,multiple_choice,official.gyoho.29995a.114,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0325,False,宅建業法,宅建士制度,case_study,official.gyoho.29995a.114,全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0326,True,宅建業法,監督処分・罰則,number_choice,official.gyoho.cf1f7c.115,無料見本のため最優先
+P1,takken2026.v26.gyoho.0327,False,宅建業法,監督処分・罰則,multiple_choice,official.gyoho.cf1f7c.115,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0328,False,宅建業法,監督処分・罰則,case_study,official.gyoho.cf1f7c.115,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0329,False,宅建業法,監督処分・罰則,true_false,official.gyoho.cf1f7c.116,通常全問校閲
+P2,takken2026.v26.gyoho.0330,False,宅建業法,監督処分・罰則,wording_contrast,official.gyoho.cf1f7c.116,通常全問校閲
+P1,takken2026.v26.gyoho.0331,False,宅建業法,取引時確認・住宅瑕疵担保,true_false,official.gyoho.cf1f7c.117,近年改正・周辺法令確認
+P0,takken2026.v26.gyoho.0332,True,宅建業法,取引時確認・住宅瑕疵担保,wording_contrast,official.gyoho.cf1f7c.117,無料見本のため最優先 / 近年改正・周辺法令確認
+P2,takken2026.v26.gyoho.0333,False,宅建業法,監督処分・罰則,wording_contrast,official.gyoho.cf1f7c.118,通常全問校閲
+P2,takken2026.v26.gyoho.0334,False,宅建業法,監督処分・罰則,number_choice,official.gyoho.cf1f7c.118,通常全問校閲
+P1,takken2026.v26.gyoho.0335,False,宅建業法,監督処分・罰則,multiple_choice,official.gyoho.cf1f7c.118,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0336,False,宅建業法,監督処分・罰則,case_study,official.gyoho.cf1f7c.118,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0337,False,宅建業法,監督処分・罰則,wording_contrast,official.gyoho.cf1f7c.119,通常全問校閲
+P1,takken2026.v26.gyoho.0338,False,宅建業法,監督処分・罰則,multiple_choice,official.gyoho.cf1f7c.119,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0339,False,宅建業法,監督処分・罰則,case_study,official.gyoho.cf1f7c.119,全誤答肢の法的妥当性確認
+P2,takken2026.v26.gyoho.0340,False,宅建業法,監督処分・罰則,wording_contrast,official.gyoho.cf1f7c.120,通常全問校閲
+P1,takken2026.v26.gyoho.0341,False,宅建業法,監督処分・罰則,multiple_choice,official.gyoho.cf1f7c.120,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0342,False,宅建業法,監督処分・罰則,case_study,official.gyoho.cf1f7c.120,全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0343,False,宅建業法,取引時確認・住宅瑕疵担保,true_false,official.gyoho.cf1f7c.121,近年改正・周辺法令確認
+P0,takken2026.v26.gyoho.0344,True,宅建業法,取引時確認・住宅瑕疵担保,number_choice,official.gyoho.cf1f7c.121,無料見本のため最優先 / 近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0345,False,宅建業法,取引時確認・住宅瑕疵担保,multiple_choice,official.gyoho.cf1f7c.121,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0346,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.122,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0347,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.122,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0348,False,宅建業法,重要事項説明（35条）,case_study,official.gyoho.2192a0.122,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0349,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.123,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0350,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.123,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0351,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.123,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0352,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.124,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0353,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.124,近年改正・周辺法令確認
+P0,takken2026.v26.gyoho.0354,True,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.124,無料見本のため最優先 / 近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0355,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.125,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0356,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.125,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0357,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.125,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0358,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.126,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0359,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.126,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0360,False,宅建業法,重要事項説明（35条）,case_study,official.gyoho.2192a0.126,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0361,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.127,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0362,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.127,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0363,False,宅建業法,重要事項説明（35条）,case_study,official.gyoho.2192a0.127,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0364,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.128,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0365,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.128,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0366,False,宅建業法,重要事項説明（35条）,case_study,official.gyoho.2192a0.128,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0367,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.129,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0368,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.129,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0369,False,宅建業法,重要事項説明（35条）,case_study,official.gyoho.2192a0.129,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0370,True,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.130,無料見本のため最優先 / 近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0371,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.130,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0372,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.131,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0373,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.131,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0374,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.131,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0375,False,宅建業法,取引時確認・住宅瑕疵担保,true_false,official.gyoho.2192a0.132,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0376,False,宅建業法,取引時確認・住宅瑕疵担保,wording_contrast,official.gyoho.2192a0.132,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0377,False,宅建業法,取引時確認・住宅瑕疵担保,multiple_choice,official.gyoho.2192a0.132,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0378,False,宅建業法,取引時確認・住宅瑕疵担保,true_false,official.gyoho.2192a0.133,近年改正・周辺法令確認
+P0,takken2026.v26.gyoho.0379,True,宅建業法,取引時確認・住宅瑕疵担保,wording_contrast,official.gyoho.2192a0.133,無料見本のため最優先 / 近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0380,False,宅建業法,取引時確認・住宅瑕疵担保,multiple_choice,official.gyoho.2192a0.133,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0381,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.134,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0382,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.134,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0383,False,宅建業法,取引時確認・住宅瑕疵担保,true_false,official.gyoho.2192a0.135,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0384,False,宅建業法,取引時確認・住宅瑕疵担保,wording_contrast,official.gyoho.2192a0.135,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0385,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.136,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0386,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.136,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0387,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.136,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0388,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.137,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0389,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.137,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0390,False,宅建業法,重要事項説明（35条）,case_study,official.gyoho.2192a0.137,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0391,False,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.138,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0392,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.138,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0393,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.138,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.gyoho.0394,True,宅建業法,重要事項説明（35条）,true_false,official.gyoho.2192a0.139,無料見本のため最優先 / 近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0395,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.139,近年改正・周辺法令確認
+P1,takken2026.v26.gyoho.0396,False,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.139,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0397,False,宅建業法,重要事項説明（35条）,case_study,official.gyoho.2192a0.139,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0398,False,宅建業法,重要事項説明（35条）,wording_contrast,official.gyoho.2192a0.140,近年改正・周辺法令確認
+P0,takken2026.v26.gyoho.0399,True,宅建業法,重要事項説明（35条）,multiple_choice,official.gyoho.2192a0.140,無料見本のため最優先 / 近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.gyoho.0400,False,宅建業法,重要事項説明（35条）,case_study,official.gyoho.2192a0.140,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.rights.0001,False,権利関係,不動産登記法,true_false,official.rights.2430e0.001,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0002,False,権利関係,不動産登記法,number_choice,official.rights.2430e0.001,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0003,False,権利関係,不動産登記法,multiple_choice,official.rights.2430e0.001,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.rights.0004,False,権利関係,不動産登記法,true_false,official.rights.2430e0.002,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0005,False,権利関係,不動産登記法,wording_contrast,official.rights.2430e0.002,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0006,False,権利関係,不動産登記法,multiple_choice,official.rights.2430e0.002,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.rights.0007,False,権利関係,不動産登記法,wording_contrast,official.rights.2430e0.003,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0008,False,権利関係,不動産登記法,number_choice,official.rights.2430e0.003,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0009,False,権利関係,不動産登記法,true_false,official.rights.2430e0.004,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0010,False,権利関係,不動産登記法,wording_contrast,official.rights.2430e0.004,近年改正・周辺法令確認
+P2,takken2026.v26.rights.0011,False,権利関係,債権総論,true_false,official.rights.cc1da0.005,通常全問校閲
+P2,takken2026.v26.rights.0012,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.005,通常全問校閲
+P1,takken2026.v26.rights.0013,False,権利関係,債権総論,multiple_choice,official.rights.cc1da0.005,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0014,False,権利関係,債権総論,true_false,official.rights.cc1da0.006,通常全問校閲
+P2,takken2026.v26.rights.0015,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.006,通常全問校閲
+P1,takken2026.v26.rights.0016,False,権利関係,債権総論,multiple_choice,official.rights.cc1da0.006,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0017,False,権利関係,債権総論,true_false,official.rights.cc1da0.007,通常全問校閲
+P2,takken2026.v26.rights.0018,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.007,通常全問校閲
+P2,takken2026.v26.rights.0019,False,権利関係,債権総論,true_false,official.rights.cc1da0.008,通常全問校閲
+P2,takken2026.v26.rights.0020,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.008,通常全問校閲
+P2,takken2026.v26.rights.0021,False,権利関係,債権総論,true_false,official.rights.cc1da0.009,通常全問校閲
+P2,takken2026.v26.rights.0022,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.009,通常全問校閲
+P1,takken2026.v26.rights.0023,False,権利関係,債権総論,multiple_choice,official.rights.cc1da0.009,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0024,False,権利関係,債権総論,true_false,official.rights.cc1da0.010,通常全問校閲
+P2,takken2026.v26.rights.0025,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.010,通常全問校閲
+P1,takken2026.v26.rights.0026,False,権利関係,債権総論,multiple_choice,official.rights.cc1da0.010,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0027,False,権利関係,債権総論,true_false,official.rights.cc1da0.011,通常全問校閲
+P0,takken2026.v26.rights.0028,True,権利関係,債権総論,multiple_choice,official.rights.cc1da0.011,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0029,False,権利関係,債権総論,true_false,official.rights.cc1da0.012,通常全問校閲
+P2,takken2026.v26.rights.0030,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.012,通常全問校閲
+P2,takken2026.v26.rights.0031,False,権利関係,債権総論,true_false,official.rights.cc1da0.013,通常全問校閲
+P2,takken2026.v26.rights.0032,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.013,通常全問校閲
+P2,takken2026.v26.rights.0033,False,権利関係,債権総論,true_false,official.rights.cc1da0.014,通常全問校閲
+P2,takken2026.v26.rights.0034,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.014,通常全問校閲
+P2,takken2026.v26.rights.0035,False,権利関係,債権総論,true_false,official.rights.cc1da0.015,通常全問校閲
+P2,takken2026.v26.rights.0036,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.015,通常全問校閲
+P1,takken2026.v26.rights.0037,False,権利関係,債権総論,multiple_choice,official.rights.cc1da0.015,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0038,False,権利関係,債権総論,true_false,official.rights.cc1da0.016,通常全問校閲
+P2,takken2026.v26.rights.0039,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.016,通常全問校閲
+P2,takken2026.v26.rights.0040,False,権利関係,債権総論,true_false,official.rights.cc1da0.017,通常全問校閲
+P2,takken2026.v26.rights.0041,False,権利関係,債権総論,wording_contrast,official.rights.cc1da0.017,通常全問校閲
+P1,takken2026.v26.rights.0042,False,権利関係,区分所有法,true_false,official.rights.0c4f8f.018,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0043,False,権利関係,区分所有法,wording_contrast,official.rights.0c4f8f.018,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0044,False,権利関係,区分所有法,multiple_choice,official.rights.0c4f8f.018,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.rights.0045,False,権利関係,区分所有法,true_false,official.rights.0c4f8f.019,近年改正・周辺法令確認
+P0,takken2026.v26.rights.0046,True,権利関係,区分所有法,wording_contrast,official.rights.0c4f8f.019,無料見本のため最優先 / 近年改正・周辺法令確認
+P1,takken2026.v26.rights.0047,False,権利関係,区分所有法,multiple_choice,official.rights.0c4f8f.019,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.rights.0048,False,権利関係,区分所有法,true_false,official.rights.0c4f8f.020,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0049,False,権利関係,区分所有法,wording_contrast,official.rights.0c4f8f.020,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0050,False,権利関係,区分所有法,multiple_choice,official.rights.0c4f8f.020,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.rights.0051,False,権利関係,区分所有法,true_false,official.rights.0c4f8f.021,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0052,False,権利関係,区分所有法,multiple_choice,official.rights.0c4f8f.021,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.rights.0053,False,権利関係,区分所有法,true_false,official.rights.0c4f8f.022,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0054,False,権利関係,区分所有法,wording_contrast,official.rights.0c4f8f.022,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0055,False,権利関係,区分所有法,true_false,official.rights.0c4f8f.023,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0056,False,権利関係,区分所有法,wording_contrast,official.rights.0c4f8f.023,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0057,False,権利関係,区分所有法,true_false,official.rights.0c4f8f.024,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0058,False,権利関係,区分所有法,wording_contrast,official.rights.0c4f8f.024,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0059,False,権利関係,区分所有法,multiple_choice,official.rights.0c4f8f.024,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.rights.0060,True,権利関係,契約各論・売買,true_false,official.rights.86cf71.025,無料見本のため最優先
+P2,takken2026.v26.rights.0061,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.025,通常全問校閲
+P1,takken2026.v26.rights.0062,False,権利関係,契約各論・売買,multiple_choice,official.rights.86cf71.025,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0063,False,権利関係,契約各論・売買,true_false,official.rights.86cf71.026,通常全問校閲
+P2,takken2026.v26.rights.0064,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.026,通常全問校閲
+P2,takken2026.v26.rights.0065,False,権利関係,契約各論・売買,true_false,official.rights.86cf71.027,通常全問校閲
+P2,takken2026.v26.rights.0066,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.027,通常全問校閲
+P2,takken2026.v26.rights.0067,False,権利関係,契約各論・売買,true_false,official.rights.86cf71.028,通常全問校閲
+P2,takken2026.v26.rights.0068,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.028,通常全問校閲
+P1,takken2026.v26.rights.0069,False,権利関係,契約各論・売買,multiple_choice,official.rights.86cf71.028,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0070,False,権利関係,契約各論・売買,true_false,official.rights.86cf71.029,通常全問校閲
+P2,takken2026.v26.rights.0071,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.029,通常全問校閲
+P1,takken2026.v26.rights.0072,False,権利関係,契約各論・売買,multiple_choice,official.rights.86cf71.029,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0073,False,権利関係,契約各論・売買,true_false,official.rights.86cf71.030,通常全問校閲
+P2,takken2026.v26.rights.0074,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.030,通常全問校閲
+P1,takken2026.v26.rights.0075,False,権利関係,契約各論・売買,multiple_choice,official.rights.86cf71.030,全誤答肢の法的妥当性確認
+P0,takken2026.v26.rights.0076,True,権利関係,契約各論・売買,true_false,official.rights.86cf71.031,無料見本のため最優先
+P2,takken2026.v26.rights.0077,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.031,通常全問校閲
+P1,takken2026.v26.rights.0078,False,権利関係,契約各論・売買,multiple_choice,official.rights.86cf71.031,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0079,False,権利関係,契約各論・売買,true_false,official.rights.86cf71.032,通常全問校閲
+P2,takken2026.v26.rights.0080,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.032,通常全問校閲
+P0,takken2026.v26.rights.0081,True,権利関係,契約各論・売買,multiple_choice,official.rights.86cf71.032,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0082,False,権利関係,契約各論・売買,true_false,official.rights.86cf71.033,通常全問校閲
+P2,takken2026.v26.rights.0083,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.033,通常全問校閲
+P2,takken2026.v26.rights.0084,False,権利関係,契約各論・売買,true_false,official.rights.86cf71.034,通常全問校閲
+P2,takken2026.v26.rights.0085,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.034,通常全問校閲
+P2,takken2026.v26.rights.0086,False,権利関係,契約各論・売買,true_false,official.rights.86cf71.035,通常全問校閲
+P2,takken2026.v26.rights.0087,False,権利関係,契約各論・売買,wording_contrast,official.rights.86cf71.035,通常全問校閲
+P2,takken2026.v26.rights.0088,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.036,通常全問校閲
+P2,takken2026.v26.rights.0089,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.037,通常全問校閲
+P2,takken2026.v26.rights.0090,False,権利関係,担保物権・抵当権,wording_contrast,official.rights.1abdc5.037,通常全問校閲
+P1,takken2026.v26.rights.0091,False,権利関係,担保物権・抵当権,multiple_choice,official.rights.1abdc5.037,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0092,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.038,通常全問校閲
+P2,takken2026.v26.rights.0093,False,権利関係,担保物権・抵当権,wording_contrast,official.rights.1abdc5.038,通常全問校閲
+P2,takken2026.v26.rights.0094,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.039,通常全問校閲
+P2,takken2026.v26.rights.0095,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.040,通常全問校閲
+P0,takken2026.v26.rights.0096,True,権利関係,担保物権・抵当権,wording_contrast,official.rights.1abdc5.040,無料見本のため最優先
+P1,takken2026.v26.rights.0097,False,権利関係,担保物権・抵当権,multiple_choice,official.rights.1abdc5.040,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0098,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.041,通常全問校閲
+P2,takken2026.v26.rights.0099,False,権利関係,担保物権・抵当権,wording_contrast,official.rights.1abdc5.041,通常全問校閲
+P1,takken2026.v26.rights.0100,False,権利関係,担保物権・抵当権,multiple_choice,official.rights.1abdc5.041,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0101,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.042,通常全問校閲
+P2,takken2026.v26.rights.0102,False,権利関係,担保物権・抵当権,wording_contrast,official.rights.1abdc5.042,通常全問校閲
+P1,takken2026.v26.rights.0103,False,権利関係,担保物権・抵当権,multiple_choice,official.rights.1abdc5.042,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0104,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.043,通常全問校閲
+P2,takken2026.v26.rights.0105,False,権利関係,担保物権・抵当権,wording_contrast,official.rights.1abdc5.043,通常全問校閲
+P0,takken2026.v26.rights.0106,True,権利関係,担保物権・抵当権,multiple_choice,official.rights.1abdc5.043,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0107,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.044,通常全問校閲
+P2,takken2026.v26.rights.0108,False,権利関係,担保物権・抵当権,wording_contrast,official.rights.1abdc5.044,通常全問校閲
+P1,takken2026.v26.rights.0109,False,権利関係,担保物権・抵当権,multiple_choice,official.rights.1abdc5.044,全誤答肢の法的妥当性確認
+P1,takken2026.v26.rights.0110,False,権利関係,区分所有法,true_false,official.rights.1abdc5.045,近年改正・周辺法令確認
+P1,takken2026.v26.rights.0111,False,権利関係,区分所有法,wording_contrast,official.rights.1abdc5.045,近年改正・周辺法令確認
+P2,takken2026.v26.rights.0112,False,権利関係,担保物権・抵当権,true_false,official.rights.1abdc5.046,通常全問校閲
+P2,takken2026.v26.rights.0113,False,権利関係,担保物権・抵当権,wording_contrast,official.rights.1abdc5.046,通常全問校閲
+P0,takken2026.v26.rights.0114,True,権利関係,担保物権・抵当権,multiple_choice,official.rights.1abdc5.046,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0115,False,権利関係,債権総論,true_false,official.rights.350570.047,通常全問校閲
+P2,takken2026.v26.rights.0116,False,権利関係,債権総論,wording_contrast,official.rights.350570.047,通常全問校閲
+P0,takken2026.v26.rights.0117,True,権利関係,民法総則,true_false,official.rights.350570.048,無料見本のため最優先
+P2,takken2026.v26.rights.0118,False,権利関係,民法総則,wording_contrast,official.rights.350570.048,通常全問校閲
+P2,takken2026.v26.rights.0119,False,権利関係,民法総則,true_false,official.rights.350570.049,通常全問校閲
+P2,takken2026.v26.rights.0120,False,権利関係,民法総則,wording_contrast,official.rights.350570.049,通常全問校閲
+P1,takken2026.v26.rights.0121,False,権利関係,民法総則,multiple_choice,official.rights.350570.049,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0122,False,権利関係,債権総論,true_false,official.rights.350570.050,通常全問校閲
+P2,takken2026.v26.rights.0123,False,権利関係,債権総論,wording_contrast,official.rights.350570.050,通常全問校閲
+P1,takken2026.v26.rights.0124,False,権利関係,債権総論,multiple_choice,official.rights.350570.050,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0125,False,権利関係,民法総則,true_false,official.rights.09cb6d.051,通常全問校閲
+P2,takken2026.v26.rights.0126,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.051,通常全問校閲
+P1,takken2026.v26.rights.0127,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.051,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0128,False,権利関係,民法総則,true_false,official.rights.09cb6d.052,通常全問校閲
+P2,takken2026.v26.rights.0129,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.052,通常全問校閲
+P2,takken2026.v26.rights.0130,False,権利関係,民法総則,true_false,official.rights.09cb6d.053,通常全問校閲
+P2,takken2026.v26.rights.0131,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.053,通常全問校閲
+P1,takken2026.v26.rights.0132,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.053,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0133,False,権利関係,民法総則,true_false,official.rights.09cb6d.054,通常全問校閲
+P2,takken2026.v26.rights.0134,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.054,通常全問校閲
+P1,takken2026.v26.rights.0135,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.054,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0136,False,権利関係,民法総則,true_false,official.rights.09cb6d.055,通常全問校閲
+P2,takken2026.v26.rights.0137,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.055,通常全問校閲
+P1,takken2026.v26.rights.0138,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.055,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0139,False,権利関係,民法総則,true_false,official.rights.09cb6d.056,通常全問校閲
+P2,takken2026.v26.rights.0140,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.056,通常全問校閲
+P2,takken2026.v26.rights.0141,False,権利関係,民法総則,true_false,official.rights.09cb6d.057,通常全問校閲
+P2,takken2026.v26.rights.0142,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.057,通常全問校閲
+P1,takken2026.v26.rights.0143,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.057,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0144,False,権利関係,民法総則,true_false,official.rights.09cb6d.058,通常全問校閲
+P2,takken2026.v26.rights.0145,False,権利関係,民法総則,true_false,official.rights.09cb6d.059,通常全問校閲
+P0,takken2026.v26.rights.0146,True,権利関係,民法総則,wording_contrast,official.rights.09cb6d.059,無料見本のため最優先
+P1,takken2026.v26.rights.0147,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.059,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0148,False,権利関係,民法総則,true_false,official.rights.09cb6d.060,通常全問校閲
+P1,takken2026.v26.rights.0149,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.060,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0150,False,権利関係,民法総則,true_false,official.rights.09cb6d.061,通常全問校閲
+P2,takken2026.v26.rights.0151,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.061,通常全問校閲
+P1,takken2026.v26.rights.0152,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.061,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0153,False,権利関係,民法総則,true_false,official.rights.09cb6d.062,通常全問校閲
+P0,takken2026.v26.rights.0154,True,権利関係,民法総則,wording_contrast,official.rights.09cb6d.062,無料見本のため最優先
+P1,takken2026.v26.rights.0155,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.062,全誤答肢の法的妥当性確認
+P0,takken2026.v26.rights.0156,True,権利関係,民法総則,true_false,official.rights.09cb6d.063,無料見本のため最優先
+P2,takken2026.v26.rights.0157,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.063,通常全問校閲
+P1,takken2026.v26.rights.0158,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.063,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0159,False,権利関係,民法総則,true_false,official.rights.09cb6d.064,通常全問校閲
+P2,takken2026.v26.rights.0160,False,権利関係,民法総則,number_choice,official.rights.09cb6d.064,通常全問校閲
+P2,takken2026.v26.rights.0161,False,権利関係,民法総則,true_false,official.rights.09cb6d.065,通常全問校閲
+P2,takken2026.v26.rights.0162,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.065,通常全問校閲
+P2,takken2026.v26.rights.0163,False,権利関係,民法総則,true_false,official.rights.09cb6d.066,通常全問校閲
+P2,takken2026.v26.rights.0164,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.066,通常全問校閲
+P1,takken2026.v26.rights.0165,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.066,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0166,False,権利関係,民法総則,true_false,official.rights.09cb6d.067,通常全問校閲
+P2,takken2026.v26.rights.0167,False,権利関係,民法総則,wording_contrast,official.rights.09cb6d.067,通常全問校閲
+P2,takken2026.v26.rights.0168,False,権利関係,民法総則,true_false,official.rights.09cb6d.068,通常全問校閲
+P0,takken2026.v26.rights.0169,True,権利関係,民法総則,number_choice,official.rights.09cb6d.068,無料見本のため最優先
+P1,takken2026.v26.rights.0170,False,権利関係,民法総則,multiple_choice,official.rights.09cb6d.068,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0171,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.069,通常全問校閲
+P2,takken2026.v26.rights.0172,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.069,通常全問校閲
+P0,takken2026.v26.rights.0173,True,権利関係,物権・対抗要件・共有,multiple_choice,official.rights.6352ca.069,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0174,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.070,通常全問校閲
+P2,takken2026.v26.rights.0175,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.070,通常全問校閲
+P1,takken2026.v26.rights.0176,False,権利関係,物権・対抗要件・共有,multiple_choice,official.rights.6352ca.070,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0177,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.071,通常全問校閲
+P2,takken2026.v26.rights.0178,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.071,通常全問校閲
+P1,takken2026.v26.rights.0179,False,権利関係,物権・対抗要件・共有,multiple_choice,official.rights.6352ca.071,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0180,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.072,通常全問校閲
+P2,takken2026.v26.rights.0181,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.072,通常全問校閲
+P0,takken2026.v26.rights.0182,True,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.073,無料見本のため最優先
+P2,takken2026.v26.rights.0183,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.073,通常全問校閲
+P1,takken2026.v26.rights.0184,False,権利関係,物権・対抗要件・共有,multiple_choice,official.rights.6352ca.073,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0185,False,権利関係,担保物権・抵当権,true_false,official.rights.6352ca.074,通常全問校閲
+P2,takken2026.v26.rights.0186,False,権利関係,担保物権・抵当権,wording_contrast,official.rights.6352ca.074,通常全問校閲
+P2,takken2026.v26.rights.0187,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.075,通常全問校閲
+P2,takken2026.v26.rights.0188,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.075,通常全問校閲
+P0,takken2026.v26.rights.0189,True,権利関係,物権・対抗要件・共有,multiple_choice,official.rights.6352ca.075,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0190,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.076,通常全問校閲
+P2,takken2026.v26.rights.0191,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.076,通常全問校閲
+P0,takken2026.v26.rights.0192,True,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.077,無料見本のため最優先
+P1,takken2026.v26.rights.0193,False,権利関係,物権・対抗要件・共有,multiple_choice,official.rights.6352ca.077,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0194,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.078,通常全問校閲
+P2,takken2026.v26.rights.0195,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.078,通常全問校閲
+P2,takken2026.v26.rights.0196,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.079,通常全問校閲
+P2,takken2026.v26.rights.0197,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.079,通常全問校閲
+P2,takken2026.v26.rights.0198,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.080,通常全問校閲
+P2,takken2026.v26.rights.0199,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.080,通常全問校閲
+P2,takken2026.v26.rights.0200,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.081,通常全問校閲
+P0,takken2026.v26.rights.0201,True,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.081,無料見本のため最優先
+P1,takken2026.v26.rights.0202,False,権利関係,物権・対抗要件・共有,multiple_choice,official.rights.6352ca.081,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0203,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.082,通常全問校閲
+P2,takken2026.v26.rights.0204,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.082,通常全問校閲
+P1,takken2026.v26.rights.0205,False,権利関係,物権・対抗要件・共有,multiple_choice,official.rights.6352ca.082,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0206,False,権利関係,物権・対抗要件・共有,true_false,official.rights.6352ca.083,通常全問校閲
+P2,takken2026.v26.rights.0207,False,権利関係,物権・対抗要件・共有,wording_contrast,official.rights.6352ca.083,通常全問校閲
+P1,takken2026.v26.rights.0208,False,権利関係,物権・対抗要件・共有,multiple_choice,official.rights.6352ca.083,全誤答肢の法的妥当性確認
+P0,takken2026.v26.rights.0209,True,権利関係,不動産登記法,true_false,official.rights.6352ca.084,無料見本のため最優先 / 近年改正・周辺法令確認
+P1,takken2026.v26.rights.0210,False,権利関係,不動産登記法,multiple_choice,official.rights.6352ca.084,近年改正・周辺法令確認 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.rights.0211,True,権利関係,不動産登記法,true_false,official.rights.6352ca.085,無料見本のため最優先 / 近年改正・周辺法令確認
+P1,takken2026.v26.rights.0212,False,権利関係,不動産登記法,wording_contrast,official.rights.6352ca.085,近年改正・周辺法令確認
+P2,takken2026.v26.rights.0213,False,権利関係,相続,true_false,official.rights.acfb33.086,通常全問校閲
+P2,takken2026.v26.rights.0214,False,権利関係,相続,wording_contrast,official.rights.acfb33.086,通常全問校閲
+P0,takken2026.v26.rights.0215,True,権利関係,相続,multiple_choice,official.rights.acfb33.086,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0216,False,権利関係,相続,true_false,official.rights.acfb33.087,通常全問校閲
+P2,takken2026.v26.rights.0217,False,権利関係,相続,wording_contrast,official.rights.acfb33.087,通常全問校閲
+P1,takken2026.v26.rights.0218,False,権利関係,相続,multiple_choice,official.rights.acfb33.087,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0219,False,権利関係,相続,true_false,official.rights.acfb33.088,通常全問校閲
+P2,takken2026.v26.rights.0220,False,権利関係,相続,wording_contrast,official.rights.acfb33.088,通常全問校閲
+P0,takken2026.v26.rights.0221,True,権利関係,相続,multiple_choice,official.rights.acfb33.088,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0222,False,権利関係,相続,wording_contrast,official.rights.acfb33.089,通常全問校閲
+P2,takken2026.v26.rights.0223,False,権利関係,相続,number_choice,official.rights.acfb33.089,通常全問校閲
+P1,takken2026.v26.rights.0224,False,権利関係,相続,multiple_choice,official.rights.acfb33.089,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0225,False,権利関係,相続,true_false,official.rights.acfb33.090,通常全問校閲
+P2,takken2026.v26.rights.0226,False,権利関係,相続,wording_contrast,official.rights.acfb33.090,通常全問校閲
+P2,takken2026.v26.rights.0227,False,権利関係,相続,true_false,official.rights.acfb33.091,通常全問校閲
+P2,takken2026.v26.rights.0228,False,権利関係,相続,wording_contrast,official.rights.acfb33.091,通常全問校閲
+P1,takken2026.v26.rights.0229,False,権利関係,相続,multiple_choice,official.rights.acfb33.091,全誤答肢の法的妥当性確認
+P0,takken2026.v26.rights.0230,True,権利関係,相続,true_false,official.rights.acfb33.092,無料見本のため最優先
+P2,takken2026.v26.rights.0231,False,権利関係,相続,number_choice,official.rights.acfb33.092,通常全問校閲
+P1,takken2026.v26.rights.0232,False,権利関係,相続,multiple_choice,official.rights.acfb33.092,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0233,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.093,通常全問校閲
+P2,takken2026.v26.rights.0234,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.093,通常全問校閲
+P2,takken2026.v26.rights.0235,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.094,通常全問校閲
+P1,takken2026.v26.rights.0236,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.094,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0237,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.095,通常全問校閲
+P2,takken2026.v26.rights.0238,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.095,通常全問校閲
+P2,takken2026.v26.rights.0239,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.096,通常全問校閲
+P2,takken2026.v26.rights.0240,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.096,通常全問校閲
+P2,takken2026.v26.rights.0241,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.097,通常全問校閲
+P2,takken2026.v26.rights.0242,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.097,通常全問校閲
+P1,takken2026.v26.rights.0243,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.097,全誤答肢の法的妥当性確認
+P0,takken2026.v26.rights.0244,True,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.098,無料見本のため最優先
+P2,takken2026.v26.rights.0245,False,権利関係,賃貸借・借地借家法,number_choice,official.rights.dd60ed.098,通常全問校閲
+P1,takken2026.v26.rights.0246,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.098,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0247,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.099,通常全問校閲
+P2,takken2026.v26.rights.0248,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.099,通常全問校閲
+P2,takken2026.v26.rights.0249,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.100,通常全問校閲
+P2,takken2026.v26.rights.0250,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.100,通常全問校閲
+P2,takken2026.v26.rights.0251,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.101,通常全問校閲
+P2,takken2026.v26.rights.0252,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.101,通常全問校閲
+P0,takken2026.v26.rights.0253,True,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.101,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0254,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.102,通常全問校閲
+P2,takken2026.v26.rights.0255,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.102,通常全問校閲
+P1,takken2026.v26.rights.0256,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.102,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0257,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.103,通常全問校閲
+P2,takken2026.v26.rights.0258,False,権利関係,賃貸借・借地借家法,number_choice,official.rights.dd60ed.103,通常全問校閲
+P1,takken2026.v26.rights.0259,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.103,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0260,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.104,通常全問校閲
+P2,takken2026.v26.rights.0261,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.104,通常全問校閲
+P1,takken2026.v26.rights.0262,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.104,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0263,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.105,通常全問校閲
+P2,takken2026.v26.rights.0264,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.105,通常全問校閲
+P1,takken2026.v26.rights.0265,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.105,全誤答肢の法的妥当性確認
+P0,takken2026.v26.rights.0266,True,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.106,無料見本のため最優先
+P2,takken2026.v26.rights.0267,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.106,通常全問校閲
+P1,takken2026.v26.rights.0268,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.106,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0269,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.107,通常全問校閲
+P2,takken2026.v26.rights.0270,False,権利関係,賃貸借・借地借家法,number_choice,official.rights.dd60ed.107,通常全問校閲
+P1,takken2026.v26.rights.0271,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.107,全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0272,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.108,通常全問校閲
+P2,takken2026.v26.rights.0273,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.108,通常全問校閲
+P0,takken2026.v26.rights.0274,True,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.108,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.rights.0275,False,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.109,通常全問校閲
+P2,takken2026.v26.rights.0276,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.109,通常全問校閲
+P1,takken2026.v26.rights.0277,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.109,全誤答肢の法的妥当性確認
+P0,takken2026.v26.rights.0278,True,権利関係,賃貸借・借地借家法,true_false,official.rights.dd60ed.110,無料見本のため最優先
+P2,takken2026.v26.rights.0279,False,権利関係,賃貸借・借地借家法,wording_contrast,official.rights.dd60ed.110,通常全問校閲
+P1,takken2026.v26.rights.0280,False,権利関係,賃貸借・借地借家法,multiple_choice,official.rights.dd60ed.110,全誤答肢の法的妥当性確認
+P0,takken2026.v26.regulation.0001,True,法令上の制限,国土利用計画法,true_false,official.regulation.f9e7c4.001,無料見本のため最優先
+P2,takken2026.v26.regulation.0002,False,法令上の制限,国土利用計画法,number_choice,official.regulation.f9e7c4.001,通常全問校閲
+P1,takken2026.v26.regulation.0003,False,法令上の制限,国土利用計画法,multiple_choice,official.regulation.f9e7c4.001,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0004,False,法令上の制限,国土利用計画法,true_false,official.regulation.f9e7c4.002,通常全問校閲
+P2,takken2026.v26.regulation.0005,False,法令上の制限,国土利用計画法,number_choice,official.regulation.f9e7c4.002,通常全問校閲
+P1,takken2026.v26.regulation.0006,False,法令上の制限,国土利用計画法,multiple_choice,official.regulation.f9e7c4.002,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0007,False,法令上の制限,国土利用計画法,true_false,official.regulation.f9e7c4.003,通常全問校閲
+P1,takken2026.v26.regulation.0008,False,法令上の制限,国土利用計画法,multiple_choice,official.regulation.f9e7c4.003,全誤答肢の法的妥当性確認
+P0,takken2026.v26.regulation.0009,True,法令上の制限,国土利用計画法,true_false,official.regulation.f9e7c4.004,無料見本のため最優先
+P1,takken2026.v26.regulation.0010,False,法令上の制限,国土利用計画法,multiple_choice,official.regulation.f9e7c4.004,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0011,False,法令上の制限,国土利用計画法,true_false,official.regulation.f9e7c4.005,通常全問校閲
+P1,takken2026.v26.regulation.0012,False,法令上の制限,国土利用計画法,multiple_choice,official.regulation.f9e7c4.005,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0013,False,法令上の制限,国土利用計画法,true_false,official.regulation.f9e7c4.006,通常全問校閲
+P2,takken2026.v26.regulation.0014,False,法令上の制限,国土利用計画法,number_choice,official.regulation.f9e7c4.006,通常全問校閲
+P0,takken2026.v26.regulation.0015,True,法令上の制限,国土利用計画法,multiple_choice,official.regulation.f9e7c4.006,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0016,False,法令上の制限,土地区画整理法,true_false,official.regulation.f85dea.007,通常全問校閲
+P2,takken2026.v26.regulation.0017,False,法令上の制限,土地区画整理法,wording_contrast,official.regulation.f85dea.007,通常全問校閲
+P1,takken2026.v26.regulation.0018,False,法令上の制限,土地区画整理法,multiple_choice,official.regulation.f85dea.007,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0019,False,法令上の制限,土地区画整理法,true_false,official.regulation.f85dea.008,通常全問校閲
+P2,takken2026.v26.regulation.0020,False,法令上の制限,土地区画整理法,wording_contrast,official.regulation.f85dea.008,通常全問校閲
+P1,takken2026.v26.regulation.0021,False,法令上の制限,土地区画整理法,multiple_choice,official.regulation.f85dea.008,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0022,False,法令上の制限,土地区画整理法,true_false,official.regulation.f85dea.009,通常全問校閲
+P2,takken2026.v26.regulation.0023,False,法令上の制限,土地区画整理法,wording_contrast,official.regulation.f85dea.009,通常全問校閲
+P1,takken2026.v26.regulation.0024,False,法令上の制限,土地区画整理法,multiple_choice,official.regulation.f85dea.009,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0025,False,法令上の制限,土地区画整理法,true_false,official.regulation.f85dea.010,通常全問校閲
+P0,takken2026.v26.regulation.0026,True,法令上の制限,土地区画整理法,wording_contrast,official.regulation.f85dea.010,無料見本のため最優先
+P1,takken2026.v26.regulation.0027,False,法令上の制限,土地区画整理法,multiple_choice,official.regulation.f85dea.010,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0028,False,法令上の制限,土地区画整理法,true_false,official.regulation.f85dea.011,通常全問校閲
+P1,takken2026.v26.regulation.0029,False,法令上の制限,土地区画整理法,multiple_choice,official.regulation.f85dea.011,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0030,False,法令上の制限,宅地造成及び特定盛土等規制法,true_false,official.regulation.125b02.012,通常全問校閲
+P2,takken2026.v26.regulation.0031,False,法令上の制限,宅地造成及び特定盛土等規制法,wording_contrast,official.regulation.125b02.012,通常全問校閲
+P1,takken2026.v26.regulation.0032,False,法令上の制限,宅地造成及び特定盛土等規制法,multiple_choice,official.regulation.125b02.012,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0033,False,法令上の制限,宅地造成及び特定盛土等規制法,true_false,official.regulation.125b02.013,通常全問校閲
+P1,takken2026.v26.regulation.0034,False,法令上の制限,宅地造成及び特定盛土等規制法,multiple_choice,official.regulation.125b02.013,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0035,False,法令上の制限,宅地造成及び特定盛土等規制法,true_false,official.regulation.125b02.014,通常全問校閲
+P2,takken2026.v26.regulation.0036,False,法令上の制限,宅地造成及び特定盛土等規制法,wording_contrast,official.regulation.125b02.014,通常全問校閲
+P0,takken2026.v26.regulation.0037,True,法令上の制限,宅地造成及び特定盛土等規制法,multiple_choice,official.regulation.125b02.014,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0038,False,法令上の制限,宅地造成及び特定盛土等規制法,true_false,official.regulation.125b02.015,通常全問校閲
+P1,takken2026.v26.regulation.0039,False,法令上の制限,宅地造成及び特定盛土等規制法,multiple_choice,official.regulation.125b02.015,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0040,False,法令上の制限,宅地造成及び特定盛土等規制法,true_false,official.regulation.125b02.016,通常全問校閲
+P2,takken2026.v26.regulation.0041,False,法令上の制限,宅地造成及び特定盛土等規制法,wording_contrast,official.regulation.125b02.016,通常全問校閲
+P2,takken2026.v26.regulation.0042,False,法令上の制限,宅地造成及び特定盛土等規制法,true_false,official.regulation.125b02.017,通常全問校閲
+P1,takken2026.v26.regulation.0043,False,法令上の制限,宅地造成及び特定盛土等規制法,multiple_choice,official.regulation.125b02.017,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0044,False,法令上の制限,宅地造成及び特定盛土等規制法,true_false,official.regulation.125b02.018,通常全問校閲
+P2,takken2026.v26.regulation.0045,False,法令上の制限,宅地造成及び特定盛土等規制法,wording_contrast,official.regulation.125b02.018,通常全問校閲
+P1,takken2026.v26.regulation.0046,False,法令上の制限,宅地造成及び特定盛土等規制法,multiple_choice,official.regulation.125b02.018,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0047,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.019,通常全問校閲
+P2,takken2026.v26.regulation.0048,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.019,通常全問校閲
+P1,takken2026.v26.regulation.0049,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.019,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0050,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.020,通常全問校閲
+P0,takken2026.v26.regulation.0051,True,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.020,無料見本のため最優先
+P1,takken2026.v26.regulation.0052,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.020,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0053,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.021,通常全問校閲
+P0,takken2026.v26.regulation.0054,True,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.021,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.regulation.0055,True,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.022,無料見本のため最優先
+P1,takken2026.v26.regulation.0056,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.022,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0057,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.023,通常全問校閲
+P2,takken2026.v26.regulation.0058,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.023,通常全問校閲
+P1,takken2026.v26.regulation.0059,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.023,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0060,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.024,通常全問校閲
+P0,takken2026.v26.regulation.0061,True,法令上の制限,建築基準法,number_choice,official.regulation.32fc89.024,無料見本のため最優先
+P1,takken2026.v26.regulation.0062,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.024,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0063,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.025,通常全問校閲
+P2,takken2026.v26.regulation.0064,False,法令上の制限,建築基準法,number_choice,official.regulation.32fc89.025,通常全問校閲
+P1,takken2026.v26.regulation.0065,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.025,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0066,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.026,通常全問校閲
+P2,takken2026.v26.regulation.0067,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.027,通常全問校閲
+P1,takken2026.v26.regulation.0068,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.027,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0069,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.028,通常全問校閲
+P1,takken2026.v26.regulation.0070,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.028,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0071,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.029,通常全問校閲
+P2,takken2026.v26.regulation.0072,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.030,通常全問校閲
+P2,takken2026.v26.regulation.0073,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.030,通常全問校閲
+P1,takken2026.v26.regulation.0074,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.030,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0075,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.031,通常全問校閲
+P1,takken2026.v26.regulation.0076,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.031,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0077,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.032,通常全問校閲
+P1,takken2026.v26.regulation.0078,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.032,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0079,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.033,通常全問校閲
+P2,takken2026.v26.regulation.0080,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.033,通常全問校閲
+P2,takken2026.v26.regulation.0081,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.034,通常全問校閲
+P2,takken2026.v26.regulation.0082,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.034,通常全問校閲
+P1,takken2026.v26.regulation.0083,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.034,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0084,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.035,通常全問校閲
+P2,takken2026.v26.regulation.0085,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.035,通常全問校閲
+P2,takken2026.v26.regulation.0086,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.036,通常全問校閲
+P2,takken2026.v26.regulation.0087,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.036,通常全問校閲
+P1,takken2026.v26.regulation.0088,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.036,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0089,False,法令上の制限,建築基準法,wording_contrast,official.regulation.32fc89.037,通常全問校閲
+P1,takken2026.v26.regulation.0090,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.037,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0091,False,法令上の制限,建築基準法,true_false,official.regulation.32fc89.038,通常全問校閲
+P1,takken2026.v26.regulation.0092,False,法令上の制限,建築基準法,multiple_choice,official.regulation.32fc89.038,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0093,False,法令上の制限,都市計画法,true_false,official.regulation.350570.039,通常全問校閲
+P1,takken2026.v26.regulation.0094,False,法令上の制限,都市計画法,multiple_choice,official.regulation.350570.039,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0095,False,法令上の制限,都市計画法,wording_contrast,official.regulation.350570.040,通常全問校閲
+P1,takken2026.v26.regulation.0096,False,法令上の制限,都市計画法,multiple_choice,official.regulation.350570.040,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0097,False,法令上の制限,都市計画法,true_false,official.regulation.350570.041,通常全問校閲
+P2,takken2026.v26.regulation.0098,False,法令上の制限,都市計画法,wording_contrast,official.regulation.350570.041,通常全問校閲
+P1,takken2026.v26.regulation.0099,False,法令上の制限,都市計画法,multiple_choice,official.regulation.350570.041,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0100,False,法令上の制限,農地法,true_false,official.regulation.eab863.042,通常全問校閲
+P2,takken2026.v26.regulation.0101,False,法令上の制限,農地法,wording_contrast,official.regulation.eab863.042,通常全問校閲
+P1,takken2026.v26.regulation.0102,False,法令上の制限,農地法,multiple_choice,official.regulation.eab863.042,全誤答肢の法的妥当性確認
+P0,takken2026.v26.regulation.0103,True,法令上の制限,農地法,true_false,official.regulation.eab863.043,無料見本のため最優先
+P1,takken2026.v26.regulation.0104,False,法令上の制限,農地法,multiple_choice,official.regulation.eab863.043,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0105,False,法令上の制限,農地法,true_false,official.regulation.eab863.044,通常全問校閲
+P2,takken2026.v26.regulation.0106,False,法令上の制限,農地法,wording_contrast,official.regulation.eab863.044,通常全問校閲
+P1,takken2026.v26.regulation.0107,False,法令上の制限,農地法,multiple_choice,official.regulation.eab863.044,全誤答肢の法的妥当性確認
+P0,takken2026.v26.regulation.0108,True,法令上の制限,農地法,true_false,official.regulation.eab863.045,無料見本のため最優先
+P2,takken2026.v26.regulation.0109,False,法令上の制限,農地法,wording_contrast,official.regulation.eab863.045,通常全問校閲
+P1,takken2026.v26.regulation.0110,False,法令上の制限,農地法,multiple_choice,official.regulation.eab863.045,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0111,False,法令上の制限,農地法,true_false,official.regulation.eab863.046,通常全問校閲
+P2,takken2026.v26.regulation.0112,False,法令上の制限,農地法,wording_contrast,official.regulation.eab863.046,通常全問校閲
+P1,takken2026.v26.regulation.0113,False,法令上の制限,農地法,multiple_choice,official.regulation.eab863.046,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0114,False,法令上の制限,農地法,true_false,official.regulation.eab863.047,通常全問校閲
+P2,takken2026.v26.regulation.0115,False,法令上の制限,農地法,wording_contrast,official.regulation.eab863.047,通常全問校閲
+P2,takken2026.v26.regulation.0116,False,法令上の制限,農地法,true_false,official.regulation.eab863.048,通常全問校閲
+P1,takken2026.v26.regulation.0117,False,法令上の制限,農地法,multiple_choice,official.regulation.eab863.048,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0118,False,法令上の制限,農地法,true_false,official.regulation.eab863.049,通常全問校閲
+P1,takken2026.v26.regulation.0119,False,法令上の制限,農地法,multiple_choice,official.regulation.eab863.049,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0120,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.050,通常全問校閲
+P0,takken2026.v26.regulation.0121,True,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.050,無料見本のため最優先
+P1,takken2026.v26.regulation.0122,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.050,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0123,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.051,通常全問校閲
+P1,takken2026.v26.regulation.0124,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.051,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0125,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.052,通常全問校閲
+P2,takken2026.v26.regulation.0126,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.052,通常全問校閲
+P1,takken2026.v26.regulation.0127,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.052,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0128,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.053,通常全問校閲
+P1,takken2026.v26.regulation.0129,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.053,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0130,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.054,通常全問校閲
+P2,takken2026.v26.regulation.0131,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.054,通常全問校閲
+P1,takken2026.v26.regulation.0132,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.054,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0133,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.055,通常全問校閲
+P2,takken2026.v26.regulation.0134,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.055,通常全問校閲
+P1,takken2026.v26.regulation.0135,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.055,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0136,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.056,通常全問校閲
+P2,takken2026.v26.regulation.0137,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.056,通常全問校閲
+P1,takken2026.v26.regulation.0138,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.056,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0139,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.057,通常全問校閲
+P0,takken2026.v26.regulation.0140,True,法令上の制限,都市計画法,number_choice,official.regulation.96c164.057,無料見本のため最優先
+P1,takken2026.v26.regulation.0141,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.057,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0142,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.058,通常全問校閲
+P2,takken2026.v26.regulation.0143,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.058,通常全問校閲
+P1,takken2026.v26.regulation.0144,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.058,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0145,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.059,通常全問校閲
+P2,takken2026.v26.regulation.0146,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.059,通常全問校閲
+P1,takken2026.v26.regulation.0147,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.059,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0148,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.060,通常全問校閲
+P2,takken2026.v26.regulation.0149,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.060,通常全問校閲
+P2,takken2026.v26.regulation.0150,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.061,通常全問校閲
+P2,takken2026.v26.regulation.0151,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.061,通常全問校閲
+P0,takken2026.v26.regulation.0152,True,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.061,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.regulation.0153,True,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.062,無料見本のため最優先
+P1,takken2026.v26.regulation.0154,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.062,全誤答肢の法的妥当性確認
+P0,takken2026.v26.regulation.0155,True,法令上の制限,土砂災害防止法,true_false,official.regulation.96c164.063,無料見本のため最優先
+P1,takken2026.v26.regulation.0156,False,法令上の制限,土砂災害防止法,multiple_choice,official.regulation.96c164.063,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0157,False,法令上の制限,都市計画法,true_false,official.regulation.96c164.064,通常全問校閲
+P2,takken2026.v26.regulation.0158,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.064,通常全問校閲
+P1,takken2026.v26.regulation.0159,False,法令上の制限,都市計画法,multiple_choice,official.regulation.96c164.064,全誤答肢の法的妥当性確認
+P2,takken2026.v26.regulation.0160,False,法令上の制限,都市計画法,wording_contrast,official.regulation.96c164.065,通常全問校閲
+P0,takken2026.v26.tax.0001,True,税・その他,不動産取得税,true_false,official.tax.99b74f.001,無料見本のため最優先 / 年次更新対象
+P1,takken2026.v26.tax.0002,False,税・その他,不動産取得税,multiple_choice,official.tax.99b74f.001,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0003,False,税・その他,不動産取得税,true_false,official.tax.99b74f.002,年次更新対象
+P1,takken2026.v26.tax.0004,False,税・その他,不動産取得税,multiple_choice,official.tax.99b74f.002,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0005,False,税・その他,不動産取得税,true_false,official.tax.99b74f.003,年次更新対象
+P1,takken2026.v26.tax.0006,False,税・その他,不動産取得税,multiple_choice,official.tax.99b74f.003,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0007,False,税・その他,不動産取得税,true_false,official.tax.99b74f.004,年次更新対象
+P1,takken2026.v26.tax.0008,False,税・その他,不動産取得税,wording_contrast,official.tax.99b74f.004,年次更新対象
+P1,takken2026.v26.tax.0009,False,税・その他,不動産取得税,multiple_choice,official.tax.99b74f.004,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0010,False,税・その他,不動産取得税,true_false,official.tax.99b74f.005,年次更新対象
+P1,takken2026.v26.tax.0011,False,税・その他,不動産取得税,multiple_choice,official.tax.99b74f.005,年次更新対象 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0012,False,税・その他,不動産鑑定評価,true_false,official.valuation.241d9d.001,通常全問校閲
+P2,takken2026.v26.tax.0013,False,税・その他,不動産鑑定評価,wording_contrast,official.valuation.241d9d.001,通常全問校閲
+P1,takken2026.v26.tax.0014,False,税・その他,不動産鑑定評価,multiple_choice,official.valuation.241d9d.001,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0015,False,税・その他,不動産鑑定評価,true_false,official.valuation.241d9d.002,通常全問校閲
+P1,takken2026.v26.tax.0016,False,税・その他,不動産鑑定評価,multiple_choice,official.valuation.241d9d.002,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0017,False,税・その他,不動産鑑定評価,true_false,official.valuation.241d9d.003,通常全問校閲
+P1,takken2026.v26.tax.0018,False,税・その他,不動産鑑定評価,multiple_choice,official.valuation.241d9d.003,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0019,False,税・その他,住宅金融支援機構,true_false,official.practice.648e7c.001,通常全問校閲
+P1,takken2026.v26.tax.0020,False,税・その他,住宅金融支援機構,multiple_choice,official.practice.648e7c.001,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0021,False,税・その他,住宅金融支援機構,true_false,official.practice.648e7c.002,通常全問校閲
+P1,takken2026.v26.tax.0022,False,税・その他,住宅金融支援機構,multiple_choice,official.practice.648e7c.002,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0023,False,税・その他,住宅金融支援機構,wording_contrast,official.practice.648e7c.003,通常全問校閲
+P1,takken2026.v26.tax.0024,False,税・その他,住宅金融支援機構,multiple_choice,official.practice.648e7c.003,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0025,False,税・その他,住宅金融支援機構,wording_contrast,official.practice.648e7c.004,通常全問校閲
+P1,takken2026.v26.tax.0026,False,税・その他,住宅金融支援機構,multiple_choice,official.practice.648e7c.004,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0027,False,税・その他,住宅金融支援機構,wording_contrast,official.practice.648e7c.005,通常全問校閲
+P1,takken2026.v26.tax.0028,False,税・その他,住宅金融支援機構,multiple_choice,official.practice.648e7c.005,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0029,False,税・その他,住宅金融支援機構,true_false,official.practice.648e7c.006,通常全問校閲
+P2,takken2026.v26.tax.0030,False,税・その他,住宅金融支援機構,wording_contrast,official.practice.648e7c.006,通常全問校閲
+P1,takken2026.v26.tax.0031,False,税・その他,住宅金融支援機構,multiple_choice,official.practice.648e7c.006,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0032,False,税・その他,不動産鑑定評価,true_false,official.valuation.2e62aa.004,通常全問校閲
+P2,takken2026.v26.tax.0033,False,税・その他,不動産鑑定評価,wording_contrast,official.valuation.2e62aa.004,通常全問校閲
+P1,takken2026.v26.tax.0034,False,税・その他,不動産鑑定評価,multiple_choice,official.valuation.2e62aa.004,全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0035,False,税・その他,印紙税,true_false,official.tax.8af9af.006,年次更新対象
+P1,takken2026.v26.tax.0036,False,税・その他,印紙税,wording_contrast,official.tax.8af9af.006,年次更新対象
+P1,takken2026.v26.tax.0037,False,税・その他,印紙税,multiple_choice,official.tax.8af9af.006,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0038,False,税・その他,印紙税,wording_contrast,official.tax.8af9af.007,年次更新対象
+P1,takken2026.v26.tax.0039,False,税・その他,印紙税,multiple_choice,official.tax.8af9af.007,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0040,False,税・その他,印紙税,true_false,official.tax.8af9af.008,年次更新対象
+P1,takken2026.v26.tax.0041,False,税・その他,印紙税,multiple_choice,official.tax.8af9af.008,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0042,False,税・その他,固定資産税,wording_contrast,official.tax.a55968.009,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0043,False,税・その他,固定資産税,multiple_choice,official.tax.a55968.009,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0044,False,税・その他,固定資産税,wording_contrast,official.tax.a55968.010,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0045,False,税・その他,固定資産税,number_choice,official.tax.a55968.010,年次更新対象 / 年度・税制確認
+P0,takken2026.v26.tax.0046,True,税・その他,固定資産税,multiple_choice,official.tax.a55968.010,無料見本のため最優先 / 年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0047,False,税・その他,印紙税,true_false,official.tax.a55968.011,年次更新対象
+P1,takken2026.v26.tax.0048,False,税・その他,印紙税,wording_contrast,official.tax.a55968.011,年次更新対象
+P1,takken2026.v26.tax.0049,False,税・その他,印紙税,multiple_choice,official.tax.a55968.011,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0050,False,税・その他,固定資産税,wording_contrast,official.tax.a55968.012,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0051,False,税・その他,固定資産税,multiple_choice,official.tax.a55968.012,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0052,False,税・その他,固定資産税,number_choice,official.tax.a55968.013,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0053,False,税・その他,固定資産税,multiple_choice,official.tax.a55968.013,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0054,False,税・その他,土地,wording_contrast,official.land-building.010108.001,通常全問校閲
+P2,takken2026.v26.tax.0055,False,税・その他,土地,true_false,official.land-building.010108.002,通常全問校閲
+P1,takken2026.v26.tax.0056,False,税・その他,土地,multiple_choice,official.land-building.010108.002,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0057,False,税・その他,土地,wording_contrast,official.land-building.010108.003,通常全問校閲
+P1,takken2026.v26.tax.0058,False,税・その他,土地,multiple_choice,official.land-building.010108.003,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0059,False,税・その他,土地,true_false,official.land-building.010108.004,通常全問校閲
+P0,takken2026.v26.tax.0060,True,税・その他,土地,multiple_choice,official.land-building.010108.004,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0061,False,税・その他,土地,case_study,official.land-building.010108.004,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0062,False,税・その他,土地,true_false,official.land-building.010108.005,通常全問校閲
+P1,takken2026.v26.tax.0063,False,税・その他,土地,multiple_choice,official.land-building.010108.005,全誤答肢の法的妥当性確認
+P0,takken2026.v26.tax.0064,True,税・その他,土地,case_study,official.land-building.010108.005,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0065,False,税・その他,地価公示法,wording_contrast,official.valuation.cba29a.005,通常全問校閲
+P1,takken2026.v26.tax.0066,False,税・その他,地価公示法,multiple_choice,official.valuation.cba29a.005,全誤答肢の法的妥当性確認
+P0,takken2026.v26.tax.0067,True,税・その他,地価公示法,wording_contrast,official.valuation.cba29a.006,無料見本のため最優先
+P1,takken2026.v26.tax.0068,False,税・その他,地価公示法,multiple_choice,official.valuation.cba29a.006,全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0069,False,税・その他,地価公示法,case_study,official.valuation.cba29a.006,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0070,False,税・その他,地価公示法,true_false,official.valuation.cba29a.007,通常全問校閲
+P2,takken2026.v26.tax.0071,False,税・その他,地価公示法,wording_contrast,official.valuation.cba29a.007,通常全問校閲
+P0,takken2026.v26.tax.0072,True,税・その他,地価公示法,multiple_choice,official.valuation.cba29a.007,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0073,False,税・その他,地価公示法,true_false,official.valuation.cba29a.008,通常全問校閲
+P1,takken2026.v26.tax.0074,False,税・その他,地価公示法,multiple_choice,official.valuation.cba29a.008,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0075,False,税・その他,建物,true_false,official.land-building.cd18d7.006,通常全問校閲
+P1,takken2026.v26.tax.0076,False,税・その他,建物,multiple_choice,official.land-building.cd18d7.006,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0077,False,税・その他,建物,wording_contrast,official.land-building.cd18d7.007,通常全問校閲
+P0,takken2026.v26.tax.0078,True,税・その他,建物,multiple_choice,official.land-building.cd18d7.007,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0079,False,税・その他,建物,case_study,official.land-building.cd18d7.007,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0080,False,税・その他,建物,wording_contrast,official.land-building.cd18d7.008,通常全問校閲
+P1,takken2026.v26.tax.0081,False,税・その他,建物,multiple_choice,official.land-building.cd18d7.008,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0082,False,税・その他,建物,wording_contrast,official.land-building.cd18d7.009,通常全問校閲
+P1,takken2026.v26.tax.0083,False,税・その他,建物,multiple_choice,official.land-building.cd18d7.009,全誤答肢の法的妥当性確認
+P0,takken2026.v26.tax.0084,True,税・その他,建物,case_study,official.land-building.cd18d7.009,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0085,False,税・その他,建物,wording_contrast,official.land-building.cd18d7.010,通常全問校閲
+P2,takken2026.v26.tax.0086,False,税・その他,建物,number_choice,official.land-building.cd18d7.010,通常全問校閲
+P1,takken2026.v26.tax.0087,False,税・その他,所得税・譲渡所得,true_false,official.tax.a8bd41.014,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0088,False,税・その他,所得税・譲渡所得,wording_contrast,official.tax.a8bd41.014,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0089,False,税・その他,所得税・譲渡所得,wording_contrast,official.tax.a8bd41.015,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0090,False,税・その他,所得税・譲渡所得,multiple_choice,official.tax.a8bd41.015,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.tax.0091,True,税・その他,所得税・譲渡所得,case_study,official.tax.a8bd41.015,無料見本のため最優先 / 年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0092,False,税・その他,所得税・譲渡所得,true_false,official.tax.a8bd41.016,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0093,False,税・その他,所得税・譲渡所得,wording_contrast,official.tax.a8bd41.016,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0094,False,税・その他,所得税・譲渡所得,multiple_choice,official.tax.a8bd41.016,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0095,False,税・その他,所得税・譲渡所得,wording_contrast,official.tax.a8bd41.017,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0096,False,税・その他,所得税・譲渡所得,multiple_choice,official.tax.a8bd41.017,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0097,False,税・その他,所得税・譲渡所得,case_study,official.tax.a8bd41.017,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.tax.0098,True,税・その他,所得税・譲渡所得,number_choice,official.tax.a8bd41.018,無料見本のため最優先 / 年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0099,False,税・その他,所得税・譲渡所得,multiple_choice,official.tax.a8bd41.018,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.tax.0100,True,税・その他,景品表示法・不動産広告,true_false,official.practice.e9135a.007,無料見本のため最優先
+P2,takken2026.v26.tax.0101,False,税・その他,景品表示法・不動産広告,wording_contrast,official.practice.e9135a.007,通常全問校閲
+P1,takken2026.v26.tax.0102,False,税・その他,景品表示法・不動産広告,multiple_choice,official.practice.e9135a.007,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0103,False,税・その他,景品表示法・不動産広告,true_false,official.practice.e9135a.008,通常全問校閲
+P0,takken2026.v26.tax.0104,True,税・その他,景品表示法・不動産広告,multiple_choice,official.practice.e9135a.008,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0105,False,税・その他,景品表示法・不動産広告,case_study,official.practice.e9135a.008,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0106,False,税・その他,景品表示法・不動産広告,true_false,official.practice.e9135a.009,通常全問校閲
+P1,takken2026.v26.tax.0107,False,税・その他,景品表示法・不動産広告,multiple_choice,official.practice.e9135a.009,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0108,False,税・その他,景品表示法・不動産広告,true_false,official.practice.e9135a.010,通常全問校閲
+P1,takken2026.v26.tax.0109,False,税・その他,景品表示法・不動産広告,multiple_choice,official.practice.e9135a.010,全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0110,False,税・その他,景品表示法・不動産広告,case_study,official.practice.e9135a.010,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0111,False,税・その他,景品表示法・不動産広告,true_false,official.practice.e9135a.011,通常全問校閲
+P1,takken2026.v26.tax.0112,False,税・その他,景品表示法・不動産広告,multiple_choice,official.practice.e9135a.011,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0113,False,税・その他,景品表示法・不動産広告,true_false,official.practice.e9135a.012,通常全問校閲
+P1,takken2026.v26.tax.0114,False,税・その他,景品表示法・不動産広告,multiple_choice,official.practice.e9135a.012,全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0115,False,税・その他,景品表示法・不動産広告,case_study,official.practice.e9135a.012,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0116,False,税・その他,景品表示法・不動産広告,wording_contrast,official.practice.350570.013,通常全問校閲
+P0,takken2026.v26.tax.0117,True,税・その他,景品表示法・不動産広告,multiple_choice,official.practice.350570.013,無料見本のため最優先 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0118,False,税・その他,景品表示法・不動産広告,case_study,official.practice.350570.013,全誤答肢の法的妥当性確認
+P2,takken2026.v26.tax.0119,False,税・その他,地価公示法,true_false,official.practice.350570.014,通常全問校閲
+P2,takken2026.v26.tax.0120,False,税・その他,地価公示法,wording_contrast,official.practice.350570.014,通常全問校閲
+P1,takken2026.v26.tax.0121,False,税・その他,登録免許税,true_false,official.tax.2a21b3.019,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0122,False,税・その他,登録免許税,multiple_choice,official.tax.2a21b3.019,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0123,False,税・その他,登録免許税,case_study,official.tax.2a21b3.019,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0124,False,税・その他,登録免許税,true_false,official.tax.2a21b3.020,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0125,False,税・その他,登録免許税,multiple_choice,official.tax.2a21b3.020,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0126,False,税・その他,登録免許税,true_false,official.tax.2a21b3.021,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0127,False,税・その他,登録免許税,wording_contrast,official.tax.2a21b3.021,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0128,False,税・その他,登録免許税,multiple_choice,official.tax.2a21b3.021,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0129,False,税・その他,固定資産税,wording_contrast,official.tax.f002f4.022,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0130,False,税・その他,固定資産税,multiple_choice,official.tax.f002f4.022,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0131,False,税・その他,固定資産税,wording_contrast,official.tax.f002f4.023,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0132,False,税・その他,固定資産税,multiple_choice,official.tax.f002f4.023,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P0,takken2026.v26.tax.0133,True,税・その他,固定資産税,case_study,official.tax.f002f4.023,無料見本のため最優先 / 年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0134,False,税・その他,印紙税,true_false,official.tax.f002f4.024,年次更新対象
+P1,takken2026.v26.tax.0135,False,税・その他,印紙税,multiple_choice,official.tax.f002f4.024,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0136,False,税・その他,統計,true_false,official.practice.baa4b3.015,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0137,False,税・その他,統計,number_choice,official.practice.baa4b3.015,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0138,False,税・その他,統計,multiple_choice,official.practice.baa4b3.015,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0139,False,税・その他,統計,true_false,official.practice.baa4b3.016,年次更新対象 / 年度・税制確認
+P0,takken2026.v26.tax.0140,True,税・その他,統計,number_choice,official.practice.baa4b3.016,無料見本のため最優先 / 年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0141,False,税・その他,統計,multiple_choice,official.practice.baa4b3.016,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0142,False,税・その他,統計,true_false,official.practice.baa4b3.017,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0143,False,税・その他,統計,number_choice,official.practice.baa4b3.017,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0144,False,税・その他,統計,multiple_choice,official.practice.baa4b3.017,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0145,False,税・その他,統計,true_false,official.practice.baa4b3.018,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0146,False,税・その他,統計,number_choice,official.practice.baa4b3.018,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0147,False,税・その他,統計,multiple_choice,official.practice.baa4b3.018,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0148,False,税・その他,統計,true_false,official.practice.baa4b3.019,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0149,False,税・その他,統計,number_choice,official.practice.baa4b3.019,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0150,False,税・その他,統計,true_false,official.practice.baa4b3.020,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0151,False,税・その他,統計,wording_contrast,official.practice.baa4b3.020,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0152,False,税・その他,地価公示法,wording_contrast,official.practice.baa4b3.021,年次更新対象
+P0,takken2026.v26.tax.0153,True,税・その他,地価公示法,number_choice,official.practice.baa4b3.021,無料見本のため最優先 / 年次更新対象
+P1,takken2026.v26.tax.0154,False,税・その他,地価公示法,multiple_choice,official.practice.baa4b3.021,年次更新対象 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0155,False,税・その他,贈与税・住宅取得資金等,true_false,official.tax.41f00a.025,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0156,False,税・その他,贈与税・住宅取得資金等,number_choice,official.tax.41f00a.025,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0157,False,税・その他,贈与税・住宅取得資金等,multiple_choice,official.tax.41f00a.025,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認
+P1,takken2026.v26.tax.0158,False,税・その他,贈与税・住宅取得資金等,true_false,official.tax.41f00a.026,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0159,False,税・その他,贈与税・住宅取得資金等,wording_contrast,official.tax.41f00a.026,年次更新対象 / 年度・税制確認
+P1,takken2026.v26.tax.0160,False,税・その他,贈与税・住宅取得資金等,multiple_choice,official.tax.41f00a.026,年次更新対象 / 年度・税制確認 / 全誤答肢の法的妥当性確認

@@ -36,7 +36,8 @@ struct ContentSchemaID: RawRepresentable, Codable, Hashable, ExpressibleByString
   static let safeFallbackV1: Self = "safe-fallback.items.v1"
 }
 
-struct ContentComponentID: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral, Sendable {
+struct ContentComponentID: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral, Sendable
+{
   let rawValue: String
   init(rawValue: String) { self.rawValue = rawValue }
   init(stringLiteral value: String) { rawValue = value }
@@ -309,6 +310,7 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
   let expectedItemCount: Int
   let conceptCount: Int?
   let variantCount: Int?
+  let contentQualityProfile: String?
   let sampleDefinition: SampleDefinition
   let oneTimeProductID: String?
   let passEligible: Bool
@@ -330,7 +332,8 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
     case editionPolicy, storeState, deliveryMode, passAccessPolicy, components
     case moduleType, experienceType, title, subtitle, description, contentVersion
     case minimumAppVersion, releaseStatus, isEnabled, sortOrder, expectedItemCount
-    case conceptCount, variantCount, sampleDefinition, oneTimeProductID, passEligible
+    case conceptCount, variantCount, contentQualityProfile, sampleDefinition, oneTimeProductID,
+      passEligible
     case saleReady, contentFiles, metadataFile, creditsFile, availableFrom, retiredAt
     case supersedesPackID, locale, qualification, progressMigrationFile, progressMigrationSHA256
     case presentation
@@ -351,60 +354,80 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
     moduleType = decodedModule ?? Self.moduleType(for: experienceID)
     experienceType = legacyExperience ?? Self.legacyExperienceType(for: experienceID)
 
-    categoryID = try container.decodeIfPresent(StudyCategoryID.self, forKey: .categoryID)
+    categoryID =
+      try container.decodeIfPresent(StudyCategoryID.self, forKey: .categoryID)
       ?? Self.defaultCategoryID(for: moduleType)
-    seriesID = try container.decodeIfPresent(StudySeriesID.self, forKey: .seriesID)
+    seriesID =
+      try container.decodeIfPresent(StudySeriesID.self, forKey: .seriesID)
       ?? Self.defaultSeriesID(for: moduleType, packID: id)
-    editionID = try container.decodeIfPresent(String.self, forKey: .editionID)
+    editionID =
+      try container.decodeIfPresent(String.self, forKey: .editionID)
       ?? id.rawValue
-    editionYear = try container.decodeIfPresent(Int.self, forKey: .editionYear)
-      ?? (try container.decodeIfPresent(QualificationMetadata.self, forKey: .qualification))?.examYear
-    editionPolicy = try container.decodeIfPresent(EditionPolicy.self, forKey: .editionPolicy)
+    editionYear =
+      try container.decodeIfPresent(Int.self, forKey: .editionYear)
+      ?? (try container.decodeIfPresent(QualificationMetadata.self, forKey: .qualification))?
+      .examYear
+    editionPolicy =
+      try container.decodeIfPresent(EditionPolicy.self, forKey: .editionPolicy)
       ?? (editionYear == nil ? .evergreen : .annual)
 
     title = try container.decode(String.self, forKey: .title)
     subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle) ?? ""
     description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
     contentVersion = try container.decode(String.self, forKey: .contentVersion)
-    minimumAppVersion = try container.decodeIfPresent(String.self, forKey: .minimumAppVersion)
+    minimumAppVersion =
+      try container.decodeIfPresent(String.self, forKey: .minimumAppVersion)
       ?? "1.0"
-    releaseStatus = try container.decodeIfPresent(ReleaseStatus.self, forKey: .releaseStatus)
+    releaseStatus =
+      try container.decodeIfPresent(ReleaseStatus.self, forKey: .releaseStatus)
       ?? .release
     isEnabled = try container.decodeIfPresent(Bool.self, forKey: .isEnabled) ?? true
     sortOrder = try container.decodeIfPresent(Int.self, forKey: .sortOrder) ?? 0
     expectedItemCount = try container.decodeIfPresent(Int.self, forKey: .expectedItemCount) ?? 0
     conceptCount = try container.decodeIfPresent(Int.self, forKey: .conceptCount)
     variantCount = try container.decodeIfPresent(Int.self, forKey: .variantCount)
-    sampleDefinition = try container.decodeIfPresent(SampleDefinition.self, forKey: .sampleDefinition)
+    contentQualityProfile = try container.decodeIfPresent(
+      String.self, forKey: .contentQualityProfile)
+    sampleDefinition =
+      try container.decodeIfPresent(SampleDefinition.self, forKey: .sampleDefinition)
       ?? .init(kind: "none", count: 0, catalogFile: nil)
     oneTimeProductID = try container.decodeIfPresent(String.self, forKey: .oneTimeProductID)
-    passEligible = try container.decodeIfPresent(Bool.self, forKey: .passEligible)
-      ?? ((try container.decodeIfPresent(PassAccessPolicy.self, forKey: .passAccessPolicy)) != .excluded)
+    passEligible =
+      try container.decodeIfPresent(Bool.self, forKey: .passEligible)
+      ?? ((try container.decodeIfPresent(PassAccessPolicy.self, forKey: .passAccessPolicy))
+        != .excluded)
     saleReady = try container.decodeIfPresent(Bool.self, forKey: .saleReady) ?? false
-    let legacyFiles = try container.decodeIfPresent(
-      [ContentFileDescriptor].self, forKey: .contentFiles) ?? []
+    let legacyFiles =
+      try container.decodeIfPresent(
+        [ContentFileDescriptor].self, forKey: .contentFiles) ?? []
     metadataFile = try container.decodeIfPresent(String.self, forKey: .metadataFile)
     creditsFile = try container.decodeIfPresent(String.self, forKey: .creditsFile)
     availableFrom = try container.decodeIfPresent(Date.self, forKey: .availableFrom)
     retiredAt = try container.decodeIfPresent(Date.self, forKey: .retiredAt)
     supersedesPackID = try container.decodeIfPresent(StudyPackID.self, forKey: .supersedesPackID)
     locale = try container.decodeIfPresent(String.self, forKey: .locale) ?? "ja-JP"
-    qualification = try container.decodeIfPresent(QualificationMetadata.self, forKey: .qualification)
-    progressMigrationFile = try container.decodeIfPresent(String.self, forKey: .progressMigrationFile)
+    qualification = try container.decodeIfPresent(
+      QualificationMetadata.self, forKey: .qualification)
+    progressMigrationFile = try container.decodeIfPresent(
+      String.self, forKey: .progressMigrationFile)
     progressMigrationSHA256 = try container.decodeIfPresent(
       String.self, forKey: .progressMigrationSHA256)
     presentation = try container.decodeIfPresent(
       StudyPresentationProfile.self, forKey: .presentation)
 
-    storeState = try container.decodeIfPresent(PackStoreState.self, forKey: .storeState)
+    storeState =
+      try container.decodeIfPresent(PackStoreState.self, forKey: .storeState)
       ?? Self.legacyStoreState(releaseStatus: releaseStatus, retiredAt: retiredAt)
-    deliveryMode = try container.decodeIfPresent(ContentDeliveryMode.self, forKey: .deliveryMode)
+    deliveryMode =
+      try container.decodeIfPresent(ContentDeliveryMode.self, forKey: .deliveryMode)
       ?? .bundled
-    passAccessPolicy = try container.decodeIfPresent(PassAccessPolicy.self, forKey: .passAccessPolicy)
+    passAccessPolicy =
+      try container.decodeIfPresent(PassAccessPolicy.self, forKey: .passAccessPolicy)
       ?? (passEligible ? .included : .excluded)
 
-    let decodedComponents = try container.decodeIfPresent(
-      [ContentComponentManifest].self, forKey: .components) ?? []
+    let decodedComponents =
+      try container.decodeIfPresent(
+        [ContentComponentManifest].self, forKey: .components) ?? []
     if decodedComponents.isEmpty {
       components = [
         .init(
@@ -449,6 +472,7 @@ struct StudyPackManifest: Codable, Identifiable, Equatable, Sendable {
     try container.encode(expectedItemCount, forKey: .expectedItemCount)
     try container.encodeIfPresent(conceptCount, forKey: .conceptCount)
     try container.encodeIfPresent(variantCount, forKey: .variantCount)
+    try container.encodeIfPresent(contentQualityProfile, forKey: .contentQualityProfile)
     try container.encode(sampleDefinition, forKey: .sampleDefinition)
     try container.encodeIfPresent(oneTimeProductID, forKey: .oneTimeProductID)
     try container.encode(passEligible, forKey: .passEligible)
@@ -553,7 +577,8 @@ extension StudyPackManifest {
     guard experienceID.normalizedTemplateID == .certificationV1, let conceptCount else {
       return publishedCountLabel
     }
-    return "\(certificationPresentation.subjectName) \(conceptCount)論点・校閲済み\(variantCount ?? expectedItemCount)問"
+    return
+      "\(certificationPresentation.subjectName) \(conceptCount)論点・校閲済み\(variantCount ?? expectedItemCount)問"
   }
 }
 
@@ -677,10 +702,12 @@ struct ProgressMigrationDocument: Codable, Equatable, Sendable {
     packID = try container.decodeIfPresent(StudyPackID.self, forKey: .packID)
     fromContentVersion = try container.decode(String.self, forKey: .fromContentVersion)
     toContentVersion = try container.decode(String.self, forKey: .toContentVersion)
-    defaultPolicy = try container.decodeIfPresent(
-      ProgressCompatibilityPolicy.self, forKey: .defaultPolicy) ?? .preserve
-    itemMigrations = try container.decodeIfPresent(
-      [ItemProgressMigration].self, forKey: .itemMigrations) ?? []
+    defaultPolicy =
+      try container.decodeIfPresent(
+        ProgressCompatibilityPolicy.self, forKey: .defaultPolicy) ?? .preserve
+    itemMigrations =
+      try container.decodeIfPresent(
+        [ItemProgressMigration].self, forKey: .itemMigrations) ?? []
   }
 }
 
@@ -737,5 +764,12 @@ struct StudyModuleRegistry: Sendable {
     self.modules = Dictionary(uniqueKeysWithValues: modules.map { ($0.moduleType, $0) })
   }
   func module(for type: StudyModuleType) -> (any StudyModule)? { modules[type] }
-  static let standard = StudyModuleRegistry(modules: [VocabularyStudyModule(), TakkenStudyModule()])
+  static let standard = configured(trustMode: .production)
+
+  static func configured(trustMode: ContentTrustMode) -> StudyModuleRegistry {
+    StudyModuleRegistry(modules: [
+      VocabularyStudyModule(),
+      TakkenStudyModule(trustMode: trustMode),
+    ])
+  }
 }

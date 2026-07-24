@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-07-24T00:00:00+09:00",
+  "generatedAt": "2026-07-22T00:00:00Z",
   "categories": [
     {
       "schemaVersion": 1,
@@ -72,27 +72,13 @@
       "isEnabled": true,
       "sortOrder": 10,
       "expectedItemCount": 3000,
-      "sampleDefinition": {
-        "kind": "fixed",
-        "count": 250,
-        "catalogFile": "vocabulary_free_sample_250_v1.json"
-      },
+      "sampleDefinition": {"kind": "fixed", "count": 250, "catalogFile": "vocabulary_free_sample_250_v1.json"},
       "oneTimeProductID": "com.ameneko.lockandstudy.pack.english3000.v1",
       "passEligible": true,
       "saleReady": true,
       "contentFiles": [
-        {
-          "path": "vocabulary_english3000_v1.json",
-          "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1",
-          "itemCount": 3000,
-          "byteCount": 5791310
-        },
-        {
-          "path": "vocabulary_free_sample_250_v1.json",
-          "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b",
-          "itemCount": 250,
-          "byteCount": 58291
-        }
+        {"path": "vocabulary_english3000_v1.json", "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1", "itemCount": 3000, "byteCount": 5791310},
+        {"path": "vocabulary_free_sample_250_v1.json", "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b", "itemCount": 250, "byteCount": 58291}
       ],
       "components": [
         {
@@ -102,12 +88,7 @@
           "contentSchemaID": "flashcard.items.v1",
           "sortOrder": 0,
           "contentFiles": [
-            {
-              "path": "vocabulary_english3000_v1.json",
-              "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1",
-              "itemCount": 3000,
-              "byteCount": 5791310
-            }
+            {"path": "vocabulary_english3000_v1.json", "sha256": "33b63b00b9f2557080b8f4a9e81a8ed8734304943f6f608694fd8239decf6bb1", "itemCount": 3000, "byteCount": 5791310}
           ],
           "metadataFile": "english3000_metadata_v1.json"
         },
@@ -118,12 +99,7 @@
           "contentSchemaID": "sample.index.v1",
           "sortOrder": 1,
           "contentFiles": [
-            {
-              "path": "vocabulary_free_sample_250_v1.json",
-              "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b",
-              "itemCount": 250,
-              "byteCount": 58291
-            }
+            {"path": "vocabulary_free_sample_250_v1.json", "sha256": "1ded64543e434c478efb87978fd0f64cc2af06ffb0a6775d527919c46e29950b", "itemCount": 250, "byteCount": 58291}
           ]
         }
       ],
@@ -156,36 +132,11 @@
             "noAvailableItems": "利用できる問題がありません。"
           },
           "courseDefinitions": [
-            {
-              "code": "L0",
-              "title": "基礎・A1",
-              "subtitle": null,
-              "sampleLabel": "無料50語"
-            },
-            {
-              "code": "L1",
-              "title": "中学1年",
-              "subtitle": null,
-              "sampleLabel": "無料50語"
-            },
-            {
-              "code": "L2",
-              "title": "中学2年",
-              "subtitle": null,
-              "sampleLabel": "無料50語"
-            },
-            {
-              "code": "L3",
-              "title": "中学3年",
-              "subtitle": null,
-              "sampleLabel": "無料50語"
-            },
-            {
-              "code": "L4",
-              "title": "高校基礎",
-              "subtitle": null,
-              "sampleLabel": "無料50語"
-            }
+            {"code":"L0","title":"基礎・A1","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L1","title":"中学1年","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L2","title":"中学2年","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L3","title":"中学3年","subtitle":null,"sampleLabel":"無料50語"},
+            {"code":"L4","title":"高校基礎","subtitle":null,"sampleLabel":"無料50語"}
           ]
         },
         "certification": null
@@ -206,79 +157,40 @@
       "moduleType": "takken",
       "experienceType": "certification.takken.v1",
       "title": "宅建2026",
-      "subtitle": "無料100問＋全範囲1,000問",
-      "description": "宅建2026差替レビュー候補1,000問。無料100問・有料900問。外部有資格者の全問校閲完了まで販売不可。",
-      "contentVersion": "takken-2026-v26.0-review-candidate",
+      "subtitle": "無料公開100問",
+      "description": "現在は品質確認済みの宅建業法100問を無料公開しています。全範囲版は準備中です。",
+      "contentVersion": "takken-2026-free-v1",
       "minimumAppVersion": "1.0",
       "releaseStatus": "release",
       "isEnabled": true,
       "sortOrder": 20,
-      "expectedItemCount": 1000,
-      "conceptCount": 380,
-      "variantCount": 1000,
-      "sampleDefinition": {
-        "kind": "fixed",
-        "count": 100,
-        "catalogFile": "takken_2026_free_sample_100_v20.json"
-      },
+      "expectedItemCount": 100,
+      "conceptCount": 100,
+      "variantCount": 100,
+      "sampleDefinition": {"kind": "allReleased", "count": 100},
       "oneTimeProductID": "com.ameneko.lockandstudy.pack.takken2026.v1",
       "passEligible": true,
       "saleReady": false,
       "contentFiles": [
-        {
-          "path": "takken_2026_questions_v20.json",
-          "sha256": "af7f5b6e27e964d3cf6485497e302cdefed79b56cb70690444bb8178ce5a3263",
-          "itemCount": 1000,
-          "byteCount": 5233717
-        },
-        {
-          "path": "takken_2026_free_sample_100_v20.json",
-          "sha256": "52021360421a97d68d66399c0423fa0809c8d620c4e240985e3f6792c04be34e",
-          "itemCount": 100,
-          "byteCount": 552726
-        }
+        {"path": "takken_2026_free_100_v1.json", "sha256": "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af", "itemCount": 100, "byteCount": 108995}
       ],
       "components": [
         {
           "id": "questions",
-          "title": "宅建2026 全1,000問",
+          "title": "宅建問題",
           "experienceID": "certification.v1",
           "contentSchemaID": "certification.questions.v1",
           "sortOrder": 0,
           "contentFiles": [
-            {
-              "path": "takken_2026_questions_v20.json",
-              "sha256": "af7f5b6e27e964d3cf6485497e302cdefed79b56cb70690444bb8178ce5a3263",
-              "itemCount": 1000,
-              "byteCount": 5233717
-            }
+            {"path": "takken_2026_free_100_v1.json", "sha256": "6d4ce62f86a2a0b7805ec39442e3b01968c9f11947b9c2dd7fbbf8055e00d6af", "itemCount": 100, "byteCount": 108995}
           ],
           "metadataFile": "takken2026_metadata_v1.json"
-        },
-        {
-          "id": "sample-index",
-          "title": "固定無料100問索引",
-          "experienceID": "content.sample-index.v1",
-          "contentSchemaID": "sample.index.v1",
-          "sortOrder": 1,
-          "contentFiles": [
-            {
-              "path": "takken_2026_free_sample_100_v20.json",
-              "sha256": "52021360421a97d68d66399c0423fa0809c8d620c4e240985e3f6792c04be34e",
-              "itemCount": 100,
-              "byteCount": 552726
-            }
-          ]
         }
       ],
       "metadataFile": "takken2026_metadata_v1.json",
       "creditsFile": "takken2026_credits_v1.txt",
       "locale": "ja-JP",
-      "qualification": {
-        "examYear": 2026,
-        "lawBasisDate": "2026-04-01",
-        "requiresAnnualReview": true
-      },
+      "qualification": {"examYear": 2026, "lawBasisDate": "2026-04-01", "requiresAnnualReview": true},
       "presentation": {
         "flashcard": null,
         "certification": {
@@ -288,54 +200,22 @@
           "firstRunDescription": "学ぶ分野と1回の問題数を選びます。あとから設定で変更できます。",
           "startButtonTitle": "宅建学習を始める",
           "unlockTitle": "宅建問題でロックを開く",
-          "freeContentLabel": "無料代表100問",
+          "freeContentLabel": "無料宅建問題",
           "categoryDefinitions": [
-            {
-              "code": "宅建業法",
-              "title": "宅建業法"
-            },
-            {
-              "code": "権利関係",
-              "title": "権利関係"
-            },
-            {
-              "code": "法令上の制限",
-              "title": "法令上の制限"
-            },
-            {
-              "code": "税・その他",
-              "title": "税・その他"
-            }
+            {"code":"宅建業法","title":"宅建業法"}
           ],
           "formatDefinitions": [
-            {
-              "code": "true_false",
-              "title": "○×"
-            },
-            {
-              "code": "number_choice",
-              "title": "数値選択"
-            },
-            {
-              "code": "wording_contrast",
-              "title": "文言比較"
-            },
-            {
-              "code": "multiple_choice",
-              "title": "四択"
-            },
-            {
-              "code": "case_study",
-              "title": "事例問題"
-            }
+            {"code":"true_false","title":"○×"},
+            {"code":"number_choice","title":"数値選択"},
+            {"code":"wording_contrast","title":"文言比較"},
+            {"code":"multiple_choice","title":"四択"},
+            {"code":"case_study","title":"事例問題"}
           ],
           "showsEditionYear": true,
           "showsLawBasisDate": true,
           "supportsFinalSprint": true
         }
-      },
-      "contentQualityProfile": "takken-v26-distinct-variant-review-candidate",
-      "choiceOrderStrategy": "seeded_shuffle"
+      }
     }
   ]
 }

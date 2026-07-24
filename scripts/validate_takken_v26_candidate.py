@@ -12,23 +12,30 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASED = ROOT / "LockAndStudy/Resources/Content/Released"
 WORK = ROOT / "ContentSource/TakkenWork"
-QUESTIONS = RELEASED / "takken_2026_questions_v20.json"
-FREE_SAMPLE = RELEASED / "takken_2026_free_sample_100_v20.json"
-CATALOG = RELEASED / "study_pack_catalog.json"
-METADATA = RELEASED / "takken2026_metadata_v1.json"
-QUESTION_CANDIDATE = (
+QUESTIONS = (
     WORK / "ReviewCandidates/takken_2026_questions_v26_candidate.json"
 )
-FREE_CANDIDATE = (
+FREE_SAMPLE = (
     WORK / "ReviewCandidates/takken_2026_free_sample_100_v26_candidate.json"
+)
+CATALOG = (
+    WORK / "ReviewCandidates/study_pack_catalog_takken_v26_review.json"
+)
+METADATA = (
+    WORK / "ReviewCandidates/takken2026_metadata_v26_candidate.json"
 )
 CONCEPT_MASTER = (
     WORK / "Concepts/takken_2026_concept_master_v26_candidate.json"
 )
 SOURCE_REGISTRY = (
     WORK / "Sources/takken_2026_source_registry_v26_candidate.json"
+)
+EXTERNAL_REVIEW_QUEUE = (
+    WORK / "Review/takken_v26_external_legal_review_queue.csv"
+)
+PRIORITY_REVIEW_QUEUE = (
+    WORK / "Review/takken_v26_priority_review_queue.csv"
 )
 
 EXPECTED_QUESTION_SHA = (
@@ -80,10 +87,10 @@ def main() -> int:
         FREE_SAMPLE,
         CATALOG,
         METADATA,
-        QUESTION_CANDIDATE,
-        FREE_CANDIDATE,
         CONCEPT_MASTER,
         SOURCE_REGISTRY,
+        EXTERNAL_REVIEW_QUEUE,
+        PRIORITY_REVIEW_QUEUE,
     )
     missing = [str(path.relative_to(ROOT)) for path in required if not path.is_file()]
     if missing:
@@ -93,8 +100,6 @@ def main() -> int:
 
     questions = load(QUESTIONS)
     free_document = load(FREE_SAMPLE)
-    question_candidate = load(QUESTION_CANDIDATE)
-    free_candidate = load(FREE_CANDIDATE)
     catalog = load(CATALOG)
     metadata = load(METADATA)
     concept_master = load(CONCEPT_MASTER)
@@ -107,11 +112,6 @@ def main() -> int:
     free = free_document.get("questions")
     if not isinstance(free, list) or len(free) != 100:
         return _report(["free sample must contain exactly 100 questions"])
-    if questions != question_candidate:
-        fail(errors, "Released full questions differ from ReviewCandidates source")
-    if free_document != free_candidate:
-        fail(errors, "Released free sample differs from ReviewCandidates source")
-
     if sha256(QUESTIONS) != EXPECTED_QUESTION_SHA:
         fail(errors, "full question SHA-256 differs from the signed package")
     if sha256(FREE_SAMPLE) != EXPECTED_FREE_SHA:
@@ -226,7 +226,7 @@ def main() -> int:
                 if expected is None:
                     fail(errors, f"catalog contains an unexpected file: {entry.get('path')}")
                     continue
-                path = RELEASED / entry["path"]
+                path = QUESTIONS.parent / entry["path"]
                 if (
                     entry.get("sha256") != sha256(path)
                     or entry.get("byteCount") != path.stat().st_size

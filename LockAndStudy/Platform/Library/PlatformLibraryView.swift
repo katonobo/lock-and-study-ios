@@ -14,6 +14,11 @@ struct PlatformPackDetailView: View {
         VStack(alignment: .leading, spacing: 10) {
           Text(manifest.title).font(.largeTitle.bold())
           Text(manifest.description)
+          if InternalContentReviewBuild.isEnabled {
+            Label("内部確認用：全1,000問を購入せず確認できます。", systemImage: "exclamationmark.shield.fill")
+              .font(.footnote.bold())
+              .foregroundStyle(.red)
+          }
           if !manifest.saleReady {
             Text("準備中のため購入操作は表示されません。")
               .font(.footnote)
@@ -26,11 +31,22 @@ struct PlatformPackDetailView: View {
           LabeledContent("コンテンツ版", value: manifest.contentVersion)
           LabeledContent("配信", value: deliveryLabel)
           LabeledContent("インストール", value: installLabel)
-          LabeledContent("買い切り価格", value: priceLabel)
-          LabeledContent("Study Pass", value: passLabel)
-          if let q = manifest.qualification { if let year = q.examYear { LabeledContent("試験年度", value: "\(year)年度") }; if let date = q.lawBasisDate { LabeledContent("法令基準日", value: date) } }
-          if let summary { LabeledContent("学習済み", value: "\(summary.learnedItemCount)"); LabeledContent("正答率", value: "\(Int(summary.accuracy * 100))%") }
-          if !manifest.saleReady { Label("全範囲版は準備中です。校閲完了まで購入できません。", systemImage: "clock.badge.exclamationmark").foregroundStyle(.orange) }
+          if !InternalContentReviewBuild.isEnabled {
+            LabeledContent("買い切り価格", value: priceLabel)
+            LabeledContent("Study Pass", value: passLabel)
+          }
+          if let q = manifest.qualification {
+            if let year = q.examYear { LabeledContent("試験年度", value: "\(year)年度") }
+            if let date = q.lawBasisDate { LabeledContent("法令基準日", value: date) }
+          }
+          if let summary {
+            LabeledContent("学習済み", value: "\(summary.learnedItemCount)")
+            LabeledContent("正答率", value: "\(Int(summary.accuracy * 100))%")
+          }
+          if !manifest.saleReady {
+            Label("全範囲版は準備中です。校閲完了まで購入できません。", systemImage: "clock.badge.exclamationmark")
+              .foregroundStyle(.orange)
+          }
           if manifest.storeState == .archivedOwnedOnly {
             Label("過去年度版です。法令・制度が現在と異なる可能性があります。", systemImage: "calendar.badge.exclamationmark")
               .foregroundStyle(.orange)
@@ -61,7 +77,13 @@ struct PlatformPackDetailView: View {
               .secondaryActionStyle()
               .accessibilityIdentifier("platform.pack.selectForUnlock")
           }
-          if isOwned || isIncludedByPass {
+          if InternalContentReviewBuild.isEnabled {
+            Button("内部レビューで全問を開く") {
+              model.openExperience(packID: manifest.id)
+            }
+            .primaryActionStyle()
+            .accessibilityIdentifier("platform.pack.openInternalReview")
+          } else if isOwned || isIncludedByPass {
             Button("この教材を開く") { model.openExperience(packID: manifest.id) }
               .primaryActionStyle()
               .accessibilityIdentifier("platform.pack.open")
@@ -85,14 +107,21 @@ struct PlatformPackDetailView: View {
           }
         }
       }
-      if !credits.isEmpty { Section("クレジット・出典") { Text(credits).font(.footnote).textSelection(.enabled) } }
+      if !credits.isEmpty {
+        Section("クレジット・出典") { Text(credits).font(.footnote).textSelection(.enabled) }
+      }
     }
     .navigationTitle(manifest.title).navigationBarTitleDisplayMode(.inline)
-    .sheet(isPresented: $showPurchase) { NavigationStack { PurchaseView(focusedPackID: manifest.id) } }
+    .sheet(isPresented: $showPurchase) {
+      NavigationStack { PurchaseView(focusedPackID: manifest.id) }
+    }
     .task { await load() }
+    .internalContentReviewBanner()
     .accessibilityIdentifier("platform.pack.detail")
   }
-  private var isOwned: Bool { commerce.entitlement.ownedPacks.contains { $0.packID == manifest.id } }
+  private var isOwned: Bool {
+    commerce.entitlement.ownedPacks.contains { $0.packID == manifest.id }
+  }
   private var isIncludedByPass: Bool {
     manifest.passAccessPolicy.permitsAccess(storeState: manifest.storeState)
       && commerce.entitlement.activePass?.permitsAccess == true
@@ -123,12 +152,15 @@ struct PlatformPackDetailView: View {
   }
   private func load() async {
     if let file = manifest.creditsFile {
-      credits = (try? await model.dependencies.content.text(
-        resourcePath: file,
-        for: manifest.id)) ?? ""
+      credits =
+        (try? await model.dependencies.content.text(
+          resourcePath: file,
+          for: manifest.id)) ?? ""
     }
     if let factory = model.experienceRegistry.factory(for: manifest),
-       let context = model.experienceContext(for: .init(experienceID: factory.descriptor.id, packID: manifest.id)) {
+      let context = model.experienceContext(
+        for: .init(experienceID: factory.descriptor.id, packID: manifest.id))
+    {
       summary = try? await factory.makeProgressSummary(context: context)
     }
   }

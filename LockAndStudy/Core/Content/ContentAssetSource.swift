@@ -50,12 +50,19 @@ extension ContentAssetSource {
 
 struct BundledContentSource: ContentAssetSource, @unchecked Sendable {
   let bundle: Bundle
+  let catalogResourceName: String
 
-  init(bundle: Bundle = .main) { self.bundle = bundle }
+  init(
+    bundle: Bundle = .main,
+    catalogResourceName: String = InternalContentReviewBuild.catalogResourceName
+  ) {
+    self.bundle = bundle
+    self.catalogResourceName = catalogResourceName
+  }
 
   func catalogData() async throws -> Data {
-    guard let url = bundle.url(forResource: "study_pack_catalog", withExtension: "json") else {
-      throw ContentRepositoryError.missing("study_pack_catalog.json")
+    guard let url = bundle.url(forResource: catalogResourceName, withExtension: "json") else {
+      throw ContentRepositoryError.missing("\(catalogResourceName).json")
     }
     return try Data(contentsOf: url)
   }

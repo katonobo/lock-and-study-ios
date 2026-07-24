@@ -1,0 +1,67 @@
+{
+  "generatedAt": "2026-07-24",
+  "lawBasisDate": "2026-04-01",
+  "questionCount": 1000,
+  "freeCount": 100,
+  "paidCount": 900,
+  "conceptCount": 380,
+  "freeDistinctConceptCount": 100,
+  "sha256": "af7f5b6e27e964d3cf6485497e302cdefed79b56cb70690444bb8178ce5a3263",
+  "freeSha256": "52021360421a97d68d66399c0423fa0809c8d620c4e240985e3f6792c04be34e",
+  "saleReady": false,
+  "externalLegalReviewRequired": true,
+  "distribution": {
+    "category": {
+      "宅建業法": 400,
+      "権利関係": 280,
+      "法令上の制限": 160,
+      "税・その他": 160
+    },
+    "format": {
+      "wording_contrast": 260,
+      "multiple_choice": 300,
+      "case_study": 80,
+      "true_false": 300,
+      "number_choice": 60
+    },
+    "usage": {
+      "unlock_micro": 680,
+      "standard_practice": 240,
+      "integrated_mock": 80
+    },
+    "difficulty": {
+      "標準": 450,
+      "応用": 150,
+      "基礎": 400
+    },
+    "freeCategory": {
+      "宅建業法": 40,
+      "権利関係": 28,
+      "法令上の制限": 16,
+      "税・その他": 16
+    },
+    "freeFormat": {
+      "wording_contrast": 18,
+      "true_false": 26,
+      "multiple_choice": 32,
+      "case_study": 8,
+      "number_choice": 16
+    },
+    "freeUsage": {
+      "unlock_micro": 70,
+      "integrated_mock": 8,
+      "standard_practice": 22
+    }
+  },
+  "uniqueQuestionRoutes": 1000,
+  "duplicateQuestionRoutes": 0,
+  "brokenTextHits": 0,
+  "fourChoiceWithTwoOrMoreExtremeWrongOptions": 1,
+  "validationErrors": [],
+  "limitations": [
+    "全1,000問の外部有資格者による法令校閲は未完了。",
+    "公式過去問100% Coverageは未検証であり主張しない。",
+    "統計・法改正・軽減税率は2026年度試験前に再確認する。",
+    "Releasedへの自動昇格は禁止し、saleReady=falseを維持する。"
+  ]
+}

@@ -18,6 +18,7 @@ actor ContentRepository {
   private let source: any ContentAssetSource
   private let registry: StudyModuleRegistry
   private let packageValidator: ContentPackageValidator
+  private let trustMode: ContentTrustMode
   private let validatedCatalogStore: ValidatedCatalogStore?
   private var catalogCache: StudyCatalogSnapshot?
   private var lastKnownGoodCatalog: StudyCatalogSnapshot?
@@ -28,13 +29,16 @@ actor ContentRepository {
 
   init(
     source: any ContentAssetSource = BundledContentSource(),
-    registry: StudyModuleRegistry = .standard,
-    contentFileValidators: ContentFileValidatorRegistry = .standard,
+    registry: StudyModuleRegistry? = nil,
+    contentFileValidators: ContentFileValidatorRegistry? = nil,
+    trustMode: ContentTrustMode = .production,
     validatedCatalogStore: ValidatedCatalogStore? = nil
   ) {
     self.source = source
-    self.registry = registry
-    packageValidator = ContentPackageValidator(registry: contentFileValidators)
+    self.registry = registry ?? .configured(trustMode: trustMode)
+    packageValidator = ContentPackageValidator(
+      registry: contentFileValidators ?? .configured(trustMode: trustMode))
+    self.trustMode = trustMode
     self.validatedCatalogStore = validatedCatalogStore
   }
 
@@ -107,10 +111,11 @@ actor ContentRepository {
         let bytes = try SharedJSON.encoder().encode(snapshot)
         try await validatedCatalogStore.save(catalogData: bytes, snapshot: snapshot)
       } catch {
-        catalogIssueCache.append(.init(
-          "catalog-lkg-write-failed",
-          "validated Catalogを永続化できませんでした: \(error.localizedDescription)",
-          scope: .global))
+        catalogIssueCache.append(
+          .init(
+            "catalog-lkg-write-failed",
+            "validated Catalogを永続化できませんでした: \(error.localizedDescription)",
+            scope: .global))
       }
     }
     return snapshot
@@ -129,9 +134,10 @@ actor ContentRepository {
         "Catalog全体を拒否しました: \(fatal.map(\.code).joined(separator: ", "))")
     }
 
-    let invalidPackIDs = Set(validation.compactMap { issue in
-      issue.scope == .pack ? issue.packID : nil
-    })
+    let invalidPackIDs = Set(
+      validation.compactMap { issue in
+        issue.scope == .pack ? issue.packID : nil
+      })
     let categoryIDs = Set(decoded.categories.map(\.id))
     let seriesIDs = Set(decoded.series.map(\.id))
     let released = decoded.packs.filter {
@@ -204,7 +210,10 @@ actor ContentRepository {
     var lastError: Error?
     for location in try await candidatePackageLocations(manifest) {
       do {
-        let questions = try TakkenQuestionRepository(packageRoot: location.rootURL).load(
+        let questions = try TakkenQuestionRepository(
+          packageRoot: location.rootURL,
+          trustMode: trustMode
+        ).load(
           manifest: manifest)
         takkenCache[key] = questions
         return questions
@@ -296,21 +305,23 @@ actor ContentRepository {
   }
 
   private func cacheKey(_ manifest: StudyPackManifest) -> String {
-    let component = manifest.components.sorted { $0.sortOrder < $1.sortOrder }.first?.id.rawValue
+    let component =
+      manifest.components.sorted { $0.sortOrder < $1.sortOrder }.first?.id.rawValue
       ?? "primary"
     return "\(manifest.id.rawValue)::\(manifest.contentVersion)::\(component)"
   }
 
   private func validCategories(in snapshot: StudyCatalogSnapshot) -> Set<StudyCategoryID> {
     let byID = snapshot.categoryByID
-    return Set(snapshot.categories.compactMap { category in
-      var visited: Set<StudyCategoryID> = []
-      var current: StudyCategoryID? = category.id
-      while let value = current {
-        guard visited.insert(value).inserted, let node = byID[value] else { return nil }
-        current = node.parentCategoryID
-      }
-      return category.id
-    })
+    return Set(
+      snapshot.categories.compactMap { category in
+        var visited: Set<StudyCategoryID> = []
+        var current: StudyCategoryID? = category.id
+        while let value = current {
+          guard visited.insert(value).inserted, let node = byID[value] else { return nil }
+          current = node.parentCategoryID
+        }
+        return category.id
+      })
   }
 }

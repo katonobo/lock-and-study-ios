@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		035B1A5CA4B375CE041E0E2B /* ContentAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324F5D76807C318F0B54DF88 /* ContentAccessService.swift */; };
+		070BF4FD8FB1FDB336EC1740 /* takken2026_credits_v1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7889412D6DB09D61362CF630 /* takken2026_credits_v1.txt */; };
 		096A9B721BC23C041D51C8BF /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
 		099B3EA251EA12104F2CB1B6 /* LockAndStudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */; };
 		09B44968BBDC4A73D58D632A /* CommerceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA6C993937583046ED9BF8B7 /* CommerceTests.swift */; };
@@ -15,68 +16,124 @@
 		0C143D774B63E9B8F340382F /* LockAndStudyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A79975337CC2A0F9348BD4A /* LockAndStudyUITests.swift */; };
 		0DF34DBCF6802BB05692FECB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D6009FFC70F6B9E6C861D7E9 /* PrivacyInfo.xcprivacy */; };
 		0F100E2D141C5997D3FB15F8 /* ShieldActionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5506B298B08A2A671BFABE38 /* ShieldActionExtension.swift */; };
+		0FEA3A944510D6895BEDFFC3 /* TakkenStudyModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE0A366EC784825AD441E79 /* TakkenStudyModule.swift */; };
+		10004FB917863AE1A1AA0DAA /* ContentAssetSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C55539332BF904738866B3A6 /* ContentAssetSource.swift */; };
+		121D728D470AF18F5DD7F1AA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160FAFE293AD59C512C73931 /* SettingsView.swift */; };
 		132EC87F8A9104340FF5FBFC /* TakkenConceptWorkflowV18Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B11D5EAF64684CB5B3C1F4C6 /* TakkenConceptWorkflowV18Tests.swift */; };
 		13565A7D4033317B7CFE9B31 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3177EA014819A28B300C176E /* AppRouter.swift */; };
+		15A2B2983814E97AF07AB28F /* StoreKitCommerceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF2F115FD03369D7142BC94 /* StoreKitCommerceService.swift */; };
 		1AB3C7861EB686D334C406E5 /* takken2027_questions_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 2FA2684C6B821D1F9649D83D /* takken2027_questions_v1.json */; };
-		1C0196A4055C56E7F9DB8ED1 /* takken_2026_questions_v20.json in Resources */ = {isa = PBXBuildFile; fileRef = B935717AE7484889E0EF8D31 /* takken_2026_questions_v20.json */; };
 		1C58FDF3D58F841B64DEB956 /* EmergencyUnlockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D66ECF0AAA315C757C2D5E10 /* EmergencyUnlockTests.swift */; };
 		1D2518A1083A7EFB1703242E /* LockPolicyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637ABE5B9E39BA13BE35BF3F /* LockPolicyStore.swift */; };
 		1EC6BFC6066C3BA95B3923FA /* LockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB950C209CD7EF2261125E6A /* LockPolicy.swift */; };
 		1F73FB246ABAC76092A1BBD3 /* TakkenReportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2623E6B63CF1F38F3D80D4F /* TakkenReportProvider.swift */; };
 		2061272C0B5ABE4FADAC9C73 /* TakkenExperience.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9AA86EA31A2FE37E37EF32 /* TakkenExperience.swift */; };
+		24CE585B22920F9F106C5E2F /* english3000_metadata_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 8D05A8487A9D68222CEC0AE5 /* english3000_metadata_v1.json */; };
 		28D7EED9DB83D7440EB457BF /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D98D7EF0D60BF6E3208D7B /* SpeechService.swift */; };
 		29640E100BAA4C114A034E04 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D1663F496DE2C9133B28CF /* PurchaseView.swift */; };
+		2993FBEA3C54AF64F6C7924B /* EmergencyUnlockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD9F67380D89054BE98C9310 /* EmergencyUnlockService.swift */; };
 		2B6282594D8C95709EFF2449 /* LearningReportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B9E7EC872B32CDEFE75214 /* LearningReportTests.swift */; };
 		2B65289AB3E9513F6921F14F /* VocabularyExperienceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58679BFC4D8AAF06E9CACDDE /* VocabularyExperienceTests.swift */; };
+		2BF420140E380E726DB8B6E6 /* CatalogLibraryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B925C48C0A630652BBA275E /* CatalogLibraryViews.swift */; };
+		2CDC9248815986D656AA5A07 /* StudyExperience.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8EB6119C8F6D1123B338DD3 /* StudyExperience.swift */; };
 		2D06E60120AEC27E118473A9 /* ContentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ED9C76653DE4320A788E36C /* ContentRepository.swift */; };
 		2DF343EB992FFA5776C46196 /* EmergencyUnlockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD9F67380D89054BE98C9310 /* EmergencyUnlockService.swift */; };
+		2F1B8B41A03C907750BF2786 /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
 		2F84E5A45F98E9BB8336FF34 /* LearningDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A89A96ABEC00BB68023331 /* LearningDataStore.swift */; };
 		2FC4D5A708A9EC329C1DEEA1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 863B9A9420F9698C3E2583E6 /* PrivacyInfo.xcprivacy */; };
+		300CDB4FFF81F2A0B69A628A /* PlatformMigrationV9.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6659CAE7ADFE499EA9ECB3 /* PlatformMigrationV9.swift */; };
 		30DF2F07AFBC0BC4795F0E88 /* VocabularyViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A04C894C895389010355F5D /* VocabularyViews.swift */; };
 		317EA148B04A5F1CA1F27DCB /* LearningReportModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9527EC6207B6CA896ED2DF5B /* LearningReportModels.swift */; };
+		33B830859790B48B8579595F /* LockAndStudyShieldConfigurationExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CC285D65F09CA0653D4AEB4A /* LockAndStudyShieldConfigurationExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		34FFEEB8677199CB459A90F6 /* CommerceModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ECC8F6A66E9089FAB87D5C8 /* CommerceModels.swift */; };
 		36063AC227FB8AE7A235FF04 /* LegacyMigrationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 635D00A3D7BCE4F695F30AD3 /* LegacyMigrationModels.swift */; };
 		366B9DC333B95AF1B71D36BA /* StudyMaterialSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE472B5FA3AADCA9AC1B75D /* StudyMaterialSelectionView.swift */; };
+		3872B5BE8B60B461E4BB348B /* LockPolicyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 637ABE5B9E39BA13BE35BF3F /* LockPolicyStore.swift */; };
 		39A89E11B563AC51C620B58B /* VocabularyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5027452786CFF6F9D1E5F6A6 /* VocabularyModels.swift */; };
+		39E3EB3F049BD0FBDB17D458 /* LockAndStudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */; };
 		3B268E3C9B2153F2CFA4216E /* PlatformFinalPolishV12Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79657C29DD8B64838CF64270 /* PlatformFinalPolishV12Tests.swift */; };
+		3B980532D91E43EF5A789519 /* InternalContentReviewUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD8647D4F2872EF1CFF0B7E4 /* InternalContentReviewUITests.swift */; };
+		3C5B1D4AAD783AC213B32624 /* LearningReportPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = D834EC7207776AECE638115A /* LearningReportPeriod.swift */; };
+		3CCB91DA23B0C47F39FE5D09 /* study_pack_catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = BA10848279A29FDC4027C45A /* study_pack_catalog.json */; };
+		3E54DE76651133029354DD2D /* Collection+Safe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5364CD50E0C3D03AEDDE95 /* Collection+Safe.swift */; };
 		3EBB25F544585F8E92288630 /* LockAndStudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */; };
 		3EC7254F1A30DC3F5DCA1F8B /* UnlockSessionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6003606B90CE0D293FA7B70 /* UnlockSessionRuntime.swift */; };
 		3F1BEBE6D279229192B0A1EF /* LearningReportComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 732B5F1D44777422B1EF2242 /* LearningReportComponents.swift */; };
 		3FCB7A6F74EB7441301106C1 /* ScreenTimeLockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD167345A6CDA06B3C5F557 /* ScreenTimeLockService.swift */; };
+		4228923FE32A085CAAEA2A9B /* StudyMaterialSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCE472B5FA3AADCA9AC1B75D /* StudyMaterialSelectionView.swift */; };
 		436291DCC22D3FBEA1C0F6C7 /* LockAndStudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */; };
+		4815B7FB935221CA85B9F2F5 /* StudyContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98737A725F68857CDF65FFD8 /* StudyContentModels.swift */; };
+		48BEB9C4797466F16BE50264 /* LockAndStudyShieldActionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E555E9D988204E317D236852 /* LockAndStudyShieldActionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		499ADC06D2F29FC9A1D4C0EC /* ContentPlatformScalabilityV7Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFCC8C7A16D005A60099F866 /* ContentPlatformScalabilityV7Tests.swift */; };
 		4AA867658561F145B8EA9603 /* takken2026_credits_v1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 7889412D6DB09D61362CF630 /* takken2026_credits_v1.txt */; };
+		4AD87421D76861BF15F974BE /* takken2026_metadata_v26_candidate.json in Resources */ = {isa = PBXBuildFile; fileRef = 0E05A4D74DA1F9B8FFE9F582 /* takken2026_metadata_v26_candidate.json */; };
+		4BFD8591AD09907231868E2F /* LearningDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8A89A96ABEC00BB68023331 /* LearningDataStore.swift */; };
+		4F8889E9FB1561FE8ECFDAAF /* TakkenExperience.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9AA86EA31A2FE37E37EF32 /* TakkenExperience.swift */; };
 		4F8B26867F5EF0D7CFED6B7C /* TakkenConceptMasterV17Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A012B7648676480E9E54FEE /* TakkenConceptMasterV17Tests.swift */; };
 		51C88E183F7FF33322A9235A /* ShieldConfigurationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B9726E361B52CCEAE745AC /* ShieldConfigurationExtension.swift */; };
+		520E711492EAA32F99264829 /* InternalContentReviewV27Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 570C599527AC6F05AA4A8C3B /* InternalContentReviewV27Tests.swift */; };
 		52ADC0EB12BAF6AD5E49045B /* LockAndStudyShieldConfigurationExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CC285D65F09CA0653D4AEB4A /* LockAndStudyShieldConfigurationExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5581998C550E19F57FF5FE2E /* LockPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB950C209CD7EF2261125E6A /* LockPolicy.swift */; };
+		5667E388594F547091A15C32 /* ManagementCodeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D548D8C143A48F87AB2FFA /* ManagementCodeStore.swift */; };
+		571635F97B14256C4B6D0432 /* LearningReportShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5452C5285DDFAE6F7ECB790 /* LearningReportShareService.swift */; };
+		57A701548A34B9866834DAC7 /* takken2026_metadata_v26_candidate.json in Resources */ = {isa = PBXBuildFile; fileRef = 0E05A4D74DA1F9B8FFE9F582 /* takken2026_metadata_v26_candidate.json */; };
 		5807053DFC1C56B5B5A69B9A /* LockAndStudyShieldActionExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E555E9D988204E317D236852 /* LockAndStudyShieldActionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		5860C184985A1340E8BF952B /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78362FCBBFB75B1257172434 /* RootView.swift */; };
+		58BC297D680AA1DD94C85DD2 /* LegacyUITestReportFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119B6E4C03F532357DB46AFF /* LegacyUITestReportFixtures.swift */; };
+		5A82BAC378A9145A371B10C8 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D1663F496DE2C9133B28CF /* PurchaseView.swift */; };
+		5AFFDCE00B17E2A93E0A2C54 /* LegacyUnlockBundleMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E63A8009CB275DC4BDE407 /* LegacyUnlockBundleMigration.swift */; };
 		5C9075AD51EEEE1F2A566BAC /* StudyExperience.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8EB6119C8F6D1123B338DD3 /* StudyExperience.swift */; };
+		5CEECE713731F3B0F15C0002 /* StudyCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10186AD52B63C4CD875B3935 /* StudyCatalog.swift */; };
+		5DA1EBE1D03153C2887704A5 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F578678CAD769C00603D3D6E /* AppModel.swift */; };
+		5E75D78938CD58775953A239 /* vocabulary_free_sample_250_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = C6C30B7842E5A9CF6618495D /* vocabulary_free_sample_250_v1.json */; };
+		5EF60897C49F25D5A4DA39DB /* english3000_credits_v1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3F3DA7CDC1C22F4543B40EA8 /* english3000_credits_v1.txt */; };
 		65C07F72B63F9E77DC816A11 /* takken_2026_free_100_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 277A8685DD63B58B9476AD84 /* takken_2026_free_100_v1.json */; };
+		674E3A7D458D2D844261D8EA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9634DE74BB84C2DBCE59CCE /* Assets.xcassets */; };
 		679A02622A2B180E522008B6 /* ContentFileValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE33240F1D18E090D0FB32E9 /* ContentFileValidation.swift */; };
 		69B12495586EB8B946E8A800 /* LockAndStudy.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 13D261FF84F544E4D59FFF3D /* LockAndStudy.storekit */; };
 		6BB757E430990DE8F1792CB0 /* english3000_metadata_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 8D05A8487A9D68222CEC0AE5 /* english3000_metadata_v1.json */; };
 		6C273D6FE27922D7B012AACC /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD7630F84A8754CBF8048C2 /* DependencyContainer.swift */; };
 		6CD3C20096A96ABA1A4A6DCF /* LearningReportPrivacyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F22F6945F207E2AE13DE193 /* LearningReportPrivacyPolicy.swift */; };
+		6D0651D2E1B73EE1A82B78C4 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99537359B9B92CCBE0D61ABE /* NotificationService.swift */; };
+		7017C00D9647B932FB738F53 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DBF098CE23D864F3780E5D2 /* OnboardingFlowView.swift */; };
 		70A88E1F3D1E45B43DBDAF78 /* PlatformCompletionV10Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DFFD2130706DFCFBA14743 /* PlatformCompletionV10Tests.swift */; };
 		7115F9E5A84C282EFF3402BE /* VocabularyReportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199AE3F47D5CABCD04A04EE6 /* VocabularyReportProvider.swift */; };
 		720C0A47367A103EDB864289 /* LearningReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8435058E522AF7D89E861E0 /* LearningReportView.swift */; };
+		7299E9EF2643370640D8E9A5 /* PendingUnlockRequestCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4F6CE336058F8D86FD00DE5 /* PendingUnlockRequestCoordinator.swift */; };
 		72A3F360463E3028D61A56FD /* PlatformLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8374898D949817C23E14BFD0 /* PlatformLibraryView.swift */; };
+		736BAAF80F3C0FABCC545D02 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BA037A666C8D37419D5FFE30 /* Localizable.xcstrings */; };
 		73DEE204709B5F6C12961649 /* LearningModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B645229A553BB28BF3498E /* LearningModels.swift */; };
+		74ACE52EA67CBB07A6BA21C2 /* AppRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3177EA014819A28B300C176E /* AppRouter.swift */; };
 		75B9F2FA531CCCB77AAE2030 /* TakkenViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 139482F2D35E75B7435F7FEB /* TakkenViews.swift */; };
 		75BA03B28D46795243DE86C7 /* CommerceModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ECC8F6A66E9089FAB87D5C8 /* CommerceModels.swift */; };
+		7705D0E81AB8F301511EB363 /* TakkenReportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2623E6B63CF1F38F3D80D4F /* TakkenReportProvider.swift */; };
 		77D56F0BA44C197A40375CE7 /* english3000_credits_v1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3F3DA7CDC1C22F4543B40EA8 /* english3000_credits_v1.txt */; };
+		79F808ECE5D4EBBDE477C1FB /* SpeechService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D98D7EF0D60BF6E3208D7B /* SpeechService.swift */; };
 		7B08610E275B69A99D10C766 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3EFF3ED639E65CC19BD33E3C /* PrivacyInfo.xcprivacy */; };
+		7BF7EE5B2DBAF38F37CB2193 /* InternalContentReviewBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7782AB060B38EC5045EEE0F7 /* InternalContentReviewBanner.swift */; };
+		7CF658D4D09374C6B658EF22 /* VocabularyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5027452786CFF6F9D1E5F6A6 /* VocabularyModels.swift */; };
+		7F5C8AD5EE3A50B7C6003B3E /* PendingPreviewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BF6E442EF80A5DCE3B1459F /* PendingPreviewStore.swift */; };
 		8029FCB73FEB82644B3FAE5A /* Collection+Safe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5364CD50E0C3D03AEDDE95 /* Collection+Safe.swift */; };
 		808102F7802EC613002F3EB2 /* StudySessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E710BB9EA03E205FD3A89607 /* StudySessionView.swift */; };
 		80B28147E49217E6DB0190EF /* PlatformMigrationV9.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6659CAE7ADFE499EA9ECB3 /* PlatformMigrationV9.swift */; };
+		80BDF8568FCC6217BD62C3BC /* CertificationQuestionWire.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A9A8C21A462777C24E7177 /* CertificationQuestionWire.swift */; };
 		81A62E9A93BF21D17D312494 /* StudyCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10186AD52B63C4CD875B3935 /* StudyCatalog.swift */; };
+		827805DD955D8F7A0314496D /* ContentFileValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE33240F1D18E090D0FB32E9 /* ContentFileValidation.swift */; };
 		82A5F87CA7239C7298C5D0B9 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F578678CAD769C00603D3D6E /* AppModel.swift */; };
 		830EC94B00B2215BCDFBE03E /* PlatformHardeningV11Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D1564A908AE1A0FF1F706AB /* PlatformHardeningV11Tests.swift */; };
+		86DCA4621409E293AFA99782 /* InternalContentReviewCandidateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A410585E30DF27120EDD040 /* InternalContentReviewCandidateTests.swift */; };
 		871FCCE7D366B40637AA6085 /* LockPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8740A31CF8244BDC71F8395 /* LockPolicyTests.swift */; };
+		87AD74B4DA81A1AE8279B4E6 /* ScreenTimeLockService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BD167345A6CDA06B3C5F557 /* ScreenTimeLockService.swift */; };
 		8B2E9B5F62DD8C2CBEEA4D93 /* ContentAndStoreKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A2FDD02695CD5C9DC00DE2 /* ContentAndStoreKitTests.swift */; };
 		8C18284A7C5762212C4D66C7 /* EmergencyUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFAAD12E85FA2D52431CB5EF /* EmergencyUnlockView.swift */; };
+		8C71B1ADE2E3370E0EC14C81 /* ContentTrustMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3ABAE8CE3FDA7BEF94838B3 /* ContentTrustMode.swift */; };
+		8CEFB65FC20438E8B401B86E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3EFF3ED639E65CC19BD33E3C /* PrivacyInfo.xcprivacy */; };
+		8DF44E7AF8D24A1BFCEDC599 /* VerifiedContentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1DB302DA36D70F1EC6C338 /* VerifiedContentLoader.swift */; };
 		8EBF570F7F59061965193A5C /* Collection+Safe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5364CD50E0C3D03AEDDE95 /* Collection+Safe.swift */; };
 		8ED625CE7B3C1BB885E1D31C /* yojijukugo_items_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 9F3B4C0DCBA458EDA195FDE5 /* yojijukugo_items_v1.json */; };
+		8F12234BAD2B4C9CB7956E89 /* TakkenConceptMastery.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF13C8889CFFFFE69DB2136 /* TakkenConceptMastery.swift */; };
 		8FC452311966DDC1569E609B /* LearningReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D57F6606F9BC9C9BA0C04D3 /* LearningReportService.swift */; };
+		90DE277003363629C97ABABD /* EmergencyUnlockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFAAD12E85FA2D52431CB5EF /* EmergencyUnlockView.swift */; };
 		912489DCA1B8044358B1AD20 /* ProgressMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6507858AE1F5D3DAA31BA51A /* ProgressMigrationService.swift */; };
 		9473F6BDD997046634552AC0 /* TakkenExperienceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F995DD7EF80186CA1387D082 /* TakkenExperienceTests.swift */; };
 		966528E2A9F38CC396499364 /* ValidatedCatalogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B547AEE612A9D5CE29DCD992 /* ValidatedCatalogStore.swift */; };
@@ -84,12 +141,18 @@
 		99296404BABD37DB6730706D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 160FAFE293AD59C512C73931 /* SettingsView.swift */; };
 		9C940F442F86A524699CFCA1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D8C4A6BC2C49919399F5D034 /* PrivacyInfo.xcprivacy */; };
 		9CDBCD15696C125910E06C96 /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
+		9CDFC0C4D1746BE7886D79E6 /* VocabularyStudyModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C0A206E3F580B0270EEEC9 /* VocabularyStudyModule.swift */; };
 		9D6A1A157823E9BC580817C2 /* VocabularyExperience.swift in Sources */ = {isa = PBXBuildFile; fileRef = B75A0487F6EB0087CD449B28 /* VocabularyExperience.swift */; };
+		9DB526C4142FD6F6432F1B51 /* study_pack_catalog_takken_v26_review.json in Resources */ = {isa = PBXBuildFile; fileRef = 77B941F18EC9FEF731AC574D /* study_pack_catalog_takken_v26_review.json */; };
 		9EBDB288A300555E6391A8B0 /* TakkenConceptMastery.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF13C8889CFFFFE69DB2136 /* TakkenConceptMastery.swift */; };
+		9F8BC37A9176F490A6FB6E2D /* TakkenViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 139482F2D35E75B7435F7FEB /* TakkenViews.swift */; };
+		A0C95CA377A05A39A27D4128 /* ContentSampleResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EA623BD3EA6EDEDEE85668C /* ContentSampleResolver.swift */; };
 		A1A39743C39BAA4F98A90169 /* ManagementCodeStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61D548D8C143A48F87AB2FFA /* ManagementCodeStore.swift */; };
+		A3E8C5534C23CBED02001F06 /* ValidatedCatalogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B547AEE612A9D5CE29DCD992 /* ValidatedCatalogStore.swift */; };
 		A41A3127A92F9C4A79EB9AA4 /* PendingPreviewStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BF6E442EF80A5DCE3B1459F /* PendingPreviewStore.swift */; };
 		A4B19689206FE9436F81E407 /* PendingUnlockRequestCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4F6CE336058F8D86FD00DE5 /* PendingUnlockRequestCoordinator.swift */; };
 		A4DE1C7DB1042DF183B3E9F1 /* Collection+Safe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5364CD50E0C3D03AEDDE95 /* Collection+Safe.swift */; };
+		A6DA9F91599476B3CABFD4EE /* UnlockSessionRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6003606B90CE0D293FA7B70 /* UnlockSessionRuntime.swift */; };
 		A742188D71B7EB4B1E99764F /* TakkenContentImprovementV14Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756F394EF9D2995DE19E5724 /* TakkenContentImprovementV14Tests.swift */; };
 		A93EEFF9DE12E3923D210120 /* StoreKitCommerceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FF2F115FD03369D7142BC94 /* StoreKitCommerceService.swift */; };
 		AB59E98EF3497801E92A16DA /* LearningReportSampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027111955F12232B3658FE76 /* LearningReportSampleView.swift */; };
@@ -97,46 +160,82 @@
 		AEC1B9249F5742219F2A6926 /* PlatformFoundationV9Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59604B79ADE3C33041A1C436 /* PlatformFoundationV9Tests.swift */; };
 		AF7F6753D44752CF15067CF7 /* LegacyUnlockModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02935D1924FD86B86000876E /* LegacyUnlockModels.swift */; };
 		AFDDA993E03EDA0FB485E698 /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
+		B10740754A33CDDBC8954AE5 /* LearningReportModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9527EC6207B6CA896ED2DF5B /* LearningReportModels.swift */; };
+		B257606797FC520B17771E23 /* takken_2026_questions_v26_candidate.json in Resources */ = {isa = PBXBuildFile; fileRef = E1DEC4E1C6EE4A89A4E25B7E /* takken_2026_questions_v26_candidate.json */; };
 		B35480BAA9533ADE7FC929DF /* VocabularyStudyModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9C0A206E3F580B0270EEEC9 /* VocabularyStudyModule.swift */; };
+		B63836E95C78A2E3B7B5A921 /* LearningReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2246BD7BA27EA4D29DB6816 /* LearningReportViewModel.swift */; };
+		B78FFF9D7B66E937DD643082 /* LearningModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B645229A553BB28BF3498E /* LearningModels.swift */; };
 		B7BCC7D6831907F02030B2A6 /* vocabulary_english3000_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 42D285ECB76C5343277EDC93 /* vocabulary_english3000_v1.json */; };
+		B7FA0FFD7E5F39719D6C7C31 /* LockAndStudyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9646ABC650E86550A2B44F90 /* LockAndStudyApp.swift */; };
+		B86DDEB52F5A507948BDC489 /* LearningReportEntryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541BE1DC72DB6DA9ECFB86F9 /* LearningReportEntryCard.swift */; };
 		B8B04D554A9A4E4B344439DD /* ContentAssetSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C55539332BF904738866B3A6 /* ContentAssetSource.swift */; };
 		B8B6AECAF7B797642B899462 /* takken2026_metadata_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 39E6AEA2E412FDC3AF36B580 /* takken2026_metadata_v1.json */; };
 		BA3A40E401E1E798E2DF3FEB /* LearningReportShareService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5452C5285DDFAE6F7ECB790 /* LearningReportShareService.swift */; };
+		BB6A6356090731467327F513 /* LearningReportPrivacyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F22F6945F207E2AE13DE193 /* LearningReportPrivacyPolicy.swift */; };
+		BB98C73F4B5A2527886A23EB /* DateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA552FC4A38D04718E7EAD28 /* DateProvider.swift */; };
 		BC38DAB0BBBC98A1A3C9444B /* TakkenStudyModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE0A366EC784825AD441E79 /* TakkenStudyModule.swift */; };
 		BE7DCCB84ACA4215262A51AC /* StudyExperienceHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F587904E9E8FEF7CA8657C8 /* StudyExperienceHostView.swift */; };
+		C0CFEF218B88712F9B53E2C1 /* LearningReportSampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 027111955F12232B3658FE76 /* LearningReportSampleView.swift */; };
+		C0DABE084B418F8E1590AACC /* PlatformLibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8374898D949817C23E14BFD0 /* PlatformLibraryView.swift */; };
 		C30BC2874B21A4016C61DC2C /* study_pack_catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = BA10848279A29FDC4027C45A /* study_pack_catalog.json */; };
+		C333EA36E4D142B100DB45DE /* takken_2026_free_sample_100_v26_candidate.json in Resources */ = {isa = PBXBuildFile; fileRef = 747AF58E199B5F89B27E1F29 /* takken_2026_free_sample_100_v26_candidate.json */; };
+		C58586FDE38C4D1456692419 /* InternalContentReviewBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7782AB060B38EC5045EEE0F7 /* InternalContentReviewBanner.swift */; };
+		C5BF47DDAE05710E7D1C409B /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BD7630F84A8754CBF8048C2 /* DependencyContainer.swift */; };
 		C73DA41286439F48D0BFDB0E /* vocabulary_free_sample_250_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = C6C30B7842E5A9CF6618495D /* vocabulary_free_sample_250_v1.json */; };
-		C7CB20EB01B190520200AB00 /* takken_2026_free_sample_100_v20.json in Resources */ = {isa = PBXBuildFile; fileRef = E31CB05523FB9BD69FEB734D /* takken_2026_free_sample_100_v20.json */; };
 		CAA00DCD5AAA296C1586D16C /* ManagementCodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEC3A0448978244375469A22 /* ManagementCodeTests.swift */; };
 		CB3AB4FB3D780DFDBC1BC9F4 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D9634DE74BB84C2DBCE59CCE /* Assets.xcassets */; };
+		CB826BC36C3086D1444E84CA /* vocabulary_english3000_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 42D285ECB76C5343277EDC93 /* vocabulary_english3000_v1.json */; };
 		CBFCB5AC889A69CF66C73428 /* LockAndStudySharedConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EB3F8AB3401C67B6D6CBC2 /* LockAndStudySharedConstants.swift */; };
+		CCDD790846EEDD12FDBF835C /* study_pack_catalog_takken_v26_review.json in Resources */ = {isa = PBXBuildFile; fileRef = 77B941F18EC9FEF731AC574D /* study_pack_catalog_takken_v26_review.json */; };
 		CD5A09898B9ADC452E1F20D3 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BA037A666C8D37419D5FFE30 /* Localizable.xcstrings */; };
+		CD9FDEB958F981DE24792E13 /* LegacyMigrationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 635D00A3D7BCE4F695F30AD3 /* LegacyMigrationModels.swift */; };
+		CDD1F8259763F0DCD00E4E1A /* takken_2026_questions_v26_candidate.json in Resources */ = {isa = PBXBuildFile; fileRef = E1DEC4E1C6EE4A89A4E25B7E /* takken_2026_questions_v26_candidate.json */; };
+		CDE6A69FCC21CE8A02523C63 /* VocabularyExperience.swift in Sources */ = {isa = PBXBuildFile; fileRef = B75A0487F6EB0087CD449B28 /* VocabularyExperience.swift */; };
+		CE3E30BEF67EB6DFBED2DD8F /* LegacyUnlockModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02935D1924FD86B86000876E /* LegacyUnlockModels.swift */; };
+		D04EBA395904F700D671EB75 /* ContentRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ED9C76653DE4320A788E36C /* ContentRepository.swift */; };
 		D2639CC49D1A24171EE620CD /* ContentTransactionHardeningV13Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D011687346BAAD9AD88BC33 /* ContentTransactionHardeningV13Tests.swift */; };
 		D2AF57A2065B065BA046D8A6 /* LegacyUnlockBundleMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14E63A8009CB275DC4BDE407 /* LegacyUnlockBundleMigration.swift */; };
 		D2BBBDCAD0ACD89B32E771D2 /* LearningReportPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = D834EC7207776AECE638115A /* LearningReportPeriod.swift */; };
 		D3259C09970B645F543855C5 /* TakkenLearningEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF98BBBAE1C8568426AE3AC /* TakkenLearningEngine.swift */; };
 		D41587BDBBAE1DBB604775A3 /* TakkenLearningEngineV5Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A586C5276A160A0E68DEFDC2 /* TakkenLearningEngineV5Tests.swift */; };
+		D732CFC724B3A2848A8C6FEE /* TakkenModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5249D41BCE90A3749A00C945 /* TakkenModels.swift */; };
+		D7DA878EEB0E0AA4A752086A /* VocabularyViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A04C894C895389010355F5D /* VocabularyViews.swift */; };
+		D81301FF748BF4F1A7F9E849 /* takken2026_metadata_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 39E6AEA2E412FDC3AF36B580 /* takken2026_metadata_v1.json */; };
 		D82E16DEB2D0B9DC7C0FAF09 /* LearningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6F235FC79B123FC718044A6 /* LearningTests.swift */; };
 		DB46030E5F5C18A8EE30BEE9 /* VerifiedContentLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B1DB302DA36D70F1EC6C338 /* VerifiedContentLoader.swift */; };
 		DB83706FBC091A56363A0ECE /* DateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA552FC4A38D04718E7EAD28 /* DateProvider.swift */; };
+		DCF47B2AC3A894B10884BE04 /* ProgressMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6507858AE1F5D3DAA31BA51A /* ProgressMigrationService.swift */; };
+		DD7B6D46674BF139F83FE36F /* LockAndStudyDeviceActivityMonitorExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4039A8C47CD5D7D3D3E5FB4D /* LockAndStudyDeviceActivityMonitorExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DF1C6B7D75F5A192DB298284 /* TakkenModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5249D41BCE90A3749A00C945 /* TakkenModels.swift */; };
 		DF66BCA355EB733944CED008 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DBF098CE23D864F3780E5D2 /* OnboardingFlowView.swift */; };
+		E3380AE16605F16E2E0C474B /* StudySessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E710BB9EA03E205FD3A89607 /* StudySessionView.swift */; };
 		E3D3CC2B2976A45F1C72FBC3 /* Collection+Safe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B5364CD50E0C3D03AEDDE95 /* Collection+Safe.swift */; };
+		E5ABBE45600C92B7DFB45827 /* ContentAccessService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324F5D76807C318F0B54DF88 /* ContentAccessService.swift */; };
 		E5D8D8632F0ACE0F1F5C2C04 /* CatalogLibraryViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B925C48C0A630652BBA275E /* CatalogLibraryViews.swift */; };
 		E61C0CB793E565F2748CF3FF /* yojijukugo_samples_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 7F7140C1CE8C3C1E53C75D3D /* yojijukugo_samples_v1.json */; };
+		E64E1548D4CA0A3277CF18E6 /* takken_2026_free_sample_100_v26_candidate.json in Resources */ = {isa = PBXBuildFile; fileRef = 747AF58E199B5F89B27E1F29 /* takken_2026_free_sample_100_v26_candidate.json */; };
+		E718A6914B336D7DCCF0AB99 /* ContentTrustMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3ABAE8CE3FDA7BEF94838B3 /* ContentTrustMode.swift */; };
 		E7F9F777603FB78B4B666EE9 /* StudyContentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98737A725F68857CDF65FFD8 /* StudyContentModels.swift */; };
 		E80C7FEF23C50EF809F72979 /* CertificationQuestionWire.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A9A8C21A462777C24E7177 /* CertificationQuestionWire.swift */; };
 		E8ACB4EEC1C2750F5D61927F /* manners_questions_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = DA5A6E81E7C8D60980B8E3F2 /* manners_questions_v1.json */; };
 		E98C76B2A7C0CA026C42AB5F /* TakkenFinalizationV6Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4A3F0F1C265434131E1347D /* TakkenFinalizationV6Tests.swift */; };
 		EA0066AF5BFF239D744A6323 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78362FCBBFB75B1257172434 /* RootView.swift */; };
+		EA2C650725892DD146577719 /* PolicyProtectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E08D0CE9E32773B1696FC5 /* PolicyProtectionService.swift */; };
 		EA7221D3CC962B96C478396F /* LearningReportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2246BD7BA27EA4D29DB6816 /* LearningReportViewModel.swift */; };
+		EA83239E929C7D05C37DBF62 /* takken_2026_free_100_v1.json in Resources */ = {isa = PBXBuildFile; fileRef = 277A8685DD63B58B9476AD84 /* takken_2026_free_100_v1.json */; };
+		ECFD39F1DDE97AADACB3BF2D /* StudyExperienceHostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F587904E9E8FEF7CA8657C8 /* StudyExperienceHostView.swift */; };
 		ED86B4A43C010037484EC19C /* study_pack_catalog_v9_fixtures.json in Resources */ = {isa = PBXBuildFile; fileRef = 3717615E1A507EC30108D7A4 /* study_pack_catalog_v9_fixtures.json */; };
+		ED9A887D3544581EC231331C /* VocabularyReportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199AE3F47D5CABCD04A04EE6 /* VocabularyReportProvider.swift */; };
+		EE381714EED6FBDD6507B139 /* LearningReportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D57F6606F9BC9C9BA0C04D3 /* LearningReportService.swift */; };
 		EFE0E2B71811DED4202557F5 /* LockAndStudyDeviceActivityMonitorExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4039A8C47CD5D7D3D3E5FB4D /* LockAndStudyDeviceActivityMonitorExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F095880CF2904D8F1AD522CA /* TakkenLearningEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF98BBBAE1C8568426AE3AC /* TakkenLearningEngine.swift */; };
 		F3B3DC444DD0E336062873E3 /* LockAndStudyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9646ABC650E86550A2B44F90 /* LockAndStudyApp.swift */; };
 		F688AF112F15C7DE22D05BBC /* LockAndStudyTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */; };
 		F8D7667F69FDA83156F23597 /* LegacyUITestReportFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119B6E4C03F532357DB46AFF /* LegacyUITestReportFixtures.swift */; };
+		F9D211117D7867DF7D89DF1C /* LearningReportComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 732B5F1D44777422B1EF2242 /* LearningReportComponents.swift */; };
 		FB23D60961A27B9A062016CD /* LearningReportEntryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541BE1DC72DB6DA9ECFB86F9 /* LearningReportEntryCard.swift */; };
 		FDE1EC3F7199EEF88B9C330C /* PolicyProtectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E08D0CE9E32773B1696FC5 /* PolicyProtectionService.swift */; };
+		FEC27624A504B96B3F2D7686 /* LearningReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8435058E522AF7D89E861E0 /* LearningReportView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -146,6 +245,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = DBED801591001112471D8F82;
 			remoteInfo = LockAndStudy;
+		};
+		31C9092EFBE929A4B0B12738 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A79C5E4591C233F092AAA74 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C5D948F7874379018BE3773C;
+			remoteInfo = LockAndStudyDeviceActivityMonitorExtension;
 		};
 		4AD670903C4B32184A44D51E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -161,12 +267,40 @@
 			remoteGlobalIDString = C5D948F7874379018BE3773C;
 			remoteInfo = LockAndStudyDeviceActivityMonitorExtension;
 		};
+		94FD98BDA5AE135EF323969D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A79C5E4591C233F092AAA74 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D4A2AE59DF2AC00B0E55D671;
+			remoteInfo = LockAndStudyContentReview;
+		};
+		A0F19E1F1653626EE80A08F7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A79C5E4591C233F092AAA74 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D4A2AE59DF2AC00B0E55D671;
+			remoteInfo = LockAndStudyContentReview;
+		};
+		ACFD4E9BC0D783566165BBEC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A79C5E4591C233F092AAA74 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0758A5573090B8D74E93A8EB;
+			remoteInfo = LockAndStudyShieldActionExtension;
+		};
 		BD0337637EB346392EDC098F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0A79C5E4591C233F092AAA74 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = DBED801591001112471D8F82;
 			remoteInfo = LockAndStudy;
+		};
+		CC11A8E1166F20EE5730C8D7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0A79C5E4591C233F092AAA74 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 34FBC548957566570DC731B8;
+			remoteInfo = LockAndStudyShieldConfigurationExtension;
 		};
 		CDC877831EFEB75C28E2683A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -178,6 +312,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		264C5726DCB7719C9737EE3A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				33B830859790B48B8579595F /* LockAndStudyShieldConfigurationExtension.appex in Embed Foundation Extensions */,
+				48BEB9C4797466F16BE50264 /* LockAndStudyShieldActionExtension.appex in Embed Foundation Extensions */,
+				DD7B6D46674BF139F83FE36F /* LockAndStudyDeviceActivityMonitorExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2C631923CB306792DDAE08FF /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -199,6 +346,7 @@
 		02935D1924FD86B86000876E /* LegacyUnlockModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyUnlockModels.swift; sourceTree = "<group>"; };
 		0B1DB302DA36D70F1EC6C338 /* VerifiedContentLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifiedContentLoader.swift; sourceTree = "<group>"; };
 		0D57F6606F9BC9C9BA0C04D3 /* LearningReportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportService.swift; sourceTree = "<group>"; };
+		0E05A4D74DA1F9B8FFE9F582 /* takken2026_metadata_v26_candidate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = takken2026_metadata_v26_candidate.json; sourceTree = "<group>"; };
 		10186AD52B63C4CD875B3935 /* StudyCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyCatalog.swift; sourceTree = "<group>"; };
 		10A2FDD02695CD5C9DC00DE2 /* ContentAndStoreKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentAndStoreKitTests.swift; sourceTree = "<group>"; };
 		119B6E4C03F532357DB46AFF /* LegacyUITestReportFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyUITestReportFixtures.swift; sourceTree = "<group>"; };
@@ -236,6 +384,7 @@
 		5249D41BCE90A3749A00C945 /* TakkenModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenModels.swift; sourceTree = "<group>"; };
 		541BE1DC72DB6DA9ECFB86F9 /* LearningReportEntryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportEntryCard.swift; sourceTree = "<group>"; };
 		5506B298B08A2A671BFABE38 /* ShieldActionExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldActionExtension.swift; sourceTree = "<group>"; };
+		570C599527AC6F05AA4A8C3B /* InternalContentReviewV27Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalContentReviewV27Tests.swift; sourceTree = "<group>"; };
 		58679BFC4D8AAF06E9CACDDE /* VocabularyExperienceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyExperienceTests.swift; sourceTree = "<group>"; };
 		59604B79ADE3C33041A1C436 /* PlatformFoundationV9Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformFoundationV9Tests.swift; sourceTree = "<group>"; };
 		5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockAndStudyTheme.swift; sourceTree = "<group>"; };
@@ -247,11 +396,15 @@
 		68D30B6EBDEE402888CEE7BC /* LockAndStudyTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LockAndStudyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6A79975337CC2A0F9348BD4A /* LockAndStudyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockAndStudyUITests.swift; sourceTree = "<group>"; };
 		732B5F1D44777422B1EF2242 /* LearningReportComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportComponents.swift; sourceTree = "<group>"; };
+		747AF58E199B5F89B27E1F29 /* takken_2026_free_sample_100_v26_candidate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = takken_2026_free_sample_100_v26_candidate.json; sourceTree = "<group>"; };
 		756F394EF9D2995DE19E5724 /* TakkenContentImprovementV14Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenContentImprovementV14Tests.swift; sourceTree = "<group>"; };
 		75B9726E361B52CCEAE745AC /* ShieldConfigurationExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShieldConfigurationExtension.swift; sourceTree = "<group>"; };
+		7782AB060B38EC5045EEE0F7 /* InternalContentReviewBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalContentReviewBanner.swift; sourceTree = "<group>"; };
+		77B941F18EC9FEF731AC574D /* study_pack_catalog_takken_v26_review.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = study_pack_catalog_takken_v26_review.json; sourceTree = "<group>"; };
 		78362FCBBFB75B1257172434 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		7889412D6DB09D61362CF630 /* takken2026_credits_v1.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = takken2026_credits_v1.txt; sourceTree = "<group>"; };
 		79657C29DD8B64838CF64270 /* PlatformFinalPolishV12Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlatformFinalPolishV12Tests.swift; sourceTree = "<group>"; };
+		7A410585E30DF27120EDD040 /* InternalContentReviewCandidateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalContentReviewCandidateTests.swift; sourceTree = "<group>"; };
 		7DF98BBBAE1C8568426AE3AC /* TakkenLearningEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenLearningEngine.swift; sourceTree = "<group>"; };
 		7ECC8F6A66E9089FAB87D5C8 /* CommerceModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommerceModels.swift; sourceTree = "<group>"; };
 		7F22F6945F207E2AE13DE193 /* LearningReportPrivacyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportPrivacyPolicy.swift; sourceTree = "<group>"; };
@@ -264,14 +417,17 @@
 		8EA623BD3EA6EDEDEE85668C /* ContentSampleResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSampleResolver.swift; sourceTree = "<group>"; };
 		9527EC6207B6CA896ED2DF5B /* LearningReportModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LearningReportModels.swift; sourceTree = "<group>"; };
 		9646ABC650E86550A2B44F90 /* LockAndStudyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockAndStudyApp.swift; sourceTree = "<group>"; };
+		9685B8C0C15DC6C937E8FCB0 /* LockAndStudyContentReviewUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LockAndStudyContentReviewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		98737A725F68857CDF65FFD8 /* StudyContentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyContentModels.swift; sourceTree = "<group>"; };
 		99537359B9B92CCBE0D61ABE /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		9F3B4C0DCBA458EDA195FDE5 /* yojijukugo_items_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = yojijukugo_items_v1.json; sourceTree = "<group>"; };
+		A3ABAE8CE3FDA7BEF94838B3 /* ContentTrustMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentTrustMode.swift; sourceTree = "<group>"; };
 		A3D1663F496DE2C9133B28CF /* PurchaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseView.swift; sourceTree = "<group>"; };
 		A4F6CE336058F8D86FD00DE5 /* PendingUnlockRequestCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingUnlockRequestCoordinator.swift; sourceTree = "<group>"; };
 		A586C5276A160A0E68DEFDC2 /* TakkenLearningEngineV5Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenLearningEngineV5Tests.swift; sourceTree = "<group>"; };
 		A8EB6119C8F6D1123B338DD3 /* StudyExperience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudyExperience.swift; sourceTree = "<group>"; };
 		A9C0A206E3F580B0270EEEC9 /* VocabularyStudyModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyStudyModule.swift; sourceTree = "<group>"; };
+		AD8647D4F2872EF1CFF0B7E4 /* InternalContentReviewUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalContentReviewUITests.swift; sourceTree = "<group>"; };
 		AD9F67380D89054BE98C9310 /* EmergencyUnlockService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyUnlockService.swift; sourceTree = "<group>"; };
 		AEC3A0448978244375469A22 /* ManagementCodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagementCodeTests.swift; sourceTree = "<group>"; };
 		AFAAD12E85FA2D52431CB5EF /* EmergencyUnlockView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmergencyUnlockView.swift; sourceTree = "<group>"; };
@@ -280,7 +436,6 @@
 		B4A3F0F1C265434131E1347D /* TakkenFinalizationV6Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenFinalizationV6Tests.swift; sourceTree = "<group>"; };
 		B547AEE612A9D5CE29DCD992 /* ValidatedCatalogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatedCatalogStore.swift; sourceTree = "<group>"; };
 		B75A0487F6EB0087CD449B28 /* VocabularyExperience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyExperience.swift; sourceTree = "<group>"; };
-		B935717AE7484889E0EF8D31 /* takken_2026_questions_v20.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = takken_2026_questions_v20.json; sourceTree = "<group>"; };
 		BA037A666C8D37419D5FFE30 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		BA10848279A29FDC4027C45A /* study_pack_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = study_pack_catalog.json; sourceTree = "<group>"; };
 		BB950C209CD7EF2261125E6A /* LockPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockPolicy.swift; sourceTree = "<group>"; };
@@ -305,7 +460,8 @@
 		DA5A6E81E7C8D60980B8E3F2 /* manners_questions_v1.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manners_questions_v1.json; sourceTree = "<group>"; };
 		DAEF0802E477B496A5E664CD /* DeviceActivityMonitorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceActivityMonitorExtension.swift; sourceTree = "<group>"; };
 		DFCC8C7A16D005A60099F866 /* ContentPlatformScalabilityV7Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentPlatformScalabilityV7Tests.swift; sourceTree = "<group>"; };
-		E31CB05523FB9BD69FEB734D /* takken_2026_free_sample_100_v20.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = takken_2026_free_sample_100_v20.json; sourceTree = "<group>"; };
+		E1DEC4E1C6EE4A89A4E25B7E /* takken_2026_questions_v26_candidate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = takken_2026_questions_v26_candidate.json; sourceTree = "<group>"; };
+		E3FFC79F5D51E0594E064AD6 /* LockAndStudyContentReviewTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LockAndStudyContentReviewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E555E9D988204E317D236852 /* LockAndStudyShieldActionExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = LockAndStudyShieldActionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		E710BB9EA03E205FD3A89607 /* StudySessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudySessionView.swift; sourceTree = "<group>"; };
 		EA6C993937583046ED9BF8B7 /* CommerceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommerceTests.swift; sourceTree = "<group>"; };
@@ -316,6 +472,7 @@
 		F6003606B90CE0D293FA7B70 /* UnlockSessionRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnlockSessionRuntime.swift; sourceTree = "<group>"; };
 		F995DD7EF80186CA1387D082 /* TakkenExperienceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenExperienceTests.swift; sourceTree = "<group>"; };
 		FA9AA86EA31A2FE37E37EF32 /* TakkenExperience.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenExperience.swift; sourceTree = "<group>"; };
+		FD54D4162588D98B400C716B /* LockAndStudyContentReview.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LockAndStudyContentReview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE33240F1D18E090D0FB32E9 /* ContentFileValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentFileValidation.swift; sourceTree = "<group>"; };
 		FEF13C8889CFFFFE69DB2136 /* TakkenConceptMastery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TakkenConceptMastery.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -351,6 +508,7 @@
 				DFCC8C7A16D005A60099F866 /* ContentPlatformScalabilityV7Tests.swift */,
 				2D011687346BAAD9AD88BC33 /* ContentTransactionHardeningV13Tests.swift */,
 				D66ECF0AAA315C757C2D5E10 /* EmergencyUnlockTests.swift */,
+				570C599527AC6F05AA4A8C3B /* InternalContentReviewV27Tests.swift */,
 				00B9E7EC872B32CDEFE75214 /* LearningReportTests.swift */,
 				D6F235FC79B123FC718044A6 /* LearningTests.swift */,
 				D8740A31CF8244BDC71F8395 /* LockPolicyTests.swift */,
@@ -403,6 +561,9 @@
 			isa = PBXGroup;
 			children = (
 				25F8C54005832BB63AB98AD0 /* LockAndStudy.app */,
+				FD54D4162588D98B400C716B /* LockAndStudyContentReview.app */,
+				E3FFC79F5D51E0594E064AD6 /* LockAndStudyContentReviewTests.xctest */,
+				9685B8C0C15DC6C937E8FCB0 /* LockAndStudyContentReviewUITests.xctest */,
 				4039A8C47CD5D7D3D3E5FB4D /* LockAndStudyDeviceActivityMonitorExtension.appex */,
 				E555E9D988204E317D236852 /* LockAndStudyShieldActionExtension.appex */,
 				CC285D65F09CA0653D4AEB4A /* LockAndStudyShieldConfigurationExtension.appex */,
@@ -486,11 +647,14 @@
 			isa = PBXGroup;
 			children = (
 				0D7D595ED702598591489F47 /* LockAndStudy */,
+				636C32A7F8F9176486DAAC9B /* LockAndStudyContentReviewTests */,
+				65CDC62224698FD515BE2CB5 /* LockAndStudyContentReviewUITests */,
 				308E1A13ABC3509C6F391D41 /* LockAndStudyDeviceActivityMonitorExtension */,
 				F39E85EC1E70881A2DF39107 /* LockAndStudyShieldActionExtension */,
 				474EA2E3E38B55A583653C83 /* LockAndStudyShieldConfigurationExtension */,
 				09282B475B0373F6304E7D1B /* LockAndStudyTests */,
 				5AEFFC8D0214DE0EA7034938 /* LockAndStudyUITests */,
+				BC8E4D917C1AAFA52E08DD02 /* ReviewCandidates */,
 				158396AF8380758F92F95E12 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -555,6 +719,22 @@
 			path = Core;
 			sourceTree = "<group>";
 		};
+		636C32A7F8F9176486DAAC9B /* LockAndStudyContentReviewTests */ = {
+			isa = PBXGroup;
+			children = (
+				7A410585E30DF27120EDD040 /* InternalContentReviewCandidateTests.swift */,
+			);
+			path = LockAndStudyContentReviewTests;
+			sourceTree = "<group>";
+		};
+		65CDC62224698FD515BE2CB5 /* LockAndStudyContentReviewUITests */ = {
+			isa = PBXGroup;
+			children = (
+				AD8647D4F2872EF1CFF0B7E4 /* InternalContentReviewUITests.swift */,
+			);
+			path = LockAndStudyContentReviewUITests;
+			sourceTree = "<group>";
+		};
 		67F8F6E565D31168E4EB6195 /* Library */ = {
 			isa = PBXGroup;
 			children = (
@@ -602,6 +782,7 @@
 				FE33240F1D18E090D0FB32E9 /* ContentFileValidation.swift */,
 				5ED9C76653DE4320A788E36C /* ContentRepository.swift */,
 				8EA623BD3EA6EDEDEE85668C /* ContentSampleResolver.swift */,
+				A3ABAE8CE3FDA7BEF94838B3 /* ContentTrustMode.swift */,
 				6507858AE1F5D3DAA31BA51A /* ProgressMigrationService.swift */,
 				10186AD52B63C4CD875B3935 /* StudyCatalog.swift */,
 				98737A725F68857CDF65FFD8 /* StudyContentModels.swift */,
@@ -680,6 +861,7 @@
 				F578678CAD769C00603D3D6E /* AppModel.swift */,
 				3177EA014819A28B300C176E /* AppRouter.swift */,
 				3BD7630F84A8754CBF8048C2 /* DependencyContainer.swift */,
+				7782AB060B38EC5045EEE0F7 /* InternalContentReviewBanner.swift */,
 				9646ABC650E86550A2B44F90 /* LockAndStudyApp.swift */,
 				78362FCBBFB75B1257172434 /* RootView.swift */,
 			);
@@ -703,8 +885,6 @@
 				8D05A8487A9D68222CEC0AE5 /* english3000_metadata_v1.json */,
 				BA10848279A29FDC4027C45A /* study_pack_catalog.json */,
 				277A8685DD63B58B9476AD84 /* takken_2026_free_100_v1.json */,
-				E31CB05523FB9BD69FEB734D /* takken_2026_free_sample_100_v20.json */,
-				B935717AE7484889E0EF8D31 /* takken_2026_questions_v20.json */,
 				7889412D6DB09D61362CF630 /* takken2026_credits_v1.txt */,
 				39E6AEA2E412FDC3AF36B580 /* takken2026_metadata_v1.json */,
 				42D285ECB76C5343277EDC93 /* vocabulary_english3000_v1.json */,
@@ -721,6 +901,18 @@
 				5A7378A9A7ED5C8E3B63286F /* LockAndStudyTheme.swift */,
 			);
 			path = Shared;
+			sourceTree = "<group>";
+		};
+		BC8E4D917C1AAFA52E08DD02 /* ReviewCandidates */ = {
+			isa = PBXGroup;
+			children = (
+				77B941F18EC9FEF731AC574D /* study_pack_catalog_takken_v26_review.json */,
+				747AF58E199B5F89B27E1F29 /* takken_2026_free_sample_100_v26_candidate.json */,
+				E1DEC4E1C6EE4A89A4E25B7E /* takken_2026_questions_v26_candidate.json */,
+				0E05A4D74DA1F9B8FFE9F582 /* takken2026_metadata_v26_candidate.json */,
+			);
+			name = ReviewCandidates;
+			path = ContentSource/TakkenWork/ReviewCandidates;
 			sourceTree = "<group>";
 		};
 		C2604BA876E68C43664866B1 /* Platform */ = {
@@ -893,6 +1085,24 @@
 			productReference = 68D30B6EBDEE402888CEE7BC /* LockAndStudyTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		3F9F443E8A38CFD7C3B8733C /* LockAndStudyContentReviewTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CACA3D526C3478BD51F32CA5 /* Build configuration list for PBXNativeTarget "LockAndStudyContentReviewTests" */;
+			buildPhases = (
+				E302E60A6446D413516CB9E7 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5C6DBD713DC26DBC8269FB27 /* PBXTargetDependency */,
+			);
+			name = LockAndStudyContentReviewTests;
+			packageProductDependencies = (
+			);
+			productName = LockAndStudyContentReviewTests;
+			productReference = E3FFC79F5D51E0594E064AD6 /* LockAndStudyContentReviewTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		B4B663CD46124BEDD73DB9AF /* LockAndStudyUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = AD99E29738B73ED37DBE27C7 /* Build configuration list for PBXNativeTarget "LockAndStudyUITests" */;
@@ -928,6 +1138,46 @@
 			productName = LockAndStudyDeviceActivityMonitorExtension;
 			productReference = 4039A8C47CD5D7D3D3E5FB4D /* LockAndStudyDeviceActivityMonitorExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		D4A2AE59DF2AC00B0E55D671 /* LockAndStudyContentReview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B90A7953E7583853FA8D05CC /* Build configuration list for PBXNativeTarget "LockAndStudyContentReview" */;
+			buildPhases = (
+				511A940CE0610D40222F674D /* Sources */,
+				AFD72AF1A7D0B479941D4E45 /* Resources */,
+				264C5726DCB7719C9737EE3A /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7718DF6203E2BF74367BD3AA /* PBXTargetDependency */,
+				F98950FD4AEDD9F6A3D2E444 /* PBXTargetDependency */,
+				9CCF5EB5E650D256874D97E4 /* PBXTargetDependency */,
+			);
+			name = LockAndStudyContentReview;
+			packageProductDependencies = (
+			);
+			productName = LockAndStudyContentReview;
+			productReference = FD54D4162588D98B400C716B /* LockAndStudyContentReview.app */;
+			productType = "com.apple.product-type.application";
+		};
+		DAC705629E67FD340FB5F726 /* LockAndStudyContentReviewUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7796D20EFB876E5ED9B08281 /* Build configuration list for PBXNativeTarget "LockAndStudyContentReviewUITests" */;
+			buildPhases = (
+				E92BA037C7D0F5E60A72B087 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DE0991A204AE59FC1448BA35 /* PBXTargetDependency */,
+			);
+			name = LockAndStudyContentReviewUITests;
+			packageProductDependencies = (
+			);
+			productName = LockAndStudyContentReviewUITests;
+			productReference = 9685B8C0C15DC6C937E8FCB0 /* LockAndStudyContentReviewUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		DBED801591001112471D8F82 /* LockAndStudy */ = {
 			isa = PBXNativeTarget;
@@ -972,6 +1222,10 @@
 						DevelopmentTeam = BNS246HYZU;
 						ProvisioningStyle = Automatic;
 					};
+					3F9F443E8A38CFD7C3B8733C = {
+						DevelopmentTeam = BNS246HYZU;
+						ProvisioningStyle = Automatic;
+					};
 					B4B663CD46124BEDD73DB9AF = {
 						DevelopmentTeam = BNS246HYZU;
 						ProvisioningStyle = Automatic;
@@ -980,6 +1234,15 @@
 					C5D948F7874379018BE3773C = {
 						DevelopmentTeam = BNS246HYZU;
 						ProvisioningStyle = Automatic;
+					};
+					D4A2AE59DF2AC00B0E55D671 = {
+						DevelopmentTeam = BNS246HYZU;
+						ProvisioningStyle = Automatic;
+					};
+					DAC705629E67FD340FB5F726 = {
+						DevelopmentTeam = BNS246HYZU;
+						ProvisioningStyle = Automatic;
+						TestTargetID = D4A2AE59DF2AC00B0E55D671;
 					};
 					DBED801591001112471D8F82 = {
 						DevelopmentTeam = BNS246HYZU;
@@ -1002,6 +1265,9 @@
 			projectRoot = "";
 			targets = (
 				DBED801591001112471D8F82 /* LockAndStudy */,
+				D4A2AE59DF2AC00B0E55D671 /* LockAndStudyContentReview */,
+				3F9F443E8A38CFD7C3B8733C /* LockAndStudyContentReviewTests */,
+				DAC705629E67FD340FB5F726 /* LockAndStudyContentReviewUITests */,
 				C5D948F7874379018BE3773C /* LockAndStudyDeviceActivityMonitorExtension */,
 				0758A5573090B8D74E93A8EB /* LockAndStudyShieldActionExtension */,
 				34FBC548957566570DC731B8 /* LockAndStudyShieldConfigurationExtension */,
@@ -1042,8 +1308,12 @@
 			files = (
 				69B12495586EB8B946E8A800 /* LockAndStudy.storekit in Resources */,
 				E8ACB4EEC1C2750F5D61927F /* manners_questions_v1.json in Resources */,
+				CCDD790846EEDD12FDBF835C /* study_pack_catalog_takken_v26_review.json in Resources */,
 				ED86B4A43C010037484EC19C /* study_pack_catalog_v9_fixtures.json in Resources */,
+				4AD87421D76861BF15F974BE /* takken2026_metadata_v26_candidate.json in Resources */,
 				1AB3C7861EB686D334C406E5 /* takken2027_questions_v1.json in Resources */,
+				C333EA36E4D142B100DB45DE /* takken_2026_free_sample_100_v26_candidate.json in Resources */,
+				B257606797FC520B17771E23 /* takken_2026_questions_v26_candidate.json in Resources */,
 				8ED625CE7B3C1BB885E1D31C /* yojijukugo_items_v1.json in Resources */,
 				E61C0CB793E565F2748CF3FF /* yojijukugo_samples_v1.json in Resources */,
 			);
@@ -1062,10 +1332,30 @@
 				4AA867658561F145B8EA9603 /* takken2026_credits_v1.txt in Resources */,
 				B8B6AECAF7B797642B899462 /* takken2026_metadata_v1.json in Resources */,
 				65C07F72B63F9E77DC816A11 /* takken_2026_free_100_v1.json in Resources */,
-				C7CB20EB01B190520200AB00 /* takken_2026_free_sample_100_v20.json in Resources */,
-				1C0196A4055C56E7F9DB8ED1 /* takken_2026_questions_v20.json in Resources */,
 				B7BCC7D6831907F02030B2A6 /* vocabulary_english3000_v1.json in Resources */,
 				C73DA41286439F48D0BFDB0E /* vocabulary_free_sample_250_v1.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AFD72AF1A7D0B479941D4E45 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				674E3A7D458D2D844261D8EA /* Assets.xcassets in Resources */,
+				736BAAF80F3C0FABCC545D02 /* Localizable.xcstrings in Resources */,
+				8CEFB65FC20438E8B401B86E /* PrivacyInfo.xcprivacy in Resources */,
+				5EF60897C49F25D5A4DA39DB /* english3000_credits_v1.txt in Resources */,
+				24CE585B22920F9F106C5E2F /* english3000_metadata_v1.json in Resources */,
+				3CCB91DA23B0C47F39FE5D09 /* study_pack_catalog.json in Resources */,
+				9DB526C4142FD6F6432F1B51 /* study_pack_catalog_takken_v26_review.json in Resources */,
+				070BF4FD8FB1FDB336EC1740 /* takken2026_credits_v1.txt in Resources */,
+				D81301FF748BF4F1A7F9E849 /* takken2026_metadata_v1.json in Resources */,
+				57A701548A34B9866834DAC7 /* takken2026_metadata_v26_candidate.json in Resources */,
+				EA83239E929C7D05C37DBF62 /* takken_2026_free_100_v1.json in Resources */,
+				E64E1548D4CA0A3277CF18E6 /* takken_2026_free_sample_100_v26_candidate.json in Resources */,
+				CDD1F8259763F0DCD00E4E1A /* takken_2026_questions_v26_candidate.json in Resources */,
+				CB826BC36C3086D1444E84CA /* vocabulary_english3000_v1.json in Resources */,
+				5E75D78938CD58775953A239 /* vocabulary_free_sample_250_v1.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1087,10 +1377,12 @@
 				679A02622A2B180E522008B6 /* ContentFileValidation.swift in Sources */,
 				2D06E60120AEC27E118473A9 /* ContentRepository.swift in Sources */,
 				ADE75AFCF2D7F919FBFB9BEC /* ContentSampleResolver.swift in Sources */,
+				8C71B1ADE2E3370E0EC14C81 /* ContentTrustMode.swift in Sources */,
 				DB83706FBC091A56363A0ECE /* DateProvider.swift in Sources */,
 				6C273D6FE27922D7B012AACC /* DependencyContainer.swift in Sources */,
 				2DF343EB992FFA5776C46196 /* EmergencyUnlockService.swift in Sources */,
 				8C18284A7C5762212C4D66C7 /* EmergencyUnlockView.swift in Sources */,
+				C58586FDE38C4D1456692419 /* InternalContentReviewBanner.swift in Sources */,
 				2F84E5A45F98E9BB8336FF34 /* LearningDataStore.swift in Sources */,
 				73DEE204709B5F6C12961649 /* LearningModels.swift in Sources */,
 				3F1BEBE6D279229192B0A1EF /* LearningReportComponents.swift in Sources */,
@@ -1173,6 +1465,87 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		511A940CE0610D40222F674D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5DA1EBE1D03153C2887704A5 /* AppModel.swift in Sources */,
+				74ACE52EA67CBB07A6BA21C2 /* AppRouter.swift in Sources */,
+				2BF420140E380E726DB8B6E6 /* CatalogLibraryViews.swift in Sources */,
+				80BDF8568FCC6217BD62C3BC /* CertificationQuestionWire.swift in Sources */,
+				3E54DE76651133029354DD2D /* Collection+Safe.swift in Sources */,
+				34FFEEB8677199CB459A90F6 /* CommerceModels.swift in Sources */,
+				E5ABBE45600C92B7DFB45827 /* ContentAccessService.swift in Sources */,
+				10004FB917863AE1A1AA0DAA /* ContentAssetSource.swift in Sources */,
+				827805DD955D8F7A0314496D /* ContentFileValidation.swift in Sources */,
+				D04EBA395904F700D671EB75 /* ContentRepository.swift in Sources */,
+				A0C95CA377A05A39A27D4128 /* ContentSampleResolver.swift in Sources */,
+				E718A6914B336D7DCCF0AB99 /* ContentTrustMode.swift in Sources */,
+				BB98C73F4B5A2527886A23EB /* DateProvider.swift in Sources */,
+				C5BF47DDAE05710E7D1C409B /* DependencyContainer.swift in Sources */,
+				2993FBEA3C54AF64F6C7924B /* EmergencyUnlockService.swift in Sources */,
+				90DE277003363629C97ABABD /* EmergencyUnlockView.swift in Sources */,
+				7BF7EE5B2DBAF38F37CB2193 /* InternalContentReviewBanner.swift in Sources */,
+				4BFD8591AD09907231868E2F /* LearningDataStore.swift in Sources */,
+				B78FFF9D7B66E937DD643082 /* LearningModels.swift in Sources */,
+				F9D211117D7867DF7D89DF1C /* LearningReportComponents.swift in Sources */,
+				B86DDEB52F5A507948BDC489 /* LearningReportEntryCard.swift in Sources */,
+				B10740754A33CDDBC8954AE5 /* LearningReportModels.swift in Sources */,
+				3C5B1D4AAD783AC213B32624 /* LearningReportPeriod.swift in Sources */,
+				BB6A6356090731467327F513 /* LearningReportPrivacyPolicy.swift in Sources */,
+				C0CFEF218B88712F9B53E2C1 /* LearningReportSampleView.swift in Sources */,
+				EE381714EED6FBDD6507B139 /* LearningReportService.swift in Sources */,
+				571635F97B14256C4B6D0432 /* LearningReportShareService.swift in Sources */,
+				FEC27624A504B96B3F2D7686 /* LearningReportView.swift in Sources */,
+				B63836E95C78A2E3B7B5A921 /* LearningReportViewModel.swift in Sources */,
+				CD9FDEB958F981DE24792E13 /* LegacyMigrationModels.swift in Sources */,
+				58BC297D680AA1DD94C85DD2 /* LegacyUITestReportFixtures.swift in Sources */,
+				5AFFDCE00B17E2A93E0A2C54 /* LegacyUnlockBundleMigration.swift in Sources */,
+				CE3E30BEF67EB6DFBED2DD8F /* LegacyUnlockModels.swift in Sources */,
+				B7FA0FFD7E5F39719D6C7C31 /* LockAndStudyApp.swift in Sources */,
+				2F1B8B41A03C907750BF2786 /* LockAndStudySharedConstants.swift in Sources */,
+				39E3EB3F049BD0FBDB17D458 /* LockAndStudyTheme.swift in Sources */,
+				5581998C550E19F57FF5FE2E /* LockPolicy.swift in Sources */,
+				3872B5BE8B60B461E4BB348B /* LockPolicyStore.swift in Sources */,
+				5667E388594F547091A15C32 /* ManagementCodeStore.swift in Sources */,
+				6D0651D2E1B73EE1A82B78C4 /* NotificationService.swift in Sources */,
+				7017C00D9647B932FB738F53 /* OnboardingFlowView.swift in Sources */,
+				7F5C8AD5EE3A50B7C6003B3E /* PendingPreviewStore.swift in Sources */,
+				7299E9EF2643370640D8E9A5 /* PendingUnlockRequestCoordinator.swift in Sources */,
+				C0DABE084B418F8E1590AACC /* PlatformLibraryView.swift in Sources */,
+				300CDB4FFF81F2A0B69A628A /* PlatformMigrationV9.swift in Sources */,
+				EA2C650725892DD146577719 /* PolicyProtectionService.swift in Sources */,
+				DCF47B2AC3A894B10884BE04 /* ProgressMigrationService.swift in Sources */,
+				5A82BAC378A9145A371B10C8 /* PurchaseView.swift in Sources */,
+				5860C184985A1340E8BF952B /* RootView.swift in Sources */,
+				87AD74B4DA81A1AE8279B4E6 /* ScreenTimeLockService.swift in Sources */,
+				121D728D470AF18F5DD7F1AA /* SettingsView.swift in Sources */,
+				79F808ECE5D4EBBDE477C1FB /* SpeechService.swift in Sources */,
+				15A2B2983814E97AF07AB28F /* StoreKitCommerceService.swift in Sources */,
+				5CEECE713731F3B0F15C0002 /* StudyCatalog.swift in Sources */,
+				4815B7FB935221CA85B9F2F5 /* StudyContentModels.swift in Sources */,
+				2CDC9248815986D656AA5A07 /* StudyExperience.swift in Sources */,
+				ECFD39F1DDE97AADACB3BF2D /* StudyExperienceHostView.swift in Sources */,
+				4228923FE32A085CAAEA2A9B /* StudyMaterialSelectionView.swift in Sources */,
+				E3380AE16605F16E2E0C474B /* StudySessionView.swift in Sources */,
+				8F12234BAD2B4C9CB7956E89 /* TakkenConceptMastery.swift in Sources */,
+				4F8889E9FB1561FE8ECFDAAF /* TakkenExperience.swift in Sources */,
+				F095880CF2904D8F1AD522CA /* TakkenLearningEngine.swift in Sources */,
+				D732CFC724B3A2848A8C6FEE /* TakkenModels.swift in Sources */,
+				7705D0E81AB8F301511EB363 /* TakkenReportProvider.swift in Sources */,
+				0FEA3A944510D6895BEDFFC3 /* TakkenStudyModule.swift in Sources */,
+				9F8BC37A9176F490A6FB6E2D /* TakkenViews.swift in Sources */,
+				A6DA9F91599476B3CABFD4EE /* UnlockSessionRuntime.swift in Sources */,
+				A3E8C5534C23CBED02001F06 /* ValidatedCatalogStore.swift in Sources */,
+				8DF44E7AF8D24A1BFCEDC599 /* VerifiedContentLoader.swift in Sources */,
+				CDE6A69FCC21CE8A02523C63 /* VocabularyExperience.swift in Sources */,
+				7CF658D4D09374C6B658EF22 /* VocabularyModels.swift in Sources */,
+				ED9A887D3544581EC231331C /* VocabularyReportProvider.swift in Sources */,
+				9CDFC0C4D1746BE7886D79E6 /* VocabularyStudyModule.swift in Sources */,
+				D7DA878EEB0E0AA4A752086A /* VocabularyViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		722574A4074BF28445DACD1F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1182,6 +1555,7 @@
 				499ADC06D2F29FC9A1D4C0EC /* ContentPlatformScalabilityV7Tests.swift in Sources */,
 				D2639CC49D1A24171EE620CD /* ContentTransactionHardeningV13Tests.swift in Sources */,
 				1C58FDF3D58F841B64DEB956 /* EmergencyUnlockTests.swift in Sources */,
+				520E711492EAA32F99264829 /* InternalContentReviewV27Tests.swift in Sources */,
 				2B6282594D8C95709EFF2449 /* LearningReportTests.swift in Sources */,
 				D82E16DEB2D0B9DC7C0FAF09 /* LearningTests.swift in Sources */,
 				871FCCE7D366B40637AA6085 /* LockPolicyTests.swift in Sources */,
@@ -1219,6 +1593,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E302E60A6446D413516CB9E7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				86DCA4621409E293AFA99782 /* InternalContentReviewCandidateTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E92BA037C7D0F5E60A72B087 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3B980532D91E43EF5A789519 /* InternalContentReviewUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1232,6 +1622,16 @@
 			target = 34FBC548957566570DC731B8 /* LockAndStudyShieldConfigurationExtension */;
 			targetProxy = 4AD670903C4B32184A44D51E /* PBXContainerItemProxy */;
 		};
+		5C6DBD713DC26DBC8269FB27 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D4A2AE59DF2AC00B0E55D671 /* LockAndStudyContentReview */;
+			targetProxy = 94FD98BDA5AE135EF323969D /* PBXContainerItemProxy */;
+		};
+		7718DF6203E2BF74367BD3AA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 34FBC548957566570DC731B8 /* LockAndStudyShieldConfigurationExtension */;
+			targetProxy = CC11A8E1166F20EE5730C8D7 /* PBXContainerItemProxy */;
+		};
 		795DA76E2A604F579BD33C2C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = DBED801591001112471D8F82 /* LockAndStudy */;
@@ -1242,14 +1642,46 @@
 			target = DBED801591001112471D8F82 /* LockAndStudy */;
 			targetProxy = 1C138055954C677AE40C1A54 /* PBXContainerItemProxy */;
 		};
+		9CCF5EB5E650D256874D97E4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C5D948F7874379018BE3773C /* LockAndStudyDeviceActivityMonitorExtension */;
+			targetProxy = 31C9092EFBE929A4B0B12738 /* PBXContainerItemProxy */;
+		};
+		DE0991A204AE59FC1448BA35 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D4A2AE59DF2AC00B0E55D671 /* LockAndStudyContentReview */;
+			targetProxy = A0F19E1F1653626EE80A08F7 /* PBXContainerItemProxy */;
+		};
 		F76668FA74D343EA503D89EA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C5D948F7874379018BE3773C /* LockAndStudyDeviceActivityMonitorExtension */;
 			targetProxy = 8656A382D65B0A7F4233CA97 /* PBXContainerItemProxy */;
 		};
+		F98950FD4AEDD9F6A3D2E444 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0758A5573090B8D74E93A8EB /* LockAndStudyShieldActionExtension */;
+			targetProxy = ACFD4E9BC0D783566165BBEC /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		1078987C88816531C814E465 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ameneko.lockandstudy.contentreview.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LockAndStudyContentReview;
+			};
+			name = Release;
+		};
 		16FF9C6DC162B4375D264B3A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1400,6 +1832,23 @@
 			};
 			name = Release;
 		};
+		6E5D665D54C754ED31821C81 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ameneko.lockandstudy.contentreview.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LockAndStudyContentReview.app/LockAndStudyContentReview";
+			};
+			name = Debug;
+		};
 		919073D75DD98CC2555CD1EC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1450,6 +1899,36 @@
 				PRODUCT_NAME = LockAndStudyShieldActionExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		9D951FD7BDF4AB517B00015C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LockAndStudy/LockAndStudy.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "ロックンスタディ Internal Review";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_LockAndStudyPrivacyPolicyURL = "$(PRIVACY_POLICY_URL)";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ameneko.lockandstudy;
+				PRODUCT_MODULE_NAME = LockAndStudyContentReview;
+				PRODUCT_NAME = LockAndStudyContentReview;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) LOCKANDSTUDY_INTERNAL_CONTENT_REVIEW";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1517,6 +1996,23 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
+		};
+		C7ED4DC0CB02661FFA76649B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ameneko.lockandstudy.contentreview.tests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LockAndStudyContentReview.app/LockAndStudyContentReview";
+			};
+			name = Release;
 		};
 		EE8C7156CFDA183912AF41B8 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -1617,6 +2113,53 @@
 			};
 			name = Release;
 		};
+		F8E089348FBBC2E5B131ECB3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LockAndStudy/LockAndStudy.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "ロックンスタディ Internal Review";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_LockAndStudyPrivacyPolicyURL = "$(PRIVACY_POLICY_URL)";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ameneko.lockandstudy;
+				PRODUCT_MODULE_NAME = LockAndStudyContentReview;
+				PRODUCT_NAME = LockAndStudyContentReview;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) LOCKANDSTUDY_INTERNAL_CONTENT_REVIEW";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FA0D09995EA2CA7E7692D467 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.ameneko.lockandstudy.contentreview.uitests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = LockAndStudyContentReview;
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1656,6 +2199,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
+		7796D20EFB876E5ED9B08281 /* Build configuration list for PBXNativeTarget "LockAndStudyContentReviewUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA0D09995EA2CA7E7692D467 /* Debug */,
+				1078987C88816531C814E465 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		9A78AEF7DA0802DFCDF855F1 /* Build configuration list for PBXNativeTarget "LockAndStudyShieldConfigurationExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1674,11 +2226,29 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
+		B90A7953E7583853FA8D05CC /* Build configuration list for PBXNativeTarget "LockAndStudyContentReview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F8E089348FBBC2E5B131ECB3 /* Debug */,
+				9D951FD7BDF4AB517B00015C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		CA80B681F29BF7F47DDFCA74 /* Build configuration list for PBXNativeTarget "LockAndStudyTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3449793B541037AE9FA18BCF /* Debug */,
 				EE8C7156CFDA183912AF41B8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CACA3D526C3478BD51F32CA5 /* Build configuration list for PBXNativeTarget "LockAndStudyContentReviewTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6E5D665D54C754ED31821C81 /* Debug */,
+				C7ED4DC0CB02661FFA76649B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

@@ -13,6 +13,7 @@ from content_checks import (
     verify_privacy,
     verify_storekit,
 )
+from content_review_checks import production_boundary_errors
 
 
 errors = (
@@ -23,5 +24,6 @@ errors = (
     + verify_app_icon()
     + check_legacy_identifiers()
     + release_safety()
+    + production_boundary_errors()
 )
 raise SystemExit(report("Release readiness", errors))

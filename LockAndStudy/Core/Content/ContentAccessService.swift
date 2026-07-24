@@ -15,7 +15,7 @@ struct ContentAccessService: Sendable {
     for prompt: StudyPrompt,
     manifest: StudyPackManifest,
     entitlement: CommerceEntitlementSnapshot,
-    internalTest: Bool = false,
+    internalTest: Bool = InternalContentReviewBuild.grantsFullContentAccess,
     now: Date = Date()
   ) -> ContentAccessDecision {
     decision(
@@ -30,11 +30,13 @@ struct ContentAccessService: Sendable {
     isFreeSample: Bool,
     manifest: StudyPackManifest,
     entitlement: CommerceEntitlementSnapshot,
-    internalTest: Bool = false,
+    internalTest: Bool = InternalContentReviewBuild.grantsFullContentAccess,
     now: Date = Date()
   ) -> ContentAccessDecision {
     if isFreeSample { return .init(isAllowed: true, reason: .freeSample) }
-    if internalTest { return .init(isAllowed: true, reason: .internalTest) }
+    if internalTest && InternalContentReviewBuild.isEnabled {
+      return .init(isAllowed: true, reason: .internalTest)
+    }
     if let owned = entitlement.ownedPacks.first(where: { $0.packID == manifest.id }) {
       switch owned.source {
       case .familySharing: return .init(isAllowed: true, reason: .familySharing)

@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+
+cd "$(dirname "$0")/.."
+PYTHONDONTWRITEBYTECODE=1 python3 -c '
+from scripts.content_review_checks import (
+    production_boundary_errors,
+    report,
+    review_boundary_errors,
+)
+raise SystemExit(report(
+    "Content review boundaries",
+    production_boundary_errors() + review_boundary_errors(),
+))
+'

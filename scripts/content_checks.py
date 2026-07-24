@@ -632,8 +632,7 @@ def validate_content() -> list[str]:
         errors.append("free English official ID digest mismatch")
 
     takken_manifest = by_id.get("takken2026.v1", {})
-    takken_quality_profile = takken_manifest.get("contentQualityProfile")
-    if takken_quality_profile == "takken-v2":
+    if takken_manifest.get("contentQualityProfile") == "takken-v2":
         question_components = [
             component
             for component in takken_manifest.get("components", [])
@@ -659,49 +658,6 @@ def validate_content() -> list[str]:
         if len(active_takken) != takken_manifest.get("expectedItemCount"):
             errors.append("released Takken v2 active total differs from expectedItemCount")
         errors.extend(validate_takken_v2(active_takken, takken_manifest))
-    elif takken_quality_profile == "takken-v26-distinct-variant-review-candidate":
-        question_components = [
-            component
-            for component in takken_manifest.get("components", [])
-            if component.get("contentSchemaID") == "certification.questions.v1"
-        ]
-        descriptors = [
-            descriptor
-            for component in question_components
-            for descriptor in component.get("contentFiles", [])
-        ]
-        takken = []
-        for descriptor in descriptors:
-            value = load_json(RELEASED / descriptor.get("path", ""))
-            if isinstance(value, list):
-                takken.extend(value)
-        if len(takken) != 1_000 or takken_manifest.get("expectedItemCount") != 1_000:
-            errors.append("Takken v26 candidate must contain exactly 1,000 questions")
-        if takken_manifest.get("saleReady") is not False:
-            errors.append("Takken v26 candidate saleReady must remain false")
-        if any(item.get("reviewStatus") != "ai_review_candidate" for item in takken):
-            errors.append("Takken v26 candidate contains a promoted reviewStatus")
-        if any(any((item.get("legalReviewChecklist") or {}).values()) for item in takken):
-            errors.append("Takken v26 candidate contains an approved legal-review check")
-        if any(item.get("isPlaceholder") is not False for item in takken):
-            errors.append("Takken v26 candidate contains a placeholder")
-        takken_ids = [item.get("id") for item in takken]
-        if len(takken_ids) != len(set(takken_ids)):
-            errors.append("duplicate Takken v26 candidate item ID")
-        sample_path = takken_manifest.get("sampleDefinition", {}).get("catalogFile")
-        sample_document = load_json(RELEASED / sample_path) if sample_path else {}
-        sample_items = (
-            sample_document.get("questions", [])
-            if isinstance(sample_document, dict)
-            else []
-        )
-        sample_ids = [item.get("id") for item in sample_items]
-        if (
-            len(sample_ids) != 100
-            or len(sample_ids) != len(set(sample_ids))
-            or not set(sample_ids).issubset(set(takken_ids))
-        ):
-            errors.append("Takken v26 fixed free sample must be 100 unique full-pack items")
     else:
         takken = load_json(RELEASED / "takken_2026_free_100_v1.json")
         if len(takken) != 100 or takken_manifest.get("expectedItemCount") != 100:
@@ -902,19 +858,11 @@ def audit_takken_v14() -> list[str]:
         (pack for pack in snapshot.get("packs", []) if pack.get("id") == "takken2026.v1"),
         {},
     )
-    quality_profile = takken_manifest.get("contentQualityProfile")
-    expected_count = (
-        1_000
-        if quality_profile == "takken-v26-distinct-variant-review-candidate"
-        else 100
-    )
-    if takken_manifest.get("expectedItemCount") != expected_count:
-        errors.append(
-            f"Takken Release count differs from the {quality_profile or 'legacy'} baseline"
-        )
+    if takken_manifest.get("expectedItemCount") != 100:
+        errors.append("Takken Release count changed before v14 human-review completion")
     if takken_manifest.get("saleReady") is not False:
         errors.append("Takken saleReady must remain false before all paid content is reviewed")
-    if quality_profile == "takken-v2":
+    if takken_manifest.get("contentQualityProfile") == "takken-v2":
         errors.append("Takken v2 quality profile was declared before reviewed content was released")
 
     release_paths = {

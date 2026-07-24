@@ -48,12 +48,21 @@ struct ContentFileValidatorRegistry: Sendable {
   }
 
   static let standard = ContentFileValidatorRegistry(
-    validators: [
-      FlashcardItemsV1Validator(),
-      CertificationQuestionsV1Validator(),
-      SampleIndexV1Validator(),
-    ],
-    packageValidators: [CertificationQuestionsV1PackageValidator()])
+    trustMode: .production)
+
+  static func configured(trustMode: ContentTrustMode) -> ContentFileValidatorRegistry {
+    ContentFileValidatorRegistry(
+      validators: [
+        FlashcardItemsV1Validator(),
+        CertificationQuestionsV1Validator(),
+        SampleIndexV1Validator(),
+      ],
+      packageValidators: [CertificationQuestionsV1PackageValidator(trustMode: trustMode)])
+  }
+
+  private init(trustMode: ContentTrustMode) {
+    self = Self.configured(trustMode: trustMode)
+  }
 }
 
 struct ContentPackageValidator: Sendable {
@@ -157,6 +166,11 @@ struct CertificationQuestionsV1Validator: ContentFileValidating {
 
 struct CertificationQuestionsV1PackageValidator: ContentSchemaPackageValidating {
   let schemaID: ContentSchemaID = .certificationQuestionsV1
+  let trustMode: ContentTrustMode
+
+  init(trustMode: ContentTrustMode = .production) {
+    self.trustMode = trustMode
+  }
 
   func validate(
     manifest: StudyPackManifest,
@@ -168,7 +182,7 @@ struct CertificationQuestionsV1PackageValidator: ContentSchemaPackageValidating 
     }
     let decoder = CertificationQuestionWireDecoder()
     let questions = try files.flatMap { try decoder.decode($0.data) }
-    _ = try CertificationQuestionPackagePolicy().validatedActiveQuestions(
+    _ = try CertificationQuestionPackagePolicy(trustMode: trustMode).validatedActiveQuestions(
       questions,
       manifest: manifest,
       packageRoot: packageRoot)
@@ -191,6 +205,11 @@ private enum JSONContentValidation {
   static func items(in data: Data) throws -> [[String: Any]] {
     let object = try JSONSerialization.jsonObject(with: data)
     if let values = object as? [[String: Any]] { return values }
+    if let dictionary = object as? [String: Any],
+      let questions = dictionary["questions"] as? [[String: Any]]
+    {
+      return questions
+    }
     if let dictionary = object as? [String: Any],
       let levels = dictionary["levels"] as? [[String: Any]]
     {
